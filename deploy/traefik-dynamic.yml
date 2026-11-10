@@ -1,0 +1,19 @@
+# 已部署到 Traefik 主机 192.168.66.10 的 /etc/traefik/conf/deskpal.yml。
+# 证书用 tls.yml 里 alidns 签的 *.hafuhafu.cn 泛域名证书，这里不需要 certResolver。
+http:
+  routers:
+    # 包括 SignalR 的 /hubs/presence（WebSocket），Traefik 默认就能转发。
+    deskpal:
+      rule: "Host(`deskpal.hafuhafu.cn`)"
+      entryPoints:
+        - websecure
+        - websecure-alt
+      service: deskpal
+      tls: {}
+
+  services:
+    deskpal:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: "http://192.168.66.5:18820"

@@ -12,13 +12,13 @@
 
 ## 2. Traefik
 
-Traefik 在另一台主机上，用 file provider 转发到上面发布的端口。参考 `traefik-dynamic.example.yml`，替换域名、上游地址和 entryPoint 名称后放进 Traefik 的动态配置目录。SignalR 的 WebSocket 不需要额外配置。
+Traefik 在 192.168.66.10 上，用 file provider 把 `deskpal.hafuhafu.cn`（443 和 36443 两个入口）转发到 `192.168.66.5:18820`。配置是 `traefik-dynamic.yml`，已放在 `/etc/traefik/conf/deskpal.yml`。证书用 Traefik 已有的 `*.hafuhafu.cn` 泛域名证书（DNS challenge），SignalR 的 WebSocket 不需要额外配置。
 
 ## 3. 客户端
 
 客户端安装包由 `.github/workflows/ci.yml` 产出：每次推送都会生成 Actions artifact `DeskPal-win-x64`，打 `v*` 标签时同时挂到 GitHub Release。解压后直接运行 `DeskPal.exe`，不需要安装 .NET。
 
-登录窗口的“服务器地址”填 Traefik 对外的地址，包括端口，例如 `https://deskpal.example.com:36443`。
+登录窗口的“服务器地址”默认是 `https://deskpal.hafuhafu.cn:36443`，一般不用改。本地开发时改成 `http://localhost:5180`。
 
 ## 数据和配置
 

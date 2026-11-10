@@ -7,7 +7,7 @@ namespace DeskPal.Client.Services;
 
 public sealed class AppSettings
 {
-    public string ServerUrl { get; set; } = "http://localhost:5180";
+    public string ServerUrl { get; set; } = "https://deskpal.hafuhafu.cn:36443";
     public Guid UserId { get; set; }
     public string? UserName { get; set; }
     public string? DisplayName { get; set; }

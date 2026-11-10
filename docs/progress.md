@@ -38,6 +38,7 @@
 | `SetWinEventHook` 事件驱动 | 每秒轮询 `GetForegroundWindow` | 更简单，不依赖消息循环；开销可以忽略 |
 | Windows Toast 通知 | 托盘气泡 | 少一个依赖；不需要注册 AppUserModelID |
 | 内置规则按增量更新 | 版本号不同就全量下载 | 规则只有几百条，全量下载更简单 |
+| 前置 Caddy 自动配置 HTTPS | 用已有的 Traefik（DNS challenge 泛域名证书），对外地址 `https://deskpal.hafuhafu.cn:36443` | 用户已有 Traefik；运营商封了 80/443 |
 | 端口 | 本地开发用 5180 | 5284 被 QQ 占用 |
 | 数据库目录 `data/` | `storage/` | Windows 不区分大小写，会和源码目录 `Data/` 冲突 |
 
@@ -48,3 +49,4 @@
 | 2026-11-10 | 第一期原型完成：Server、客户端、测试、部署文件 |
 | 2026-11-10 | 增加 AGENTS.md、`.cursor/rules`、`.cursor/skills`、`docs/` |
 | 2026-11-10 | 部署改为 GHCR 镜像 + Portainer Stack + 已有 Traefik，去掉 Caddy；容器内数据库路径改为 `/data/deskpal.db`；Server 启动时按连接串创建数据库目录；增加 GitHub Actions |
+| 2026-11-10 | 客户端默认服务器地址改为 `https://deskpal.hafuhafu.cn:36443`；Traefik 新增 `deskpal.yml` 路由 |
