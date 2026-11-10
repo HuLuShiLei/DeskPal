@@ -1,0 +1,76 @@
+# DeskPal
+
+Windows 状态共享客户端：同一 Room 的成员实时看到对方在忙、开会还是摸鱼（以及摸鱼在干什么）。不截图，只采集前台应用、浏览器域名、空闲、锁屏、麦克风占用、媒体播放这几类信号，在本机分类、按 Room 的隐私设置过滤后，再通过 SignalR 推送。
+
+当前处于**第一期原型**：两人 Room。设计按多人 Room 和后续游戏化（类似 Steam 上 Bongo Cat 的“打字攒道具”）预留了扩展点。
+
+对用户用中文，产品术语（Room、Room 成员、Presence、Envelope）保持英文。界面文案和 Server 返回的错误信息用中文。
+
+## 先读什么
+
+| 要做的事 | 先读 |
+|---|---|
+| 了解整体设计、协议、数据模型 | `docs/architecture.md` |
+| 已定的口径、做到哪了、偏离 plan 的地方 | `docs/progress.md` |
+| 下一步做什么 | `docs/roadmap.md` |
+| 已知限制和技术债 | `docs/known-issues.md` |
+| 怎么开新对话继续开发 | `docs/vibe-coding-guide.md` |
+| 已确认的原始 plan | `docs/plan-v1.md` |
+
+## 项目结构
+
+```
+src/DeskPal.Shared/       Envelope、MessageTypes、状态枚举、DTO、RulePattern（Server 和客户端共用）
+src/DeskPal.Server/       ASP.NET Core：Features/{Auth,Rooms,Presence,Rules}、Data（EF Core + SQLite + 迁移）
+src/DeskPal.Client.Core/  纯逻辑，无 Windows 依赖：事件总线、分层分类器、状态判定、防抖、隐私过滤、文案
+src/DeskPal.Client/       WPF 托盘程序：Collectors、Native、Services、ViewModels、Views
+tests/DeskPal.Tests/      xUnit：Client.Core 逻辑、RoomService、PresenceHub 集成测试
+.github/workflows/        ci（测试 + 客户端 exe）、docker（Server 镜像推 GHCR）
+deploy/                   Dockerfile.server、Portainer stack.yml、Traefik 动态配置示例、部署说明
+```
+
+## 常用命令
+
+```powershell
+dotnet build DeskPal.slnx
+dotnet test tests/DeskPal.Tests
+cd src/DeskPal.Server; dotnet run            # http://localhost:5180
+dotnet run --project src/DeskPal.Client      # 本机客户端
+dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/Migrations
+```
+
+- `dotnet-ef` 是本地工具（`dotnet-tools.json`），新机器先执行 `dotnet tool restore`。
+- 根目录 `nuget.config` 只保留 nuget.org。本机全局配置里的公司源在当前网络下连不上，会让还原卡住，不要删这个文件。
+- 开发端口是 5180。默认的 5284 被 QQ 占用。
+- 改完代码至少跑 `dotnet build` 和 `dotnet test`。动了采集、Hub 或界面，再按 skill `deskpal-e2e-check` 做一次端到端自检。
+
+## 硬约束
+
+1. **不截图、不装键盘钩子、不注入、不提权。** 客户端以普通用户权限运行。后期游戏化如果要统计按键，只能用 Raw Input 计次数，不读按键内容。
+2. **原始窗口标题和媒体标题不离开本机**，除非该 Room 成员把对应类别的隐私级别设为“显示详情”。上报前必须经过 `PrivacyFilter.Apply`。
+3. **Server 只按 `Envelope.Type` 和 `RoomId` 路由，不解析 `Payload`。** 这是为以后做端到端加密（`Enc` 字段）留的口子。Server 自己生成的消息（离线、Room 事件）例外。
+4. **成员的最新状态只存在 Server 内存里**（`PresenceStore`），不写数据库。数据库只存账号、Room、成员关系、邀请码、隐私设置和规则。
+5. **数据模型按 Room 设计，不按“一对”设计。** 人数上限来自配置，不要在代码里写死 2。
+6. **Room 成员关系变化后，必须调用 `RoomNotifier` 同步 SignalR Group。** 否则退出 Room 的人还会继续收到消息。
+7. Server 运行时目录叫 `storage/`，源码目录叫 `Data/`。Windows 路径不区分大小写，不要把数据库目录改回 `data`。
+8. 默认不 commit、不 push。
+
+## Windows 写文件
+
+这台机器上 Write/StrReplace 工具可能写出 UTF-16。写文件按用户级 skill `write-file-windows` 来：`[System.IO.File]::WriteAllText` 加无 BOM 的 UTF-8，写完检查 NUL 字节数为 0。
+
+临时文件放 `.local/tmp/<用途>/`（已加入 `.gitignore`），用完删除。
+
+## 项目 skill
+
+| skill | 什么时候用 |
+|---|---|
+| `deskpal-e2e-check` | 本机启动 Server、客户端和模拟成员做端到端自检 |
+| `deskpal-add-message-type` | 新增一种实时消息（例如摸鱼同步提醒、游戏事件） |
+| `deskpal-add-signal` | 新增一种采集信号或采集器 |
+| `deskpal-db-change` | 新增实体、字段，生成 EF Core 迁移 |
+| `deskpal-builtin-rules` | 增删改内置分类规则库 |
+
+## 项目 rule
+
+`.cursor/rules/` 下的 rule 按路径自动生效：`server`（Server）、`shared-protocol`（Shared 协议兼容）、`client-collectors`（采集器红线）、`client-core`（分类、状态、防抖语义）、`wpf-ui`（界面）、`builtin-rules-json`（内置规则库）。

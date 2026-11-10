@@ -1,0 +1,40 @@
+# 构建上下文是仓库根目录：
+#   docker build -f deploy/Dockerfile.server -t deskpal-server .
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+# 先只拷工程文件，让 restore 这一层能命中缓存。
+COPY nuget.config ./
+COPY src/DeskPal.Shared/DeskPal.Shared.csproj src/DeskPal.Shared/
+COPY src/DeskPal.Server/DeskPal.Server.csproj src/DeskPal.Server/
+RUN dotnet restore src/DeskPal.Server/DeskPal.Server.csproj
+
+COPY src/DeskPal.Shared/ src/DeskPal.Shared/
+COPY src/DeskPal.Server/ src/DeskPal.Server/
+RUN dotnet publish src/DeskPal.Server/DeskPal.Server.csproj -c Release -o /app --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+
+# HEALTHCHECK 要有个 HTTP 客户端，aspnet 镜像里没带。
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY --from=build /app ./
+
+ENV ASPNETCORE_URLS=http://+:8080 \
+    ConnectionStrings__Default="Data Source=/data/deskpal.db"
+
+# SQLite 文件放在卷里，容器重建不丢账号和 Room。
+RUN mkdir -p /data && chown -R $APP_UID /data
+
+USER $APP_UID
+VOLUME /data
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD curl -fsS http://127.0.0.1:8080/health || exit 1
+
+ENTRYPOINT ["dotnet", "DeskPal.Server.dll"]

@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DeskPal.Client.Core/DeskPal.Client.Core.csproj" />
+    <Project Path="src/DeskPal.Client/DeskPal.Client.csproj" />
+    <Project Path="src/DeskPal.Server/DeskPal.Server.csproj" />
+    <Project Path="src/DeskPal.Shared/DeskPal.Shared.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DeskPal.Tests/DeskPal.Tests.csproj" />
+  </Folder>
+</Solution>

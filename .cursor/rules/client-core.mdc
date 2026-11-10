@@ -1,0 +1,20 @@
+---
+description: DeskPal.Client.Core 纯逻辑的约定：无 Windows 依赖、改动必须有测试、分类和防抖的语义
+globs: src/DeskPal.Client.Core/**
+alwaysApply: false
+---
+
+# Client.Core 纯逻辑
+
+- 目标框架 `net10.0`，不引用 WPF、WinRT、`Microsoft.Win32`。需要系统信息的，由采集器做成 `ActivitySignal` 传进来。
+- 每个行为改动都要在 `tests/DeskPal.Tests` 补或改测试。测试数据用 `TestData.App(...)` 和 `TestData.Browser(...)`。
+
+## 必须保持的语义
+
+- **分类顺序**：个人规则 → Room 规则 → 内置规则 → 推测 → `Other`。同一层里，浏览器先按域名，再按标题关键词，最后按进程名；非浏览器只按进程名。
+- **域名匹配取最具体的**：`console.aws.amazon.com` 命中 `aws.amazon.com`（Work），不是 `amazon.com`（Shopping）。
+- **标题关键词只对浏览器生效**，避免把记事本里的“淘宝订单.txt”算成购物。
+- **识别不出来的归为 `Other`，按“忙”处理**，不要误报摸鱼。
+- **状态优先级**：暂停分享 → 手动状态 → 锁屏 → 麦克风占用（开会）→ 空闲（全屏播放视频时除外）→ 分类结果。
+- **防抖**：新状态要稳定 `StableSeconds` 才提交，`Since` 取开始出现的时刻。暂停、手动状态、锁屏的进入和退出都立即提交。只改了详情的，按同样的间隔限频。
+- **隐私过滤**：`StateOnly` 只发状态；`Category` 加上类别和应用名；`Detail` 再加详情。没有类别的状态（暂停、锁屏、离开）不带应用名和详情。

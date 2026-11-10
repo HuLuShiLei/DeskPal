@@ -1,0 +1,19 @@
+# 放到 Traefik 的 file provider 目录。替换域名、上游内网 IP 和端口、HTTPS entryPoint 名称。
+# SignalR 的 WebSocket（/hubs/presence）Traefik 默认就能转发，不需要额外配置。
+
+http:
+  routers:
+    deskpal:
+      rule: "Host(`deskpal.example.com`)"
+      entryPoints:
+        - websecure
+      service: deskpal
+      # 已配置 tls.stores.default 时使用空对象；否则改为 certResolver。
+      tls: {}
+
+  services:
+    deskpal:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: "http://192.168.66.5:18820"

@@ -1,0 +1,73 @@
+using DeskPal.Server.Common;
+using DeskPal.Server.Features.Rooms;
+using DeskPal.Shared.Messaging;
+using DeskPal.Shared.Presence;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+
+namespace DeskPal.Server.Features.Presence;
+
+[Authorize]
+public sealed class PresenceHub(RoomService rooms, ConnectionRegistry connections, PresenceStore store, TimeProvider time)
+    : Hub<IPresenceClient>
+{
+    public override async Task OnConnectedAsync()
+    {
+        var userId = Context.User!.GetUserId();
+        connections.Add(userId, Context.ConnectionId);
+
+        foreach (var roomId in await rooms.GetRoomIdsForUserAsync(userId))
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, RoomNotifier.GroupName(roomId));
+            foreach (var envelope in store.GetRoom(roomId).Where(e => e.SenderId != userId))
+            {
+                await Clients.Caller.Receive(envelope);
+            }
+        }
+
+        await base.OnConnectedAsync();
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        var userId = Context.User!.GetUserId();
+        if (connections.Remove(userId, Context.ConnectionId))
+        {
+            var now = time.GetUtcNow();
+            foreach (var roomId in await rooms.GetRoomIdsForUserAsync(userId))
+            {
+                var offline = Envelope.Create(MessageTypes.PresenceUpdate, roomId, PresenceSnapshot.Offline(now)) with
+                {
+                    SenderId = userId,
+                    Ts = now,
+                };
+                store.Set(offline);
+                await Clients.Group(RoomNotifier.GroupName(roomId)).Receive(offline);
+            }
+        }
+
+        await base.OnDisconnectedAsync(exception);
+    }
+
+    public async Task Publish(Envelope envelope)
+    {
+        if (!MessageTypes.ClientPublishable.Contains(envelope.Type))
+        {
+            throw new HubException($"不支持的消息类型：{envelope.Type}");
+        }
+
+        var userId = Context.User!.GetUserId();
+        if (!await rooms.IsMemberAsync(userId, envelope.RoomId))
+        {
+            throw new HubException("你不是该 Room 的成员");
+        }
+
+        var stamped = envelope with { SenderId = userId, Ts = time.GetUtcNow() };
+        if (stamped.Type == MessageTypes.PresenceUpdate)
+        {
+            store.Set(stamped);
+        }
+
+        await Clients.OthersInGroup(RoomNotifier.GroupName(stamped.RoomId)).Receive(stamped);
+    }
+}

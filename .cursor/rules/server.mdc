@@ -1,0 +1,34 @@
+---
+description: DeskPal Server 约定：功能分目录、ServiceResult、SQLite 限制、Room 变更后同步 Group
+globs: src/DeskPal.Server/**
+alwaysApply: false
+---
+
+# DeskPal Server
+
+- 按功能放在 `Features/<功能>/`：Service、Endpoints、Options 放在同一目录。新增功能（例如 Game）新建目录，不改动其他功能的文件。
+- 业务逻辑写在 Service 里，返回 `ServiceResult<T>`；Endpoints 只做参数绑定、调用 Service、调用 `RoomNotifier`，最后 `.ToHttp()`。
+- 错误信息用中文，客户端直接展示，例如 `ServiceResult<RoomDto>.Fail(409, "该 Room 已满（上限 2 人）")`。
+- 时间一律从注入的 `TimeProvider` 取，不直接用 `DateTimeOffset.UtcNow`，方便测试。
+
+## SQLite 限制
+
+EF Core 的 SQLite 驱动不能在查询里比较或排序 `DateTimeOffset`。先查出来，再在内存里比较：
+
+```csharp
+// 错误：会在运行时抛异常
+db.RoomInvites.Where(i => i.ExpiresAt > now)
+// 正确
+var invite = await db.RoomInvites.SingleOrDefaultAsync(i => i.Code == code);
+if (invite is null || invite.ExpiresAt <= time.GetUtcNow()) { ... }
+```
+
+## Room 成员关系
+
+创建、加入、退出、转让、解散成功后，Endpoint 必须调用对应的 `RoomNotifier` 方法。它负责增删 SignalR Group、清理 `PresenceStore`，并广播 Room 事件。
+
+## Hub
+
+- `PresenceHub.Publish` 只接受 `MessageTypes.ClientPublishable` 里的类型，并且会用 Server 的值覆盖 `SenderId` 和 `Ts`。
+- 不要在 Hub 里读取 `Payload` 做业务判断。
+- 配置项放 `appsettings.json` 对应的节，用 Options 类读取。密钥只从环境变量（`Jwt__Key`）读取。

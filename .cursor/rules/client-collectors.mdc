@@ -1,0 +1,15 @@
+---
+description: DeskPal 采集器的权限和隐私红线：只用普通用户权限 API，只发布变化，不读内容
+globs: src/DeskPal.Client/Collectors/**, src/DeskPal.Client/Native/**
+alwaysApply: false
+---
+
+# 采集器
+
+- **只用普通用户权限就能调用的 API。** 不截图、不装全局钩子（`SetWindowsHookEx`）、不注入、不读其他进程的内存。这些行为会被公司的 EDR 当成恶意软件。
+- 用轮询（`PeriodicTimer`），只在值变化时 `bus.Publish(...)`，不要每个周期都发布。
+- 采集器只发布事实（`ActivitySignal` 的子类型），不做分类，也不决定状态。分类在 `DeskPal.Client.Core`。
+- 能读到内容的地方只取最少的信息：浏览器只取 host，麦克风只取占用它的应用名，空闲只取最后一次输入的时间戳。
+- 所有系统调用都要 try/catch。单个采集器失败只记 Debug 日志，不能拖垮整个程序。
+- 可能很慢的调用（UI Automation）放到 `Task.Run` 里，加超时；上一次没返回就跳过这一轮。
+- 新增采集器后，在 `App.xaml.cs` 的 `BuildHost` 里注册 `AddHostedService<...>()`。完整步骤见 skill `deskpal-add-signal`。

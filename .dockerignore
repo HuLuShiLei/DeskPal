@@ -1,0 +1,6 @@
+**/bin/
+**/obj/
+**/storage/
+.local/
+.git/
+deploy/.env
