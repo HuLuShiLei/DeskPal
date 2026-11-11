@@ -21,6 +21,10 @@ public partial class App : Application
     private IHost? _host;
     private TaskbarIcon? _tray;
     private MainWindow? _main;
+    private MenuItem? _betaMenu;
+    private MenuItem? _restartMenu;
+    private CancellationTokenSource? _updates;
+    private bool _exiting;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
@@ -48,8 +52,12 @@ public partial class App : Application
         var services = _host.Services;
         var rooms = services.GetRequiredService<RoomState>();
         var hub = services.GetRequiredService<HubService>();
+        var updates = services.GetRequiredService<UpdateService>();
+        updates.Exit = restart => ExitAsync(applyUpdate: true, restart: restart);
+        updates.Checked += result => Dispatcher.BeginInvoke(() => _tray?.ShowNotification("DeskPal", result.Message));
+        updates.Changed += () => Dispatcher.BeginInvoke(SyncUpdateMenu);
 
-        _tray = CreateTray();
+        _tray = CreateTray(updates);
         rooms.Notify += (title, message) => Dispatcher.BeginInvoke(() => _tray.ShowNotification(title, message));
         hub.Received += rooms.Handle;
 
@@ -58,6 +66,8 @@ public partial class App : Application
         hub.Start();
         _ = RefreshBuiltinRulesAsync(services);
         _ = RefreshRoomsAsync(rooms);
+        _updates = new CancellationTokenSource();
+        _ = updates.RunPeriodicAsync(_updates.Token);
 
         _main = services.GetRequiredService<MainWindow>();
         _main.WindowStartupLocation = WindowStartupLocation.Manual;
@@ -117,6 +127,7 @@ public partial class App : Application
         s.AddHostedService<SessionCollector>();
         s.AddHostedService<MicCollector>();
         s.AddHostedService<MediaCollector>();
+        s.AddSingleton<UpdateService>();
         s.AddSingleton<MainViewModel>();
         s.AddSingleton<MainWindow>();
         return builder.Build();
@@ -169,23 +180,48 @@ public partial class App : Application
         }
     }
 
-    private TaskbarIcon CreateTray()
+    private TaskbarIcon CreateTray(UpdateService updates)
     {
         var menu = new ContextMenu();
         var open = new MenuItem { Header = "打开 DeskPal" };
         open.Click += (_, _) => _main?.ShowAndActivate();
+        var check = new MenuItem { Header = "检查更新" };
+        check.Click += async (_, _) => await UpdateInteraction.CheckAsync(updates, updates.Exit!, quietWhenCurrent: false);
+        _betaMenu = new MenuItem { Header = "加入测试版", IsCheckable = true, IsChecked = updates.ReceiveBeta };
+        _betaMenu.Click += async (_, _) =>
+        {
+            if (updates.ReceiveBeta == (_betaMenu.IsChecked == true))
+            {
+                return;
+            }
+
+            updates.ReceiveBeta = _betaMenu.IsChecked == true;
+            await UpdateInteraction.CheckAsync(updates, updates.Exit!, quietWhenCurrent: true);
+        };
+        _restartMenu = new MenuItem { Header = "立即重启并更新", IsEnabled = updates.UpdateReady };
+        _restartMenu.Click += async (_, _) =>
+        {
+            if (updates.Exit is not null)
+            {
+                await updates.Exit(true);
+            }
+        };
         var logout = new MenuItem { Header = "退出登录" };
         logout.Click += async (_, _) => await LogoutAsync();
         var exit = new MenuItem { Header = "退出" };
         exit.Click += async (_, _) => await ExitAsync();
         menu.Items.Add(open);
         menu.Items.Add(new Separator());
+        menu.Items.Add(check);
+        menu.Items.Add(_betaMenu);
+        menu.Items.Add(_restartMenu);
+        menu.Items.Add(new Separator());
         menu.Items.Add(logout);
         menu.Items.Add(exit);
 
         var tray = new TaskbarIcon
         {
-            ToolTipText = "DeskPal",
+            ToolTipText = $"DeskPal {updates.VersionLabel}",
             NoLeftClickDelay = true,
             ContextMenu = menu,
             IconSource = new GeneratedIconSource
@@ -211,18 +247,41 @@ public partial class App : Application
         return tray;
     }
 
+    private void SyncUpdateMenu()
+    {
+        var updates = _host?.Services.GetService<UpdateService>();
+        if (updates is null || _betaMenu is null || _restartMenu is null)
+        {
+            return;
+        }
+
+        _restartMenu.IsEnabled = updates.UpdateReady;
+        if (_betaMenu.IsChecked != updates.ReceiveBeta)
+        {
+            _betaMenu.IsChecked = updates.ReceiveBeta;
+        }
+    }
+
     private async Task LogoutAsync()
     {
         var services = _host!.Services;
         var settings = services.GetRequiredService<AppSettings>();
         settings.SetToken(null);
         services.GetRequiredService<SettingsStore>().Save(settings);
-        await ExitAsync();
+        await ExitAsync(applyUpdate: false);
         Process.Start(Environment.ProcessPath!);
     }
 
-    private async Task ExitAsync()
+    private async Task ExitAsync(bool applyUpdate = true, bool restart = false)
     {
+        if (_exiting)
+        {
+            return;
+        }
+
+        _exiting = true;
+        var updates = _host?.Services.GetService<UpdateService>();
+
         if (_main is not null)
         {
             _main.AllowClose = true;
@@ -234,11 +293,18 @@ public partial class App : Application
             await _host.Services.GetRequiredService<HubService>().DisposeAsync();
             await _host.StopAsync(TimeSpan.FromSeconds(3));
             _host.Dispose();
+            _host = null;
         }
 
         _tray?.Dispose();
         _singleInstance?.ReleaseMutex();
         _singleInstance = null;
+        if (applyUpdate && updates is not null && updates.ApplyReady(restart, includeDowngrade: restart))
+        {
+            return;
+        }
+
+        _updates?.Cancel();
         Shutdown();
     }
 }

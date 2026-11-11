@@ -17,8 +17,9 @@ public partial class MainWindow : Window
     private readonly PresenceCoordinator _presence;
     private readonly PersonalRuleStore _personalRules;
     private readonly AppSettings _settings;
+    private readonly UpdateService _updates;
 
-    public MainWindow(MainViewModel vm, RoomState rooms, ApiClient api, PresenceCoordinator presence, PersonalRuleStore personalRules, AppSettings settings)
+    public MainWindow(MainViewModel vm, RoomState rooms, ApiClient api, PresenceCoordinator presence, PersonalRuleStore personalRules, AppSettings settings, UpdateService updates)
     {
         InitializeComponent();
         _vm = vm;
@@ -27,8 +28,9 @@ public partial class MainWindow : Window
         _presence = presence;
         _personalRules = personalRules;
         _settings = settings;
+        _updates = updates;
         DataContext = vm;
-        Title = $"DeskPal - {settings.DisplayName}";
+        Title = $"DeskPal {updates.VersionLabel} - {settings.DisplayName}";
         vm.Refresh();
     }
 
@@ -83,6 +85,29 @@ public partial class MainWindow : Window
         var autoStart = new MenuItem { Header = "开机自启", IsCheckable = true, IsChecked = AutoStart.IsEnabled() };
         autoStart.Click += (_, _) => AutoStart.Set(autoStart.IsChecked);
         menu.Items.Add(autoStart);
+        menu.Items.Add(new Separator());
+        menu.Items.Add(Item("检查更新", true, () => UpdateInteraction.CheckAsync(_updates, _updates.Exit!, quietWhenCurrent: false)));
+        var beta = new MenuItem { Header = "加入测试版", IsCheckable = true, IsChecked = _updates.ReceiveBeta };
+        beta.Click += async (_, _) =>
+        {
+            if (_updates.ReceiveBeta == (beta.IsChecked == true))
+            {
+                return;
+            }
+
+            _updates.ReceiveBeta = beta.IsChecked == true;
+            await UpdateInteraction.CheckAsync(_updates, _updates.Exit!, quietWhenCurrent: true);
+        };
+        menu.Items.Add(beta);
+        var restart = new MenuItem { Header = "立即重启并更新", IsEnabled = _updates.UpdateReady };
+        restart.Click += async (_, _) =>
+        {
+            if (_updates.Exit is not null)
+            {
+                await _updates.Exit(true);
+            }
+        };
+        menu.Items.Add(restart);
         menu.IsOpen = true;
     }
 

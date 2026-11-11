@@ -1,7 +1,8 @@
 name: CI
 
-# 测试在 Linux 上跑；Windows 客户端单独在 windows runner 上发布成单文件 exe。
-# v* 标签额外把客户端 zip 挂到 GitHub Release。
+# 测试在 Linux 上跑。
+# 客户端：main 上改了客户端时发布测试版；手动推送 vX.Y.Z 标签时发布正式版。
+# vX.Y.Z-dev.N 是本流程创建的测试版标签，不再重复触发。
 on:
   push:
     branches: [main, master]
@@ -11,6 +12,7 @@ on:
 
 jobs:
   test:
+    if: github.event_name != 'push' || github.ref_type != 'tag' || !contains(github.ref_name, '-dev.')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,36 +24,152 @@ jobs:
       - name: 测试
         run: dotnet test tests/DeskPal.Tests --nologo
 
-  client:
-    runs-on: windows-latest
+  changes:
     needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.mode.outputs.mode }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 决定客户端发布方式
+        id: mode
+        shell: pwsh
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          function Set-Mode([string] $value) {
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "mode=$value`n")
+          }
+          if ($env:GITHUB_EVENT_NAME -eq 'pull_request' -or $env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
+            Set-Mode 'build'
+            exit 0
+          }
+          if ($env:GITHUB_REF -like 'refs/tags/*') {
+            Set-Mode 'stable'
+            exit 0
+          }
+          $before = '${{ github.event.before }}'
+          if ([string]::IsNullOrWhiteSpace($before) -or $before -match '^0+$') {
+            Set-Mode 'beta'
+            exit 0
+          }
+          $files = @(git diff --name-only $before $env:GITHUB_SHA)
+          if ($LASTEXITCODE -ne 0) {
+            Set-Mode 'beta'
+            exit 0
+          }
+          $prefixes = @(
+            'src/DeskPal.Client/',
+            'src/DeskPal.Client.Core/',
+            'src/DeskPal.Shared/',
+            '.github/workflows/ci.yml'
+          )
+          $changed = $false
+          foreach ($file in $files) {
+            foreach ($prefix in $prefixes) {
+              if ($file.StartsWith($prefix)) { $changed = $true }
+            }
+          }
+          Set-Mode $(if ($changed) { 'beta' } else { 'skip' })
+
+  client:
+    needs: [test, changes]
+    if: needs.test.result == 'success' && needs.changes.result == 'success' && needs.changes.outputs.mode != 'skip'
+    runs-on: windows-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
+      - name: 计算版本
+        id: version
+        shell: pwsh
+        run: |
+          $mode = '${{ needs.changes.outputs.mode }}'
+          $channel = 'win'
+          $pre = 'false'
+          if ($mode -eq 'stable') {
+            $version = $env:GITHUB_REF_NAME.TrimStart('v')
+            if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "正式版标签必须是 vX.Y.Z：$env:GITHUB_REF_NAME" }
+          } elseif ($mode -eq 'beta') {
+            $latest = [version]'0.0.0'
+            git tag -l 'v*' | ForEach-Object {
+              if ($_ -match '^v(\d+)\.(\d+)\.(\d+)$') {
+                $parsed = [version]"$($Matches[1]).$($Matches[2]).$($Matches[3])"
+                if ($parsed -gt $latest) { $latest = $parsed }
+              }
+            }
+            $patch = if ($latest.Build -lt 0) { 1 } else { $latest.Build + 1 }
+            $version = "$($latest.Major).$($latest.Minor).$patch-dev.$($env:GITHUB_RUN_NUMBER)"
+            $channel = 'beta'
+            $pre = 'true'
+          } else {
+            $version = '0.0.0-ci'
+          }
+          [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "version=$version`nchannel=$channel`nprerelease=$pre`n")
+          "mode=$mode version=$version channel=$channel"
+
       - name: 发布客户端
+        shell: pwsh
         run: >
-          dotnet publish src/DeskPal.Client -c Release -r win-x64 --self-contained
-          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
-          -p:EnableCompressionInSingleFile=true -p:DebugType=none
+          dotnet publish src/DeskPal.Client -c Release -r win-x64 --self-contained true
+          -p:Version=${{ steps.version.outputs.version }}
+          -p:IncludeSourceRevisionInInformationalVersion=false
+          -p:DebugType=none
           -o publish/DeskPal
 
-      - name: 打包
+      - name: 打包并发布到 GitHub Release
+        if: needs.changes.outputs.mode != 'build'
         shell: pwsh
-        run: Compress-Archive -Path publish/DeskPal/* -DestinationPath DeskPal-win-x64.zip
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          dotnet tool install -g vpk --version 1.2.161
+          $env:Path = "$env:USERPROFILE\.dotnet\tools;$env:Path"
+          $version = '${{ steps.version.outputs.version }}'
+          $channel = '${{ steps.version.outputs.channel }}'
+          $pre = '${{ steps.version.outputs.prerelease }}' -eq 'true'
+          $repo = "https://github.com/$env:GITHUB_REPOSITORY"
+          vpk download github --repoUrl $repo --token $env:GH_TOKEN --channel $channel $(if ($pre) { '--pre' })
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "没有可做差异包的上一版，改为完整包。"
+          }
+          vpk pack -u DeskPal -v $version -c $channel -p publish/DeskPal --packTitle DeskPal -e DeskPal.exe --instLocation PerUser --runtime win-x64
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem Releases -File | Where-Object {
+            $_.Name -like '*-Portable.zip' -or ($_.Extension -eq '.nupkg' -and $_.Name -notlike "*$version*")
+          } | Remove-Item -Force
+          $tag = "v$version"
+          $name = if ($pre) { "DeskPal $version 测试版" } else { "DeskPal $version" }
+          $upload = @('upload', 'github', '--repoUrl', $repo, '--token', $env:GH_TOKEN, '--publish', '--channel', $channel, '--tag', $tag, '--releaseName', $name)
+          if ($pre) { $upload += '--pre' }
+          vpk @upload
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $notes = if ($pre) {
+            "测试版，供内部试用。`n`n安装 DeskPal-beta-Setup.exe。安装之后会继续接收测试版。`n托盘菜单可以检查更新，也可以取消「加入测试版」。已下载的更新在退出时安装。"
+          } else {
+            "安装 DeskPal-win-Setup.exe。默认只接收正式版。`n要接收 main 上的测试修复，在托盘菜单勾选「加入测试版」。"
+          }
+          [System.IO.File]::WriteAllText("$PWD\release-notes.txt", $notes)
+          gh release edit $tag --notes-file release-notes.txt
+          if (-not $pre) { exit 0 }
+          $list = gh release list --limit 100 --json tagName,isPrerelease,publishedAt | ConvertFrom-Json
+          $old = @($list | Where-Object { $_.isPrerelease -and $_.tagName -like '*-dev.*' } | Sort-Object publishedAt -Descending | Select-Object -Skip 8)
+          foreach ($release in $old) {
+            gh release delete $release.tagName --yes --cleanup-tag
+          }
 
       - uses: actions/upload-artifact@v4
+        if: needs.changes.outputs.mode != 'build'
         with:
-          name: DeskPal-win-x64
-          path: DeskPal-win-x64.zip
-
-      - name: 发布 Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: DeskPal-win-x64.zip
+          name: DeskPal-Setup
+          path: Releases/*-Setup.exe

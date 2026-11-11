@@ -16,7 +16,12 @@ Traefik 在 192.168.66.10 上，用 file provider 把 `deskpal.hafuhafu.cn`（44
 
 ## 3. 客户端
 
-客户端安装包由 `.github/workflows/ci.yml` 产出：每次推送都会生成 Actions artifact `DeskPal-win-x64`，打 `v*` 标签时同时挂到 GitHub Release。解压后直接运行 `DeskPal.exe`，不需要安装 .NET。
+客户端安装包由 `.github/workflows/ci.yml` 用 Velopack 产出，不需要安装 .NET。
+
+- 测试版：推送 main 且这次改了客户端时，自动发布 Pre-release，安装包是 `DeskPal-beta-Setup.exe`。安装后会继续接收测试版。只保留最近 8 个测试版。
+- 正式版：推送 `vX.Y.Z` 标签（例如 `v0.2.0`）时发布，安装包是 `DeskPal-win-Setup.exe`。默认只接收正式版，托盘菜单勾选「加入测试版」后才会收到测试版。
+
+已安装的客户端在启动后和每 6 小时检查一次 GitHub Release，后台下载，退出时安装。托盘菜单可以「检查更新」或「立即重启并更新」。直接运行 `dotnet run` 编译出的程序不会检查更新。
 
 登录窗口的“服务器地址”默认是 `https://deskpal.hafuhafu.cn:36443`，一般不用改。本地开发时改成 `http://localhost:5180`。
 

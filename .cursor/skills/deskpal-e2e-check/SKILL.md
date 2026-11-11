@@ -77,6 +77,8 @@ dotnet run --no-build -- http://localhost:5180 <bobToken> <roomId> 150   # 后�
 Start-Process src\DeskPal.Client\bin\Debug\net10.0-windows10.0.19041.0\DeskPal.exe
 ```
 
+这样启动的不是 Velopack 安装版，不会检查更新。
+
 ## 6. 验证
 
 读模拟成员的输出，并用 computer-use 截图看客户端界面：

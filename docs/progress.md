@@ -15,7 +15,8 @@
 | 模型 | 按 Room 设计，原型阶段人数上限 2 | 以后会变成多人 Room，再往后可能做游戏化 |
 | Room 生命周期 | 参考 QQ 群：不自动删除；每人最多拥有 5 个 Room；邀请码 24 小时过期，重新生成后旧码失效；所有者要先转让才能退出；所有者可以解散 | 用户选定 |
 | 技术栈 | .NET 10：WPF 托盘客户端，ASP.NET Core + EF Core + SQLite，JWT，Docker 镜像（GHCR）+ Portainer + 已有 Traefik | 用户指定 C#，有自己的服务器 |
-| 发布 | 代码在 GitHub `HuLuShiLei/DeskPal`；推送默认分支自动构建 Server 镜像，并调用 Portainer Business Edition 的 webhook 拉取重建；推送 `v*` 标签自动创建 Release 并附客户端 zip；对外地址 `https://deskpal.hafuhafu.cn:36443`，也是客户端默认地址 | 运营商封了 80/443，只能用 36443；3 节点以内的 Business Edition 许可证免费 |
+| 客户端更新 | Velopack。测试版通道 `beta`，正式版通道 `win`。安装测试版后默认继续接收测试版；正式版安装后要在托盘菜单勾选「加入测试版」才接收。启动后和每 6 小时检查一次，后台下载。已下载的包只在退出或选择「立即重启并更新」时安装，启动时不自动安装。取消测试版会删除已下载的包。不强制重启。从测试版回到较低正式版时先询问。只保留最近 8 个测试版。Velopack 只读取最近 10 个 GitHub Release，要给正式版留位置 | 试用人员要尽快拿到修复；GitHub Release 单个文件小于 2 GiB，没有总容量和流量限制 |
+| 发布 | 代码在 GitHub `HuLuShiLei/DeskPal`；推送默认分支自动构建 Server 镜像，并调用 Portainer Business Edition 的 webhook 拉取重建；客户端测试版在 main 改了客户端时自动发 Pre-release，正式版只在手动推送 `vX.Y.Z` 标签时发布；对外地址 `https://deskpal.hafuhafu.cn:36443`，也是客户端默认地址 | 运营商封了 80/443，只能用 36443；3 节点以内的 Business Edition 许可证免费；试用期要小步更新 |
 
 ## 已完成（第一期原型）
 
@@ -57,3 +58,5 @@
 | 2026-11-11 | Portainer Community Edition 的 webhook 开关不可用，改为 Stack 内的 Watchtower；撤掉公网上的 webhook 路由 |
 | 2026-11-11 | Portainer 升级到 Business Edition，恢复 webhook 自动更新，去掉 Watchtower |
 | 2026-11-11 | 镜像写入 Git 提交号；webhook 使用 sha-<提交号> 标签，CI 等到 /health 的 revision 一致才算部署成功 |
+| 2026-11-11 | 客户端用 Velopack 自动更新：main 发测试版，vX.Y.Z 发正式版；托盘菜单可加入测试版并手动检查更新 |
+| 2026-11-11 | 已下载的更新只在退出或立即重启时安装，启动时不自动安装；取消测试版或下载失败后，不再把失效的包当成可安装 |

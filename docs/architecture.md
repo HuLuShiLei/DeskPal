@@ -124,7 +124,7 @@ flowchart LR
 
 | 文件 | 内容 |
 |---|---|
-| `settings.json` | Server 地址（默认 `https://deskpal.hafuhafu.cn:36443`）、当前用户、DPAPI 加密的 token、选中的 Room、空闲和防抖参数、暂停和手动状态 |
+| `settings.json` | Server 地址（默认 `https://deskpal.hafuhafu.cn:36443`）、当前用户、DPAPI 加密的 token、选中的 Room、空闲和防抖参数、暂停和手动状态、是否加入测试版（`includePrerelease`，空则沿用安装渠道） |
 | `personal-rules.json` | 个人规则 |
 | `builtin-rules.json` | 内置规则缓存 |
 
@@ -140,4 +140,4 @@ flowchart LR
 | Server 运行 | Portainer Stack（`deploy/stack.yml`），在 192.168.66.5 上发布 18820 端口；`Jwt__Key` 来自 Stack 环境变量 `DESKPAL_JWT_KEY` |
 | 自动更新 | main 上的镜像同时推 `latest` 和 `sha-<提交号>`。GitHub Actions POST `PORTAINER_WEBHOOK_URL?tag=sha-<提交号>`，再等到 `/health` 的 `revision` 等于该提交号。Traefik 只在 36443 上公开 webhook token 路径 |
 | HTTPS | 192.168.66.10 上已有的 Traefik：`deskpal.hafuhafu.cn` 走 443 和 36443 两个入口，`*.hafuhafu.cn` 泛域名证书（阿里云 DNS challenge）；路由文件 `/etc/traefik/conf/deskpal.yml`，仓库里的副本是 `deploy/traefik-dynamic.yml` |
-| 客户端 | `.github/workflows/ci.yml`：在 Windows runner 上发布成自包含单文件 `DeskPal.exe`；每次推送上传 Actions artifact，`v*` 标签同时创建 GitHub Release |
+| 客户端 | `.github/workflows/ci.yml`：main 上改了客户端时用 Velopack 发测试版 Pre-release（通道 `beta`，版本 `x.y.z-dev.<运行号>`，安装包 `DeskPal-beta-Setup.exe`），只保留最近 8 个；手动推送 `vX.Y.Z` 发正式版（通道 `win`，`DeskPal-win-Setup.exe`）。已安装的客户端启动后和每 6 小时向 GitHub Release 检查更新，后台下载；只在退出或选择立即重启时安装，启动时不自动安装。取消测试版会删除已下载的包 |
