@@ -125,7 +125,6 @@ public partial class App : Application
         s.AddHostedService<BrowserDomainCollector>();
         s.AddHostedService<IdleCollector>();
         s.AddHostedService<SessionCollector>();
-        s.AddHostedService<MicCollector>();
         s.AddHostedService<MediaCollector>();
         s.AddSingleton<UpdateService>();
         s.AddSingleton<MainViewModel>();

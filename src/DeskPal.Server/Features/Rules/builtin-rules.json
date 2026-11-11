@@ -1,5 +1,5 @@
 {
-    "version":  1,
+    "version":  2,
     "rules":  [
                   {
                       "kind":  "Process",
@@ -376,25 +376,25 @@
                   {
                       "kind":  "Process",
                       "pattern":  "wxwork",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "企业微信"
                   },
                   {
                       "kind":  "Process",
                       "pattern":  "dingtalk",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "钉钉"
                   },
                   {
                       "kind":  "Process",
                       "pattern":  "feishu",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "飞书"
                   },
                   {
                       "kind":  "Process",
                       "pattern":  "lark",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "Lark"
                   },
                   {
@@ -412,43 +412,43 @@
                   {
                       "kind":  "Process",
                       "pattern":  "outlook",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "Outlook"
                   },
                   {
                       "kind":  "Process",
                       "pattern":  "olk",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "Outlook"
                   },
                   {
                       "kind":  "Process",
                       "pattern":  "foxmail",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "Foxmail"
                   },
                   {
                       "kind":  "Process",
                       "pattern":  "thunderbird",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "Thunderbird"
                   },
                   {
                       "kind":  "Process",
                       "pattern":  "slack",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "Slack"
                   },
                   {
                       "kind":  "Process",
                       "pattern":  "ms-teams",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "Teams"
                   },
                   {
                       "kind":  "Process",
                       "pattern":  "teams",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "Teams"
                   },
                   {
@@ -472,25 +472,25 @@
                   {
                       "kind":  "Process",
                       "pattern":  "zoom",
-                      "category":  "Meeting",
+                      "category":  "Work",
                       "name":  "Zoom"
                   },
                   {
                       "kind":  "Process",
                       "pattern":  "wemeetapp",
-                      "category":  "Meeting",
+                      "category":  "Work",
                       "name":  "腾讯会议"
                   },
                   {
                       "kind":  "Process",
                       "pattern":  "webexmta",
-                      "category":  "Meeting",
+                      "category":  "Work",
                       "name":  "Webex"
                   },
                   {
                       "kind":  "Process",
                       "pattern":  "ciscocollabhost",
-                      "category":  "Meeting",
+                      "category":  "Work",
                       "name":  "Webex"
                   },
                   {
@@ -1402,31 +1402,31 @@
                   {
                       "kind":  "Domain",
                       "pattern":  "mail.qq.com",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "QQ 邮箱"
                   },
                   {
                       "kind":  "Domain",
                       "pattern":  "mail.163.com",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "网易邮箱"
                   },
                   {
                       "kind":  "Domain",
                       "pattern":  "outlook.office.com",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "Outlook"
                   },
                   {
                       "kind":  "Domain",
                       "pattern":  "outlook.live.com",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "Outlook"
                   },
                   {
                       "kind":  "Domain",
                       "pattern":  "mail.google.com",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "Gmail"
                   },
                   {
@@ -1444,31 +1444,31 @@
                   {
                       "kind":  "Domain",
                       "pattern":  "slack.com",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "Slack"
                   },
                   {
                       "kind":  "Domain",
                       "pattern":  "teams.microsoft.com",
-                      "category":  "Communication",
+                      "category":  "Work",
                       "name":  "Teams"
                   },
                   {
                       "kind":  "Domain",
                       "pattern":  "meeting.tencent.com",
-                      "category":  "Meeting",
+                      "category":  "Work",
                       "name":  "腾讯会议"
                   },
                   {
                       "kind":  "Domain",
                       "pattern":  "zoom.us",
-                      "category":  "Meeting",
+                      "category":  "Work",
                       "name":  "Zoom"
                   },
                   {
                       "kind":  "Domain",
                       "pattern":  "meet.google.com",
-                      "category":  "Meeting",
+                      "category":  "Work",
                       "name":  "Google Meet"
                   },
                   {

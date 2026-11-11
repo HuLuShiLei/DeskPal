@@ -14,6 +14,8 @@ public sealed record RoomDto(Guid Id, string Name, Guid OwnerId, int MaxMembers,
 
 public sealed record CreateRoomRequest(string Name);
 
+public sealed record RenameRoomRequest(string Name);
+
 public sealed record JoinRoomRequest(string Code);
 
 public sealed record InviteDto(string Code, DateTimeOffset ExpiresAt);

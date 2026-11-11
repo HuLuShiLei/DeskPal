@@ -25,6 +25,9 @@ public sealed class ApiClient(AppSettings settings)
 
     public Task<RoomDto> CreateRoomAsync(string name) => SendAsync<RoomDto>(HttpMethod.Post, "/api/rooms", new CreateRoomRequest(name));
 
+    public Task<RoomDto> RenameRoomAsync(Guid roomId, string name) =>
+        SendAsync<RoomDto>(HttpMethod.Put, $"/api/rooms/{roomId}", new RenameRoomRequest(name));
+
     public Task<InviteDto> CreateInviteAsync(Guid roomId) => SendAsync<InviteDto>(HttpMethod.Post, $"/api/rooms/{roomId}/invites", new { });
 
     public Task<RoomDto> JoinRoomAsync(string code) => SendAsync<RoomDto>(HttpMethod.Post, "/api/rooms/join", new JoinRoomRequest(code));

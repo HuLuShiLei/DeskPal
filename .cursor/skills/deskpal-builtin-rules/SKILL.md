@@ -24,13 +24,13 @@ description: 维护 DeskPal 内置分类规则库 builtin-rules.json：新增或
    ```
 
    它会检查类别名、规则种类、写法（`.exe`、`www.`、协议头、大写）、标准化之后的重复项，以及浏览器进程不该有 `Process` 规则。
-4. `dotnet test`。`ClassifierTests` 用的是 `TestData` 里手写的规则，不会读取真实文件；要锁定某条新规则的行为，就在里面加一条用例，规则写成和 JSON 里一样。
+4. `dotnet test`。`ClassifierTests` 用的是 `TestData` 里手写的规则，不会读取真实文件；要锁定某条新规则的行为，就在里面加一条用例，规则写成和 JSON 里一样。`BuiltinRulesTests` 读取真实的 JSON，锁定办公聊天、个人聊天和 Discord 的分类，改了这几类要同步它的用例。
 5. 启动 Server，日志里应该出现规则库更新到新版本。客户端下次启动时会请求 `/api/rules/builtin?version=旧版本` 拿到新规则，并缓存到 `%APPDATA%\DeskPal\builtin-rules.json`。
 
 ## 分类口径
 
-- `Work`：IDE、Office、设计工具、开发和办公 SaaS。
-- `Meeting`：会议软件。另外，麦克风被占用时，不管前台是什么都算开会。
-- `Communication`：微信、QQ、企业微信、钉钉、飞书、Slack、邮箱。按“忙”处理，不算摸鱼。
-- `Video` / `Music` / `Shopping` / `Social` / `News` / `Game` / `Reading`：算摸鱼。
+- `Work`：IDE、Office、设计工具、开发和办公 SaaS，以及企业微信、钉钉、飞书、Slack、Teams、邮箱、会议软件。
+- `Meeting`：不再使用，只为兼容旧客户端保留。规则库版本 2 起没有这个类别的规则。
+- `Communication`：微信、QQ、TIM、Telegram、WhatsApp、Skype 等个人聊天，显示为“在聊天”。Discord 归为 `Social`。
+- `Video` / `Music` / `Shopping` / `Social` / `News` / `Game` / `Reading`：算放松，显示为“在看视频”“在看社交网站”等。
 - 拿不准的应用不要加。

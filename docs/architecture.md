@@ -44,7 +44,6 @@ flowchart LR
 | `BrowserDomainSignal` | UI Automation 读地址栏 | 只取 host，3 秒超时，切换标签后最多约 2 秒才更新 |
 | `IdleSignal` | `GetLastInputInfo` | 超过 `IdleMinutes`（默认 5）无输入 |
 | `LockSignal` | `SystemEvents.SessionSwitch` | 锁屏和解锁 |
-| `MicSignal` | 注册表 `CapabilityAccessManager\ConsentStore\microphone` | `LastUsedTimeStop == 0` 表示正在占用 |
 | `MediaSignal` | WinRT `GlobalSystemMediaTransportControlsSessionManager` | 是否在播放、标题、来源应用 |
 
 ## 分类
@@ -54,17 +53,24 @@ flowchart LR
 - 浏览器：先按域名（取最具体的后缀），再按标题关键词，最后按进程名。非浏览器只按进程名。
 - 推测层只在前三层都没命中时生效：路径含 `\steamapps\` 的程序归为 `Game`；全屏且（前台是浏览器或正在播放媒体）归为 `Video`；正在播放媒体归为 `Music`。
 - 个人规则保存在 `%APPDATA%\DeskPal\personal-rules.json`。用户点“这个判断不对”时，可以选只对自己生效，或者同步到当前 Room（写入 Room 规则）。
-- 内置规则保存在 `builtin-rules.json`（目前版本 1，266 条），Server 启动时写入数据库；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。
+- 内置规则保存在 `builtin-rules.json`（目前版本 2，266 条），Server 启动时写入数据库；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。
+- 分类口径：企业微信、飞书、钉钉、Slack、Teams、邮箱和会议软件归为 `Work`；QQ、微信、Telegram 等个人聊天归为 `Communication`。
 
 ## 状态判断和防抖
 
-`PresenceResolver` 的优先级：暂停分享 → 手动状态（`Custom`）→ 锁屏 → 麦克风占用（`Meeting`）→ 空闲（`Away`，全屏播放视频时除外）→ 分类结果。
+`PresenceResolver` 的优先级：暂停分享 → 手动状态（`Custom`）→ 锁屏 → 空闲（`Away`，全屏播放视频时除外）→ 分类结果。
 
 `PresenceDebouncer`：
 
 - 新状态要持续 `StableSeconds`（默认 30 秒）才提交，`Since` 记为开始出现的时刻。
 - 暂停分享、手动状态、锁屏，进入和退出都立即提交。
 - 状态不变、只是详情变了（例如切换到另一个视频），按同样的间隔限频。
+
+不采集麦克风，也不再产生 `Meeting`。`Meeting` 留在 `PresenceState` 和 `ActivityCategory` 里兼容旧客户端，收到时显示为“工作中”。
+
+## 界面文案
+
+`PresenceFormatter.Format` 把状态拆成三行：标题（工作中、在聊天、正在使用 XX、在看视频、在放松、暂时离开、已锁屏等）、应用名、详情。详情超过 36 个字时在界面上截断并加“…”，共享出去的 `Detail` 不截断。文案用书面用语，不用“忙”“摸鱼”。
 
 ## 隐私
 
@@ -88,6 +94,7 @@ flowchart LR
 | POST | `/api/rooms/join` | 用邀请码加入（人数上限 `MaxMembersPerRoom`） |
 | POST | `/api/rooms/{id}/leave` | 退出；所有者退出返回 409 |
 | POST | `/api/rooms/{id}/transfer` | 所有者转让所有权 |
+| PUT | `/api/rooms/{id}` | 所有者修改 Room 名称（`RenameRoomRequest`，去掉首尾空格后 1 到 30 个字符）；名称有变化时广播 `room.renamed` |
 | DELETE | `/api/rooms/{id}` | 所有者解散，级联删除成员、邀请码、Room 规则 |
 | GET/PUT | `/api/rooms/{id}/privacy` | 我在该 Room 的隐私配置 |
 | GET/PUT | `/api/rooms/{id}/rules` | Room 规则；PUT 按（种类，标准化后的内容）新增或覆盖 |
@@ -104,6 +111,7 @@ flowchart LR
 | `interaction.poke` | 客户端 | `PokePayload(Text, TargetUserId)` | 对方显示托盘气泡；对方离线时丢失 |
 | `room.memberJoined` / `room.memberLeft` | Server | `RoomEventPayload(UserId)` | 同时增删 SignalR Group |
 | `room.ownerChanged` | Server | `RoomEventPayload(新所有者)` | |
+| `room.renamed` | Server | `RoomEventPayload(null)` | 客户端重新拉取 Room 列表 |
 | `room.dissolved` | Server | `RoomEventPayload(null)` | 之后所有成员移出 Group |
 | `rules.roomRulesChanged` | Server | `RoomEventPayload(修改人)` | 客户端重新拉取 Room 规则 |
 

@@ -14,6 +14,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
 {
     private const string InviteAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     private const string NotMember = "Room 不存在，或者你不是该 Room 的成员";
+    private const string InvalidName = "Room 名称需要 1 到 30 个字符";
 
     private readonly RoomOptions _options = options.Value;
 
@@ -29,9 +30,9 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
     public async Task<ServiceResult<RoomDto>> CreateAsync(Guid userId, string? name)
     {
         name = name?.Trim() ?? "";
-        if (name.Length is < 1 or > 30)
+        if (!IsValidName(name))
         {
-            return ServiceResult<RoomDto>.Fail(400, "Room 名称需要 1 到 30 个字符");
+            return ServiceResult<RoomDto>.Fail(400, InvalidName);
         }
 
         var owned = await db.Rooms.CountAsync(r => r.OwnerId == userId);
@@ -153,6 +154,35 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         return ServiceResult<RoomDto>.Ok((await GetDtoAsync(room.Id))!);
     }
 
+    public async Task<ServiceResult<RenamedRoom>> RenameAsync(Guid userId, Guid roomId, string? name)
+    {
+        var room = await db.Rooms.Include(r => r.Members).SingleOrDefaultAsync(r => r.Id == roomId);
+        if (room is null || room.Members.All(m => m.UserId != userId))
+        {
+            return ServiceResult<RenamedRoom>.Fail(404, NotMember);
+        }
+
+        if (room.OwnerId != userId)
+        {
+            return ServiceResult<RenamedRoom>.Fail(403, "只有所有者可以修改 Room 名称");
+        }
+
+        name = name?.Trim() ?? "";
+        if (!IsValidName(name))
+        {
+            return ServiceResult<RenamedRoom>.Fail(400, InvalidName);
+        }
+
+        var changed = room.Name != name;
+        if (changed)
+        {
+            room.Name = name;
+            await db.SaveChangesAsync();
+        }
+
+        return ServiceResult<RenamedRoom>.Ok(new RenamedRoom((await GetDtoAsync(room.Id))!, changed));
+    }
+
     /// <returns>Member ids at the time of dissolving, so callers can notify them.</returns>
     public async Task<ServiceResult<IReadOnlyList<Guid>>> DissolveAsync(Guid userId, Guid roomId)
     {
@@ -210,6 +240,8 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
     public Task<List<Guid>> GetMemberIdsAsync(Guid roomId) =>
         db.RoomMembers.Where(m => m.RoomId == roomId).Select(m => m.UserId).ToListAsync();
 
+    private static bool IsValidName(string name) => name.Length is >= 1 and <= 30;
+
     private async Task<RoomDto?> GetDtoAsync(Guid roomId)
     {
         var room = await db.Rooms.Include(r => r.Members).ThenInclude(m => m.User).SingleOrDefaultAsync(r => r.Id == roomId);
@@ -227,3 +259,5 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
             .Select(m => new RoomMemberDto(m.UserId, m.User?.DisplayName ?? "", m.Role, m.JoinedAt))
             .ToList());
 }
+
+public sealed record RenamedRoom(RoomDto Room, bool Changed);

@@ -7,7 +7,6 @@ public sealed record ActivitySnapshot
     public string? BrowserDomain { get; init; }
     public bool IsIdle { get; init; }
     public bool IsLocked { get; init; }
-    public MicSignal Mic { get; init; } = new(false, null);
     public MediaSignal Media { get; init; } = new(false, null, null, null);
 
     public static readonly ActivitySnapshot Empty = new();
@@ -22,7 +21,6 @@ public sealed record ActivitySnapshot
         BrowserDomainSignal d => this with { BrowserDomain = Foreground?.IsBrowser == true ? d.Domain : null },
         IdleSignal i => this with { IsIdle = i.IsIdle },
         LockSignal l => this with { IsLocked = l.IsLocked },
-        MicSignal m => this with { Mic = m },
         MediaSignal m => this with { Media = m },
         _ => this,
     };

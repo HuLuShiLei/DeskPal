@@ -73,6 +73,7 @@ public partial class MainWindow : Window
         menu.Items.Add(Item("创建 Room", true, CreateRoomAsync));
         menu.Items.Add(Item("用邀请码加入 Room", true, JoinRoomAsync));
         menu.Items.Add(new Separator());
+        menu.Items.Add(Item("修改 Room 名称", isOwner, () => RenameRoomAsync(room!)));
         menu.Items.Add(Item("生成邀请码", room is not null, () => CreateInviteAsync(room!)));
         menu.Items.Add(Item("隐私设置", room is not null, () => EditPrivacyAsync(room!)));
         menu.Items.Add(Item("转让所有者", isOwner && room!.Members.Count > 1, () => TransferAsync(room!)));
@@ -153,6 +154,18 @@ public partial class MainWindow : Window
 
         var room = await _api.JoinRoomAsync(code);
         _rooms.Select(room.Id);
+        await _rooms.RefreshAsync();
+    }
+
+    private async Task RenameRoomAsync(RoomDto room)
+    {
+        var name = Dialogs.Prompt(this, "修改 Room 名称", "新的 Room 名称（1 到 30 个字符）：", room.Name);
+        if (string.IsNullOrWhiteSpace(name) || name == room.Name)
+        {
+            return;
+        }
+
+        await _api.RenameRoomAsync(room.Id, name);
         await _rooms.RefreshAsync();
     }
 

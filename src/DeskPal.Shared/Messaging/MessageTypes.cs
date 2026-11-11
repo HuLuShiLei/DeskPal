@@ -9,6 +9,7 @@ public static class MessageTypes
     public const string RoomMemberLeft = "room.memberLeft";
     public const string RoomOwnerChanged = "room.ownerChanged";
     public const string RoomDissolved = "room.dissolved";
+    public const string RoomRenamed = "room.renamed";
     public const string RoomRulesChanged = "rules.roomRulesChanged";
 
     /// <summary>Types a client is allowed to publish through the hub. Everything else is server-originated.</summary>

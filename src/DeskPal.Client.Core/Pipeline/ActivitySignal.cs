@@ -18,6 +18,4 @@ public sealed record IdleSignal(bool IsIdle) : ActivitySignal;
 
 public sealed record LockSignal(bool IsLocked) : ActivitySignal;
 
-public sealed record MicSignal(bool InUse, string? AppName) : ActivitySignal;
-
 public sealed record MediaSignal(bool IsPlaying, string? Title, string? Artist, string? SourceApp) : ActivitySignal;

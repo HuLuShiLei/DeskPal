@@ -10,18 +10,17 @@ public class PresenceResolverTests
     private static readonly ClassificationResult Video = new(ActivityCategory.Video, "哔哩哔哩", RuleLayer.Builtin);
 
     [Fact]
-    public void Priority_is_paused_then_manual_then_locked_then_mic_then_idle()
+    public void Priority_is_paused_then_manual_then_locked_then_idle_then_classification()
     {
         var all = TestData.Browser("bilibili.com", "视频 - Google Chrome")
             .Apply(new LockSignal(true))
-            .Apply(new MicSignal(true, "腾讯会议"))
             .Apply(new IdleSignal(true));
 
         Assert.Equal(PresenceState.Paused, PresenceResolver.Resolve(all, Video, "午休", paused: true).State);
         Assert.Equal(PresenceState.Custom, PresenceResolver.Resolve(all, Video, "午休", paused: false).State);
         Assert.Equal(PresenceState.Locked, PresenceResolver.Resolve(all, Video, null, false).State);
-        Assert.Equal(PresenceState.Meeting, PresenceResolver.Resolve(all with { IsLocked = false }, Video, null, false).State);
-        Assert.Equal(PresenceState.Away, PresenceResolver.Resolve(all with { IsLocked = false, Mic = new(false, null) }, Video, null, false).State);
+        Assert.Equal(PresenceState.Away, PresenceResolver.Resolve(all with { IsLocked = false }, Video, null, false).State);
+        Assert.Equal(PresenceState.Slacking, PresenceResolver.Resolve(all with { IsLocked = false, IsIdle = false }, Video, null, false).State);
     }
 
     [Fact]
@@ -146,14 +145,51 @@ public class PrivacyFilterTests
 public class PresenceFormatterTests
 {
     [Fact]
-    public void Describes_snapshots_in_chinese()
+    public void Formats_headline_app_and_detail_separately()
     {
-        Assert.Equal("在看视频 · 哔哩哔哩：猫", PresenceFormatter.Describe(new PresenceSnapshot { State = PresenceState.Slacking, Category = ActivityCategory.Video, AppDisplayName = "哔哩哔哩", Detail = "猫" }));
-        Assert.Equal("忙", PresenceFormatter.Describe(new PresenceSnapshot { State = PresenceState.Working }));
-        Assert.Equal("摸鱼中", PresenceFormatter.Describe(new PresenceSnapshot { State = PresenceState.Slacking }));
-        Assert.Equal("正在使用 XMind", PresenceFormatter.Describe(new PresenceSnapshot { State = PresenceState.Other, AppDisplayName = "XMind" }));
-        Assert.Equal("午休中", PresenceFormatter.Describe(new PresenceSnapshot { State = PresenceState.Custom, CustomText = "午休中" }));
+        Assert.Equal(new PresenceView("在看视频", "哔哩哔哩", "猫"), Format(PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫"));
+        Assert.Equal(new PresenceView("正在使用 XMind", null, null), Format(PresenceState.Other, app: "XMind"));
+        Assert.Equal(new PresenceView("午休中", null, null), PresenceFormatter.Format(new PresenceSnapshot { State = PresenceState.Custom, CustomText = "午休中" }));
     }
+
+    [Theory]
+    [InlineData(PresenceState.Working, ActivityCategory.Work, "工作中")]
+    [InlineData(PresenceState.Meeting, ActivityCategory.Meeting, "工作中")]
+    [InlineData(PresenceState.Communicating, ActivityCategory.Communication, "在聊天")]
+    [InlineData(PresenceState.Slacking, ActivityCategory.Social, "在看社交网站")]
+    [InlineData(PresenceState.Slacking, ActivityCategory.None, "在放松")]
+    [InlineData(PresenceState.Other, ActivityCategory.Other, "工作中")]
+    [InlineData(PresenceState.Away, ActivityCategory.None, "暂时离开")]
+    [InlineData(PresenceState.Locked, ActivityCategory.None, "已锁屏")]
+    public void Headlines_use_written_chinese(PresenceState state, ActivityCategory category, string expected)
+    {
+        Assert.Equal(expected, Format(state, category).Headline);
+    }
+
+    [Fact]
+    public void Long_detail_is_shortened_for_display_only()
+    {
+        var title = new string('标', 40);
+        var view = Format(PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", title);
+
+        Assert.Equal(PresenceFormatter.DetailMaxLength, view.Detail!.Length);
+        Assert.EndsWith("…", view.Detail);
+        Assert.Equal(new string('标', 36), Format(PresenceState.Working, detail: new string('标', 36)).Detail);
+    }
+
+    [Fact]
+    public void Meeting_is_not_offered_and_labels_avoid_slang()
+    {
+        Assert.DoesNotContain(ActivityCategory.Meeting, PresenceFormatter.SelectableCategories);
+        Assert.DoesNotContain(ActivityCategory.None, PresenceFormatter.SelectableCategories);
+        var labels = PresenceFormatter.SelectableCategories.Select(PresenceFormatter.CategoryName)
+            .Concat(Enum.GetValues<PrivacyLevel>().Select(PresenceFormatter.PrivacyLevelName))
+            .Concat(Enum.GetValues<PresenceState>().Select(s => Format(s, ActivityCategory.Video).Headline));
+        Assert.DoesNotContain(labels, label => label.Contains('忙') || label.Contains("摸鱼") || label.Contains("开会") || label.Contains("沟通"));
+    }
+
+    private static PresenceView Format(PresenceState state, ActivityCategory category = ActivityCategory.None, string? app = null, string? detail = null) =>
+        PresenceFormatter.Format(new PresenceSnapshot { State = state, Category = category, AppDisplayName = app, Detail = detail });
 
     [Fact]
     public void Duration_is_human_readable()

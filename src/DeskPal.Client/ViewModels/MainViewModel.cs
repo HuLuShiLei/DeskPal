@@ -15,7 +15,9 @@ public sealed class MemberCard
 {
     public required Guid UserId { get; init; }
     public required string Name { get; init; }
-    public required string Status { get; init; }
+    public required string Headline { get; init; }
+    public string? App { get; init; }
+    public string? Detail { get; init; }
     public required string Meta { get; init; }
 }
 
@@ -29,7 +31,8 @@ public sealed class MainViewModel : ObservableObject
     private bool _syncingSelection;
     private RoomDto? _selectedRoom;
     private string _connectionText = "正在连接服务器…";
-    private string _myLocalText = "正在识别…";
+    private PresenceView _myView = new("正在识别…", null, null);
+    private string _mySource = "";
     private string _myVisibleText = "";
     private string _manualInput = "";
     private Visibility _emptyHintVisibility = Visibility.Collapsed;
@@ -69,7 +72,9 @@ public sealed class MainViewModel : ObservableObject
 
     public string ConnectionText { get => _connectionText; private set => SetProperty(ref _connectionText, value); }
 
-    public string MyLocalText { get => _myLocalText; private set => SetProperty(ref _myLocalText, value); }
+    public PresenceView MyView { get => _myView; private set => SetProperty(ref _myView, value); }
+
+    public string MySource { get => _mySource; private set => SetProperty(ref _mySource, value); }
 
     public string MyVisibleText { get => _myVisibleText; private set => SetProperty(ref _myVisibleText, value); }
 
@@ -160,11 +165,14 @@ public sealed class MainViewModel : ObservableObject
         foreach (var member in room.Members.Where(m => m.UserId != _rooms.MyUserId))
         {
             var snapshot = _rooms.GetPresence(room.Id, member.UserId);
+            var view = snapshot is null ? new PresenceView("离线", null, null) : PresenceFormatter.Format(snapshot);
             Members.Add(new MemberCard
             {
                 UserId = member.UserId,
                 Name = member.Role == RoomRole.Owner ? $"{member.DisplayName}（所有者）" : member.DisplayName,
-                Status = snapshot is null ? "离线" : PresenceFormatter.Describe(snapshot),
+                Headline = view.Headline,
+                App = view.App,
+                Detail = view.Detail,
                 Meta = snapshot is null ? "还没有收到状态" : $"已持续 {PresenceFormatter.Duration(snapshot.Since, now)}",
             });
         }
@@ -197,15 +205,14 @@ public sealed class MainViewModel : ObservableObject
             RuleLayer.Heuristic => "推测",
             _ => "未识别",
         };
-        var pending = _presence.Committed is { } c && c.Presence.Key != local.Key ? "，稳定后同步" : "";
-        MyLocalText = local.Category == ActivityCategory.None
-            ? $"本机识别：{PresenceFormatter.Describe(full)}{pending}"
-            : $"本机识别：{PresenceFormatter.Describe(full)}（{source}{pending}）";
+        var pending = _presence.Committed is { } c && c.Presence.Key != local.Key ? "稳定后同步" : null;
+        MyView = PresenceFormatter.Format(full);
+        MySource = string.Join("，", new[] { local.Category == ActivityCategory.None ? null : source, pending }.Where(part => part is not null));
 
         if (SelectedRoom is { } room && _presence.Committed is { } committed)
         {
             var visible = PrivacyFilter.Apply(committed, _rooms.GetPrivacy(room.Id));
-            MyVisibleText = $"该 Room 成员看到：{PresenceFormatter.Describe(visible)}";
+            MyVisibleText = $"该 Room 成员看到：{PresenceFormatter.OneLine(PresenceFormatter.Format(visible))}";
         }
         else
         {

@@ -44,6 +44,9 @@ public sealed class PresenceHubTests : IClassFixture<PresenceHubTests.ServerFact
         await aliceHub.InvokeAsync(HubContract.Publish, Envelope.Create(MessageTypes.Poke, room.Id, new PokePayload("吃饭了吗", bob.UserId)));
         Assert.Equal("吃饭了吗", (await NextAsync(bobInbox, e => e.Type == MessageTypes.Poke)).ReadPayload<PokePayload>()!.Text);
 
+        await SendAsync<RoomDto>(http, HttpMethod.Put, $"/api/rooms/{room.Id}", new RenameRoomRequest("我们家"), alice.Token);
+        Assert.Equal(room.Id, (await NextAsync(bobInbox, e => e.Type == MessageTypes.RoomRenamed)).RoomId);
+
         var (carolHub, _) = await ConnectAsync(carol.Token);
         await Assert.ThrowsAsync<HubException>(() => carolHub.InvokeAsync(HubContract.Publish, Envelope.Create(MessageTypes.Poke, room.Id, new PokePayload(null, null))));
         await Assert.ThrowsAsync<HubException>(() => aliceHub.InvokeAsync(HubContract.Publish, Envelope.Create(MessageTypes.RoomDissolved, room.Id, new RoomEventPayload(null))));
@@ -105,9 +108,12 @@ public sealed class PresenceHubTests : IClassFixture<PresenceHubTests.ServerFact
     private static Task<AuthResponse> RegisterAsync(HttpClient http, string name) =>
         PostAsync<AuthResponse>(http, "/api/auth/register", new RegisterRequest($"{name}{Guid.NewGuid():N}"[..20], name, "password123"), null);
 
-    private static async Task<T> PostAsync<T>(HttpClient http, string path, object body, string? token)
+    private static Task<T> PostAsync<T>(HttpClient http, string path, object body, string? token) =>
+        SendAsync<T>(http, HttpMethod.Post, path, body, token);
+
+    private static async Task<T> SendAsync<T>(HttpClient http, HttpMethod method, string path, object body, string? token)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = JsonContent.Create(body, body.GetType(), options: DeskPalJson.Options) };
+        using var request = new HttpRequestMessage(method, path) { Content = JsonContent.Create(body, body.GetType(), options: DeskPalJson.Options) };
         if (token is not null)
         {
             request.Headers.Authorization = new("Bearer", token);

@@ -11,7 +11,7 @@ public static class PresenceResolver
         " - Google Chrome", " - Microsoft Edge", " - Mozilla Firefox", " - 360安全浏览器", " - QQ浏览器", " - 搜狗高速浏览器",
     ];
 
-    /// <summary>Priority: paused, manual status, locked, microphone in use, idle, then the classified foreground activity.</summary>
+    /// <summary>Priority: paused, manual status, locked, idle, then the classified foreground activity.</summary>
     public static LocalPresence Resolve(ActivitySnapshot snapshot, ClassificationResult classification, string? manualText, bool paused)
     {
         if (paused)
@@ -29,10 +29,6 @@ public static class PresenceResolver
             return new LocalPresence(PresenceState.Locked, ActivityCategory.None, null, null, null);
         }
 
-        if (snapshot.Mic.InUse)
-        {
-            return new LocalPresence(PresenceState.Meeting, ActivityCategory.Meeting, snapshot.Mic.AppName, null, null);
-        }
 
         var watchingFullscreen = snapshot.Foreground?.IsFullscreen == true && snapshot.Media.IsPlaying;
         if (snapshot.IsIdle && !watchingFullscreen)

@@ -25,6 +25,22 @@ public static class RoomEndpoints
             return result.ToHttp();
         });
 
+        group.MapPut("/{roomId:guid}", async (Guid roomId, RenameRoomRequest req, HttpContext ctx, RoomService rooms, RoomNotifier notifier) =>
+        {
+            var result = await rooms.RenameAsync(ctx.User.GetUserId(), roomId, req.Name);
+            if (!result.IsSuccess)
+            {
+                return result.ToHttp();
+            }
+
+            if (result.Value!.Changed)
+            {
+                await notifier.RenamedAsync(roomId);
+            }
+
+            return Results.Ok(result.Value.Room);
+        });
+
         group.MapPost("/{roomId:guid}/invites", async (Guid roomId, HttpContext ctx, RoomService rooms) =>
             (await rooms.CreateInviteAsync(ctx.User.GetUserId(), roomId)).ToHttp());
 

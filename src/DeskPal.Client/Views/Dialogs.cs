@@ -24,7 +24,7 @@ public static class Dialogs
 
     public static (ActivityCategory Category, bool ShareToRoom)? Correction(Window? owner, string target, ActivityCategory current, string? roomName)
     {
-        var categories = Enum.GetValues<ActivityCategory>().Where(c => c != ActivityCategory.None).ToList();
+        var categories = PresenceFormatter.SelectableCategories.ToList();
         var combo = new ComboBox
         {
             Margin = new Thickness(0, 8, 0, 0),
@@ -46,9 +46,9 @@ public static class Dialogs
     public static PrivacyProfile? Privacy(Window? owner, string roomName, PrivacyProfile profile)
     {
         var levels = Enum.GetValues<PrivacyLevel>().ToList();
-        var categories = Enum.GetValues<ActivityCategory>().Where(c => c != ActivityCategory.None).ToList();
+        var categories = PresenceFormatter.SelectableCategories.ToList();
         var grid = new Grid { Margin = new Thickness(0, 8, 0, 0) };
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(110) });
         grid.ColumnDefinitions.Add(new ColumnDefinition());
         var combos = new List<ComboBox>();
         for (var i = 0; i < categories.Count; i++)

@@ -175,6 +175,7 @@ public sealed class RoomState(
                 case MessageTypes.RoomMemberLeft:
                 case MessageTypes.RoomOwnerChanged:
                 case MessageTypes.RoomDissolved:
+                case MessageTypes.RoomRenamed:
                     OnRoomEvent(envelope);
                     break;
 

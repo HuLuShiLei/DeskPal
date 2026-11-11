@@ -101,6 +101,23 @@ public sealed class RoomServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task Only_owner_can_rename_and_name_is_validated()
+    {
+        var room = await CreateFullRoomAsync();
+
+        Assert.Equal(403, (await _rooms.RenameAsync(_bob, room, "Bob's")).Status);
+        Assert.Equal(404, (await _rooms.RenameAsync(_carol, room, "Carol's")).Status);
+        Assert.Equal(400, (await _rooms.RenameAsync(_alice, room, "   ")).Status);
+        Assert.Equal(400, (await _rooms.RenameAsync(_alice, room, new string('名', 31))).Status);
+
+        var renamed = await _rooms.RenameAsync(_alice, room, "  我们家  ");
+        Assert.True(renamed.Value!.Changed);
+        Assert.Equal("我们家", renamed.Value.Room.Name);
+        Assert.Equal("我们家", (await _rooms.ListForUserAsync(_bob)).Single().Name);
+        Assert.False((await _rooms.RenameAsync(_alice, room, "我们家")).Value!.Changed);
+    }
+
+    [Fact]
     public async Task Privacy_profile_is_per_room_member()
     {
         var room = await CreateFullRoomAsync();

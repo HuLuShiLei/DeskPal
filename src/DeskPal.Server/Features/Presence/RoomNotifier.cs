@@ -44,6 +44,9 @@ public sealed class RoomNotifier(IHubContext<PresenceHub, IPresenceClient> hub, 
     public Task OwnerChangedAsync(Guid roomId, Guid newOwnerId) =>
         hub.Clients.Group(GroupName(roomId)).Receive(ServerEnvelope(MessageTypes.RoomOwnerChanged, roomId, newOwnerId));
 
+    public Task RenamedAsync(Guid roomId) =>
+        hub.Clients.Group(GroupName(roomId)).Receive(ServerEnvelope(MessageTypes.RoomRenamed, roomId, null));
+
     public Task RulesChangedAsync(Guid roomId, Guid changedBy) =>
         hub.Clients.Group(GroupName(roomId)).Receive(ServerEnvelope(MessageTypes.RoomRulesChanged, roomId, changedBy));
 
