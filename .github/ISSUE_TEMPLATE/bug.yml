@@ -1,0 +1,106 @@
+name: 问题反馈
+description: 程序无法打开、状态显示不正确，或安装更新失败时使用。
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请按各项说明填写。不需要提供日志。请勿填写密码。
+
+        标题用一句话说明问题。例如：执行「检查更新」后提示下载失败。
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 实际现象
+      description: 请描述界面上的结果。错误提示请按原文填写。
+      placeholder: |
+        执行「检查更新」后，窗口提示「下载更新失败」。
+        Room 成员状态显示为「离开」，与该成员当时的实际使用情况不符。
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-you-did
+    attributes:
+      label: 操作过程
+      description: 请按顺序填写问题出现前的操作。
+      placeholder: |
+        1. 启动 DeskPal 并完成登录
+        2. 打开托盘菜单
+        3. 选择「检查更新」
+    validations:
+      required: true
+
+  - type: dropdown
+    id: how-often
+    attributes:
+      label: 是否可以再次出现
+      options:
+        - 每次都会出现
+        - 偶尔出现
+        - 只出现过一次
+        - 不确定
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 问题类型
+      description: 请选择最接近的一项。
+      options:
+        - 无法打开或无法登录
+        - 无法看到对方，或对方无法看到我
+        - 状态显示不正确
+        - 「戳一下」没有反应
+        - 安装或更新
+        - 窗口、托盘或开机自启
+        - 其他
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 版本号
+      description: 版本号位于主窗口标题栏中 DeskPal 与连字符之间。标题为「DeskPal 0.1.1-dev.12 - 显示名」时，填写 0.1.1-dev.12。主窗口无法打开时，填写「无法打开」。
+      placeholder: 0.1.1-dev.12
+    validations:
+      required: false
+
+  - type: dropdown
+    id: windows
+    attributes:
+      label: 操作系统
+      options:
+        - Windows 11
+        - Windows 10
+        - 不确定
+    validations:
+      required: true
+
+  - type: input
+    id: account
+    attributes:
+      label: 登录名
+      description: 用于对应反馈来源。可留空。请勿填写密码。
+      placeholder: 注册时填写的名称
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: 截图
+      description: 如有错误提示或显示异常的界面，请将图片粘贴于此。可留空。
+    validations:
+      required: false
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: 补充说明
+      description: 可填写问题开始出现的时间、当时 Room 内的其他成员，以及已尝试的处理。可留空。
+    validations:
+      required: false

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 下载安装包
+    url: https://github.com/HuLuShiLei/DeskPal/releases
+    about: 尚未安装，或需要重新下载安装包时使用。已安装的客户端可在托盘菜单中选择「检查更新」。

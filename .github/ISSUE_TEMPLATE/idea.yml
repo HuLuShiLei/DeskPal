@@ -1,0 +1,37 @@
+name: 功能建议
+description: 希望增加功能，或现有功能使用不便时使用。
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请直接描述希望改进的地方。不需要提供实现方案。
+
+        标题用一句话概括建议。例如：成员状态变为摸鱼时发送提醒。
+
+  - type: textarea
+    id: wish
+    attributes:
+      label: 希望如何改进
+      description: 请描述希望 DeskPal 提供的结果。
+      placeholder: 成员状态变为摸鱼时，向本机发送提醒。
+    validations:
+      required: true
+
+  - type: textarea
+    id: now
+    attributes:
+      label: 目前的不便之处
+      description: 可留空。
+      placeholder: 成员状态变化后，需要保持主窗口打开才能看到。
+    validations:
+      required: false
+
+  - type: textarea
+    id: when
+    attributes:
+      label: 预期使用场景
+      description: 请描述一个具体使用场景。可留空。
+      placeholder: 工作时间内，成员开始浏览视频网站时收到提醒，无需持续查看主窗口。
+    validations:
+      required: false
