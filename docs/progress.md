@@ -30,7 +30,7 @@
 - 两台真实电脑之间联调，Server 部署到真实服务器。
 - 浏览器域名（UI Automation）、麦克风、媒体播放、锁屏这几个信号没有专门触发过。
 - 纠正、隐私设置、转让、解散这几个对话框没有在界面上点过。
-- Server 镜像在 CI 里构建成功，但还没在 Portainer 上运行过；外网访问 `https://deskpal.hafuhafu.cn:36443/health` 没验证。
+- Server 已通过 Portainer webhook 部署。从带 `revision` 的版本起，CI 会等到 `/health` 返回本次提交号。两台真实电脑登录还没验证。
 
 ## 偏离方案
 
@@ -56,3 +56,4 @@
 | 2026-11-11 | main 构建成功后由 GitHub Actions 调用 Portainer webhook 更新容器；Traefik 只在 36443 公开 webhook token 路径 |
 | 2026-11-11 | Portainer Community Edition 的 webhook 开关不可用，改为 Stack 内的 Watchtower；撤掉公网上的 webhook 路由 |
 | 2026-11-11 | Portainer 升级到 Business Edition，恢复 webhook 自动更新，去掉 Watchtower |
+| 2026-11-11 | 镜像写入 Git 提交号；webhook 使用 sha-<提交号> 标签，CI 等到 /health 的 revision 一致才算部署成功 |

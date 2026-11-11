@@ -6,7 +6,7 @@
 
 1. Portainer 新建 Stack，内容用 `stack.yml`。
 2. 在 Stack 的 Environment variables 里添加 `DESKPAL_JWT_KEY`：至少 32 个字符的随机串，可用 `openssl rand -base64 48` 生成。更换后所有客户端需要重新登录。
-3. 部署后在内网验证：`curl http://192.168.66.5:18820/health` 返回 `{"status":"ok"}`。
+3. 部署后在内网验证：`curl http://192.168.66.5:18820/health` 返回 `{"status":"ok","revision":"..."}`。`revision` 是构建该镜像的 Git 提交号；本地 `dotnet run` 时为空。
 
 如果仓库是私有的，GHCR 镜像也是私有的，需要在 Portainer 的 Registries 里添加 `ghcr.io`（用户名 + 有 `read:packages` 权限的 token）。
 
@@ -34,7 +34,7 @@ SQLite 数据库在 Docker 卷 `deskpal-data` 里（容器内 `/data/deskpal.db`
 
 Portainer 已升级到 Business Edition。Traefik 的 `traefik-portainer-webhook.yml` 只在 36443 上公开带 token 的 webhook 路径，Portainer 界面仍只在 443 上对内网开放。
 
-GitHub Actions 在 main 的镜像推送成功后，POST 仓库 secret `PORTAINER_WEBHOOK_URL`。这个值是带 `:36443` 的 webhook 地址，不进仓库。Portainer 先返回，再拉取镜像并重建容器；工作流接着请求 `https://deskpal.hafuhafu.cn:36443/health`，最多等 3 分钟。更新过程中客户端会短暂断开，连上后会自动重试。
+GitHub Actions 在 main 的镜像推送成功后，POST 仓库 secret `PORTAINER_WEBHOOK_URL`，并带上 `tag=sha-<本次提交号>`。secret 本身是带 `:36443` 的 webhook 地址，不进仓库。Portainer 把 Stack 里的镜像改成这个不可变标签再拉取、重建。工作流接着请求 `/health`，直到返回的 `revision` 等于本次提交号，最多等 5 分钟。只返回 200 不算成功。更新过程中客户端会短暂断开，连上后会自动重试。
 
 如果 Stack 里还有上一版的 Watchtower，用现在的 `stack.yml` 更新一次 Stack，把它去掉。`DESKPAL_JWT_KEY` 保持不动。
 

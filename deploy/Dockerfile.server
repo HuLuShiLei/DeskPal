@@ -24,8 +24,11 @@ RUN apt-get update \
 WORKDIR /app
 COPY --from=build /app ./
 
+# 构建时写入本次提交号。/health 会把它返回去，用来确认跑的是这次的镜像。
+ARG SOURCE_REVISION=unknown
 ENV ASPNETCORE_URLS=http://+:8080 \
-    ConnectionStrings__Default="Data Source=/data/deskpal.db"
+    ConnectionStrings__Default="Data Source=/data/deskpal.db" \
+    DESKPAL_REVISION=$SOURCE_REVISION
 
 # SQLite 文件放在卷里，容器重建不丢账号和 Room。
 RUN mkdir -p /data && chown -R $APP_UID /data

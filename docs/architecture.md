@@ -92,7 +92,7 @@ flowchart LR
 | GET/PUT | `/api/rooms/{id}/privacy` | 我在该 Room 的隐私配置 |
 | GET/PUT | `/api/rooms/{id}/rules` | Room 规则；PUT 按（种类，标准化后的内容）新增或覆盖 |
 | GET | `/api/rules/builtin?version=N` | 内置规则；版本相同时 `rules` 为 null |
-| GET | `/health` | 健康检查 |
+| GET | `/health` | 健康检查，返回 `status` 和 `revision`（镜像构建时的 Git 提交号，本地运行为空） |
 
 ## Hub
 
@@ -138,6 +138,6 @@ flowchart LR
 |---|---|
 | Server 镜像 | `.github/workflows/docker.yml`：推送默认分支或 `v*` 标签时用 `deploy/Dockerfile.server` 构建，推到 `ghcr.io/hulushilei/deskpal-server` |
 | Server 运行 | Portainer Stack（`deploy/stack.yml`），在 192.168.66.5 上发布 18820 端口；`Jwt__Key` 来自 Stack 环境变量 `DESKPAL_JWT_KEY` |
-| 自动更新 | main 上的镜像构建成功后，GitHub Actions POST `PORTAINER_WEBHOOK_URL`。Traefik 只在 36443 上公开 `/api/webhooks/<token>` 和 `/api/stacks/webhooks/<token>`。Portainer 是 Business Edition，界面仍限内网 |
+| 自动更新 | main 上的镜像同时推 `latest` 和 `sha-<提交号>`。GitHub Actions POST `PORTAINER_WEBHOOK_URL?tag=sha-<提交号>`，再等到 `/health` 的 `revision` 等于该提交号。Traefik 只在 36443 上公开 webhook token 路径 |
 | HTTPS | 192.168.66.10 上已有的 Traefik：`deskpal.hafuhafu.cn` 走 443 和 36443 两个入口，`*.hafuhafu.cn` 泛域名证书（阿里云 DNS challenge）；路由文件 `/etc/traefik/conf/deskpal.yml`，仓库里的副本是 `deploy/traefik-dynamic.yml` |
 | 客户端 | `.github/workflows/ci.yml`：在 Windows runner 上发布成自包含单文件 `DeskPal.exe`；每次推送上传 Actions artifact，`v*` 标签同时创建 GitHub Release |

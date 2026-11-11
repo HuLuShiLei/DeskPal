@@ -72,7 +72,8 @@ using (var scope = app.Services.CreateScope())
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+var revision = Environment.GetEnvironmentVariable("DESKPAL_REVISION") ?? "";
+app.MapGet("/health", () => Results.Ok(new { status = "ok", revision }));
 app.MapAuthEndpoints();
 app.MapRoomEndpoints();
 app.MapRuleEndpoints();

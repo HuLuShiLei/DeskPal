@@ -45,7 +45,7 @@ jobs:
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=tag
-            type=sha,format=short
+            type=sha,format=long
 
       - name: 构建并推送
         uses: docker/build-push-action@v6
@@ -55,6 +55,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            SOURCE_REVISION=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -71,7 +73,13 @@ jobs:
             echo "未配置 secret PORTAINER_WEBHOOK_URL，镜像已推送，跳过自动部署"
             exit 0
           fi
-          code=$(curl -sS -o /tmp/wh-body -w "%{http_code}" -X POST --retry 3 --retry-connrefused --retry-delay 5 --max-time 180 "$WEBHOOK")
+          sep='?'
+          case "$WEBHOOK" in
+            *'?'*) sep='&' ;;
+          esac
+          # tag 把 Stack 里的镜像改成这次的不可变标签，避免只复用本地的 latest。
+          url="${WEBHOOK}${sep}tag=sha-${GITHUB_SHA}"
+          code=$(curl -sS -o /tmp/wh-body -w "%{http_code}" -X POST --retry 3 --retry-connrefused --retry-delay 5 --max-time 180 "$url")
           echo "Portainer webhook HTTP ${code}"
           case "$code" in
             200|202|204) ;;
@@ -81,14 +89,14 @@ jobs:
               exit 1
               ;;
           esac
-          echo "等待 https://deskpal.hafuhafu.cn:36443/health"
-          for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
+          echo "等待 /health 的 revision 等于 ${GITHUB_SHA}"
+          for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
             sleep 15
-            health=$(curl -sk -o /dev/null -w "%{http_code}" --max-time 20 https://deskpal.hafuhafu.cn:36443/health || true)
-            echo "health HTTP ${health}"
-            if [ "$health" = "200" ]; then
-              exit 0
-            fi
+            body=$(curl -sk --max-time 20 https://deskpal.hafuhafu.cn:36443/health || true)
+            echo "health: ${body}"
+            case "$body" in
+              *"\"revision\":\"${GITHUB_SHA}\""*) exit 0 ;;
+            esac
           done
-          echo "健康检查未通过"
+          echo "新镜像未在 5 分钟内接过流量"
           exit 1

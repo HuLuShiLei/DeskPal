@@ -5,6 +5,7 @@
 services:
   server:
     image: ghcr.io/hulushilei/deskpal-server:latest
+    pull_policy: always
     restart: unless-stopped
     environment:
       ASPNETCORE_URLS: http://+:8080
