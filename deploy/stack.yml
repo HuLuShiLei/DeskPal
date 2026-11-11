@@ -1,11 +1,14 @@
 # Portainer Stack：Traefik 在另一台主机上，用 file provider 指向这里发布的端口。
 # 路由见 traefik-dynamic.yml。
 # 必填：在 Stack 的 Environment variables 里设置 DESKPAL_JWT_KEY（至少 32 个随机字符）。
+# watchtower 挂了 Docker socket，但只更新带 com.centurylinklabs.watchtower.enable=true 的容器。
 
 services:
   server:
     image: ghcr.io/hulushilei/deskpal-server:latest
     restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     environment:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__Default: Data Source=/data/deskpal.db
@@ -15,6 +18,17 @@ services:
       - deskpal-data:/data
     ports:
       - "18820:8080"
+
+  watchtower:
+    image: nickfedor/watchtower:1.24.0
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+      WATCHTOWER_LABEL_ENABLE: "true"
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_POLL_INTERVAL: "300"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   deskpal-data:
