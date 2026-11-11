@@ -149,7 +149,30 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             Write-Host "没有可做差异包的上一版，改为完整包。"
           }
-          vpk pack -u DeskPal -v $version -c $channel -p publish/DeskPal --packTitle DeskPal -e DeskPal.exe --instLocation PerUser --runtime win-x64 --framework webview2 --noPortable
+          $exclude = @('--exclude', $env:GITHUB_REF_NAME)
+          if (-not $pre) { $exclude += @('--exclude', '*-dev*') }
+          $previous = git describe --tags --abbrev=0 @exclude HEAD 2>$null
+          if ($LASTEXITCODE -ne 0) { $previous = $null } else { $previous = $previous.Trim() }
+          $logArgs = @('-c', 'i18n.logOutputEncoding=utf-8', 'log', '--no-merges', '--pretty=format:%s')
+          if ($previous) { $logArgs += "$previous..HEAD" }
+          $subjects = @(git @logArgs | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+          if ($LASTEXITCODE -ne 0) { $subjects = @() }
+          $limit = 40
+          $more = ''
+          if ($subjects.Count -gt $limit) {
+            $more = "`n- 还有 $($subjects.Count - $limit) 条提交"
+            $subjects = @($subjects | Select-Object -First $limit)
+          }
+          $changes = if ($subjects.Count -eq 0) { '- 这次没有新的提交说明' } else { ($subjects | ForEach-Object { "- $_" }) -join "`n" }
+          $intro = if ($pre) {
+            "测试版，供内部试用。`n`n安装 DeskPal-beta-Setup.exe。安装之后会继续接收测试版。`n托盘菜单可以检查更新，也可以取消「加入测试版」。已下载的更新在退出时安装。"
+          } else {
+            "安装 DeskPal-win-Setup.exe。默认只接收正式版。`n要接收 main 上的测试修复，在托盘菜单勾选「加入测试版」。"
+          }
+          $since = if ($previous) { "自 $previous 以来" } else { "本次发布" }
+          $notes = "$intro`n`n## 更新内容（$since）`n`n$changes$more`n"
+          [System.IO.File]::WriteAllText("$PWD\release-notes.txt", $notes)
+          vpk pack -u DeskPal -v $version -c $channel -p publish/DeskPal --packTitle DeskPal -e DeskPal.exe --instLocation PerUser --runtime win-x64 --framework webview2 --releaseNotes release-notes.txt --noPortable
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Get-ChildItem Releases -File | Where-Object {
             $_.Extension -eq '.nupkg' -and $_.Name -notlike "*$version*"
@@ -160,12 +183,6 @@ jobs:
           if ($pre) { $upload += '--pre' }
           vpk @upload
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $notes = if ($pre) {
-            "测试版，供内部试用。`n`n安装 DeskPal-beta-Setup.exe。安装之后会继续接收测试版。`n托盘菜单可以检查更新，也可以取消「加入测试版」。已下载的更新在退出时安装。"
-          } else {
-            "安装 DeskPal-win-Setup.exe。默认只接收正式版。`n要接收 main 上的测试修复，在托盘菜单勾选「加入测试版」。"
-          }
-          [System.IO.File]::WriteAllText("$PWD\release-notes.txt", $notes)
           gh release edit $tag --notes-file release-notes.txt
           if (-not $pre) { exit 0 }
           $list = gh release list --limit 100 --json tagName,isPrerelease,publishedAt | ConvertFrom-Json
