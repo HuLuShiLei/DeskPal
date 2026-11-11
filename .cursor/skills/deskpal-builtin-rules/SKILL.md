@@ -30,6 +30,7 @@ description: 维护 DeskPal 内置分类规则库 builtin-rules.json：新增或
 ## 分类口径
 
 - `Work`：IDE、Office、设计工具、开发和办公 SaaS，以及企业微信、钉钉、飞书、Slack、Teams、邮箱、会议软件。
+- `Meeting`：不再产生。枚举保留，收到时显示为“工作中”。规则库版本 2 起没有这个类别的规则。
 - `Communication`：微信、QQ、TIM、Telegram、WhatsApp、Skype 等个人聊天，显示为“在聊天”。Discord 归为 `Social`。
 - `Video` / `Music` / `Shopping` / `Social` / `News` / `Game` / `Reading`：桌面应用算放松，显示为“在看视频”“在看社交网站”等。
 - 前台是浏览器时，客户端不使用内置的域名和标题规则，统一显示“正在浏览网页”，后面是域名和页面标题。想把某一个网站改成工作或放松，用个人规则或 Room 规则，不要为此改内置规则库。

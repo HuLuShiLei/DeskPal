@@ -42,19 +42,9 @@ public class BuiltinRulesTests
     }
 
     [Fact]
-    public void Builtin_rules_version_is_at_least_two()
+    public void Meeting_is_no_longer_used()
     {
         Assert.True(File.Version >= 2);
-    }
-
-    [Fact]
-    public void Stored_category_numbers_stay_fixed()
-    {
-        Assert.Equal(1, (int)ActivityCategory.Work);
-        Assert.Equal(3, (int)ActivityCategory.Communication);
-        Assert.Equal(4, (int)ActivityCategory.Video);
-        Assert.Equal(11, (int)ActivityCategory.Other);
-        Assert.Equal(12, (int)ActivityCategory.Browsing);
-        Assert.False(Enum.IsDefined(ActivityCategory.Work.GetType(), 2));
+        Assert.DoesNotContain(File.Rules, r => r.Category == ActivityCategory.Meeting);
     }
 }

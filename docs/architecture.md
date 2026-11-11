@@ -67,7 +67,7 @@ flowchart LR
 - 暂停分享、手动状态、锁屏，进入和退出都立即提交。
 - 状态不变、只是详情变了（例如切换到另一个视频），按同样的间隔限频。
 
-不采集麦克风，也不再产生“会议中”。`PresenceState` 和 `ActivityCategory` 里没有 `Meeting`。
+不采集麦克风，也不再产生 `Meeting`。`Meeting` 留在 `PresenceState` 和 `ActivityCategory` 里，收到时显示为“工作中”。
 
 ## 界面文案
 
@@ -103,7 +103,7 @@ flowchart LR
 ## 隐私
 
 - 隐私级别按 Room 和类别分别配置：`StateOnly`（只显示状态）、`Category`（再加类别和应用名）、`Detail`（再加窗口标题或媒体标题）。
-- 默认值：`Work`、`Communication` 为 `StateOnly`，其他类别为 `Category`。没有人默认开启 `Detail`。
+- 默认值：`Work`、`Meeting`、`Communication` 为 `StateOnly`，其他类别为 `Category`。没有人默认开启 `Detail`。
 - 过滤在客户端完成，原始标题不经过 PrivacyFilter 就不会离开本机。
 - Envelope 的 `Enc` 字段预留给端到端加密，Server 不解析 Payload。
 

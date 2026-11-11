@@ -12,9 +12,9 @@ public static class PresenceFormatter
 {
     public const int DetailMaxLength = 36;
 
-    /// <summary>Categories a user can pick when correcting a classification or setting privacy.</summary>
+    /// <summary>Categories a user can pick when correcting a classification or setting privacy. Meeting is no longer produced.</summary>
     public static IReadOnlyList<ActivityCategory> SelectableCategories { get; } = Enum.GetValues<ActivityCategory>()
-        .Where(c => c is not ActivityCategory.None)
+        .Where(c => c is not (ActivityCategory.None or ActivityCategory.Meeting))
         .ToList();
 
     public static PresenceView Format(PresenceSnapshot snapshot)
@@ -27,7 +27,7 @@ public static class PresenceFormatter
             PresenceState.Custom => snapshot.CustomText ?? "自定义状态",
             PresenceState.Locked => "已锁屏",
             PresenceState.Away => "暂时离开",
-            PresenceState.Working => "工作中",
+            PresenceState.Working or PresenceState.Meeting => "工作中",
             PresenceState.Communicating => "在聊天",
             PresenceState.Other => app is null ? "工作中" : $"正在使用 {app}",
             PresenceState.Slacking => SlackingLabel(snapshot.Category),
@@ -55,7 +55,7 @@ public static class PresenceFormatter
 
     public static string CategoryName(ActivityCategory category) => category switch
     {
-        ActivityCategory.Work => "工作",
+        ActivityCategory.Work or ActivityCategory.Meeting => "工作",
         ActivityCategory.Communication => "聊天",
         ActivityCategory.Video => "放松 · 视频",
         ActivityCategory.Music => "放松 · 音乐",

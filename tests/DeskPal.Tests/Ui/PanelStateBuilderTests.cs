@@ -47,9 +47,10 @@ public class PanelStateBuilderTests
         Assert.Equal([true, false], state.Rooms.Select(r => r.IsOwner));
         Assert.Equal(PanelSamples.MyRoom, state.SelectedRoomId);
         Assert.NotNull(state.Privacy);
-        Assert.DoesNotContain(state.Privacy!.Rows, r => r.Category == ActivityCategory.None);
+        Assert.DoesNotContain(state.Privacy!.Rows, r => r.Category is ActivityCategory.Meeting or ActivityCategory.None);
         Assert.Equal(PrivacyLevel.StateOnly, state.Privacy.Rows.Single(r => r.Category == ActivityCategory.Communication).Level);
         Assert.Equal(3, state.Privacy.Levels.Count);
+        Assert.DoesNotContain(state.Correction.Options, o => o.Value == ActivityCategory.Meeting);
         Assert.Equal(ActivityCategory.Work, state.Correction.Current);
     }
 

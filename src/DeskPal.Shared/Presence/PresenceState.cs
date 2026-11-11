@@ -4,6 +4,7 @@ public enum PresenceState
 {
     Offline = 0,
     Working,
+    Meeting,
     Communicating,
     Slacking,
     Other,

@@ -9,7 +9,7 @@ public sealed class PrivacyProfile
 
     public static PrivacyLevel DefaultLevel(ActivityCategory category) => category switch
     {
-        ActivityCategory.Work or ActivityCategory.Communication => PrivacyLevel.StateOnly,
+        ActivityCategory.Work or ActivityCategory.Meeting or ActivityCategory.Communication => PrivacyLevel.StateOnly,
         _ => PrivacyLevel.Category,
     };
 

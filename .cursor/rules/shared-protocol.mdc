@@ -6,9 +6,9 @@ alwaysApply: false
 
 # 共享协议
 
-不考虑旧客户端。Server 和当前客户端一起更新，不为旧版本保留枚举成员或分支。
+Server 和当前客户端一起更新。已经按整数写入数据库的枚举成员不要删除。
 
-- **枚举按名称序列化**（`JsonStringEnumConverter`）。可以新增成员，也可以删除不再使用的成员。不要改已有成员的名字。`PresenceState`、`ActivityCategory`、`PrivacyLevel`、`RuleKind` 都一样。
+- **枚举按名称序列化**（`JsonStringEnumConverter`）。可以新增成员。不要改已有成员的名字。已经按整数写入数据库的枚举，不要删除中间成员；`ActivityCategory.Meeting` 因此保留。`PresenceState`、`ActivityCategory`、`PrivacyLevel`、`RuleKind` 都一样。
 - **新增消息类型**：在 `MessageTypes` 加常量。客户端可以发送的类型还要加进 `ClientPublishable`。不认识的 `Type` 直接忽略。完整步骤见 skill `deskpal-add-message-type`。
 - **Payload 结构发生变化时**，提高 `Envelope.V`，接收方按 `V` 分支处理，不要复用旧结构改语义。
 - `Envelope.Enc` 原型阶段固定为 `none`。以后做端到端加密时，`Payload` 改成密文，Server 不需要改动。

@@ -174,6 +174,7 @@ public class PresenceFormatterTests
 
     [Theory]
     [InlineData(PresenceState.Working, ActivityCategory.Work, "工作中")]
+    [InlineData(PresenceState.Meeting, ActivityCategory.Meeting, "工作中")]
     [InlineData(PresenceState.Communicating, ActivityCategory.Communication, "在聊天")]
     [InlineData(PresenceState.Slacking, ActivityCategory.Social, "在看社交网站")]
     [InlineData(PresenceState.Slacking, ActivityCategory.None, "在放松")]
@@ -197,8 +198,9 @@ public class PresenceFormatterTests
     }
 
     [Fact]
-    public void None_is_not_offered_and_labels_avoid_slang()
+    public void Meeting_is_not_offered_and_labels_avoid_slang()
     {
+        Assert.DoesNotContain(ActivityCategory.Meeting, PresenceFormatter.SelectableCategories);
         Assert.DoesNotContain(ActivityCategory.None, PresenceFormatter.SelectableCategories);
         var labels = PresenceFormatter.SelectableCategories.Select(PresenceFormatter.CategoryName)
             .Concat(Enum.GetValues<PrivacyLevel>().Select(PresenceFormatter.PrivacyLevelName))
