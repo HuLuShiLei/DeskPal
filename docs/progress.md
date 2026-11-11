@@ -13,7 +13,9 @@
 | 聊天软件分类 | QQ、微信、Telegram 等个人聊天归为 `Communication`（在聊天）；企业微信、飞书、钉钉、邮箱、会议软件归为 `Work` | 用户选定 |
 | 界面文案 | 书面用语：工作中、在聊天、正在使用 XX、在看视频、在看社交网站、在放松；不用“忙”“摸鱼”。本机识别分标题、应用、详情三行 | 用户要求 |
 | Room 改名 | 只有所有者可以改，1 到 30 个字符 | 用户选定 |
-| 界面技术 | 后续改为 .NET 宿主 + WebView2 的 HTML 界面，托盘、采集器、Core 不动；先做验证再改，见 [ui-tech-evaluation.md](ui-tech-evaluation.md) | AI 能在浏览器里看到和测试界面；以后做桌宠 |
+| 界面技术 | 面板和登录页用 .NET 宿主 + 标准 WebView2 的 HTML 界面（Preact），托盘菜单保持原生；以后的桌宠用 WPF 原生透明窗口。见 [ui-tech-evaluation.md](ui-tech-evaluation.md) | AI 能在浏览器里看到和测试界面；透明窗口里的 WebView2 静止时也占 CPU |
+| 面板 | 一个窗口三个标签页：状态、Room、设置。Room 设置和应用设置分开。隐藏 5 分钟后释放 WebView2。更新的确认和提示显示在面板里 | 用户选定 |
+| WebView2 Runtime | 安装包带 `--framework webview2`，安装时缺少就自动安装；启动时再检测一次，缺少时提示下载 | 少数 LTSC、精简版系统没有 |
 | 隐私 | 按 Room、按类别配置；默认不发窗口标题 | 同一个人在伴侣 Room 和同事 Room 可以显示不同程度 |
 | 通信 | Server 中转 + SignalR，不做 P2P；以后加端到端加密 | 公司网络打洞成功率低；多人 Room 和离线状态需要 Server；见 plan-v1 第八节 |
 | Server 职责 | 只按 `Type` 和 `RoomId` 路由，不解析 Payload；实时状态只在内存里 | 给端到端加密留位置，少存数据 |
@@ -28,15 +30,17 @@
 - Server：注册登录、Room 全部生命周期、隐私配置、Room 规则、内置规则库（266 条）、PresenceHub、Docker 部署文件、GitHub Actions（测试、客户端 exe、Server 镜像）。
 - 客户端：5 个采集器、事件总线、分层分类、状态判断、防抖、隐私过滤、托盘和主窗口、登录、Room 菜单、戳一下、“这个判断不对”、手动状态、暂停分享、开机自启。
 - 发布：GitHub Actions 三个任务（测试、客户端 exe、Server 镜像）都已跑通；Release `v0.1.0` 已发布；Traefik 主机上已新增 `/etc/traefik/conf/deskpal.yml`。
-- 测试：70 个，全部通过。
+- 测试：81 个，全部通过。
 - 第一批调整（[plan-2026-11-11-presence-ui.md](plan-2026-11-11-presence-ui.md)）：Room 改名、去掉麦克风、内置规则库版本 2、书面文案、本机识别分行显示。端到端自检过：改名广播、非所有者改名返回 403、对方卡片的长标题截断。
+- 第二批调整（HTML 界面）：面板、登录页改为 WebView2 + Preact，删除 `MainWindow`、`MainViewModel`、`Views/Dialogs.cs` 和 CommunityToolkit.Mvvm。模拟数据下在浏览器里逐页检查过；真实客户端端到端检查过面板显示、“戳一下”、暂停分享、手动状态、改名，以及隐藏 5 分钟后释放 WebView2。
 - 本机端到端验证过：模拟成员发送的状态在界面正确显示；对方收到本机状态（`Since` 正确）、“戳一下”的文字、暂停分享（立即生效）。
 
 ## 还没验证
 
 - 两台真实电脑之间联调，Server 部署到真实服务器。
 - 浏览器域名（UI Automation）、媒体播放、锁屏这几个信号没有专门触发过。
-- 纠正、隐私设置、转让、解散这几个对话框没有在界面上点过。
+- 纠正、隐私设置、转让、解散在模拟数据下点过，没有连真实 Server 点过。
+- 没有 WebView2 Runtime 的系统上安装（要在第一次正式发布前用虚拟机装一次）。
 - Server 已通过 Portainer webhook 部署。从带 `revision` 的版本起，CI 会等到 `/health` 返回本次提交号。两台真实电脑登录还没验证。
 
 ## 偏离方案
@@ -70,3 +74,4 @@
 | 2026-11-11 | 测试版打包不再生成便携压缩包。vpk 按打包清单上传，先删掉清单里的文件会让 Release 发布失败 |
 | 2026-11-11 | GitHub Issue 使用填空表单：试用人员选择「问题反馈」或「功能建议」，不从空白 Issue 开始 |
 | 2026-11-11 | Room 改名（只有所有者，广播 `room.renamed`）；去掉麦克风采集和“会议中”；内置规则库版本 2（办公聊天和邮箱归为工作，个人聊天归为聊天）；文案改为书面用语，本机识别分行显示；界面技术定为 WebView2，待验证 |
+| 2026-11-11 | 面板和登录页改为 WebView2 + Preact 的 HTML 界面，分状态、Room、设置三个标签页；更新提示显示在面板里；面板隐藏 5 分钟后释放 WebView2；设置里增加窗口置顶；安装包带 WebView2 检查；离线成员不能“戳一下” |

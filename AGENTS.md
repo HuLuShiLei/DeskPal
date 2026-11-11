@@ -23,7 +23,7 @@ Windows 状态共享客户端：同一 Room 的成员实时看到对方在工作
 src/DeskPal.Shared/       Envelope、MessageTypes、状态枚举、DTO、RulePattern（Server 和客户端共用）
 src/DeskPal.Server/       ASP.NET Core：Features/{Auth,Rooms,Presence,Rules}、Data（EF Core + SQLite + 迁移）
 src/DeskPal.Client.Core/  纯逻辑，无 Windows 依赖：事件总线、分层分类器、状态判定、防抖、隐私过滤、文案
-src/DeskPal.Client/       WPF 托盘程序：Collectors、Native、Services、ViewModels、Views
+src/DeskPal.Client/       WPF 托盘程序：Collectors、Native、Services、Ui（WebView2 宿主）、Views；web/ 是面板和登录页的前端（Vite + Preact）
 tests/DeskPal.Tests/      xUnit：Client.Core 逻辑、RoomService、PresenceHub 集成测试
 .github/workflows/        ci（测试 + 客户端 exe）、docker（Server 镜像推 GHCR）
 deploy/                   Dockerfile.server、Portainer stack.yml、Traefik 路由（已部署到 192.168.66.10）、部署说明
@@ -36,6 +36,7 @@ dotnet build DeskPal.slnx
 dotnet test tests/DeskPal.Tests
 cd src/DeskPal.Server; dotnet run            # http://localhost:5180
 dotnet run --project src/DeskPal.Client      # 本机客户端
+cd src/DeskPal.Client/web; npm run dev  # 面板前端，http://localhost:5190/，用模拟数据
 dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/Migrations
 ```
 
@@ -43,7 +44,8 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 - 客户端默认 Server 地址是生产环境 `https://deskpal.hafuhafu.cn:36443`，本地联调要在登录窗口或 `settings.json` 里改成 `http://localhost:5180`。
 - `dotnet-ef` 是本地工具（`dotnet-tools.json`），新机器先执行 `dotnet tool restore`。
 - 根目录 `nuget.config` 只保留 nuget.org。本机全局配置里的公司源在当前网络下连不上，会让还原卡住，不要删这个文件。
-- 开发端口是 5180。默认的 5284 被 QQ 占用。
+- 开发端口是 5180。默认的 5284 被 QQ 占用。前端开发服务器是 5190。
+- 编译客户端需要 Node（20.19 以上），会自动执行 `npm ci` 和 `npm run build`。没有 Node 时加 `-p:SkipWebBuild=true`，使用已有的 `web/dist`。
 - 改完代码至少跑 `dotnet build` 和 `dotnet test`。动了采集、Hub 或界面，再按 skill `deskpal-e2e-check` 做一次端到端自检。
 
 ## 硬约束

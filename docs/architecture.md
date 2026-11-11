@@ -8,8 +8,8 @@
 |---|---|---|
 | `DeskPal.Shared` | net10.0 | Envelope、消息类型常量、状态和类别枚举、REST DTO、Hub 契约。Server 和客户端都引用 |
 | `DeskPal.Server` | net10.0 | ASP.NET Core：Auth、Rooms、Presence（SignalR Hub）、Rules；SQLite |
-| `DeskPal.Client.Core` | net10.0 | 不依赖 Windows 的纯逻辑：事件总线、分类器、状态判断、防抖、隐私过滤 |
-| `DeskPal.Client` | net10.0-windows10.0.19041.0 | WPF 托盘程序：采集器、Hub 连接、界面，输出文件 `DeskPal.exe` |
+| `DeskPal.Client.Core` | net10.0 | 不依赖 Windows 的纯逻辑：事件总线、分类器、状态判断、防抖、隐私过滤、面板状态（`Ui/PanelStateBuilder`） |
+| `DeskPal.Client` | net10.0-windows10.0.19041.0 | WPF 托盘程序：采集器、Hub 连接、WebView2 宿主窗口，输出文件 `DeskPal.exe`。`web/` 是面板和登录页的前端（Vite + TypeScript + Preact），构建结果复制到输出目录的 `web/` |
 | `DeskPal.Tests` | net10.0 | xUnit：分类、状态、Room 生命周期、Hub 集成测试 |
 
 ## 数据流
@@ -71,6 +71,33 @@ flowchart LR
 ## 界面文案
 
 `PresenceFormatter.Format` 把状态拆成三行：标题（工作中、在聊天、正在使用 XX、在看视频、在放松、暂时离开、已锁屏等）、应用名、详情。详情超过 36 个字时在界面上截断并加“…”，共享出去的 `Detail` 不截断。文案用书面用语，不用“忙”“摸鱼”。
+
+## 界面
+
+托盘图标和托盘菜单是 WPF 原生的。面板和登录页是 HTML，放在标准 `WebView2` 控件里：
+
+| 窗口 | 文件 | 内容 |
+|---|---|---|
+| 面板 | `Ui/PanelWindow.cs`、`Ui/PanelBridge.cs` | 三个标签页：状态（Room 成员卡片、我的状态、手动状态）、Room（列表、创建和加入、改名、邀请码、转让、退出、解散、隐私设置）、设置（账号、开机自启、窗口置顶、测试版、检查更新）。第一次打开时停靠在屏幕右下角，关闭只隐藏 |
+| 登录 | `Ui/LoginWindow.cs` | 登录和注册。在 Room、Hub 等服务启动之前显示，所以是单独的窗口 |
+
+- 前端从安装目录的 `web/` 加载，虚拟主机名 `app.deskpal.example`，不开本地端口。跳到其他来源的链接用系统浏览器打开。
+- WebView2 用户数据目录是 `%LOCALAPPDATA%\DeskPal\WebView2`，不放在 Velopack 每次更新都会替换的 `current\` 下。
+- 面板隐藏 5 分钟后释放 WebView2，它的进程随之退出；再打开时重新加载，约 0.5 秒。
+- 更新的确认和提示（`UpdateInteraction`）通过 `IUserPrompt` 显示在面板里；面板不可用时退回系统对话框。
+- 启动时检测 WebView2 Runtime。没有时用系统对话框提示下载：已登录时采集和同步照常，只是面板打不开；未登录时无法登录。
+
+宿主和页面之间用 JSON 消息通信（`PostWebMessageAsJson` / `chrome.webview.postMessage`），类型定义在 `web/src/bridge.ts`：
+
+| 方向 | 消息 |
+|---|---|
+| 宿主 → 页面 | `state`（完整的 `PanelState`，变化后最多每 200 毫秒推一次）、`result{id, ok, error, data}`、`dialog{id, kind, message}`、`login{serverUrl, userName}` |
+| 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`member.poke`、`presence.pause / manual / correct`、`settings.autoStart / topmost`、`update.check / beta / restart`、`auth.login / register` |
+| 页面 → 宿主，不回复 | `ready`、`dialog.answer{dialogId, ok}` |
+
+`PanelState` 由 `PanelStateBuilder` 在 Client.Core 里生成，界面上的文字（连接状态、空提示、规则来源、“该 Room 成员看到”）都在 C# 里算好，页面只负责显示。`PanelFixtureTests` 把几组样例序列化到 `web/src/mock/fixtures/`，不一致就失败，改了 `PanelState` 或文案后用 `DESKPAL_UPDATE_FIXTURES=1` 运行测试更新。
+
+在浏览器里调试：`cd src/DeskPal.Client/web; npm run dev`，打开 `http://localhost:5190/`。没有 `chrome.webview` 时页面用模拟宿主，参数 `?mock=default|no-room|guest` 切换样例，`?fail` 让所有命令失败，`?page=login` 打开登录页，发出的命令记录在 `window.__sent`。Debug 版客户端设置环境变量 `DESKPAL_UI_URL=http://localhost:5190/` 可以直接加载开发服务器。
 
 ## 隐私
 
@@ -136,7 +163,7 @@ flowchart LR
 | `personal-rules.json` | 个人规则 |
 | `builtin-rules.json` | 内置规则缓存 |
 
-开机自启写入 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`；用命名 Mutex 保证单实例运行。
+`settings.json` 里还有窗口置顶（`topmost`）。WebView2 的缓存在 `%LOCALAPPDATA%\DeskPal\WebView2`。开机自启写入 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`；用命名 Mutex 保证单实例运行。
 
 ## 部署和发布
 
@@ -148,4 +175,4 @@ flowchart LR
 | Server 运行 | Portainer Stack（`deploy/stack.yml`），在 192.168.66.5 上发布 18820 端口；`Jwt__Key` 来自 Stack 环境变量 `DESKPAL_JWT_KEY` |
 | 自动更新 | main 上的镜像同时推 `latest` 和 `sha-<提交号>`。GitHub Actions POST `PORTAINER_WEBHOOK_URL?tag=sha-<提交号>`，再等到 `/health` 的 `revision` 等于该提交号。Traefik 只在 36443 上公开 webhook token 路径 |
 | HTTPS | 192.168.66.10 上已有的 Traefik：`deskpal.hafuhafu.cn` 走 443 和 36443 两个入口，`*.hafuhafu.cn` 泛域名证书（阿里云 DNS challenge）；路由文件 `/etc/traefik/conf/deskpal.yml`，仓库里的副本是 `deploy/traefik-dynamic.yml` |
-| 客户端 | `.github/workflows/ci.yml`：main 上改了客户端时用 Velopack 发测试版 Pre-release（通道 `beta`，版本 `x.y.z-dev.<运行号>`，安装包 `DeskPal-beta-Setup.exe`），只保留最近 8 个；手动推送 `vX.Y.Z` 发正式版（通道 `win`，`DeskPal-win-Setup.exe`）。已安装的客户端启动后和每 6 小时向 GitHub Release 检查更新，后台下载；只在退出或选择立即重启时安装，启动时不自动安装。取消测试版会删除已下载的包 |
+| 客户端 | `.github/workflows/ci.yml`：main 上改了客户端时用 Velopack 发测试版 Pre-release（通道 `beta`，版本 `x.y.z-dev.<运行号>`，安装包 `DeskPal-beta-Setup.exe`），只保留最近 8 个；手动推送 `vX.Y.Z` 发正式版（通道 `win`，`DeskPal-win-Setup.exe`）。已安装的客户端启动后和每 6 小时向 GitHub Release 检查更新，后台下载；只在退出或选择立即重启时安装，启动时不自动安装。取消测试版会删除已下载的包。打包时带 `--framework webview2`，安装程序和每次更新前都会检查 WebView2 Runtime，缺少时自动安装。CI 先用 Node 22 构建 `web/` |

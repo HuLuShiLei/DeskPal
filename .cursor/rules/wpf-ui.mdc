@@ -1,15 +1,21 @@
 ---
-description: DeskPal WPF 界面约定：线程切换、隐式 using 缺失、对话框、中文文案
-globs: src/DeskPal.Client/*.xaml, src/DeskPal.Client/*.xaml.cs, src/DeskPal.Client/Views/**, src/DeskPal.Client/ViewModels/**, src/DeskPal.Client/App.xaml.cs
+description: DeskPal 客户端界面约定：WebView2 宿主、页面和宿主的消息、托盘、中文文案
+globs: src/DeskPal.Client/Ui/**, src/DeskPal.Client/Views/**, src/DeskPal.Client/web/src/**, src/DeskPal.Client/App.xaml.cs, src/DeskPal.Client.Core/Ui/**
 alwaysApply: false
 ---
 
-# WPF 界面
+# 客户端界面
 
-- `RoomState`、`PresenceCoordinator`、`HubService` 的事件在后台线程触发。ViewModel 收到后调用 `Schedule()`，它通过 `Dispatcher.BeginInvoke` 合并刷新，不要在事件里直接改 `ObservableCollection`。
+面板和登录页是 `web/` 下的 HTML（Preact），托盘菜单是 WPF 原生的。整体结构和消息表见 `docs/architecture.md` 的「界面」一节。
+
+- 页面要显示的文字在 C# 里算好：加到 `PanelState`（`DeskPal.Client.Core/Ui`），由 `PanelStateBuilder` 生成，页面不要自己拼状态文案或判断隐私。改了 `PanelState` 或文案，用 `DESKPAL_UPDATE_FIXTURES=1` 运行测试，更新 `web/src/mock/fixtures/`，并同步 `web/src/bridge.ts` 的类型。
+- 页面的操作发命令（`bridge.request`），在 `PanelBridge.HandleAsync` 里处理。参数名两边要一致；失败时返回中文错误，页面直接显示。
+- `RoomState`、`PresenceCoordinator`、`HubService` 的事件在后台线程触发。`PanelWindow` 通过 `Dispatcher` 合并推送 `state`，不要在事件里直接操作 WebView2。
+- 页面里不要用 `window.alert / confirm / prompt`，它们会阻塞自动化检查。用 `useHost().ask`；宿主要确认时发 `dialog` 消息。
+- 动态插入的元素 `autoFocus` 不生效，要用 ref 在 `useEffect` 里聚焦。对话框打开时背后的内容设为 `inert`。
+- 改了页面，先 `npm run dev` 在 Cursor 自带浏览器里用 `?mock=` 各样例看一遍，再跑真实客户端。
 - WPF 项目的隐式 using 不包含 `System.IO` 和 `System.Net.Http`。`System.IO` 已经在 `GlobalUsings.cs` 里补了；用 `HttpClient` 的文件要自己写 `using System.Net.Http;`。
-- 简单对话框（输入、选择、确认、纠正、隐私设置）统一放在 `Views/Dialogs.cs`，用代码创建，不再新增 XAML 窗口。
 - 界面文案用书面中文，产品名用英文原名：“Room 成员”“生成邀请码”，不要自造简称。
-- 主窗口关闭时只隐藏（`AllowClose` 为 false），真正退出走托盘菜单的“退出”，它会先停止后台服务、断开 Hub、释放单实例 Mutex。
+- 面板关闭时只隐藏（`AllowClose` 为 false），真正退出走托盘菜单的“退出”，它会先停止后台服务、断开 Hub、释放单实例 Mutex。
 - 通知用托盘气泡 `TaskbarIcon.ShowNotification`，由 `RoomState.Notify` 事件触发。
 - lambda 的参数不要命名成 `_` 又在函数体里写 `_ = ...`，那是给参数赋值，不是丢弃返回值。

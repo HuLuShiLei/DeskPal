@@ -18,6 +18,8 @@ public sealed class AppSettings
     public bool Paused { get; set; }
     public string? ManualText { get; set; }
 
+    public bool Topmost { get; set; }
+
     /// <summary>null 表示沿用安装渠道：测试版安装包继续接收测试版。</summary>
     public bool? IncludePrerelease { get; set; }
 

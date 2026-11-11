@@ -89,6 +89,12 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: src/DeskPal.Client/web/package-lock.json
+
       - name: 计算版本
         id: version
         shell: pwsh
@@ -143,7 +149,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             Write-Host "没有可做差异包的上一版，改为完整包。"
           }
-          vpk pack -u DeskPal -v $version -c $channel -p publish/DeskPal --packTitle DeskPal -e DeskPal.exe --instLocation PerUser --runtime win-x64 --noPortable
+          vpk pack -u DeskPal -v $version -c $channel -p publish/DeskPal --packTitle DeskPal -e DeskPal.exe --instLocation PerUser --runtime win-x64 --framework webview2 --noPortable
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Get-ChildItem Releases -File | Where-Object {
             $_.Extension -eq '.nupkg' -and $_.Name -notlike "*$version*"

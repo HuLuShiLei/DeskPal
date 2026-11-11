@@ -1,0 +1,180 @@
+{
+  "connection": {
+    "connected": false,
+    "text": "连接中断，正在重连…"
+  },
+  "me": {
+    "displayName": "Alice",
+    "view": {
+      "headline": "暂停分享",
+      "app": null,
+      "detail": null
+    },
+    "source": null,
+    "visible": "该 Room 成员看到：暂停分享",
+    "paused": true,
+    "manualText": "午休中",
+    "manualPresets": [
+      "别打扰",
+      "午休中",
+      "开会中",
+      "有空，来聊",
+      "在路上"
+    ]
+  },
+  "rooms": [
+    {
+      "id": "00000000-0000-0000-0000-0000000000a1",
+      "name": "测试 Room",
+      "isOwner": true,
+      "memberCount": 3,
+      "maxMembers": 3
+    },
+    {
+      "id": "00000000-0000-0000-0000-0000000000a2",
+      "name": "同事 Room",
+      "isOwner": false,
+      "memberCount": 2,
+      "maxMembers": 2
+    }
+  ],
+  "selectedRoomId": "00000000-0000-0000-0000-0000000000a2",
+  "emptyHint": null,
+  "members": [
+    {
+      "userId": "00000000-0000-0000-0000-00000000da7e",
+      "name": "Dave",
+      "isOwner": true,
+      "online": false,
+      "view": {
+        "headline": "离线",
+        "app": null,
+        "detail": null
+      },
+      "meta": ""
+    }
+  ],
+  "privacy": {
+    "rows": [
+      {
+        "category": "Work",
+        "name": "工作",
+        "level": "StateOnly"
+      },
+      {
+        "category": "Communication",
+        "name": "聊天",
+        "level": "StateOnly"
+      },
+      {
+        "category": "Video",
+        "name": "放松 · 视频",
+        "level": "Category"
+      },
+      {
+        "category": "Music",
+        "name": "放松 · 音乐",
+        "level": "Category"
+      },
+      {
+        "category": "Shopping",
+        "name": "放松 · 购物",
+        "level": "Category"
+      },
+      {
+        "category": "Social",
+        "name": "放松 · 社交网站",
+        "level": "Category"
+      },
+      {
+        "category": "News",
+        "name": "放松 · 新闻",
+        "level": "Category"
+      },
+      {
+        "category": "Game",
+        "name": "放松 · 游戏",
+        "level": "Category"
+      },
+      {
+        "category": "Reading",
+        "name": "放松 · 阅读",
+        "level": "Category"
+      },
+      {
+        "category": "Other",
+        "name": "其他",
+        "level": "Category"
+      }
+    ],
+    "levels": [
+      {
+        "value": "StateOnly",
+        "name": "只显示状态"
+      },
+      {
+        "value": "Category",
+        "name": "显示类别和应用"
+      },
+      {
+        "value": "Detail",
+        "name": "显示详情（标题）"
+      }
+    ]
+  },
+  "correction": {
+    "target": null,
+    "current": "Other",
+    "options": [
+      {
+        "value": "Work",
+        "name": "工作"
+      },
+      {
+        "value": "Communication",
+        "name": "聊天"
+      },
+      {
+        "value": "Video",
+        "name": "放松 · 视频"
+      },
+      {
+        "value": "Music",
+        "name": "放松 · 音乐"
+      },
+      {
+        "value": "Shopping",
+        "name": "放松 · 购物"
+      },
+      {
+        "value": "Social",
+        "name": "放松 · 社交网站"
+      },
+      {
+        "value": "News",
+        "name": "放松 · 新闻"
+      },
+      {
+        "value": "Game",
+        "name": "放松 · 游戏"
+      },
+      {
+        "value": "Reading",
+        "name": "放松 · 阅读"
+      },
+      {
+        "value": "Other",
+        "name": "其他"
+      }
+    ]
+  },
+  "settings": {
+    "autoStart": false,
+    "topmost": true,
+    "receiveBeta": false,
+    "updateReady": true,
+    "version": "0.1.0",
+    "serverUrl": "https://deskpal.hafuhafu.cn:36443",
+    "userName": "alice"
+  }
+}

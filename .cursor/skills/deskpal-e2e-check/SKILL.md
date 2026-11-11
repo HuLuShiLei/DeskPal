@@ -34,6 +34,8 @@ Invoke-RestMethod http://localhost:5180/health
 
 `%APPDATA%\DeskPal` 是用户真实的登录信息。存在就整个移动到 `.local/tmp/e2e/appdata-backup/`，第 7 步再移回来。不要直接覆盖。
 
+再记下 `%LOCALAPPDATA%\DeskPal\WebView2` 是否已经存在（安装版也用这个目录），第 7 步据此决定删不删。
+
 ## 3. 创建测试账号和 Room
 
 请求体要按 UTF-8 字节发送，否则中文 Room 名在 Windows PowerShell 5 里会乱码：
@@ -85,12 +87,20 @@ Start-Process src\DeskPal.Client\bin\Debug\net10.0-windows10.0.19041.0\DeskPal.e
 
 | 检查项 | 预期 |
 |---|---|
-| 客户端顶部 | “已连接” |
-| Bob 的卡片 | “在看视频 · 哔哩哔哩：【猫猫】合集”，“已持续 12 分钟” |
-| “我的状态” | 识别出当前前台应用和规则来源 |
+| 面板位置 | 第一次打开停靠在屏幕右下角 |
+| 面板顶部 | Room 下拉框，右侧“已连接” |
+| Bob 的卡片 | 三行：“在看视频”“哔哩哔哩”“【猫猫】合集”，下面“已持续 12 分钟” |
+| “我的状态” | 识别出当前前台应用、规则来源和“该 Room 成员看到：……” |
 | 模拟成员收到 alice 的状态 | 首条状态不是空的 `Other`；30 秒内收到稳定后的状态 |
-| 点“戳一下”并输入文字 | 模拟成员收到 `interaction.poke`，文字一致 |
+| 点“戳一下”，不点输入框直接打字，按回车 | 输入框自动获得焦点；模拟成员收到 `interaction.poke`，文字一致 |
 | 勾选“暂停分享” | 模拟成员立即收到 `Paused` |
+| 关闭面板 5 分钟后 | 用户数据目录是 `DeskPal\WebView2` 的 `msedgewebview2` 进程全部退出（下面的命令计数为 0）；再从托盘打开能正常显示 |
+
+```powershell
+Get-CimInstance Win32_Process -Filter "Name='msedgewebview2.exe'" | Where-Object CommandLine -match 'DeskPal\\WebView2' | Measure-Object
+```
+
+只改了页面时，先在浏览器里检查：`cd src/DeskPal.Client/web; npm run dev`，用 Cursor 自带浏览器打开 `http://localhost:5190/?mock=default`（还有 `no-room`、`guest`、`?fail`、`?page=login`），视口宽度设成 404 左右，和面板一致。
 
 改了哪一块，就加测哪一块。例如改了浏览器采集：打开 B 站，看“本机识别”是不是“在看视频 · 哔哩哔哩”。
 
@@ -98,6 +108,6 @@ Start-Process src\DeskPal.Client\bin\Debug\net10.0-windows10.0.19041.0\DeskPal.e
 
 1. 结束 `DeskPal`、`DeskPal.Server` 和模拟成员进程。
 2. **先把终端的工作目录切回仓库根目录**，否则删除 `.local` 会提示目录正在使用。
-3. 删除 `%APPDATA%\DeskPal`，再把第 2 步的备份移回去。
+3. 删除 `%APPDATA%\DeskPal`，再把第 2 步的备份移回去。第 2 步时 `%LOCALAPPDATA%\DeskPal\WebView2` 不存在的话，也删掉它。
 4. 删除 `src/DeskPal.Server/storage/`（测试账号都在这个数据库里）。路径要写全，不要写成 `data`，在 Windows 上它和源码目录 `Data` 是同一个目录。
 5. 删除 `.local/tmp/e2e/`。

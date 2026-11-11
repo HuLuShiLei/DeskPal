@@ -1,0 +1,192 @@
+{
+  "connection": {
+    "connected": true,
+    "text": "已连接"
+  },
+  "me": {
+    "displayName": "Alice",
+    "view": {
+      "headline": "工作中",
+      "app": "Cursor",
+      "detail": "plan.md - idea1 - Cursor"
+    },
+    "source": "内置规则，稳定后同步",
+    "visible": "该 Room 成员看到：正在使用 Cursor",
+    "paused": false,
+    "manualText": null,
+    "manualPresets": [
+      "别打扰",
+      "午休中",
+      "开会中",
+      "有空，来聊",
+      "在路上"
+    ]
+  },
+  "rooms": [
+    {
+      "id": "00000000-0000-0000-0000-0000000000a1",
+      "name": "测试 Room",
+      "isOwner": true,
+      "memberCount": 3,
+      "maxMembers": 3
+    },
+    {
+      "id": "00000000-0000-0000-0000-0000000000a2",
+      "name": "同事 Room",
+      "isOwner": false,
+      "memberCount": 2,
+      "maxMembers": 2
+    }
+  ],
+  "selectedRoomId": "00000000-0000-0000-0000-0000000000a1",
+  "emptyHint": null,
+  "members": [
+    {
+      "userId": "00000000-0000-0000-0000-000000000b0b",
+      "name": "Bob",
+      "isOwner": false,
+      "online": true,
+      "view": {
+        "headline": "在看视频",
+        "app": "哔哩哔哩",
+        "detail": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和…"
+      },
+      "meta": "已持续 12 分钟"
+    },
+    {
+      "userId": "00000000-0000-0000-0000-0000000ca201",
+      "name": "Carol",
+      "isOwner": false,
+      "online": false,
+      "view": {
+        "headline": "离线",
+        "app": null,
+        "detail": null
+      },
+      "meta": "还没有收到状态"
+    }
+  ],
+  "privacy": {
+    "rows": [
+      {
+        "category": "Work",
+        "name": "工作",
+        "level": "StateOnly"
+      },
+      {
+        "category": "Communication",
+        "name": "聊天",
+        "level": "StateOnly"
+      },
+      {
+        "category": "Video",
+        "name": "放松 · 视频",
+        "level": "Category"
+      },
+      {
+        "category": "Music",
+        "name": "放松 · 音乐",
+        "level": "Category"
+      },
+      {
+        "category": "Shopping",
+        "name": "放松 · 购物",
+        "level": "Category"
+      },
+      {
+        "category": "Social",
+        "name": "放松 · 社交网站",
+        "level": "Category"
+      },
+      {
+        "category": "News",
+        "name": "放松 · 新闻",
+        "level": "Category"
+      },
+      {
+        "category": "Game",
+        "name": "放松 · 游戏",
+        "level": "Category"
+      },
+      {
+        "category": "Reading",
+        "name": "放松 · 阅读",
+        "level": "Category"
+      },
+      {
+        "category": "Other",
+        "name": "其他",
+        "level": "Category"
+      }
+    ],
+    "levels": [
+      {
+        "value": "StateOnly",
+        "name": "只显示状态"
+      },
+      {
+        "value": "Category",
+        "name": "显示类别和应用"
+      },
+      {
+        "value": "Detail",
+        "name": "显示详情（标题）"
+      }
+    ]
+  },
+  "correction": {
+    "target": "Cursor",
+    "current": "Work",
+    "options": [
+      {
+        "value": "Work",
+        "name": "工作"
+      },
+      {
+        "value": "Communication",
+        "name": "聊天"
+      },
+      {
+        "value": "Video",
+        "name": "放松 · 视频"
+      },
+      {
+        "value": "Music",
+        "name": "放松 · 音乐"
+      },
+      {
+        "value": "Shopping",
+        "name": "放松 · 购物"
+      },
+      {
+        "value": "Social",
+        "name": "放松 · 社交网站"
+      },
+      {
+        "value": "News",
+        "name": "放松 · 新闻"
+      },
+      {
+        "value": "Game",
+        "name": "放松 · 游戏"
+      },
+      {
+        "value": "Reading",
+        "name": "放松 · 阅读"
+      },
+      {
+        "value": "Other",
+        "name": "其他"
+      }
+    ]
+  },
+  "settings": {
+    "autoStart": true,
+    "topmost": false,
+    "receiveBeta": true,
+    "updateReady": false,
+    "version": "0.1.1-dev.12",
+    "serverUrl": "https://deskpal.hafuhafu.cn:36443",
+    "userName": "alice"
+  }
+}

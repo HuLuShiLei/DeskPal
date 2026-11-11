@@ -1,0 +1,85 @@
+{
+  "connection": {
+    "connected": true,
+    "text": "已连接"
+  },
+  "me": {
+    "displayName": "Alice",
+    "view": {
+      "headline": "在聊天",
+      "app": "QQ",
+      "detail": "理工生陷入云吸猫 (64)"
+    },
+    "source": "内置规则",
+    "visible": null,
+    "paused": false,
+    "manualText": null,
+    "manualPresets": [
+      "别打扰",
+      "午休中",
+      "开会中",
+      "有空，来聊",
+      "在路上"
+    ]
+  },
+  "rooms": [],
+  "selectedRoomId": null,
+  "emptyHint": "还没有 Room。到「Room」页创建 Room，或者用邀请码加入。",
+  "members": [],
+  "privacy": null,
+  "correction": {
+    "target": "QQ",
+    "current": "Communication",
+    "options": [
+      {
+        "value": "Work",
+        "name": "工作"
+      },
+      {
+        "value": "Communication",
+        "name": "聊天"
+      },
+      {
+        "value": "Video",
+        "name": "放松 · 视频"
+      },
+      {
+        "value": "Music",
+        "name": "放松 · 音乐"
+      },
+      {
+        "value": "Shopping",
+        "name": "放松 · 购物"
+      },
+      {
+        "value": "Social",
+        "name": "放松 · 社交网站"
+      },
+      {
+        "value": "News",
+        "name": "放松 · 新闻"
+      },
+      {
+        "value": "Game",
+        "name": "放松 · 游戏"
+      },
+      {
+        "value": "Reading",
+        "name": "放松 · 阅读"
+      },
+      {
+        "value": "Other",
+        "name": "其他"
+      }
+    ]
+  },
+  "settings": {
+    "autoStart": true,
+    "topmost": false,
+    "receiveBeta": true,
+    "updateReady": false,
+    "version": "0.1.1-dev.12",
+    "serverUrl": "https://deskpal.hafuhafu.cn:36443",
+    "userName": "alice"
+  }
+}

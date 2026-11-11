@@ -1,0 +1,103 @@
+using System.Windows;
+using System.Windows.Media;
+using DeskPal.Client.Services;
+using DeskPal.Shared.Api;
+using Microsoft.Web.WebView2.Wpf;
+
+namespace DeskPal.Client.Ui;
+
+/// <summary>Login and registration page. Shown before the background services start.</summary>
+public sealed class LoginWindow : Window
+{
+    private readonly AppSettings _settings;
+    private readonly SettingsStore _store;
+    private readonly ApiClient _api;
+    private readonly WebView2 _web = new() { DefaultBackgroundColor = WebUi.Background };
+
+    public LoginWindow(AppSettings settings, SettingsStore store, ApiClient api)
+    {
+        _settings = settings;
+        _store = store;
+        _api = api;
+        Title = "DeskPal 登录";
+        Width = 380;
+        Height = 560;
+        ResizeMode = ResizeMode.NoResize;
+        WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        Background = new SolidColorBrush(Color.FromRgb(WebUi.Background.R, WebUi.Background.G, WebUi.Background.B));
+        Content = _web;
+        Loaded += async (_, _) =>
+        {
+            try
+            {
+                await WebUi.InitializeAsync(_web, "index.html?page=login", OnMessage);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, $"登录页加载失败：{ex.Message}", "DeskPal", MessageBoxButton.OK, MessageBoxImage.Warning);
+                DialogResult = false;
+            }
+        };
+        Closed += (_, _) => _web.Dispose();
+    }
+
+    private async void OnMessage(string json)
+    {
+        if (WebCommand.Parse(json) is not { } command)
+        {
+            return;
+        }
+
+        if (command.Type == "ready")
+        {
+            WebUi.Post(_web, new { type = "login", serverUrl = _settings.ServerUrl, userName = _settings.UserName ?? "" });
+            return;
+        }
+
+        var result = command.Type is "auth.login" or "auth.register"
+            ? await SubmitAsync(command, register: command.Type == "auth.register")
+            : CommandResult.Fail($"不支持的操作：{command.Type}");
+        if (command.Id is { } id)
+        {
+            WebUi.Post(_web, new { type = "result", id, ok = result.Ok, error = result.Error });
+        }
+
+        if (result.Ok)
+        {
+            DialogResult = true;
+        }
+    }
+
+    private async Task<CommandResult> SubmitAsync(WebCommand c, bool register)
+    {
+        var server = c.String("serverUrl").Trim().TrimEnd('/');
+        if (!Uri.TryCreate(server, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
+        {
+            return CommandResult.Fail("服务器地址需要以 http:// 或 https:// 开头");
+        }
+
+        var displayName = c.String("displayName").Trim();
+        if (register && displayName.Length == 0)
+        {
+            return CommandResult.Fail("注册需要填写显示名称");
+        }
+
+        _settings.ServerUrl = server;
+        try
+        {
+            var response = register
+                ? await _api.RegisterAsync(new RegisterRequest(c.String("userName"), displayName, c.String("password")))
+                : await _api.LoginAsync(new LoginRequest(c.String("userName"), c.String("password")));
+            _settings.UserId = response.UserId;
+            _settings.UserName = response.UserName;
+            _settings.DisplayName = response.DisplayName;
+            _settings.SetToken(response.Token);
+            _store.Save(_settings);
+            return CommandResult.Success;
+        }
+        catch (ApiException ex)
+        {
+            return CommandResult.Fail(ex.Message);
+        }
+    }
+}

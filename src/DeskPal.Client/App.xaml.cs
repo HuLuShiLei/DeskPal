@@ -6,7 +6,7 @@ using DeskPal.Client.Collectors;
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Services;
-using DeskPal.Client.ViewModels;
+using DeskPal.Client.Ui;
 using DeskPal.Client.Views;
 using H.NotifyIcon;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +20,7 @@ public partial class App : Application
     private Mutex? _singleInstance;
     private IHost? _host;
     private TaskbarIcon? _tray;
-    private MainWindow? _main;
+    private PanelWindow? _panel;
     private MenuItem? _betaMenu;
     private MenuItem? _restartMenu;
     private CancellationTokenSource? _updates;
@@ -69,11 +69,14 @@ public partial class App : Application
         _updates = new CancellationTokenSource();
         _ = updates.RunPeriodicAsync(_updates.Token);
 
-        _main = services.GetRequiredService<MainWindow>();
-        _main.WindowStartupLocation = WindowStartupLocation.Manual;
-        if (!e.Args.Contains("--minimized"))
+        _panel = services.GetRequiredService<PanelWindow>();
+        if (!WebUi.RuntimeAvailable())
         {
-            _main.ShowAndActivate();
+            _ = Dispatcher.BeginInvoke(() => WebUi.ShowMissingRuntime("面板无法显示。状态同步不受影响。"));
+        }
+        else if (!e.Args.Contains("--minimized"))
+        {
+            _panel.ShowAndActivate();
         }
     }
 
@@ -97,6 +100,12 @@ public partial class App : Application
                 settings.SetToken(null);
                 store.Save(settings);
             }
+        }
+
+        if (!WebUi.RuntimeAvailable())
+        {
+            WebUi.ShowMissingRuntime("无法显示登录页面。");
+            return false;
         }
 
         return new LoginWindow(settings, store, api).ShowDialog() == true;
@@ -127,8 +136,8 @@ public partial class App : Application
         s.AddHostedService<SessionCollector>();
         s.AddHostedService<MediaCollector>();
         s.AddSingleton<UpdateService>();
-        s.AddSingleton<MainViewModel>();
-        s.AddSingleton<MainWindow>();
+        s.AddSingleton<PanelBridge>();
+        s.AddSingleton<PanelWindow>();
         return builder.Build();
     }
 
@@ -183,9 +192,9 @@ public partial class App : Application
     {
         var menu = new ContextMenu();
         var open = new MenuItem { Header = "打开 DeskPal" };
-        open.Click += (_, _) => _main?.ShowAndActivate();
+        open.Click += (_, _) => _panel?.ShowAndActivate();
         var check = new MenuItem { Header = "检查更新" };
-        check.Click += async (_, _) => await UpdateInteraction.CheckAsync(updates, updates.Exit!, quietWhenCurrent: false);
+        check.Click += async (_, _) => await UpdateInteraction.CheckAsync(updates, updates.Exit!, quietWhenCurrent: false, Prompt());
         _betaMenu = new MenuItem { Header = "加入测试版", IsCheckable = true, IsChecked = updates.ReceiveBeta };
         _betaMenu.Click += async (_, _) =>
         {
@@ -195,7 +204,7 @@ public partial class App : Application
             }
 
             updates.ReceiveBeta = _betaMenu.IsChecked == true;
-            await UpdateInteraction.CheckAsync(updates, updates.Exit!, quietWhenCurrent: true);
+            await UpdateInteraction.CheckAsync(updates, updates.Exit!, quietWhenCurrent: true, Prompt());
         };
         _restartMenu = new MenuItem { Header = "立即重启并更新", IsEnabled = updates.UpdateReady };
         _restartMenu.Click += async (_, _) =>
@@ -233,18 +242,20 @@ public partial class App : Application
         };
         tray.TrayLeftMouseUp += (_, _) =>
         {
-            if (_main is { IsVisible: true })
+            if (_panel is { IsVisible: true })
             {
-                _main.Hide();
+                _panel.Hide();
             }
             else
             {
-                _main?.ShowAndActivate();
+                _panel?.ShowAndActivate();
             }
         };
         tray.ForceCreate(false);
         return tray;
     }
+
+    private IUserPrompt Prompt() => (IUserPrompt?)_panel ?? MessageBoxPrompt.Instance;
 
     private void SyncUpdateMenu()
     {
@@ -281,10 +292,10 @@ public partial class App : Application
         _exiting = true;
         var updates = _host?.Services.GetService<UpdateService>();
 
-        if (_main is not null)
+        if (_panel is not null)
         {
-            _main.AllowClose = true;
-            _main.Close();
+            _panel.AllowClose = true;
+            _panel.Close();
         }
 
         if (_host is not null)
