@@ -30,6 +30,8 @@ Invoke-RestMethod http://localhost:5180/health
 
 ## 2. 备份本机已有的客户端数据
 
+先看有没有正在运行的 `DeskPal` 进程（用户从 Release 下载的正式版，连的是生产环境）。客户端是单实例运行的，不退出它，测试客户端就启动不了。有的话记下 exe 路径，请用户从托盘退出，或者结束该进程，第 7 步结束后告诉用户可以重新打开。
+
 `%APPDATA%\DeskPal` 是用户真实的登录信息。存在就整个移动到 `.local/tmp/e2e/appdata-backup/`，第 7 步再移回来。不要直接覆盖。
 
 ## 3. 创建测试账号和 Room

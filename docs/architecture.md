@@ -107,7 +107,7 @@ flowchart LR
 | `room.dissolved` | Server | `RoomEventPayload(null)` | 之后所有成员移出 Group |
 | `rules.roomRulesChanged` | Server | `RoomEventPayload(修改人)` | 客户端重新拉取 Room 规则 |
 
-## 数据模型（SQLite，`storage/deskpal.db`）
+## 数据模型（SQLite，本地 `storage/deskpal.db`，容器内 `/data/deskpal.db`）
 
 | 表 | 主要字段 |
 |---|---|
@@ -124,8 +124,19 @@ flowchart LR
 
 | 文件 | 内容 |
 |---|---|
-| `settings.json` | Server 地址、当前用户、DPAPI 加密的 token、选中的 Room、空闲和防抖参数、暂停和手动状态 |
+| `settings.json` | Server 地址（默认 `https://deskpal.hafuhafu.cn:36443`）、当前用户、DPAPI 加密的 token、选中的 Room、空闲和防抖参数、暂停和手动状态 |
 | `personal-rules.json` | 个人规则 |
 | `builtin-rules.json` | 内置规则缓存 |
 
 开机自启写入 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`；用命名 Mutex 保证单实例运行。
+
+## 部署和发布
+
+细节见 [deploy/README.md](../deploy/README.md)。
+
+| 环节 | 做法 |
+|---|---|
+| Server 镜像 | `.github/workflows/docker.yml`：推送默认分支或 `v*` 标签时用 `deploy/Dockerfile.server` 构建，推到 `ghcr.io/hulushilei/deskpal-server` |
+| Server 运行 | Portainer Stack（`deploy/stack.yml`），在 192.168.66.5 上发布 18820 端口；`Jwt__Key` 来自 Stack 环境变量 `DESKPAL_JWT_KEY` |
+| HTTPS | 192.168.66.10 上已有的 Traefik：`deskpal.hafuhafu.cn` 走 443 和 36443 两个入口，`*.hafuhafu.cn` 泛域名证书（阿里云 DNS challenge）；路由文件 `/etc/traefik/conf/deskpal.yml`，仓库里的副本是 `deploy/traefik-dynamic.yml` |
+| 客户端 | `.github/workflows/ci.yml`：在 Windows runner 上发布成自包含单文件 `DeskPal.exe`；每次推送上传 Actions artifact，`v*` 标签同时创建 GitHub Release |

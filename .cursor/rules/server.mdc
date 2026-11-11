@@ -32,3 +32,4 @@ if (invite is null || invite.ExpiresAt <= time.GetUtcNow()) { ... }
 - `PresenceHub.Publish` 只接受 `MessageTypes.ClientPublishable` 里的类型，并且会用 Server 的值覆盖 `SenderId` 和 `Ts`。
 - 不要在 Hub 里读取 `Payload` 做业务判断。
 - 配置项放 `appsettings.json` 对应的节，用 Options 类读取。密钥只从环境变量（`Jwt__Key`）读取。
+- 数据库路径只看连接串 `ConnectionStrings:Default`（本地 `storage/deskpal.db`，容器内 `/data/deskpal.db`），启动时按连接串创建目录。不要在代码里写死目录。

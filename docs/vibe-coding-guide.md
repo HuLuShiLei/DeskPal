@@ -30,6 +30,10 @@ Cursor 会自动读取 `AGENTS.md` 和 `.cursor/rules/` 里匹配当前文件的
 
 > 现象：……；复现步骤：……；预期：……。先定位原因，说明以后再改，改完补一个会失败的测试。
 
+**发布新版本**
+
+> 发布 v0.2.0：确认 build、test 通过并推送 main，再打 `v0.2.0` 标签推送，等 CI 跑完后检查 Release 里有 `DeskPal-win-x64.zip`，补上本次改动说明。
+
 **联调**
 
 > 按 skill deskpal-e2e-check 自检一遍，重点看浏览器域名识别。
@@ -43,7 +47,7 @@ Cursor 会自动读取 `AGENTS.md` 和 `.cursor/rules/` 里匹配当前文件的
 3. 改了采集、Hub、界面的，跑一次 skill `deskpal-e2e-check`。
 4. 改了口径（状态优先级、隐私默认值、Room 规则等）的，同步 `docs/progress.md` 的“已定”和变更日志，以及 `docs/architecture.md` 的对应章节。
 5. 修掉已知问题的，从 `docs/known-issues.md` 删除。
-6. 没有提交密钥、token、本机数据（`storage/`、`.local/`、`deploy/.env`）。
+6. 没有提交密钥、token、本机数据（`storage/`、`.local/`）。生产环境的 JWT 密钥只放在 Portainer Stack 的环境变量 `DESKPAL_JWT_KEY` 里。
 
 ## 让 AI 少走弯路
 

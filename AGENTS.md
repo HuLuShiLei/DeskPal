@@ -26,7 +26,7 @@ src/DeskPal.Client.Core/  纯逻辑，无 Windows 依赖：事件总线、分层
 src/DeskPal.Client/       WPF 托盘程序：Collectors、Native、Services、ViewModels、Views
 tests/DeskPal.Tests/      xUnit：Client.Core 逻辑、RoomService、PresenceHub 集成测试
 .github/workflows/        ci（测试 + 客户端 exe）、docker（Server 镜像推 GHCR）
-deploy/                   Dockerfile.server、Portainer stack.yml、Traefik 动态配置示例、部署说明
+deploy/                   Dockerfile.server、Portainer stack.yml、Traefik 路由（已部署到 192.168.66.10）、部署说明
 ```
 
 ## 常用命令
@@ -39,6 +39,8 @@ dotnet run --project src/DeskPal.Client      # 本机客户端
 dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/Migrations
 ```
 
+- 发布：推送 main 会自动构建 Server 镜像（`ghcr.io/hulushilei/deskpal-server:latest`），之后到 Portainer 里更新 Stack；打 `v*` 标签并推送，会自动创建 GitHub Release 并附客户端 zip。远程仓库是 `https://github.com/HuLuShiLei/DeskPal.git`。
+- 客户端默认 Server 地址是生产环境 `https://deskpal.hafuhafu.cn:36443`，本地联调要在登录窗口或 `settings.json` 里改成 `http://localhost:5180`。
 - `dotnet-ef` 是本地工具（`dotnet-tools.json`），新机器先执行 `dotnet tool restore`。
 - 根目录 `nuget.config` 只保留 nuget.org。本机全局配置里的公司源在当前网络下连不上，会让还原卡住，不要删这个文件。
 - 开发端口是 5180。默认的 5284 被 QQ 占用。
@@ -52,7 +54,7 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 4. **成员的最新状态只存在 Server 内存里**（`PresenceStore`），不写数据库。数据库只存账号、Room、成员关系、邀请码、隐私设置和规则。
 5. **数据模型按 Room 设计，不按“一对”设计。** 人数上限来自配置，不要在代码里写死 2。
 6. **Room 成员关系变化后，必须调用 `RoomNotifier` 同步 SignalR Group。** 否则退出 Room 的人还会继续收到消息。
-7. Server 运行时目录叫 `storage/`，源码目录叫 `Data/`。Windows 路径不区分大小写，不要把数据库目录改回 `data`。
+7. Server 运行时目录叫 `storage/`，源码目录叫 `Data/`。Windows 路径不区分大小写，不要把数据库目录改回 `data`。容器内数据库是 `/data/deskpal.db`（Linux 区分大小写，没有冲突），路径由连接串决定。
 8. 默认不 commit、不 push。
 
 ## Windows 写文件
