@@ -1,0 +1,22 @@
+# 已部署到 Traefik 主机 192.168.66.10 的 /etc/traefik/conf/portainer-webhook.yml。
+# 只公开 webhook 的执行地址，供 GitHub Actions 在公网调用。
+# Portainer 界面仍只走 443，并套用 lan-only。
+# 容器 webhook：/api/webhooks/<token>
+# Stack webhook：/api/stacks/webhooks/<token>
+
+http:
+  routers:
+    portainer-webhook:
+      rule: "Host(`portainer.hafuhafu.cn`) && (PathRegexp(`^/api/webhooks/[0-9a-fA-F-]+$`) || PathRegexp(`^/api/stacks/webhooks/[0-9a-fA-F-]+$`))"
+      priority: 100
+      entryPoints:
+        - websecure-alt
+      service: portainer-webhook
+      tls: {}
+
+  services:
+    portainer-webhook:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: "http://192.168.66.5:8080"

@@ -2,7 +2,7 @@ name: 构建并推送镜像
 
 # 默认分支推送生成 latest；v* 标签同时生成版本镜像。
 # 目标仓库：ghcr.io/<owner>/deskpal-server。
-# 运行中的容器由 Stack 里的 Watchtower 拉取 latest，不经过 Portainer webhook。
+# latest 推送成功后，POST GitHub secret PORTAINER_WEBHOOK_URL，让 Portainer 拉取并重建容器。
 on:
   push:
     branches: [main, master]
@@ -57,3 +57,38 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 通知 Portainer 拉取镜像
+        env:
+          WEBHOOK: ${{ secrets.PORTAINER_WEBHOOK_URL }}
+        run: |
+          if [ -z "$WEBHOOK" ]; then
+            echo "未配置 secret PORTAINER_WEBHOOK_URL，镜像已推送，跳过自动部署"
+            exit 0
+          fi
+          code=$(curl -sS -o /tmp/wh-body -w "%{http_code}" -X POST --retry 3 --retry-connrefused --retry-delay 5 --max-time 180 "$WEBHOOK")
+          echo "Portainer webhook HTTP ${code}"
+          case "$code" in
+            200|202|204) ;;
+            *)
+              echo "响应正文："
+              cat /tmp/wh-body
+              exit 1
+              ;;
+          esac
+          echo "等待 https://deskpal.hafuhafu.cn:36443/health"
+          for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            sleep 15
+            health=$(curl -sk -o /dev/null -w "%{http_code}" --max-time 20 https://deskpal.hafuhafu.cn:36443/health || true)
+            echo "health HTTP ${health}"
+            if [ "$health" = "200" ]; then
+              exit 0
+            fi
+          done
+          echo "健康检查未通过"
+          exit 1

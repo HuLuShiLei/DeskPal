@@ -15,7 +15,7 @@
 | 模型 | 按 Room 设计，原型阶段人数上限 2 | 以后会变成多人 Room，再往后可能做游戏化 |
 | Room 生命周期 | 参考 QQ 群：不自动删除；每人最多拥有 5 个 Room；邀请码 24 小时过期，重新生成后旧码失效；所有者要先转让才能退出；所有者可以解散 | 用户选定 |
 | 技术栈 | .NET 10：WPF 托盘客户端，ASP.NET Core + EF Core + SQLite，JWT，Docker 镜像（GHCR）+ Portainer + 已有 Traefik | 用户指定 C#，有自己的服务器 |
-| 发布 | 代码在 GitHub `HuLuShiLei/DeskPal`；推送默认分支自动构建 Server 镜像，由 Stack 内的 Watchtower 拉取 `latest`；推送 `v*` 标签自动创建 Release 并附客户端 zip；对外地址 `https://deskpal.hafuhafu.cn:36443`，也是客户端默认地址 | 运营商封了 80/443，只能用 36443；Portainer Community Edition 不能创建 webhook |
+| 发布 | 代码在 GitHub `HuLuShiLei/DeskPal`；推送默认分支自动构建 Server 镜像，并调用 Portainer Business Edition 的 webhook 拉取重建；推送 `v*` 标签自动创建 Release 并附客户端 zip；对外地址 `https://deskpal.hafuhafu.cn:36443`，也是客户端默认地址 | 运营商封了 80/443，只能用 36443；3 节点以内的 Business Edition 许可证免费 |
 
 ## 已完成（第一期原型）
 
@@ -55,3 +55,4 @@
 | 2026-11-10 | 发布 Release `v0.1.0`；同步 AGENTS.md、docs、server rule、e2e skill 里的部署和发布说明 |
 | 2026-11-11 | main 构建成功后由 GitHub Actions 调用 Portainer webhook 更新容器；Traefik 只在 36443 公开 webhook token 路径 |
 | 2026-11-11 | Portainer Community Edition 的 webhook 开关不可用，改为 Stack 内的 Watchtower；撤掉公网上的 webhook 路由 |
+| 2026-11-11 | Portainer 升级到 Business Edition，恢复 webhook 自动更新，去掉 Watchtower |

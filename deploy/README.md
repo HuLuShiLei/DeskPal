@@ -32,8 +32,10 @@ SQLite 数据库在 Docker 卷 `deskpal-data` 里（容器内 `/data/deskpal.db`
 
 ## 4. 自动更新
 
-Portainer Community Edition 2.41.1 的容器 webhook 和 Stack webhook 都是 Business 功能，界面上的开关打不开。Stack 里的 Watchtower（`nickfedor/watchtower:1.24.0`）每 5 分钟检查一次 GHCR，发现 `latest` 有新镜像就重建 `server`。它挂了 Docker socket，但开了 `WATCHTOWER_LABEL_ENABLE`，只更新带 `com.centurylinklabs.watchtower.enable=true` 的容器。
+Portainer 已升级到 Business Edition。Traefik 的 `traefik-portainer-webhook.yml` 只在 36443 上公开带 token 的 webhook 路径，Portainer 界面仍只在 443 上对内网开放。
 
-把更新后的 `stack.yml` 贴进已有 Stack 并更新一次。之后推送 main 不用再在 Portainer 里手动拉取。更新过程中客户端会短暂断开，连上后会自动重试。
+GitHub Actions 在 main 的镜像推送成功后，POST 仓库 secret `PORTAINER_WEBHOOK_URL`。这个值是带 `:36443` 的 webhook 地址，不进仓库。Portainer 先返回，再拉取镜像并重建容器；工作流接着请求 `https://deskpal.hafuhafu.cn:36443/health`，最多等 3 分钟。更新过程中客户端会短暂断开，连上后会自动重试。
 
-更新内置规则库：修改 `src/DeskPal.Server/Features/Rules/builtin-rules.json`，把 `version` 加 1，推送 main。镜像构建完成后，等 Watchtower 的下一轮检查。Server 启动时发现版本号变化会替换规则表，客户端下次启动时自动下载新规则。
+如果 Stack 里还有上一版的 Watchtower，用现在的 `stack.yml` 更新一次 Stack，把它去掉。`DESKPAL_JWT_KEY` 保持不动。
+
+更新内置规则库：修改 `src/DeskPal.Server/Features/Rules/builtin-rules.json`，把 `version` 加 1，推送 main。镜像构建和 Portainer 更新都自动完成。Server 启动时发现版本号变化会替换规则表，客户端下次启动时自动下载新规则。
