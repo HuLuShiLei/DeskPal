@@ -70,6 +70,10 @@
       {
         "value": "Other",
         "name": "其他"
+      },
+      {
+        "value": "Browsing",
+        "name": "浏览网页"
       }
     ]
   },

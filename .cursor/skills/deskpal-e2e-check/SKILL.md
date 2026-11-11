@@ -102,7 +102,7 @@ Get-CimInstance Win32_Process -Filter "Name='msedgewebview2.exe'" | Where-Object
 
 只改了页面时，先在浏览器里检查：`cd src/DeskPal.Client/web; npm run dev`，用 Cursor 自带浏览器打开 `http://localhost:5190/?mock=default`（还有 `no-room`、`guest`、`?fail`、`?page=login`），视口宽度设成 404 左右，和面板一致。
 
-改了哪一块，就加测哪一块。例如改了浏览器采集：打开 B 站，看“本机识别”是不是“在看视频 · 哔哩哔哩”。
+改了哪一块，就加测哪一块。例如改了浏览器采集：打开 B 站，看“本机识别”是不是“正在浏览网页”，下面是域名和页面标题。
 
 ## 7. 清理并恢复
 

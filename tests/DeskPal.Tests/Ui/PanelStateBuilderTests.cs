@@ -1,4 +1,5 @@
 using System.Text.Json;
+using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Shared;
@@ -46,10 +47,9 @@ public class PanelStateBuilderTests
         Assert.Equal([true, false], state.Rooms.Select(r => r.IsOwner));
         Assert.Equal(PanelSamples.MyRoom, state.SelectedRoomId);
         Assert.NotNull(state.Privacy);
-        Assert.DoesNotContain(state.Privacy!.Rows, r => r.Category is ActivityCategory.Meeting or ActivityCategory.None);
+        Assert.DoesNotContain(state.Privacy!.Rows, r => r.Category == ActivityCategory.None);
         Assert.Equal(PrivacyLevel.StateOnly, state.Privacy.Rows.Single(r => r.Category == ActivityCategory.Communication).Level);
         Assert.Equal(3, state.Privacy.Levels.Count);
-        Assert.DoesNotContain(state.Correction.Options, o => o.Value == ActivityCategory.Meeting);
         Assert.Equal(ActivityCategory.Work, state.Correction.Current);
     }
 
@@ -99,6 +99,24 @@ public class PanelStateBuilderTests
 
         Assert.Equal("正在识别…", state.Me.View.Headline);
         Assert.Null(state.Me.Source);
+    }
+
+    [Fact]
+    public void Browser_shows_the_page_without_a_guess_label()
+    {
+        var local = new LocalPresence(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "猫猫合集", null);
+        var input = PanelSamples.Default() with
+        {
+            Local = local,
+            Classification = new ClassificationResult(ActivityCategory.Browsing, "bilibili.com", RuleLayer.Browser),
+            Committed = new CommittedPresence(local, PanelSamples.Now.AddMinutes(-1)),
+        };
+
+        var me = PanelStateBuilder.Build(input).Me;
+
+        Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", "猫猫合集"), me.View);
+        Assert.Null(me.Source);
+        Assert.Equal("该 Room 成员看到：正在浏览网页 · bilibili.com", me.Visible);
     }
 
     [Fact]

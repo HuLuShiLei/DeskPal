@@ -19,7 +19,7 @@ public sealed record UpdateCheckResult(UpdateCheckKind Kind, string Message, str
 public sealed class UpdateService
 {
     public const string NotInstalledMessage =
-        "当前是直接运行的程序，不能自动更新。请从 GitHub Release 安装 DeskPal-beta-Setup.exe（测试版）或 DeskPal-win-Setup.exe（正式版）。";
+        "当前是直接运行的程序，不能自动更新。请从 GitHub Release 安装带版本号的安装包（DeskPal-版本号-Setup.exe）。";
 
     private readonly AppSettings _settings;
     private readonly SettingsStore _store;

@@ -18,8 +18,8 @@ Traefik 在 192.168.66.10 上，用 file provider 把 `deskpal.hafuhafu.cn`（44
 
 客户端安装包由 `.github/workflows/ci.yml` 用 Velopack 产出，不需要安装 .NET。
 
-- 测试版：推送 main 且这次改了客户端时，自动发布 Pre-release，安装包是 `DeskPal-beta-Setup.exe`。安装后会继续接收测试版。只保留最近 8 个测试版。
-- 正式版：推送 `vX.Y.Z` 标签（例如 `v0.2.0`）时发布，安装包是 `DeskPal-win-Setup.exe`。默认只接收正式版，托盘菜单勾选「加入测试版」后才会收到测试版。
+- 测试版：推送 main 且这次改了客户端时，自动发布 Pre-release，安装包是 `DeskPal-<版本>-Setup.exe`（例如 `DeskPal-0.1.2-dev.15-Setup.exe`）。安装后会继续接收测试版。只保留最近 8 个测试版。
+- 正式版：推送 `vX.Y.Z` 标签（例如 `v0.2.0`）时发布，安装包是 `DeskPal-<版本>-Setup.exe`（例如 `DeskPal-0.2.0-Setup.exe`）。默认只接收正式版，托盘菜单勾选「加入测试版」后才会收到测试版。
 
 已安装的客户端在启动后和每 6 小时检查一次 GitHub Release，后台下载，退出时安装。托盘菜单可以「检查更新」或「立即重启并更新」。直接运行 `dotnet run` 编译出的程序不会检查更新。
 

@@ -164,10 +164,11 @@ jobs:
             $subjects = @($subjects | Select-Object -First $limit)
           }
           $changes = if ($subjects.Count -eq 0) { '- 这次没有新的提交说明' } else { ($subjects | ForEach-Object { "- $_" }) -join "`n" }
+          $setupName = "DeskPal-$version-Setup.exe"
           $intro = if ($pre) {
-            "测试版，供内部试用。`n`n安装 DeskPal-beta-Setup.exe。安装之后会继续接收测试版。`n托盘菜单可以检查更新，也可以取消「加入测试版」。已下载的更新在退出时安装。"
+            "测试版，供内部试用。`n`n安装 $setupName。安装之后会继续接收测试版。`n托盘菜单可以检查更新，也可以取消「加入测试版」。已下载的更新在退出时安装。"
           } else {
-            "安装 DeskPal-win-Setup.exe。默认只接收正式版。`n要接收 main 上的测试修复，在托盘菜单勾选「加入测试版」。"
+            "安装 $setupName。默认只接收正式版。`n要接收 main 上的测试修复，在托盘菜单勾选「加入测试版」。"
           }
           $since = if ($previous) { "自 $previous 以来" } else { "本次发布" }
           $notes = "$intro`n`n## 更新内容（$since）`n`n$changes$more`n"
@@ -184,6 +185,14 @@ jobs:
           vpk @upload
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           gh release edit $tag --notes-file release-notes.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $packedName = "DeskPal-$channel-Setup.exe"
+          $view = gh release view $tag --json assets | ConvertFrom-Json
+          $setup = @($view.assets | Where-Object { $_.name -eq $packedName })
+          if ($setup.Count -ne 1) { throw "找不到安装包 $packedName" }
+          gh api --method PATCH -H "Accept: application/vnd.github+json" "/repos/$env:GITHUB_REPOSITORY/releases/assets/$($setup[0].id)" -f name="$setupName"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Rename-Item -LiteralPath (Join-Path Releases $packedName) -NewName $setupName
           if (-not $pre) { exit 0 }
           $list = gh release list --limit 100 --json tagName,isPrerelease,publishedAt | ConvertFrom-Json
           $old = @($list | Where-Object { $_.isPrerelease -and $_.tagName -like '*-dev.*' } | Sort-Object publishedAt -Descending | Select-Object -Skip 8)
@@ -194,5 +203,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: needs.changes.outputs.mode != 'build'
         with:
-          name: DeskPal-Setup
+          name: DeskPal-${{ steps.version.outputs.version }}-Setup
           path: Releases/*-Setup.exe

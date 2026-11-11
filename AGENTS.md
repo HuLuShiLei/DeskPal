@@ -40,7 +40,7 @@ cd src/DeskPal.Client/web; npm run dev  # 面板前端，http://localhost:5190/�
 dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/Migrations
 ```
 
-- 发布：推送 main 会自动构建 Server 镜像（`ghcr.io/hulushilei/deskpal-server:latest`），构建成功后调用 Portainer webhook 拉取并重建容器。webhook 地址放在 GitHub secret `PORTAINER_WEBHOOK_URL`，不进仓库。main 上改了客户端时，CI 会发测试版 Pre-release（`DeskPal-beta-Setup.exe`）；打 `vX.Y.Z` 标签并推送，会发正式版 `DeskPal-win-Setup.exe`。远程仓库是 `https://github.com/HuLuShiLei/DeskPal.git`。
+- 发布：推送 main 会自动构建 Server 镜像（`ghcr.io/hulushilei/deskpal-server:latest`），构建成功后调用 Portainer webhook 拉取并重建容器。webhook 地址放在 GitHub secret `PORTAINER_WEBHOOK_URL`，不进仓库。main 上改了客户端时，CI 会发测试版 Pre-release（`DeskPal-<版本>-Setup.exe`，例如 `DeskPal-0.1.2-dev.15-Setup.exe`）；打 `vX.Y.Z` 标签并推送，会发正式版 `DeskPal-<版本>-Setup.exe`（例如 `DeskPal-0.1.2-Setup.exe`）。远程仓库是 `https://github.com/HuLuShiLei/DeskPal.git`。
 - 客户端默认 Server 地址是生产环境 `https://deskpal.hafuhafu.cn:36443`，本地联调要在登录窗口或 `settings.json` 里改成 `http://localhost:5180`。
 - `dotnet-ef` 是本地工具（`dotnet-tools.json`），新机器先执行 `dotnet tool restore`。
 - 根目录 `nuget.config` 只保留 nuget.org。本机全局配置里的公司源在当前网络下连不上，会让还原卡住，不要删这个文件。
@@ -77,4 +77,4 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 
 ## 项目 rule
 
-`.cursor/rules/` 下的 rule 按路径自动生效：`server`（Server）、`shared-protocol`（Shared 协议兼容）、`client-collectors`（采集器红线）、`client-core`（分类、状态、防抖语义）、`wpf-ui`（界面）、`builtin-rules-json`（内置规则库）。
+`.cursor/rules/` 下的 rule 按路径自动生效：`server`（Server）、`shared-protocol`（Shared 协议）、`client-collectors`（采集器红线）、`client-core`（分类、状态、防抖语义）、`wpf-ui`（界面）、`builtin-rules-json`（内置规则库）。

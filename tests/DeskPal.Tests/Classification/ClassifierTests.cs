@@ -41,29 +41,56 @@ public class ClassifierTests
     [InlineData("www.amazon.com", ActivityCategory.Shopping)]
     public void Most_specific_domain_wins(string domain, ActivityCategory expected)
     {
-        Assert.Equal(expected, Create().Classify(TestData.Browser(domain)).Category);
+        Assert.Equal(expected, Builtin.Match(TestData.Browser(domain))!.Category);
     }
 
     [Fact]
-    public void Title_keyword_applies_to_browsers_only()
+    public void Title_keyword_matches_browser_titles_only_inside_a_rule_set()
+    {
+        Assert.Equal(ActivityCategory.Shopping, Builtin.Match(TestData.Browser(null, "【淘宝】双十一 - Google Chrome"))!.Category);
+        Assert.Null(Builtin.Match(TestData.App("notepad2", "淘宝订单.txt")));
+    }
+
+    [Theory]
+    [InlineData("https://www.bilibili.com/video/BV1", "bilibili.com")]
+    [InlineData("live.bilibili.com", "live.bilibili.com")]
+    [InlineData("console.aws.amazon.com", "console.aws.amazon.com")]
+    [InlineData("www.amazon.com", "amazon.com")]
+    public void Browser_is_browsing_with_the_domain(string domain, string expectedName)
+    {
+        var result = Create().Classify(TestData.Browser(domain, "页面 - Google Chrome"));
+
+        Assert.Equal(ActivityCategory.Browsing, result.Category);
+        Assert.Equal(expectedName, result.AppDisplayName);
+        Assert.Equal(RuleLayer.Browser, result.Layer);
+    }
+
+    [Fact]
+    public void Browser_ignores_builtin_title_fullscreen_and_media()
     {
         var classifier = Create();
+        var titled = classifier.Classify(TestData.Browser(null, "【淘宝】双十一 - Google Chrome"));
+        Assert.Equal((ActivityCategory.Browsing, (string?)null, RuleLayer.Browser), (titled.Category, titled.AppDisplayName, titled.Layer));
 
-        Assert.Equal(ActivityCategory.Shopping, classifier.Classify(TestData.Browser(null, "【淘宝】双十一 - Google Chrome")).Category);
-        Assert.Equal(ActivityCategory.Other, classifier.Classify(TestData.App("notepad2", "淘宝订单.txt")).Category);
+        var fullscreen = classifier.Classify(TestData.Browser("unknown-site.cn", "未知 - Google Chrome", fullscreen: true)
+            .Apply(new MediaSignal(true, "晴天", "周杰伦", "chrome")));
+        Assert.Equal((ActivityCategory.Browsing, "unknown-site.cn", RuleLayer.Browser), (fullscreen.Category, fullscreen.AppDisplayName, fullscreen.Layer));
     }
 
     [Fact]
-    public void Personal_override_beats_room_rule_and_room_rule_beats_builtin()
+    public void Personal_override_beats_room_rule()
     {
         var classifier = Create();
         var snapshot = TestData.Browser("bilibili.com");
+        Assert.Equal(ActivityCategory.Browsing, classifier.Classify(snapshot).Category);
 
         classifier.SetRoom(new RuleSet([new RuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Work, "B 站学习")]));
-        Assert.Equal((ActivityCategory.Work, RuleLayer.Room), (classifier.Classify(snapshot).Category, classifier.Classify(snapshot).Layer));
+        var room = classifier.Classify(snapshot);
+        Assert.Equal((ActivityCategory.Work, "B 站学习", RuleLayer.Room), (room.Category, room.AppDisplayName, room.Layer));
 
         classifier.SetPersonal(new RuleSet([new RuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Reading)]));
-        Assert.Equal((ActivityCategory.Reading, RuleLayer.Personal), (classifier.Classify(snapshot).Category, classifier.Classify(snapshot).Layer));
+        var personal = classifier.Classify(snapshot);
+        Assert.Equal((ActivityCategory.Reading, "bilibili.com", RuleLayer.Personal), (personal.Category, personal.AppDisplayName, personal.Layer));
     }
 
     [Fact]
@@ -75,9 +102,11 @@ public class ClassifierTests
     }
 
     [Fact]
-    public void Unknown_browser_site_in_fullscreen_is_video()
+    public void Fullscreen_media_app_is_video()
     {
-        Assert.Equal(ActivityCategory.Video, Create().Classify(TestData.Browser("unknown-site.cn", fullscreen: true)).Category);
+        var snapshot = TestData.App("player", fullscreen: true).Apply(new MediaSignal(true, "电影", null, "player"));
+
+        Assert.Equal(ActivityCategory.Video, Create().Classify(snapshot).Category);
     }
 
     [Fact]

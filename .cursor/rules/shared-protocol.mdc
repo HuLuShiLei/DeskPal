@@ -1,16 +1,16 @@
 ---
-description: DeskPal 共享协议的兼容性约定：Envelope、MessageTypes、枚举、DTO
+description: DeskPal 共享协议：Envelope、MessageTypes、枚举、DTO。不考虑旧客户端
 globs: src/DeskPal.Shared/**
 alwaysApply: false
 ---
 
-# 共享协议兼容性
+# 共享协议
 
-Server 和客户端都引用 `DeskPal.Shared`，但部署后会出现新旧版本混用，改动要向后兼容。
+不考虑旧客户端。Server 和当前客户端一起更新，不为旧版本保留枚举成员或分支。
 
-- **枚举按名称序列化**（`JsonStringEnumConverter`）。可以新增成员，不要改名或删除。`PresenceState`、`ActivityCategory`、`PrivacyLevel`、`RuleKind` 都一样。
-- **新增消息类型**：在 `MessageTypes` 加常量。客户端可以发送的类型还要加进 `ClientPublishable`。旧客户端会忽略不认识的 `Type`，所以不需要版本协商。完整步骤见 skill `deskpal-add-message-type`。
-- **Payload 结构不兼容地变化时**，提高 `Envelope.V`，接收方按 `V` 分支处理，不要复用旧结构改语义。
+- **枚举按名称序列化**（`JsonStringEnumConverter`）。可以新增成员，也可以删除不再使用的成员。不要改已有成员的名字。`PresenceState`、`ActivityCategory`、`PrivacyLevel`、`RuleKind` 都一样。
+- **新增消息类型**：在 `MessageTypes` 加常量。客户端可以发送的类型还要加进 `ClientPublishable`。不认识的 `Type` 直接忽略。完整步骤见 skill `deskpal-add-message-type`。
+- **Payload 结构发生变化时**，提高 `Envelope.V`，接收方按 `V` 分支处理，不要复用旧结构改语义。
 - `Envelope.Enc` 原型阶段固定为 `none`。以后做端到端加密时，`Payload` 改成密文，Server 不需要改动。
-- DTO 新增字段放在最后并给默认值，旧客户端收到多出来的字段不会出错。
+- DTO 新增字段放在最后并给默认值。
 - 规则的标准化写法统一走 `RulePattern.Normalize`，Server 写入和客户端匹配用同一套逻辑。

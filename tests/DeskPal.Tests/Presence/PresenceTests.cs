@@ -43,6 +43,20 @@ public class PresenceResolverTests
         var result = PresenceResolver.Resolve(music, new ClassificationResult(ActivityCategory.Music, "网易云音乐", RuleLayer.Builtin), null, false);
         Assert.Equal("晴天 - 周杰伦", result.Detail);
     }
+
+    [Fact]
+    public void Browsing_keeps_the_page_title_instead_of_the_media_title()
+    {
+        var browser = TestData.Browser("www.bilibili.com", "【4K】猫猫合集 - Google Chrome")
+            .Apply(new MediaSignal(true, "晴天", "周杰伦", "chrome"));
+        var classification = new ClassificationResult(ActivityCategory.Browsing, "bilibili.com", RuleLayer.Browser);
+
+        var result = PresenceResolver.Resolve(browser, classification, null, false);
+
+        Assert.Equal(PresenceState.Browsing, result.State);
+        Assert.Equal("bilibili.com", result.AppDisplayName);
+        Assert.Equal("【4K】猫猫合集", result.Detail);
+    }
 }
 
 public class PresenceDebouncerTests
@@ -125,6 +139,9 @@ public class PrivacyFilterTests
 
         Assert.Equal((ActivityCategory.Video, "哔哩哔哩", (string?)null), (video.Category, video.AppDisplayName, video.Detail));
         Assert.Equal((PresenceState.Working, ActivityCategory.None, (string?)null, (string?)null), (work.State, work.Category, work.AppDisplayName, work.Detail));
+
+        var browsing = PrivacyFilter.Apply(new CommittedPresence(new LocalPresence(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "猫猫合集", null), DateTimeOffset.UnixEpoch), profile);
+        Assert.Equal((PresenceState.Browsing, "bilibili.com", (string?)null), (browsing.State, browsing.AppDisplayName, browsing.Detail));
     }
 
     [Theory]
@@ -148,13 +165,15 @@ public class PresenceFormatterTests
     public void Formats_headline_app_and_detail_separately()
     {
         Assert.Equal(new PresenceView("在看视频", "哔哩哔哩", "猫"), Format(PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫"));
+        Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", "猫猫合集"), Format(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "猫猫合集"));
+        Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", null), Format(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", null));
+        Assert.Equal(new PresenceView("正在浏览网页", null, "新标签页"), Format(PresenceState.Browsing, ActivityCategory.Browsing, null, "新标签页"));
         Assert.Equal(new PresenceView("正在使用 XMind", null, null), Format(PresenceState.Other, app: "XMind"));
         Assert.Equal(new PresenceView("午休中", null, null), PresenceFormatter.Format(new PresenceSnapshot { State = PresenceState.Custom, CustomText = "午休中" }));
     }
 
     [Theory]
     [InlineData(PresenceState.Working, ActivityCategory.Work, "工作中")]
-    [InlineData(PresenceState.Meeting, ActivityCategory.Meeting, "工作中")]
     [InlineData(PresenceState.Communicating, ActivityCategory.Communication, "在聊天")]
     [InlineData(PresenceState.Slacking, ActivityCategory.Social, "在看社交网站")]
     [InlineData(PresenceState.Slacking, ActivityCategory.None, "在放松")]
@@ -178,9 +197,8 @@ public class PresenceFormatterTests
     }
 
     [Fact]
-    public void Meeting_is_not_offered_and_labels_avoid_slang()
+    public void None_is_not_offered_and_labels_avoid_slang()
     {
-        Assert.DoesNotContain(ActivityCategory.Meeting, PresenceFormatter.SelectableCategories);
         Assert.DoesNotContain(ActivityCategory.None, PresenceFormatter.SelectableCategories);
         var labels = PresenceFormatter.SelectableCategories.Select(PresenceFormatter.CategoryName)
             .Concat(Enum.GetValues<PrivacyLevel>().Select(PresenceFormatter.PrivacyLevelName))

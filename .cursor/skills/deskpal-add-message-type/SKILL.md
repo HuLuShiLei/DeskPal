@@ -37,7 +37,7 @@ public sealed record ReactionPayload(string Emoji, Guid? TargetUserId);
 
 ## 3. 客户端
 
-1. `RoomState.Handle` 的 `switch` 加一个 `case MessageTypes.Reaction:`，用 `envelope.ReadPayload<ReactionPayload>()` 读取。**不认识的类型直接忽略**，保持旧客户端兼容。
+1. `RoomState.Handle` 的 `switch` 加一个 `case MessageTypes.Reaction:`，用 `envelope.ReadPayload<ReactionPayload>()` 读取。**不认识的类型直接忽略**。
 2. 需要提示的，调用 `Notify?.Invoke(标题, 内容)`（会显示托盘气泡）；需要刷新界面的，触发 `Changed`。
 3. 发送端：用 `HubService.TryPublishAsync(Envelope.Create(MessageTypes.Reaction, roomId, payload))`（返回 false 表示当前没连上），界面入口：`Ui/PanelBridge.HandleAsync` 加一个命令，`web/src/bridge.ts` 的 `Command` 加类型，再在页面里调用；页面要显示的数据加到 `PanelState`，并更新样例（`DESKPAL_UPDATE_FIXTURES=1`）。
 4. 如果以后的游戏模块也要消费，让它订阅 `RoomState` 的事件，不要在 Hub 回调里直接写业务逻辑。

@@ -109,6 +109,7 @@ public static class PanelStateBuilder
             RuleLayer.Room => "Room 规则",
             RuleLayer.Builtin => "内置规则",
             RuleLayer.Heuristic => "推测",
+            RuleLayer.Browser => null,
             _ => "未识别",
         };
         var pending = input.Committed is { } c && c.Presence.Key != local.Key ? "稳定后同步" : null;

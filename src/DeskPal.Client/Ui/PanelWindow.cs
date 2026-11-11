@@ -35,8 +35,7 @@ public sealed class PanelWindow : Window, IUserPrompt
         Title = $"DeskPal {updates.VersionLabel} - {settings.DisplayName}";
         Width = 420;
         Height = 680;
-        MinWidth = 360;
-        MinHeight = 480;
+        ResizeMode = ResizeMode.NoResize;
         WindowStartupLocation = WindowStartupLocation.Manual;
         Topmost = settings.Topmost;
         Background = new SolidColorBrush(Color.FromRgb(WebUi.Background.R, WebUi.Background.G, WebUi.Background.B));

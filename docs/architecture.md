@@ -48,13 +48,14 @@ flowchart LR
 
 ## 分类
 
-`LayeredClassifier` 按层匹配，命中即停止：个人规则 → Room 规则 → 内置规则 → 推测 → `Other`。
+`LayeredClassifier` 按层匹配，命中即停止。
 
-- 浏览器：先按域名（取最具体的后缀），再按标题关键词，最后按进程名。非浏览器只按进程名。
-- 推测层只在前三层都没命中时生效：路径含 `\steamapps\` 的程序归为 `Game`；全屏且（前台是浏览器或正在播放媒体）归为 `Video`；正在播放媒体归为 `Music`。
-- 个人规则保存在 `%APPDATA%\DeskPal\personal-rules.json`。用户点“这个判断不对”时，可以选只对自己生效，或者同步到当前 Room（写入 Room 规则）。
-- 内置规则保存在 `builtin-rules.json`（目前版本 2，266 条），Server 启动时写入数据库；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。
-- 分类口径：企业微信、飞书、钉钉、Slack、Teams、邮箱和会议软件归为 `Work`；QQ、微信、Telegram 等个人聊天归为 `Communication`。
+- 前台是浏览器：只查个人规则和 Room 规则。都没有命中时归为 `Browsing`，应用名用域名（没有域名则为空），详情用去掉浏览器后缀的窗口标题。不使用内置的网站和标题规则，也不因为全屏或正在播放而归成视频、音乐。个人规则和 Room 规则里仍然先按域名（取最具体的后缀），再按标题关键词，最后按进程名。
+- 其他应用：个人规则 → Room 规则 → 内置规则 → 推测 → `Other`，只按进程名匹配。
+- 推测层只对非浏览器、且前三层都没命中时生效：路径含 `\steamapps\` 的程序归为 `Game`；全屏且正在播放媒体归为 `Video`；正在播放媒体归为 `Music`。
+- 个人规则保存在 `%APPDATA%\DeskPal\personal-rules.json`。用户点“这个判断不对”时，可以选只对自己生效，或者同步到当前 Room（写入 Room 规则）。浏览器也可以这样把某一个网站改成其他类别。
+- 内置规则保存在 `builtin-rules.json`（目前版本 2，266 条），Server 启动时写入数据库；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。里面的网站和标题规则不参与浏览器的默认分类。
+- 分类口径：桌面应用里，企业微信、飞书、钉钉、Slack、Teams、邮箱和会议软件归为 `Work`；QQ、微信、Telegram 等个人聊天归为 `Communication`。浏览器里的网页不再按网站种类细分。
 
 ## 状态判断和防抖
 
@@ -66,11 +67,11 @@ flowchart LR
 - 暂停分享、手动状态、锁屏，进入和退出都立即提交。
 - 状态不变、只是详情变了（例如切换到另一个视频），按同样的间隔限频。
 
-不采集麦克风，也不再产生 `Meeting`。`Meeting` 留在 `PresenceState` 和 `ActivityCategory` 里兼容旧客户端，收到时显示为“工作中”。
+不采集麦克风，也不再产生“会议中”。`PresenceState` 和 `ActivityCategory` 里没有 `Meeting`。
 
 ## 界面文案
 
-`PresenceFormatter.Format` 把状态拆成三行：标题（工作中、在聊天、正在使用 XX、在看视频、在放松、暂时离开、已锁屏等）、应用名、详情。详情超过 36 个字时在界面上截断并加“…”，共享出去的 `Detail` 不截断。文案用书面用语，不用“忙”“摸鱼”。
+`PresenceFormatter.Format` 把状态拆成三行：标题（工作中、在聊天、正在浏览网页、正在使用 XX、在看视频、在放松、暂时离开、已锁屏等）、应用名、详情。浏览器的应用名是域名，详情是页面标题；两个都有就都显示，只有其中一个就显示那一个。详情超过 36 个字时在界面上截断并加“…”，共享出去的 `Detail` 不截断。文案用书面用语，不用“忙”“摸鱼”。
 
 ## 界面
 
@@ -78,7 +79,7 @@ flowchart LR
 
 | 窗口 | 文件 | 内容 |
 |---|---|---|
-| 面板 | `Ui/PanelWindow.cs`、`Ui/PanelBridge.cs` | 三个标签页：状态（Room 成员卡片、我的状态、手动状态）、Room（列表、创建和加入、改名、邀请码、转让、退出、解散、隐私设置）、设置（账号、开机自启、窗口置顶、测试版、检查更新）。第一次打开时停靠在屏幕右下角，关闭只隐藏 |
+| 面板 | `Ui/PanelWindow.cs`、`Ui/PanelBridge.cs` | 三个标签页：状态（Room 成员卡片、我的状态、手动状态）、Room（列表、创建和加入、改名、邀请码、转让、退出、解散、隐私设置）、设置（账号、开机自启、窗口置顶、测试版、检查更新）。大小固定为 420×680，不能调整。第一次打开时停靠在屏幕右下角，关闭只隐藏 |
 | 登录 | `Ui/LoginWindow.cs` | 登录和注册。在 Room、Hub 等服务启动之前显示，所以是单独的窗口 |
 
 - 前端从安装目录的 `web/` 加载，虚拟主机名 `app.deskpal.example`，不开本地端口。跳到其他来源的链接用系统浏览器打开。
@@ -102,7 +103,7 @@ flowchart LR
 ## 隐私
 
 - 隐私级别按 Room 和类别分别配置：`StateOnly`（只显示状态）、`Category`（再加类别和应用名）、`Detail`（再加窗口标题或媒体标题）。
-- 默认值：`Work`、`Meeting`、`Communication` 为 `StateOnly`，其他类别为 `Category`。没有人默认开启 `Detail`。
+- 默认值：`Work`、`Communication` 为 `StateOnly`，其他类别为 `Category`。没有人默认开启 `Detail`。
 - 过滤在客户端完成，原始标题不经过 PrivacyFilter 就不会离开本机。
 - Envelope 的 `Enc` 字段预留给端到端加密，Server 不解析 Payload。
 
@@ -175,4 +176,4 @@ flowchart LR
 | Server 运行 | Portainer Stack（`deploy/stack.yml`），在 192.168.66.5 上发布 18820 端口；`Jwt__Key` 来自 Stack 环境变量 `DESKPAL_JWT_KEY` |
 | 自动更新 | main 上的镜像同时推 `latest` 和 `sha-<提交号>`。GitHub Actions POST `PORTAINER_WEBHOOK_URL?tag=sha-<提交号>`，再等到 `/health` 的 `revision` 等于该提交号。Traefik 只在 36443 上公开 webhook token 路径 |
 | HTTPS | 192.168.66.10 上已有的 Traefik：`deskpal.hafuhafu.cn` 走 443 和 36443 两个入口，`*.hafuhafu.cn` 泛域名证书（阿里云 DNS challenge）；路由文件 `/etc/traefik/conf/deskpal.yml`，仓库里的副本是 `deploy/traefik-dynamic.yml` |
-| 客户端 | `.github/workflows/ci.yml`：main 上改了客户端时用 Velopack 发测试版 Pre-release（通道 `beta`，版本 `x.y.z-dev.<运行号>`，安装包 `DeskPal-beta-Setup.exe`），只保留最近 8 个；手动推送 `vX.Y.Z` 发正式版（通道 `win`，`DeskPal-win-Setup.exe`）。已安装的客户端启动后和每 6 小时向 GitHub Release 检查更新，后台下载；只在退出或选择立即重启时安装，启动时不自动安装。取消测试版会删除已下载的包。打包时带 `--framework webview2`，安装程序和每次更新前都会检查 WebView2 Runtime，缺少时自动安装。CI 先用 Node 22 构建 `web/`。Release 说明附带更新内容：测试版列出上一次发布以来的提交标题，正式版列出上一个正式版以来的提交标题 |
+| 客户端 | `.github/workflows/ci.yml`：main 上改了客户端时用 Velopack 发测试版 Pre-release（通道 `beta`，版本 `x.y.z-dev.<运行号>`，安装包 `DeskPal-<版本>-Setup.exe`，测试版版本号形如 `0.1.2-dev.15`），只保留最近 8 个；手动推送 `vX.Y.Z` 发正式版（通道 `win`，安装包同样是 `DeskPal-<版本>-Setup.exe`，例如 `DeskPal-0.1.2-Setup.exe`）。已安装的客户端启动后和每 6 小时向 GitHub Release 检查更新，后台下载；只在退出或选择立即重启时安装，启动时不自动安装。取消测试版会删除已下载的包。打包时带 `--framework webview2`，安装程序和每次更新前都会检查 WebView2 Runtime，缺少时自动安装。CI 先用 Node 22 构建 `web/`。Release 说明附带更新内容：测试版列出上一次发布以来的提交标题，正式版列出上一个正式版以来的提交标题 |

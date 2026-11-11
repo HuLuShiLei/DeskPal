@@ -16,7 +16,7 @@
 |---|---|
 | 多人 Room、加入多个 Room | 放开 `MaxMembersPerRoom`；界面改成 Room 列表 + 成员列表；Room 规则改成只在当前 Room 生效（见 known-issues） |
 | 摸鱼同步提醒 | 客户端检测到 Room 里有人和自己同时 `Slacking`，提示“对方也在摸鱼，聊两句？”；在客户端判断，不需要新消息类型 |
-| 对方空闲时提醒 | 订阅对方从 `Meeting` / `Working` 变成其他状态，一次性提醒 |
+| 对方空闲时提醒 | 订阅对方从 `Working` 变成其他状态，一次性提醒 |
 | 当天时间轴 | 客户端按小时聚合类别占比，只存聚合结果；要同步就加密以后再上传 |
 | 手机端查看 | Server 提供 PWA 页面，只读 |
 | 浏览器扩展 | MV3 扩展 + Native Messaging 上报当前标签的域名，替代 UI Automation |

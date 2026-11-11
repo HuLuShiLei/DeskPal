@@ -105,6 +105,11 @@
         "category": "Other",
         "name": "其他",
         "level": "Category"
+      },
+      {
+        "category": "Browsing",
+        "name": "浏览网页",
+        "level": "Category"
       }
     ],
     "levels": [
@@ -165,6 +170,10 @@
       {
         "value": "Other",
         "name": "其他"
+      },
+      {
+        "value": "Browsing",
+        "name": "浏览网页"
       }
     ]
   },

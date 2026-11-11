@@ -11,11 +11,15 @@ public enum RuleLayer
     Builtin,
     Heuristic,
     Fallback,
+    Browser,
 }
 
 public sealed record ClassificationResult(ActivityCategory Category, string? AppDisplayName, RuleLayer Layer);
 
-/// <summary>Personal overrides, then Room shared rules, then builtin rules, then heuristics, then Other.</summary>
+/// <summary>
+/// Desktop apps: personal, room, builtin, heuristic, then Other.
+/// A browser checks personal and room rules only; otherwise it is Browsing, named by domain.
+/// </summary>
 public sealed class LayeredClassifier
 {
     private volatile RuleSet _personal = RuleSet.Empty;
@@ -36,6 +40,11 @@ public sealed class LayeredClassifier
             return new ClassificationResult(ActivityCategory.Other, null, RuleLayer.Fallback);
         }
 
+        if (foreground.IsBrowser)
+        {
+            return ClassifyBrowser(snapshot);
+        }
+
         foreach (var (layer, rules) in new[] { (RuleLayer.Personal, _personal), (RuleLayer.Room, _room), (RuleLayer.Builtin, _builtin) })
         {
             if (rules.Match(snapshot) is { } rule)
@@ -52,6 +61,20 @@ public sealed class LayeredClassifier
         return new ClassificationResult(ActivityCategory.Other, DefaultName(snapshot), RuleLayer.Fallback);
     }
 
+    /// <summary>Personal and room rules can still reclassify a site. Builtin site rules do not.</summary>
+    private ClassificationResult ClassifyBrowser(ActivitySnapshot snapshot)
+    {
+        foreach (var (layer, rules) in new[] { (RuleLayer.Personal, _personal), (RuleLayer.Room, _room) })
+        {
+            if (rules.Match(snapshot) is { } rule)
+            {
+                return new ClassificationResult(rule.Category, rule.Name ?? BrowserSubject(snapshot), layer);
+            }
+        }
+
+        return new ClassificationResult(ActivityCategory.Browsing, BrowserSubject(snapshot), RuleLayer.Browser);
+    }
+
     private static ActivityCategory? Heuristic(ActivitySnapshot snapshot)
     {
         var foreground = snapshot.Foreground!;
@@ -60,7 +83,7 @@ public sealed class LayeredClassifier
             return ActivityCategory.Game;
         }
 
-        if (foreground.IsFullscreen && (foreground.IsBrowser || snapshot.Media.IsPlaying))
+        if (foreground.IsFullscreen && snapshot.Media.IsPlaying)
         {
             return ActivityCategory.Video;
         }
@@ -71,6 +94,18 @@ public sealed class LayeredClassifier
         }
 
         return null;
+    }
+
+    /// <summary>Domain only. The browser product name is not the subject of the page.</summary>
+    private static string? BrowserSubject(ActivitySnapshot snapshot)
+    {
+        if (snapshot.BrowserDomain is not { Length: > 0 } domain)
+        {
+            return null;
+        }
+
+        var host = RulePattern.NormalizeHost(domain);
+        return host.Length > 0 ? host : null;
     }
 
     private static string DefaultName(ActivitySnapshot snapshot)
