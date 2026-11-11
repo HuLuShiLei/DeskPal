@@ -143,10 +143,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             Write-Host "没有可做差异包的上一版，改为完整包。"
           }
-          vpk pack -u DeskPal -v $version -c $channel -p publish/DeskPal --packTitle DeskPal -e DeskPal.exe --instLocation PerUser --runtime win-x64
+          vpk pack -u DeskPal -v $version -c $channel -p publish/DeskPal --packTitle DeskPal -e DeskPal.exe --instLocation PerUser --runtime win-x64 --noPortable
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Get-ChildItem Releases -File | Where-Object {
-            $_.Name -like '*-Portable.zip' -or ($_.Extension -eq '.nupkg' -and $_.Name -notlike "*$version*")
+            $_.Extension -eq '.nupkg' -and $_.Name -notlike "*$version*"
           } | Remove-Item -Force
           $tag = "v$version"
           $name = if ($pre) { "DeskPal $version 测试版" } else { "DeskPal $version" }
