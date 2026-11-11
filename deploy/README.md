@@ -30,4 +30,17 @@ SQLite 数据库在 Docker 卷 `deskpal-data` 里（容器内 `/data/deskpal.db`
 - `Rooms__MaxMembersPerRoom`：新建 Room 的人数上限，默认 2。
 - `Rooms__InviteLifetimeHours`：邀请码有效期，默认 24 小时。
 
-更新内置规则库：修改 `src/DeskPal.Server/Features/Rules/builtin-rules.json`，把 `version` 加 1，推送后等镜像构建完成，在 Portainer 里重新拉取镜像并更新 Stack。Server 启动时发现版本号变化会替换规则表，客户端下次启动时自动下载新规则。
+## 4. 自动更新
+
+Portainer 是 Community Edition 2.41.1，界面在 `portainer.hafuhafu.cn` 的 443 上，并且限制内网。官方文档把 Stack webhook 标成 Business Edition；这台实例上容器 webhook 和 Stack webhook 的执行地址都在。界面里哪个开关可见就用哪个。容器 webhook 会拉取同一 tag 的新镜像并重建该容器。
+
+Traefik 的 `traefik-portainer-webhook.yml` 只在 36443 上公开这两条路径，其余请求不转发：
+
+- `/api/webhooks/<token>`
+- `/api/stacks/webhooks/<token>`
+
+第一次部署后，在 Portainer 里打开该容器，添加 webhook，复制链接。把复制结果的端口改成 36443，例如 `https://portainer.hafuhafu.cn:36443/api/webhooks/<token>`。然后到 GitHub 仓库 Settings → Secrets and variables → Actions，新建 secret `PORTAINER_WEBHOOK_URL`，值就是这个地址。
+
+之后推送 main，镜像构建成功就会调用这个地址。Portainer 先返回，再在后台拉取镜像；工作流会接着请求 `https://deskpal.hafuhafu.cn:36443/health`，最多等 3 分钟。secret 还没配置时，这一步会跳过，镜像仍然推送。
+
+更新内置规则库：修改 `src/DeskPal.Server/Features/Rules/builtin-rules.json`，把 `version` 加 1，推送 main。镜像构建和 Portainer 更新都自动完成。Server 启动时发现版本号变化会替换规则表，客户端下次启动时自动下载新规则。
