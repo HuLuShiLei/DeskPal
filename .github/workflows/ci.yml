@@ -187,10 +187,15 @@ jobs:
           gh release edit $tag --notes-file release-notes.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $packedName = "DeskPal-$channel-Setup.exe"
+          # assets.id 是 GraphQL node id。REST 更新接口要数字编号，写在 apiUrl 里。
           $view = gh release view $tag --json assets | ConvertFrom-Json
           $setup = @($view.assets | Where-Object { $_.name -eq $packedName })
-          if ($setup.Count -ne 1) { throw "找不到安装包 $packedName" }
-          gh api --method PATCH -H "Accept: application/vnd.github+json" "/repos/$env:GITHUB_REPOSITORY/releases/assets/$($setup[0].id)" -f name="$setupName"
+          if ($setup.Count -ne 1) {
+            $names = @($view.assets | ForEach-Object { $_.name }) -join ', '
+            throw "找不到安装包 $packedName。当前资源：$names"
+          }
+          if ([string]::IsNullOrWhiteSpace($setup[0].apiUrl)) { throw "安装包没有 apiUrl" }
+          gh api --method PATCH -H "Accept: application/vnd.github+json" $setup[0].apiUrl -f name="$setupName"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Rename-Item -LiteralPath (Join-Path Releases $packedName) -NewName $setupName
           if (-not $pre) { exit 0 }
