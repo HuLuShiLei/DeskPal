@@ -19,17 +19,32 @@ public static class WebUi
     public static string UserDataFolder => AppPaths.WebView2Directory;
 
     /// <summary>Shown while the page loads. Matches --bg in styles.css for the current Windows app theme.</summary>
-    public static System.Drawing.Color Background => IsDarkTheme()
+    public static System.Drawing.Color Background => ColorFor(null);
+
+    public static System.Windows.Media.SolidColorBrush BackgroundBrush => BrushFor(null);
+
+    /// <summary>system follows Windows. light and dark are fixed.</summary>
+    public static System.Drawing.Color ColorFor(string? theme) => ResolveDark(theme)
         ? System.Drawing.Color.FromArgb(0x20, 0x20, 0x20)
         : System.Drawing.Color.FromArgb(0xF3, 0xF3, 0xF3);
 
-    public static System.Windows.Media.SolidColorBrush BackgroundBrush
+    public static System.Windows.Media.SolidColorBrush BrushFor(string? theme)
     {
-        get
-        {
-            var c = Background;
-            return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(c.R, c.G, c.B));
-        }
+        var c = ColorFor(theme);
+        return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(c.R, c.G, c.B));
+    }
+
+    public static bool ResolveDark(string? theme) => theme switch
+    {
+        "dark" => true,
+        "light" => false,
+        _ => IsDarkTheme(),
+    };
+
+    public static string Page(string page, string? theme)
+    {
+        var value = theme is "light" or "dark" ? theme : "system";
+        return page + (page.Contains('?') ? "&" : "?") + "theme=" + value;
     }
 
     public static bool IsDarkTheme()

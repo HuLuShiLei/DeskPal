@@ -173,6 +173,15 @@ public class PresenceFormatterTests
         Assert.Equal(new PresenceView("午休中", null, null, "other"), PresenceFormatter.Format(new PresenceSnapshot { State = PresenceState.Custom, CustomText = "午休中" }));
     }
 
+    [Fact]
+    public void Detail_matching_the_app_name_is_not_repeated()
+    {
+        Assert.Equal(new PresenceView("在聊天", "QQ", null, "chat"), Format(PresenceState.Communicating, ActivityCategory.Communication, "QQ", "QQ"));
+        Assert.Equal(new PresenceView("在聊天", "QQ", null, "chat"), Format(PresenceState.Communicating, ActivityCategory.Communication, "QQ", " qq "));
+        Assert.Equal(new PresenceView("正在使用 XMind", null, null, "other"), Format(PresenceState.Other, ActivityCategory.Other, "XMind", "XMind"));
+        Assert.Equal(new PresenceView("在聊天", "QQ", "QQ - 聊天", "chat"), Format(PresenceState.Communicating, ActivityCategory.Communication, "QQ", "QQ - 聊天"));
+    }
+
     [Theory]
     [InlineData(PresenceState.Working, ActivityCategory.Work, "工作中")]
     [InlineData(PresenceState.Meeting, ActivityCategory.Meeting, "工作中")]

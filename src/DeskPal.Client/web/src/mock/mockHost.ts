@@ -112,6 +112,9 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "settings.topmost":
         state.settings.topmost = m.enabled as boolean;
         break;
+      case "settings.theme":
+        state.settings.theme = m.theme === "light" || m.theme === "dark" ? m.theme : "system";
+        break;
       case "update.beta":
         state.settings.receiveBeta = m.enabled as boolean;
         break;

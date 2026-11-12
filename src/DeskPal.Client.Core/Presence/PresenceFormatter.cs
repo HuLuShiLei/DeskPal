@@ -56,7 +56,7 @@ public static class PresenceFormatter
             _ => "offline",
         };
 
-        return new PresenceView(headline, state == PresenceState.Other ? null : app, Shorten(snapshot.Detail), tone);
+        return new PresenceView(headline, state == PresenceState.Other ? null : app, OmitDuplicate(app, Shorten(snapshot.Detail)), tone);
     }
 
     public static string OneLine(PresenceView view) =>
@@ -113,6 +113,12 @@ public static class PresenceFormatter
 
         return span.Minutes == 0 ? $"{(int)span.TotalHours} 小时" : $"{(int)span.TotalHours} 小时 {span.Minutes} 分钟";
     }
+
+    /// <summary>The window title is not shown again when it is the same as the app name.</summary>
+    private static string? OmitDuplicate(string? app, string? detail) =>
+        detail is not null && app is not null && string.Equals(detail, app.Trim(), StringComparison.OrdinalIgnoreCase)
+            ? null
+            : detail;
 
     private static string? Shorten(string? detail)
     {

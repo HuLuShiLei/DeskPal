@@ -20,6 +20,9 @@ public sealed class AppSettings
 
     public bool Topmost { get; set; }
 
+    /// <summary>system follows Windows, light and dark are fixed.</summary>
+    public string Theme { get; set; } = "system";
+
     /// <summary>Copy of the account's answer on sharing usage data. null means not asked yet.</summary>
     public bool? ShareUsage { get; set; }
 

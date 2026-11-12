@@ -87,7 +87,7 @@ flowchart LR
 
 ## 界面文案
 
-`PresenceFormatter.Format` 把状态拆成三行：标题（工作中、在聊天、正在浏览网页、正在使用 XX、在看视频、在放松、暂时离开、已锁屏等）、应用名、详情。浏览器的应用名是域名，详情是页面标题；页面上标题一行，应用名和详情合成一行（“应用 · 详情”），只有其中一个就显示那一个。`Tone`（work、chat、relax、browse、other、away、offline）决定标题颜色和头像上的状态点。详情超过 36 个字时在界面上截断并加“…”，共享出去的 `Detail` 不截断。文案用书面用语，不用“忙”“摸鱼”。
+`PresenceFormatter.Format` 把状态拆成三行：标题（工作中、在聊天、正在浏览网页、正在使用 XX、在看视频、在放松、暂时离开、已锁屏等）、应用名、详情。浏览器的应用名是域名，详情是页面标题；页面上标题一行，应用名和详情合成一行（“应用 · 详情”），只有其中一个就显示那一个。应用名和详情去掉首尾空白后相同（不区分大小写）时，详情不再显示，避免出现“QQ · QQ”。`Tone`（work、chat、relax、browse、other、away、offline）决定标题颜色和头像上的状态点。详情超过 36 个字时在界面上截断并加“…”，共享出去的 `Detail` 不截断。文案用书面用语，不用“忙”“摸鱼”。
 
 ## 界面
 
@@ -95,14 +95,14 @@ flowchart LR
 
 | 窗口 | 文件 | 内容 |
 |---|---|---|
-| 面板 | `Ui/PanelWindow.cs`、`Ui/PanelBridge.cs` | 标题栏中间是房间切换菜单。左侧导航三页：状态（我的状态、房间成员、待归类、手动状态）、房间（列表、创建和加入、改名、邀请码、转让、退出、解散、隐私设置）、设置（账号和退出登录、开机自启、窗口置顶、分享使用数据、我的分类、测试版、检查更新、问题与建议）。大小固定为 420×680，不能调整。第一次打开时停靠在屏幕右下角，关闭只隐藏。托盘菜单只有「打开 DeskPal」和「退出」 |
+| 面板 | `Ui/PanelWindow.cs`、`Ui/PanelBridge.cs` | 标题栏中间是房间切换菜单。左侧导航三页：状态（我的状态、房间成员、待归类、手动状态）、房间（列表、创建和加入、改名、邀请码、转让、退出、解散、隐私设置）、设置（账号和退出登录、开机自启、窗口置顶、夜间模式、分享使用数据、我的分类、测试版、检查更新、问题与建议）。大小固定为 420×680，不能调整。第一次打开时停靠在屏幕右下角，关闭只隐藏。托盘菜单只有「打开 DeskPal」和「退出」 |
 | 登录 | `Ui/LoginWindow.cs` | 登录和注册。在 Room、Hub 等服务启动之前显示，所以是单独的窗口 |
 
 外观按 Windows 11 桌面程序做，不像网页：
 
 - 没有系统标题栏。`Ui/WindowFrame.cs` 用 `WindowChrome`（`CaptionHeight` 0、`GlassFrameThickness` 0）去掉标题栏但保留窗口边框，并通过 DWM 要求圆角，Windows 11 上仍有圆角和阴影。
 - 标题栏画在页面里（`TitleBar`）：CSS `app-region: drag` 的区域可以拖动窗口，依赖 WebView2 的 `IsNonClientRegionSupportEnabled`；最小化、关闭按钮发 `window.minimize`、`window.close`，宿主在 `WindowFrame.Handle` 里处理。
-- 颜色跟随系统的浅色、深色模式（`prefers-color-scheme`）。WPF 窗口背景按注册表 `AppsUseLightTheme` 取同一底色，避免加载时闪白。图标用 Segoe Fluent Icons；开关、设置行、菜单、对话框按 Windows 11 的控件样式写。
+- 颜色默认跟随系统的浅色、深色模式。设置里的「夜间模式」可以改成固定浅色或固定深色，选择记在 `settings.json`。WPF 窗口背景使用同一次选择；跟随系统时仍读注册表 `AppsUseLightTheme`，避免加载时闪白。图标用 Segoe Fluent Icons；开关、设置行、菜单、对话框按 Windows 11 的控件样式写。
 - 页面不能选中文字（输入框和 `.selectable` 除外），不显示手形光标，只在键盘操作时显示焦点框；关闭了缩放、滑动导航、自动填充和保存密码。
 - 没有 WebView2 Runtime 时，面板退回一个 WPF 提示窗口，可以拖动和关闭。
 

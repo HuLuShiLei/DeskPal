@@ -41,7 +41,8 @@ public static class PanelSamples
         ServerUrl: "https://deskpal.hafuhafu.cn:36443",
         UserName: "alice",
         UpdateActivity: null,
-        ShareUsage: true);
+        ShareUsage: true,
+        Theme: "system");
 
     public static PanelInput Default()
     {

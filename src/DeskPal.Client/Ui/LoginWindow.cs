@@ -12,26 +12,27 @@ public sealed class LoginWindow : Window
     private readonly AppSettings _settings;
     private readonly SettingsStore _store;
     private readonly ApiClient _api;
-    private readonly WebView2 _web = new() { DefaultBackgroundColor = WebUi.Background };
+    private readonly WebView2 _web;
 
     public LoginWindow(AppSettings settings, SettingsStore store, ApiClient api)
     {
         _settings = settings;
         _store = store;
         _api = api;
+        _web = new WebView2 { DefaultBackgroundColor = WebUi.ColorFor(settings.Theme) };
         Title = "DeskPal 登录";
         Width = 380;
         Height = 560;
         ResizeMode = ResizeMode.NoResize;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
-        Background = WebUi.BackgroundBrush;
+        Background = WebUi.BrushFor(settings.Theme);
         WindowFrame.Apply(this);
         Content = _web;
         Loaded += async (_, _) =>
         {
             try
             {
-                await WebUi.InitializeAsync(_web, "index.html?page=login", OnMessage);
+                await WebUi.InitializeAsync(_web, WebUi.Page("index.html?page=login", _settings.Theme), OnMessage);
             }
             catch (Exception ex)
             {

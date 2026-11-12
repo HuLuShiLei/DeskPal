@@ -18,6 +18,7 @@ public sealed class PanelWindow : Window, IUserPrompt
 {
     private static readonly TimeSpan ReleaseAfter = TimeSpan.FromMinutes(5);
     private readonly PanelBridge _bridge;
+    private readonly AppSettings _settings;
     private readonly ILogger<PanelWindow> _logger;
     private readonly DispatcherTimer _release;
     private readonly DispatcherTimer _push;
@@ -31,6 +32,7 @@ public sealed class PanelWindow : Window, IUserPrompt
     public PanelWindow(PanelBridge bridge, AppSettings settings, UpdateService updates, ILogger<PanelWindow> logger)
     {
         _bridge = bridge;
+        _settings = settings;
         _logger = logger;
         Title = $"DeskPal {updates.VersionLabel} - {settings.DisplayName}";
         Width = 420;
@@ -38,7 +40,7 @@ public sealed class PanelWindow : Window, IUserPrompt
         ResizeMode = ResizeMode.NoResize;
         WindowStartupLocation = WindowStartupLocation.Manual;
         Topmost = settings.Topmost;
-        Background = WebUi.BackgroundBrush;
+        Background = WebUi.BrushFor(settings.Theme);
         FontFamily = new FontFamily("Microsoft YaHei UI");
         WindowFrame.Apply(this);
 
@@ -52,6 +54,7 @@ public sealed class PanelWindow : Window, IUserPrompt
         bridge.Changed += () => Dispatcher.BeginInvoke(SchedulePush);
         updates.Changed += () => Dispatcher.BeginInvoke(PushState);
         bridge.TopmostChanged += topmost => Dispatcher.BeginInvoke(() => Topmost = topmost);
+        bridge.ThemeChanged += theme => Dispatcher.BeginInvoke(() => ApplyChrome(theme));
         IsVisibleChanged += (_, _) =>
         {
             if (IsVisible)
@@ -134,6 +137,15 @@ public sealed class PanelWindow : Window, IUserPrompt
         return await answer.Task;
     }
 
+    private void ApplyChrome(string theme)
+    {
+        Background = WebUi.BrushFor(theme);
+        if (_web is not null)
+        {
+            _web.DefaultBackgroundColor = WebUi.ColorFor(theme);
+        }
+    }
+
     private Task EnsureWebViewAsync()
     {
         if (_ready is not null)
@@ -149,8 +161,8 @@ public sealed class PanelWindow : Window, IUserPrompt
             return _ready.Task;
         }
 
-        Background = WebUi.BackgroundBrush;
-        var web = new WebView2 { DefaultBackgroundColor = WebUi.Background };
+        ApplyChrome(_settings.Theme);
+        var web = new WebView2 { DefaultBackgroundColor = WebUi.ColorFor(_settings.Theme) };
         _web = web;
         Content = web;
         _ = InitializeAsync(web, _ready);
@@ -161,7 +173,7 @@ public sealed class PanelWindow : Window, IUserPrompt
     {
         try
         {
-            await WebUi.InitializeAsync(web, "index.html", OnMessage);
+            await WebUi.InitializeAsync(web, WebUi.Page("index.html", _settings.Theme), OnMessage);
         }
         catch (Exception ex)
         {

@@ -1,7 +1,8 @@
-/* 桌面程序的外观：Windows 11 的配色、字号和控件尺寸，跟随系统的浅色和深色。
-   --bg 和宿主 WebUi.Background 保持一致，避免加载时闪一下。 */
+/* 桌面程序的外观：Windows 11 的配色、字号和控件尺寸。
+   默认跟随系统；html.dark 由设置里的夜间模式或系统深色加上。
+   --bg 和宿主窗口背景保持一致，避免加载时闪一下。 */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   --bg: #f3f3f3;
   --surface: #fbfbfb;
   --surface-strong: #ffffff;
@@ -36,36 +37,35 @@
   background: var(--bg);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #202020;
-    --surface: #2b2b2b;
-    --surface-strong: #323232;
-    --hover: rgba(255, 255, 255, 0.06);
-    --pressed: rgba(255, 255, 255, 0.09);
-    --line: rgba(255, 255, 255, 0.0698);
-    --line-strong: rgba(255, 255, 255, 0.14);
-    --text: #f3f3f3;
-    --muted: #c5c5c5;
-    --faint: #8f8f8f;
-    --accent: #7aa2ff;
-    --accent-hover: #8fb1ff;
-    --accent-soft: rgba(122, 162, 255, 0.16);
-    --on-accent: #0b1a3d;
-    --danger: #ff99a4;
-    --danger-soft: rgba(255, 153, 164, 0.12);
-    --warn-bg: #433519;
-    --warn-text: #fce100;
-    --info-bg: #26304a;
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
-    --tone-work: #7aa2ff;
-    --tone-chat: #3ccbb8;
-    --tone-relax: #ffa64d;
-    --tone-browse: #c39bff;
-    --tone-other: #a1a7b3;
-    --tone-away: #e0c95a;
-    --tone-offline: #6f6f6f;
-  }
+:root.dark {
+  color-scheme: dark;
+  --bg: #202020;
+  --surface: #2b2b2b;
+  --surface-strong: #323232;
+  --hover: rgba(255, 255, 255, 0.06);
+  --pressed: rgba(255, 255, 255, 0.09);
+  --line: rgba(255, 255, 255, 0.0698);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --text: #f3f3f3;
+  --muted: #c5c5c5;
+  --faint: #8f8f8f;
+  --accent: #7aa2ff;
+  --accent-hover: #8fb1ff;
+  --accent-soft: rgba(122, 162, 255, 0.16);
+  --on-accent: #0b1a3d;
+  --danger: #ff99a4;
+  --danger-soft: rgba(255, 153, 164, 0.12);
+  --warn-bg: #433519;
+  --warn-text: #fce100;
+  --info-bg: #26304a;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --tone-work: #7aa2ff;
+  --tone-chat: #3ccbb8;
+  --tone-relax: #ffa64d;
+  --tone-browse: #c39bff;
+  --tone-other: #a1a7b3;
+  --tone-away: #e0c95a;
+  --tone-offline: #6f6f6f;
 }
 
 /* ---- 桌面程序的行为 ---- */

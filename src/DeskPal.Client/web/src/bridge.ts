@@ -85,6 +85,8 @@ export interface PanelState {
     userName: string;
     /** null：还没有回答是否分享使用数据。 */
     shareUsage: boolean | null;
+    /** system 跟随 Windows，light / dark 固定。 */
+    theme: "system" | "light" | "dark";
   };
   myRules: MyRuleItem[];
   unclassified: UnclassifiedItem[];
@@ -119,6 +121,7 @@ export type Command =
   | { type: "settings.shareUsage"; enabled: boolean }
   | { type: "settings.autoStart"; enabled: boolean }
   | { type: "settings.topmost"; enabled: boolean }
+  | { type: "settings.theme"; theme: "system" | "light" | "dark" }
   | { type: "update.check" }
   | { type: "update.beta"; enabled: boolean }
   | { type: "update.restart" }

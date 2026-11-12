@@ -157,7 +157,8 @@
     "serverUrl": "https://deskpal.hafuhafu.cn:36443",
     "userName": "alice",
     "updateActivity": null,
-    "shareUsage": true
+    "shareUsage": true,
+    "theme": "system"
   },
   "myRules": [
     {

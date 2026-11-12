@@ -55,6 +55,8 @@ public sealed class PanelBridge
 
     public event Action<bool>? TopmostChanged;
 
+    public event Action<string>? ThemeChanged;
+
     /// <summary>Where update confirmations are shown. Set by the panel window.</summary>
     public IUserPrompt Prompt { get; set; } = MessageBoxPrompt.Instance;
 
@@ -93,7 +95,8 @@ public sealed class PanelBridge
             _settings.ServerUrl,
             _settings.UserName ?? "",
             _updates.ActivityText,
-            _settings.ShareUsage),
+            _settings.ShareUsage,
+            NormalizeTheme(_settings.Theme)),
         Now = DateTimeOffset.UtcNow,
     });
 
@@ -284,6 +287,20 @@ public sealed class PanelBridge
                 TopmostChanged?.Invoke(_settings.Topmost);
                 return CommandResult.Success;
 
+            case "settings.theme":
+            {
+                var theme = NormalizeTheme(c.String("theme"));
+                if (theme != c.String("theme"))
+                {
+                    return CommandResult.Fail("外观选项不正确");
+                }
+
+                _settings.Theme = theme;
+                _store.Save(_settings);
+                ThemeChanged?.Invoke(theme);
+                return CommandResult.Success;
+            }
+
             case "update.check":
                 await UpdateInteraction.CheckAsync(_updates, _updates.Exit!, quietWhenCurrent: false, Prompt);
                 return CommandResult.Success;
@@ -338,6 +355,8 @@ public sealed class PanelBridge
         await _personalRules.SetAsync(target.Kind, target.Pattern, category, target.DisplayName);
         return CommandResult.Success;
     }
+
+    private static string NormalizeTheme(string? theme) => theme is "light" or "dark" or "system" ? theme : "system";
 
     private void RaiseChanged() => Changed?.Invoke();
 }

@@ -79,6 +79,13 @@ export function SettingsPage({ state }: { state: PanelState }) {
           <SettingRow title="窗口置顶" hint="面板显示在其他窗口上面">
             <Switch checked={s.topmost} label="窗口置顶" onChange={(v) => run({ type: "settings.topmost", enabled: v })} />
           </SettingRow>
+          <SettingRow title="夜间模式" hint="跟随 Windows，或固定为浅色、深色">
+            <select aria-label="夜间模式" value={s.theme} onChange={(e) => run({ type: "settings.theme", theme: e.currentTarget.value as "system" | "light" | "dark" })}>
+              <option value="system">跟随系统</option>
+              <option value="light">浅色</option>
+              <option value="dark">深色</option>
+            </select>
+          </SettingRow>
         </div>
       </Section>
       <Section title="分类">

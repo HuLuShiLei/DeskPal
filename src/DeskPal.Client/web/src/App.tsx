@@ -5,6 +5,7 @@ import { RoomPage } from "./pages/RoomPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { StatusPage } from "./pages/StatusPage";
 import { askSharing } from "./sharing";
+import { applyTheme } from "./theme";
 import { Flyout, Icon, TitleBar, type IconName } from "./ui";
 
 const tabs: { id: Tab; name: string; icon: IconName }[] = [
@@ -35,6 +36,10 @@ export function App({ bridge }: { bridge: Bridge }) {
     });
     bridge.notify({ type: "ready" });
   }, []);
+
+  useEffect(() => {
+    if (state) applyTheme(state.settings.theme);
+  }, [state?.settings.theme]);
 
   useEffect(() => {
     if (state && state.settings.shareUsage === null && !askedSharing.current) {

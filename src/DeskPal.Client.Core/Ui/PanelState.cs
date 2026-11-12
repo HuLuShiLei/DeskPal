@@ -61,4 +61,5 @@ public sealed record SettingsView(
     string ServerUrl,
     string UserName,
     string? UpdateActivity,
-    bool? ShareUsage = null);
+    bool? ShareUsage = null,
+    string Theme = "system");
