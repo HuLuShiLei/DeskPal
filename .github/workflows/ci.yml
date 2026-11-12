@@ -64,6 +64,7 @@ jobs:
             'src/DeskPal.Client/',
             'src/DeskPal.Client.Core/',
             'src/DeskPal.Shared/',
+            'installer/',
             '.github/workflows/ci.yml'
           )
           $changed = $false
@@ -166,14 +167,25 @@ jobs:
           $changes = if ($subjects.Count -eq 0) { '- 这次没有新的提交说明' } else { ($subjects | ForEach-Object { "- $_" }) -join "`n" }
           $setupName = "DeskPal-$version-Setup.exe"
           $intro = if ($pre) {
-            "测试版，供内部试用。`n`n安装 $setupName。安装之后会继续接收测试版。`n托盘菜单可以检查更新，也可以取消「加入测试版」。已下载的更新在退出时安装。"
+            "测试版，供内部试用。`n`n安装 $setupName，安装时可以选择安装目录。安装之后会继续接收测试版。`n托盘菜单可以检查更新，也可以取消「加入测试版」。已下载的更新在退出时安装。"
           } else {
-            "安装 $setupName。默认只接收正式版。`n要接收 main 上的测试修复，在托盘菜单勾选「加入测试版」。"
+            "安装 $setupName，安装时可以选择安装目录。默认只接收正式版。`n要接收 main 上的测试修复，在托盘菜单勾选「加入测试版」。"
           }
           $since = if ($previous) { "自 $previous 以来" } else { "本次发布" }
           $notes = "$intro`n`n## 更新内容（$since）`n`n$changes$more`n"
           [System.IO.File]::WriteAllText("$PWD\release-notes.txt", $notes)
-          vpk pack -u DeskPal -v $version -c $channel -p publish/DeskPal --packTitle DeskPal -e DeskPal.exe --instLocation PerUser --runtime win-x64 --framework webview2 --releaseNotes release-notes.txt --noPortable
+          vpk pack -u DeskPal -v $version -c $channel -p publish/DeskPal --packTitle DeskPal -e DeskPal.exe --runtime win-x64 --framework webview2 --releaseNotes release-notes.txt --noPortable
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $packedName = "DeskPal-$channel-Setup.exe"
+          # installer/ChineseSimplified.isl 取自 Inno Setup 6.7.3，编译器固定同一版本。
+          $innoExe = Join-Path $env:RUNNER_TEMP 'innosetup-6.7.3.exe'
+          Invoke-WebRequest 'https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe' -OutFile $innoExe
+          if ((Get-FileHash $innoExe -Algorithm SHA256).Hash -ne '9C73C3BAE7ED48D44112A0F48E66742C00090BDB5BEF71D9D3C056C66E97B732') { throw "Inno Setup 安装包校验失败" }
+          $innoDir = Join-Path $env:RUNNER_TEMP 'InnoSetup'
+          Start-Process $innoExe -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/SP-', '/CURRENTUSER', "/DIR=`"$innoDir`"") -Wait
+          $iscc = Join-Path $innoDir 'ISCC.exe'
+          if (-not (Test-Path $iscc)) { throw "没有找到 $iscc" }
+          & $iscc /Q "/DAppVersion=$version" "/DVelopackSetup=$(Join-Path $PWD "Releases\$packedName")" "/O$(Join-Path $PWD 'InstallerOutput')" installer\DeskPal.iss
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Get-ChildItem Releases -File | Where-Object {
             $_.Extension -eq '.nupkg' -and $_.Name -notlike "*$version*"
@@ -186,18 +198,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           gh release edit $tag --notes-file release-notes.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $packedName = "DeskPal-$channel-Setup.exe"
-          # assets.id 是 GraphQL node id。REST 更新接口要数字编号，写在 apiUrl 里。
-          $view = gh release view $tag --json assets | ConvertFrom-Json
-          $setup = @($view.assets | Where-Object { $_.name -eq $packedName })
-          if ($setup.Count -ne 1) {
-            $names = @($view.assets | ForEach-Object { $_.name }) -join ', '
-            throw "找不到安装包 $packedName。当前资源：$names"
-          }
-          if ([string]::IsNullOrWhiteSpace($setup[0].apiUrl)) { throw "安装包没有 apiUrl" }
-          gh api --method PATCH -H "Accept: application/vnd.github+json" $setup[0].apiUrl -f name="$setupName"
+          # 用户只下载选择目录的安装向导。Velopack 自带的 Setup.exe 已内嵌在向导里，自动更新只用 nupkg 和 releases 清单。
+          gh release upload $tag (Join-Path InstallerOutput $setupName) --clobber
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          Rename-Item -LiteralPath (Join-Path Releases $packedName) -NewName $setupName
+          gh release delete-asset $tag $packedName --yes
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (-not $pre) { exit 0 }
           $list = gh release list --limit 100 --json tagName,isPrerelease,publishedAt | ConvertFrom-Json
           $old = @($list | Where-Object { $_.isPrerelease -and $_.tagName -like '*-dev.*' } | Sort-Object publishedAt -Descending | Select-Object -Skip 8)
@@ -209,4 +214,4 @@ jobs:
         if: needs.changes.outputs.mode != 'build'
         with:
           name: DeskPal-${{ steps.version.outputs.version }}-Setup
-          path: Releases/*-Setup.exe
+          path: InstallerOutput/*-Setup.exe

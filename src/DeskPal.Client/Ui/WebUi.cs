@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Windows;
+using DeskPal.Client.Services;
 using DeskPal.Shared;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
@@ -15,8 +16,7 @@ public static class WebUi
     private static Task<CoreWebView2Environment>? _environment;
 
     /// <summary>Outside the Velopack current folder, which is replaced on every update.</summary>
-    public static string UserDataFolder { get; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DeskPal", "WebView2");
+    public static string UserDataFolder => AppPaths.WebView2Directory;
 
     public static System.Drawing.Color Background { get; } = System.Drawing.Color.FromArgb(0xF4, 0xF5, 0xF7);
 

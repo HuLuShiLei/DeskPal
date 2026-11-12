@@ -485,3 +485,5 @@ $RECYCLE.BIN/
 storage/
 .local/
 deploy/.env
+installer/Output/
+InstallerOutput/

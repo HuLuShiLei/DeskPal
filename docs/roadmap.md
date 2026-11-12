@@ -7,7 +7,7 @@
 - 部署到真实服务器（`deploy/README.md`），两台电脑实际用一周，记录误判。
 - 根据误判补内置规则（skill `deskpal-builtin-rules`）。
 - 把“还没验证”里的信号和对话框逐个验证。
-- 本地日志写入文件（`%LOCALAPPDATA%\DeskPal\logs`），方便排查。
+- 已完成：本地日志写入文件（安装版在 `<安装目录>\logs`），安装时可以选择安装目录。
 - 代码签名：Azure Artifact Signing 不对中国个人开放；仓库开源的话可以用 Certum 开源证书（约 €49/年）或申请 SignPath Foundation（免费），否则买 OV 证书。签名只去掉“未知发布者”，SmartScreen 信誉仍要靠下载量慢慢积累。自动更新已经用 Velopack 接上 GitHub Release。
 
 ## 阶段 2：体验

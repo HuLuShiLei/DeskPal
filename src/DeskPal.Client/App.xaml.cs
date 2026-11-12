@@ -30,7 +30,7 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        _logs = new ClientLogFiles(Path.Combine(SettingsStore.Directory, "logs"));
+        _logs = new ClientLogFiles(AppPaths.LogDirectory);
         RegisterCrashHandlers(_logs);
         _singleInstance = new Mutex(false, "DeskPal.Client.SingleInstance");
         if (!_singleInstance.WaitOne(TimeSpan.FromSeconds(3)))

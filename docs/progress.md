@@ -27,6 +27,7 @@
 | 检查更新反馈 | 手动点击后，设置页立即显示「正在检查更新…」，按钮变为「请稍候…」；下载过程显示「正在下载新版本 x（百分比）」。不使用 Windows 通知气泡。后台定时检查不显示这些过程，下载完成后设置页的「立即重启并更新」变为可用 | 用户要求点击和下载都要有反馈，并去掉检查更新的通知气泡 |
 | 客户端更新 | Velopack。测试版通道 `beta`，正式版通道 `win`。安装测试版后默认继续接收测试版；正式版安装后要在设置里勾选「加入测试版」才接收。启动后和每 6 小时检查一次，后台下载。已下载的包只在退出或选择「立即重启并更新」时安装，启动时不自动安装。取消测试版会删除已下载的包。不强制重启。从测试版回到较低正式版时先询问。只保留最近 8 个测试版。Velopack 只读取最近 10 个 GitHub Release，要给正式版留位置。GitHub Release 说明附带更新内容，取提交标题：测试版相对上一次发布，正式版相对上一个正式版，最多 40 条 | 试用人员要尽快拿到修复；GitHub Release 单个文件小于 2 GiB，没有总容量和流量限制 |
 | 发布 | 代码在 GitHub `HuLuShiLei/DeskPal`；推送默认分支自动构建 Server 镜像，并调用 Portainer Business Edition 的 webhook 拉取重建；客户端测试版在 main 改了客户端时自动发 Pre-release，正式版只在手动推送 `vX.Y.Z` 标签时发布。安装包文件名是 `DeskPal-<版本号>-Setup.exe`。对外地址 `https://deskpal.hafuhafu.cn:36443`，也是客户端默认地址 | 运营商封了 80/443，只能用 36443；3 节点以内的 Business Edition 许可证免费；试用期要小步更新；用户要求安装包文件名带版本号 |
+| 安装目录 | 安装包是 Inno Setup 向导（`installer/DeskPal.iss`），用户选择安装目录，默认 `%LocalAppData%\Programs\DeskPal`，再次安装时默认上次的目录。向导内嵌 Velopack 的 Setup.exe，用 `--installto` 静默安装，只为当前用户安装。拒绝磁盘根目录、已有其他文件的目录和不可写的目录；换目录时提示旧目录不会自动删除。安装版的日志在 `<安装目录>\logs`，WebView2 缓存在 `<安装目录>\WebView2`；`settings.json` 和规则仍在 `%APPDATA%\DeskPal`。直接运行或安装目录不可写时，日志和缓存回到 `%APPDATA%\DeskPal\logs` 和 `%LOCALAPPDATA%\DeskPal\WebView2`。已装在 `%LocalAppData%\DeskPal` 的客户端更新后，旧日志留在 `%APPDATA%\DeskPal\logs`，不迁移。换目录安装时，指向旧目录的开机自启改到新目录 | 用户不想固定装在 AppData。Velopack 在同一目录重新安装或卸载都会清空整个安装目录，指向已有文件的目录时会删掉其中的文件；设置留在用户目录才不会丢登录状态 |
 | Meeting | 不采集麦克风，不再产生。枚举成员保留，收到时显示为工作中。纠正和隐私设置不列出这一类 | 规则类别按整数保存，删掉中间成员会让后面的类别错位 |
 
 ## 已完成（第一期原型）
@@ -46,6 +47,7 @@
 - 浏览器域名（UI Automation）、媒体播放、锁屏这几个信号没有专门触发过。
 - 纠正、隐私设置、转让、解散在模拟数据下点过，没有连真实 Server 点过。
 - 没有 WebView2 Runtime 的系统上安装（要在第一次正式发布前用虚拟机装一次）。
+- CI 下载 Inno Setup 6.7.3、编译安装向导、上传到 Release 这几步还没在 GitHub Actions 上跑过。本机已验证：全新安装、拒绝非空目录、运行中覆盖安装、Velopack 更新、换目录安装、卸载。
 - Server 已通过 Portainer webhook 部署。从带 `revision` 的版本起，CI 会等到 `/health` 返回本次提交号。两台真实电脑登录还没验证。
 
 ## 偏离方案
@@ -91,3 +93,4 @@
 | 2026-11-12 | 「纠正分类」直接写入当前房间。房间规则优先于个人规则，房间内所有成员得到同一类别。没有进入房间时才写入个人规则 |
 | 2026-11-12 | 放松类别只保留视频和游戏。音乐不再分类，避免后台播放盖过当前焦点。购物、社交网站、新闻、阅读并进正在浏览网页；Kindle、calibre、Discord 显示为正在使用。纠正分类里「浏览网页」排在「其他」前面 |
 | 2026-11-12 | 客户端把运行日志写到 `%APPDATA%\DeskPal\logs`。单文件超过 1 MB 后分文件，最多保留 5 个旧文件，并删除超过 7 天的旧文件。日志不记录窗口标题、域名、手动状态和 token |
+| 2026-11-12 | 安装包改为 Inno Setup 向导，可以选择安装目录（默认 `%LocalAppData%\Programs\DeskPal`）。安装版的日志写到 `<安装目录>\logs`，WebView2 缓存写到 `<安装目录>\WebView2`；设置和规则仍在 `%APPDATA%\DeskPal`。覆盖安装时保留旧日志，安装日志保存为 `logs\setup.log`。Release 上不再提供 Velopack 自带的 Setup.exe |
