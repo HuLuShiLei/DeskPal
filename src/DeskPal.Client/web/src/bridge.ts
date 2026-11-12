@@ -58,6 +58,7 @@ export interface PanelState {
     topmost: boolean;
     receiveBeta: boolean;
     updateReady: boolean;
+    updateActivity: string | null;
     version: string;
     serverUrl: string;
     userName: string;

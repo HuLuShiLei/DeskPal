@@ -49,6 +49,7 @@ public sealed class PanelWindow : Window, IUserPrompt
 
         bridge.Prompt = this;
         bridge.Changed += () => Dispatcher.BeginInvoke(SchedulePush);
+        updates.Changed += () => Dispatcher.BeginInvoke(PushState);
         bridge.TopmostChanged += topmost => Dispatcher.BeginInvoke(() => Topmost = topmost);
         IsVisibleChanged += (_, _) =>
         {

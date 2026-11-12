@@ -184,6 +184,7 @@
     "updateReady": true,
     "version": "0.1.0",
     "serverUrl": "https://deskpal.hafuhafu.cn:36443",
-    "userName": "alice"
+    "userName": "alice",
+    "updateActivity": null
   }
 }

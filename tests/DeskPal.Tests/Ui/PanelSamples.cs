@@ -39,7 +39,8 @@ public static class PanelSamples
         UpdateReady: false,
         Version: "0.1.1-dev.12",
         ServerUrl: "https://deskpal.hafuhafu.cn:36443",
-        UserName: "alice");
+        UserName: "alice",
+        UpdateActivity: null);
 
     public static PanelInput Default()
     {

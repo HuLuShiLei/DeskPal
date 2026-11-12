@@ -49,4 +49,5 @@ public sealed record SettingsView(
     bool UpdateReady,
     string Version,
     string ServerUrl,
-    string UserName);
+    string UserName,
+    string? UpdateActivity);

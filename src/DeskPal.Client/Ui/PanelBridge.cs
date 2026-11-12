@@ -82,7 +82,8 @@ public sealed class PanelBridge
             _updates.UpdateReady,
             _updates.VersionLabel,
             _settings.ServerUrl,
-            _settings.UserName ?? ""),
+            _settings.UserName ?? "",
+            _updates.ActivityText),
         Now = DateTimeOffset.UtcNow,
     });
 

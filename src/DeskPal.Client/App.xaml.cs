@@ -22,6 +22,7 @@ public partial class App : Application
     private TaskbarIcon? _tray;
     private PanelWindow? _panel;
     private MenuItem? _betaMenu;
+    private MenuItem? _checkMenu;
     private MenuItem? _restartMenu;
     private CancellationTokenSource? _updates;
     private bool _exiting;
@@ -55,6 +56,7 @@ public partial class App : Application
         var updates = services.GetRequiredService<UpdateService>();
         updates.Exit = restart => ExitAsync(applyUpdate: true, restart: restart);
         updates.Checked += result => Dispatcher.BeginInvoke(() => _tray?.ShowNotification("DeskPal", result.Message));
+        updates.Notice += message => Dispatcher.BeginInvoke(() => _tray?.ShowNotification("DeskPal", message));
         updates.Changed += () => Dispatcher.BeginInvoke(SyncUpdateMenu);
 
         _tray = CreateTray(updates);
@@ -193,8 +195,8 @@ public partial class App : Application
         var menu = new ContextMenu();
         var open = new MenuItem { Header = "打开 DeskPal" };
         open.Click += (_, _) => _panel?.ShowAndActivate();
-        var check = new MenuItem { Header = "检查更新" };
-        check.Click += async (_, _) => await UpdateInteraction.CheckAsync(updates, updates.Exit!, quietWhenCurrent: false, Prompt());
+        _checkMenu = new MenuItem { Header = "检查更新" };
+        _checkMenu.Click += async (_, _) => await UpdateInteraction.CheckAsync(updates, updates.Exit!, quietWhenCurrent: false, Prompt());
         _betaMenu = new MenuItem { Header = "加入测试版", IsCheckable = true, IsChecked = updates.ReceiveBeta };
         _betaMenu.Click += async (_, _) =>
         {
@@ -220,7 +222,7 @@ public partial class App : Application
         exit.Click += async (_, _) => await ExitAsync();
         menu.Items.Add(open);
         menu.Items.Add(new Separator());
-        menu.Items.Add(check);
+        menu.Items.Add(_checkMenu);
         menu.Items.Add(_betaMenu);
         menu.Items.Add(_restartMenu);
         menu.Items.Add(new Separator());
@@ -266,6 +268,10 @@ public partial class App : Application
         }
 
         _restartMenu.IsEnabled = updates.UpdateReady;
+        if (_checkMenu is not null)
+        {
+            _checkMenu.IsEnabled = updates.ActivityText is null;
+        }
         if (_betaMenu.IsChecked != updates.ReceiveBeta)
         {
             _betaMenu.IsChecked = updates.ReceiveBeta;

@@ -1,9 +1,26 @@
+import { useRef, useState } from "preact/hooks";
 import type { PanelState } from "../bridge";
 import { useHost } from "../host";
 
 export function SettingsPage({ state }: { state: PanelState }) {
   const { run } = useHost();
   const s = state.settings;
+  const [pressed, setPressed] = useState(false);
+  const seen = useRef(false);
+  if (s.updateActivity) seen.current = true;
+  const status = s.updateActivity ?? (pressed && !seen.current ? "正在检查更新…" : null);
+  const waiting = pressed || s.updateActivity !== null;
+
+  const check = async () => {
+    seen.current = false;
+    setPressed(true);
+    try {
+      await run({ type: "update.check" });
+    } finally {
+      setPressed(false);
+      seen.current = false;
+    }
+  };
 
   return (
     <>
@@ -37,8 +54,15 @@ export function SettingsPage({ state }: { state: PanelState }) {
           <input type="checkbox" checked={s.receiveBeta} onChange={(e) => run({ type: "update.beta", enabled: e.currentTarget.checked })} />
           加入测试版
         </label>
+        {status && (
+          <p class="status" role="status">
+            {status}
+          </p>
+        )}
         <div class="actions">
-          <button onClick={() => run({ type: "update.check" })}>检查更新</button>
+          <button disabled={waiting} onClick={check}>
+            {waiting ? "请稍候…" : "检查更新"}
+          </button>
           <button class="primary" disabled={!s.updateReady} onClick={() => run({ type: "update.restart" })}>
             立即重启并更新
           </button>

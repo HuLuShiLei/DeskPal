@@ -42,7 +42,7 @@ public static class UpdateInteraction
 {
     public static async Task CheckAsync(UpdateService updates, Func<bool, Task> exitAsync, bool quietWhenCurrent, IUserPrompt prompt)
     {
-        var result = await updates.CheckAsync();
+        var result = await updates.CheckAsync(interactive: true);
         switch (result.Kind)
         {
             case UpdateCheckKind.Ready:

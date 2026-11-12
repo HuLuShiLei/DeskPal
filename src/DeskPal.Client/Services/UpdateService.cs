@@ -32,6 +32,8 @@ public sealed class UpdateService
     private InstalledUpdateManager? _manager;
     private VelopackAsset? _ready;
     private bool _readyIsDowngrade;
+    private string? _activity;
+    private int _interactive;
 
     public UpdateService(AppSettings settings, SettingsStore store)
     {
@@ -67,6 +69,20 @@ public sealed class UpdateService
     public event Action? Changed;
 
     public event Action<UpdateCheckResult>? Checked;
+
+    /// <summary>一次手动检查或下载开始时通知。百分比变化不走这里。</summary>
+    public event Action<string>? Notice;
+
+    public string? ActivityText
+    {
+        get
+        {
+            lock (_state)
+            {
+                return _activity;
+            }
+        }
+    }
 
     /// <summary>由 App 赋值。参数为 true 时重启并安装已下载的更新。</summary>
     public Func<bool, Task>? Exit { get; set; }
@@ -109,11 +125,18 @@ public sealed class UpdateService
         }
     }
 
-    public async Task<UpdateCheckResult> CheckAsync(CancellationToken cancellationToken = default)
+    public async Task<UpdateCheckResult> CheckAsync(CancellationToken cancellationToken = default, bool interactive = false)
     {
-        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        if (interactive)
+        {
+            BeginInteractive("正在检查更新…");
+        }
+
         try
         {
+            await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
             if (!_installed || _locator is null)
             {
                 return new UpdateCheckResult(UpdateCheckKind.NotInstalled, NotInstalledMessage, VersionLabel);
@@ -156,7 +179,15 @@ public sealed class UpdateService
 
             try
             {
-                await manager.DownloadUpdatesAsync(info, null, cancellationToken).ConfigureAwait(false);
+                if (interactive)
+                {
+                    ReportDownload(target, null);
+                }
+
+                await manager.DownloadUpdatesAsync(
+                    info,
+                    interactive ? percent => ReportDownload(target, percent) : null,
+                    cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -177,18 +208,29 @@ public sealed class UpdateService
 
             Changed?.Invoke();
             return new UpdateCheckResult(UpdateCheckKind.Ready, $"新版本 {target} 已下载，退出后自动安装。", target);
+            }
+            finally
+            {
+                _gate.Release();
+            }
         }
         finally
         {
-            _gate.Release();
+            if (interactive)
+            {
+                EndInteractive();
+            }
         }
     }
 
     public async Task<string?> DownloadDowngradeAsync()
     {
-        await _gate.WaitAsync().ConfigureAwait(false);
+        BeginInteractive("正在下载正式版…");
         try
         {
+            await _gate.WaitAsync().ConfigureAwait(false);
+            try
+            {
             if (!_installed)
             {
                 return NotInstalledMessage;
@@ -207,7 +249,9 @@ public sealed class UpdateService
                 return "正式版没有变化。";
             }
 
-            await manager.DownloadUpdatesAsync(info).ConfigureAwait(false);
+            var target = info.TargetFullRelease.Version.ToString();
+            ReportDownload(target, null);
+            await manager.DownloadUpdatesAsync(info, percent => ReportDownload(target, percent)).ConfigureAwait(false);
             if (!CommitReady(epoch, manager, info.TargetFullRelease, downgrade: true))
             {
                 DeleteDownloadedPackages();
@@ -221,10 +265,85 @@ public sealed class UpdateService
         {
             ForgetReadyIfPackageMissing();
             return $"下载正式版失败：{ex.Message}";
+            }
+            finally
+            {
+                _gate.Release();
+            }
         }
         finally
         {
-            _gate.Release();
+            EndInteractive();
+        }
+    }
+
+    private void BeginInteractive(string text)
+    {
+        var notify = false;
+        lock (_state)
+        {
+            _interactive++;
+            if (_activity != text)
+            {
+                _activity = text;
+                notify = true;
+            }
+        }
+
+        if (!notify)
+        {
+            return;
+        }
+
+        Changed?.Invoke();
+        Notice?.Invoke(text);
+    }
+
+    private void EndInteractive()
+    {
+        var changed = false;
+        lock (_state)
+        {
+            if (_interactive > 0)
+            {
+                _interactive--;
+            }
+
+            if (_interactive == 0 && _activity is not null)
+            {
+                _activity = null;
+                changed = true;
+            }
+        }
+
+        if (changed)
+        {
+            Changed?.Invoke();
+        }
+    }
+
+    /// <summary>面板显示带百分比的句子。气泡只在进入下载时发一次。</summary>
+    private void ReportDownload(string version, int? percent)
+    {
+        var text = percent is null
+            ? $"正在下载新版本 {version}…"
+            : $"正在下载新版本 {version}（{percent}%）";
+        string? previous;
+        lock (_state)
+        {
+            if (_interactive == 0 || _activity == text)
+            {
+                return;
+            }
+
+            previous = _activity;
+            _activity = text;
+        }
+
+        Changed?.Invoke();
+        if (previous is null || !previous.StartsWith("正在下载", StringComparison.Ordinal))
+        {
+            Notice?.Invoke($"正在下载新版本 {version}");
         }
     }
 

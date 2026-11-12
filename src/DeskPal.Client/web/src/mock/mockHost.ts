@@ -108,11 +108,21 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "update.beta":
         state.settings.receiveBeta = m.enabled as boolean;
         break;
-      case "update.check":
+      case "update.check": {
+        const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+        state.settings.updateActivity = "正在检查更新…";
+        pushState();
+        await wait(400);
+        state.settings.updateActivity = "正在下载新版本 0.2.0（40%）";
+        pushState();
+        await wait(1600);
+        state.settings.updateActivity = null;
+        pushState();
         if (await ask("confirm", "已下载新版本 0.2.0。要立即重启并更新吗？")) {
           await ask("info", "（模拟）客户端会退出并安装更新。");
         }
         break;
+      }
       case "member.poke":
       case "presence.correct":
       case "update.restart":

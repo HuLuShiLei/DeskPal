@@ -103,6 +103,15 @@ public class PanelStateBuilderTests
     }
 
     [Fact]
+    public void Settings_show_the_update_activity_while_a_check_is_running()
+    {
+        var input = PanelSamples.Default();
+        input = input with { Settings = input.Settings with { UpdateActivity = "正在下载新版本 0.2.0（40%）" } };
+
+        Assert.Equal("正在下载新版本 0.2.0（40%）", PanelStateBuilder.Build(input).Settings.UpdateActivity);
+    }
+
+    [Fact]
     public void Browser_shows_the_page_without_a_guess_label()
     {
         var local = new LocalPresence(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "猫猫合集", null);
