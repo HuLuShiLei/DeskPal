@@ -78,30 +78,30 @@ public class ClassifierTests
     }
 
     [Fact]
-    public void Room_rule_beats_personal_rule()
+    public void Personal_rule_reclassifies_a_site()
     {
         var classifier = Create();
-        var snapshot = TestData.Browser("bilibili.com");
-        classifier.SetPersonal(new RuleSet([new RuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Video, "哔哩哔哩")]));
-        var personal = classifier.Classify(snapshot);
-        Assert.Equal((ActivityCategory.Video, "哔哩哔哩", RuleLayer.Personal), (personal.Category, personal.AppDisplayName, personal.Layer));
+        classifier.SetPersonal(new RuleSet([new RuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Work, "B 站学习")]));
 
-        classifier.SetRoom(new RuleSet([new RuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Work, "B 站学习")]));
-        var room = classifier.Classify(snapshot);
-        Assert.Equal((ActivityCategory.Work, "B 站学习", RuleLayer.Room), (room.Category, room.AppDisplayName, room.Layer));
+        var result = classifier.Classify(TestData.Browser("bilibili.com"));
+
+        Assert.Equal((ActivityCategory.Work, "B 站学习", RuleLayer.Personal), (result.Category, result.AppDisplayName, result.Layer));
     }
 
     [Fact]
-    public void Room_process_rule_beats_personal_and_builtin()
+    public void Personal_rule_beats_builtin()
     {
         var classifier = Create();
         var snapshot = TestData.App("DevEnv");
-        classifier.SetPersonal(new RuleSet([new RuleDto(RuleKind.Process, "devenv.exe", ActivityCategory.Game, "VS")]));
-        Assert.Equal((ActivityCategory.Game, "VS", RuleLayer.Personal), (classifier.Classify(snapshot).Category, classifier.Classify(snapshot).AppDisplayName, classifier.Classify(snapshot).Layer));
+        Assert.Equal((ActivityCategory.Work, RuleLayer.Builtin), (classifier.Classify(snapshot).Category, classifier.Classify(snapshot).Layer));
 
-        classifier.SetRoom(new RuleSet([new RuleDto(RuleKind.Process, "devenv.exe", ActivityCategory.Work, "Visual Studio")]));
-        var room = classifier.Classify(snapshot);
-        Assert.Equal((ActivityCategory.Work, "Visual Studio", RuleLayer.Room), (room.Category, room.AppDisplayName, room.Layer));
+        classifier.SetPersonal(PersonalRuleStore.ToRuleSet(
+        [
+            new UserRuleDto(RuleKind.Process, "devenv", ActivityCategory.Work, "旧的", DateTimeOffset.UnixEpoch),
+            new UserRuleDto(RuleKind.Process, "DevEnv.exe", ActivityCategory.Game, "VS", DateTimeOffset.UnixEpoch.AddDays(1)),
+        ]));
+        var personal = classifier.Classify(snapshot);
+        Assert.Equal((ActivityCategory.Game, "VS", RuleLayer.Personal), (personal.Category, personal.AppDisplayName, personal.Layer));
     }
 
     [Fact]
@@ -134,11 +134,11 @@ public class ClassifierTests
         Assert.Equal(ActivityCategory.Other, Create().Classify(TestData.App("cloudmusic")).Category);
 
         var classifier = Create();
-        classifier.SetRoom(new RuleSet([new RuleDto(RuleKind.Domain, "amazon.com", ActivityCategory.Shopping, "Amazon")]));
+        classifier.SetPersonal(new RuleSet([new RuleDto(RuleKind.Domain, "amazon.com", ActivityCategory.Shopping, "Amazon")]));
         var shop = classifier.Classify(TestData.Browser("www.amazon.com"));
         Assert.Equal((ActivityCategory.Browsing, "amazon.com", RuleLayer.Browser), (shop.Category, shop.AppDisplayName, shop.Layer));
 
-        classifier.SetRoom(new RuleSet([new RuleDto(RuleKind.Process, "kindle", ActivityCategory.Reading, "Kindle")]));
+        classifier.SetPersonal(new RuleSet([new RuleDto(RuleKind.Process, "kindle", ActivityCategory.Reading, "Kindle")]));
         var reading = classifier.Classify(TestData.App("kindle"));
         Assert.Equal((ActivityCategory.Other, "kindle", RuleLayer.Fallback), (reading.Category, reading.AppDisplayName, reading.Layer));
     }

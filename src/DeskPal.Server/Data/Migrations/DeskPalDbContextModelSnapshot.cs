@@ -159,40 +159,31 @@ namespace DeskPal.Server.Data.Migrations
                     b.ToTable("RoomMembers");
                 });
 
-            modelBuilder.Entity("DeskPal.Server.Data.RoomRule", b =>
+            modelBuilder.Entity("DeskPal.Server.Data.UnknownAppReport", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Category")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Kind")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Pattern")
-                        .IsRequired()
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("RoomId")
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(60)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("UpdatedAt")
+                    b.Property<int>("Minutes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("ReportedAt")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId", "Kind", "Pattern");
 
-                    b.HasIndex("RoomId", "Kind", "Pattern")
-                        .IsUnique();
-
-                    b.ToTable("RoomRules");
+                    b.ToTable("UnknownAppReports");
                 });
 
             modelBuilder.Entity("DeskPal.Server.Data.User", b =>
@@ -213,6 +204,9 @@ namespace DeskPal.Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool?>("ShareUsage")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -224,6 +218,43 @@ namespace DeskPal.Server.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("DeskPal.Server.Data.UserRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(60)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Pattern")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Kind", "Pattern");
+
+                    b.HasIndex("UserId", "Kind", "Pattern")
+                        .IsUnique();
+
+                    b.ToTable("UserRules");
                 });
 
             modelBuilder.Entity("DeskPal.Server.Data.RoomBan", b =>
@@ -269,11 +300,20 @@ namespace DeskPal.Server.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DeskPal.Server.Data.RoomRule", b =>
+            modelBuilder.Entity("DeskPal.Server.Data.UnknownAppReport", b =>
                 {
-                    b.HasOne("DeskPal.Server.Data.Room", null)
+                    b.HasOne("DeskPal.Server.Data.User", null)
                         .WithMany()
-                        .HasForeignKey("RoomId")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DeskPal.Server.Data.UserRule", b =>
+                {
+                    b.HasOne("DeskPal.Server.Data.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

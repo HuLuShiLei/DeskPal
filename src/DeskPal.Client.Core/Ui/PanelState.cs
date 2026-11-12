@@ -1,4 +1,5 @@
 using DeskPal.Client.Core.Presence;
+using DeskPal.Shared.Api;
 using DeskPal.Shared.Presence;
 
 namespace DeskPal.Client.Core.Ui;
@@ -16,7 +17,9 @@ public sealed record PanelState(
     IReadOnlyList<MemberItem> Members,
     PrivacyView? Privacy,
     CorrectionView Correction,
-    SettingsView Settings);
+    SettingsView Settings,
+    IReadOnlyList<MyRuleItem> MyRules,
+    IReadOnlyList<UnclassifiedItem> Unclassified);
 
 public sealed record ConnectionView(bool Connected, string Text);
 
@@ -40,7 +43,14 @@ public sealed record PrivacyRow(ActivityCategory Category, string Name, PrivacyL
 public sealed record PrivacyView(IReadOnlyList<PrivacyRow> Rows, IReadOnlyList<Option<PrivacyLevel>> Levels);
 
 /// <param name="Target">App or site the correction applies to; null when nothing is recognized yet.</param>
-public sealed record CorrectionView(string? Target, ActivityCategory Current, IReadOnlyList<Option<ActivityCategory>> Options);
+/// <param name="Personal">The current result comes from my own rule, so it can be reset to the default.</param>
+public sealed record CorrectionView(string? Target, ActivityCategory Current, IReadOnlyList<Option<ActivityCategory>> Options, bool Personal);
+
+/// <summary>One of my personal rules, listed in the settings.</summary>
+public sealed record MyRuleItem(RuleKind Kind, string Pattern, string Name, string KindName, ActivityCategory Category, string CategoryName);
+
+/// <summary>An app used today that no rule recognized. Shown on the status page so the user can classify it.</summary>
+public sealed record UnclassifiedItem(RuleKind Kind, string Pattern, string Name, string Today);
 
 public sealed record SettingsView(
     bool AutoStart,
@@ -50,4 +60,5 @@ public sealed record SettingsView(
     string Version,
     string ServerUrl,
     string UserName,
-    string? UpdateActivity);
+    string? UpdateActivity,
+    bool? ShareUsage = null);

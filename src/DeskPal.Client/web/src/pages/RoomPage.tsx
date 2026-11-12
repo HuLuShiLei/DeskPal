@@ -1,6 +1,7 @@
 import { useState } from "preact/hooks";
 import type { PanelState, PrivacyLevel, RoomItem } from "../bridge";
 import { useHost } from "../host";
+import { Avatar, Icon, Section } from "../ui";
 
 export function RoomPage({ state }: { state: PanelState }) {
   const { ask, run } = useHost();
@@ -17,32 +18,54 @@ export function RoomPage({ state }: { state: PanelState }) {
 
   return (
     <>
-      <section class="card" aria-label="我的房间">
-        <h2>我的房间</h2>
-        {state.rooms.length === 0 && <p class="meta">还没有房间。</p>}
-        <ul class="room-list">
-          {state.rooms.map((r) => (
-            <li key={r.id}>
-              <button class="room-item" aria-pressed={r.id === state.selectedRoomId} onClick={() => run({ type: "room.select", roomId: r.id })}>
-                <span>
-                  {r.name}
-                  {r.isOwner && <span class="badge">所有者</span>}
-                </span>
-                <span class="meta">
-                  {r.memberCount}/{r.maxMembers} 人
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-        {state.rooms.length > 0 && (
-          <p class="meta">点选切换当前房间，不用重新输入邀请码。同一时间只进入一个房间，离开的房间里会显示为离线。</p>
+      <Section
+        title="我的房间"
+        aside={
+          <div class="section-actions">
+            <button onClick={create}>
+              <Icon name="add" />
+              创建
+            </button>
+            <button onClick={join}>
+              <Icon name="link" />
+              加入
+            </button>
+          </div>
+        }
+      >
+        {state.rooms.length === 0 ? (
+          <p class="infobar">
+            <Icon name="info" />
+            还没有房间。创建一个房间，或者用邀请码加入。
+          </p>
+        ) : (
+          <>
+            <ul class="list" role="listbox" aria-label="房间">
+              {state.rooms.map((r) => (
+                <li key={r.id}>
+                  <button
+                    class="list-row selectable-row"
+                    role="option"
+                    aria-selected={r.id === state.selectedRoomId}
+                    onClick={() => r.id !== state.selectedRoomId && run({ type: "room.select", roomId: r.id })}
+                  >
+                    <div class="row-main">
+                      <p class="row-title">
+                        {r.name}
+                        {r.isOwner && <span class="badge">所有者</span>}
+                      </p>
+                    </div>
+                    <span class="row-meta">
+                      {r.memberCount}/{r.maxMembers} 人
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <p class="section-note">同一时间只进入一个房间，在其他房间里显示为离线。切换不用重新输入邀请码。</p>
+          </>
         )}
-        <div class="actions">
-          <button onClick={create}>创建房间</button>
-          <button onClick={join}>用邀请码加入</button>
-        </div>
-      </section>
+      </Section>
       {room && <RoomDetail state={state} room={room} />}
       {room && state.privacy && <Privacy key={room.id + JSON.stringify(state.privacy.rows)} state={state} room={room} />}
     </>
@@ -92,7 +115,7 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
   const dissolve = async () => {
     const a = await ask({
       title: "解散房间",
-      message: `确定解散房间「${room.name}」？成员关系和房间规则会一起删除，不能恢复。`,
+      message: `确定解散房间「${room.name}」？成员关系会一起删除，不能恢复。`,
       okText: "解散",
       danger: true,
     });
@@ -100,44 +123,60 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
   };
 
   return (
-    <section class="card" aria-label={`房间「${room.name}」`}>
-      <h2>房间「{room.name}」</h2>
-      <ul class="members">
-        <li>
-          <span>
-            {state.me.displayName}（我）{room.isOwner && <span class="badge">所有者</span>}
-          </span>
+    <Section
+      title={`房间「${room.name}」`}
+      aside={
+        room.isOwner && (
+          <button class="icon-button" onClick={rename} title="修改房间名称" aria-label="修改房间名称">
+            <Icon name="edit" />
+          </button>
+        )
+      }
+    >
+      <ul class="list">
+        <li class="list-row compact">
+          <Avatar name={state.me.displayName} tone={state.me.view.tone} />
+          <div class="row-main">
+            <p class="row-title">
+              {state.me.displayName}（我）{room.isOwner && <span class="badge">所有者</span>}
+            </p>
+          </div>
         </li>
         {others.map((m) => (
-          <li key={m.userId}>
-            <span>
-              {m.name}
-              {m.isOwner && <span class="badge">所有者</span>}
-            </span>
+          <li key={m.userId} class="list-row compact">
+            <Avatar name={m.name} tone={m.view.tone} />
+            <div class="row-main">
+              <p class="row-title">
+                {m.name}
+                {m.isOwner && <span class="badge">所有者</span>}
+              </p>
+            </div>
             {room.isOwner && (
-              <button class="danger" aria-label={`把${m.name}踢出房间`} onClick={() => kick(m.userId, m.name)}>
+              <button class="subtle danger" aria-label={`把${m.name}踢出房间`} onClick={() => kick(m.userId, m.name)}>
                 踢出
               </button>
             )}
           </li>
         ))}
       </ul>
-      <div class="actions">
-        {room.isOwner && <button onClick={rename}>修改房间名称</button>}
-        <button onClick={invite}>生成邀请码</button>
+      <div class="toolbar">
+        <button class="primary" onClick={invite}>
+          <Icon name="link" />
+          生成邀请码
+        </button>
         {room.isOwner && others.length > 0 && <button onClick={transfer}>转让所有者</button>}
-        {!room.isOwner && (
-          <button class="danger" onClick={leave}>
+        <span class="spacer" />
+        {room.isOwner ? (
+          <button class="subtle danger" onClick={dissolve}>
+            解散房间
+          </button>
+        ) : (
+          <button class="subtle danger" onClick={leave}>
             退出房间
           </button>
         )}
-        {room.isOwner && (
-          <button class="danger" onClick={dissolve}>
-            解散房间
-          </button>
-        )}
       </div>
-    </section>
+    </Section>
   );
 }
 
@@ -149,37 +188,36 @@ function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
   const changed = privacy.rows.some((r) => levels[r.category] !== r.level);
 
   return (
-    <section class="card" aria-label="隐私设置">
-      <h2>隐私设置</h2>
-      <p class="meta">设置房间「{room.name}」的成员能看到你多少信息。只影响这个房间。</p>
-      <table class="privacy">
-        <tbody>
-          {privacy.rows.map((r) => (
-            <tr key={r.category}>
-              <th scope="row">{r.name}</th>
-              <td>
-                <select
-                  aria-label={`${r.name}的隐私级别`}
-                  value={levels[r.category]}
-                  onChange={(e) => setLevels({ ...levels, [r.category]: e.currentTarget.value as PrivacyLevel })}
-                >
-                  {privacy.levels.map((l) => (
-                    <option key={l.value} value={l.value}>
-                      {l.name}
-                    </option>
-                  ))}
-                </select>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div class="actions">
+    <Section title="隐私设置" label="隐私设置">
+      <div class="card flush">
+        <p class="card-note">房间「{room.name}」的成员能看到你多少信息。只影响这个房间。</p>
+        {privacy.rows.map((r) => (
+          <div key={r.category} class="setting-row">
+            <div class="setting-text">
+              <p class="setting-title">{r.name}</p>
+            </div>
+            <div class="setting-control">
+              <select
+                aria-label={`${r.name}的隐私级别`}
+                value={levels[r.category]}
+                onChange={(e) => setLevels({ ...levels, [r.category]: e.currentTarget.value as PrivacyLevel })}
+              >
+                {privacy.levels.map((l) => (
+                  <option key={l.value} value={l.value}>
+                    {l.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div class="toolbar end">
+        {changed && <button onClick={() => setLevels(initial)}>撤销修改</button>}
         <button class="primary" disabled={!changed} onClick={() => run({ type: "room.privacy", roomId: room.id, levels }, "隐私设置已保存")}>
           保存隐私设置
         </button>
-        {changed && <button onClick={() => setLevels(initial)}>撤销修改</button>}
       </div>
-    </section>
+    </Section>
   );
 }

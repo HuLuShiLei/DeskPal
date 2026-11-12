@@ -50,10 +50,16 @@ public sealed class ApiClient(AppSettings settings)
     public Task<BuiltinRulesResponse> GetBuiltinRulesAsync(int knownVersion) =>
         SendAsync<BuiltinRulesResponse>(HttpMethod.Get, $"/api/rules/builtin?version={knownVersion}");
 
-    public Task<List<RoomRuleDto>> GetRoomRulesAsync(Guid roomId) => SendAsync<List<RoomRuleDto>>(HttpMethod.Get, $"/api/rooms/{roomId}/rules");
+    public Task<List<UserRuleDto>> GetMyRulesAsync() => SendAsync<List<UserRuleDto>>(HttpMethod.Get, "/api/me/rules");
 
-    public Task<RoomRuleDto> UpsertRoomRuleAsync(Guid roomId, UpsertRoomRuleRequest req) =>
-        SendAsync<RoomRuleDto>(HttpMethod.Put, $"/api/rooms/{roomId}/rules", req);
+    public Task<UserRuleDto> UpsertMyRuleAsync(UpsertUserRuleRequest req) => SendAsync<UserRuleDto>(HttpMethod.Put, "/api/me/rules", req);
+
+    public Task DeleteMyRuleAsync(RuleKind kind, string pattern) =>
+        SendAsync<object?>(HttpMethod.Delete, $"/api/me/rules?kind={kind}&pattern={Uri.EscapeDataString(pattern)}");
+
+    public Task SetSharingAsync(bool enabled) => SendAsync<object>(HttpMethod.Put, "/api/me/sharing", new SetSharingRequest(enabled));
+
+    public Task ReportUsageAsync(UsageReportRequest req) => SendAsync<object>(HttpMethod.Post, "/api/me/usage", req);
 
     private async Task<T> SendAsync<T>(HttpMethod method, string path, object? body = null, bool auth = true)
     {
@@ -92,6 +98,11 @@ public sealed class ApiClient(AppSettings settings)
                 }
 
                 throw new ApiException(error?.Error ?? $"请求失败（HTTP {(int)response.StatusCode}）", (int)response.StatusCode);
+            }
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+            {
+                return default!;
             }
 
             return (await response.Content.ReadFromJsonAsync<T>(DeskPalJson.Options))!;

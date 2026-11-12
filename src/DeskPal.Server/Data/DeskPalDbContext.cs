@@ -10,7 +10,8 @@ public sealed class DeskPalDbContext(DbContextOptions<DeskPalDbContext> options)
     public DbSet<RoomInvite> RoomInvites => Set<RoomInvite>();
     public DbSet<RoomBan> RoomBans => Set<RoomBan>();
     public DbSet<BuiltinRule> BuiltinRules => Set<BuiltinRule>();
-    public DbSet<RoomRule> RoomRules => Set<RoomRule>();
+    public DbSet<UserRule> UserRules => Set<UserRule>();
+    public DbSet<UnknownAppReport> UnknownAppReports => Set<UnknownAppReport>();
     public DbSet<AppMeta> AppMeta => Set<AppMeta>();
 
     protected override void OnModelCreating(ModelBuilder b)
@@ -52,10 +53,21 @@ public sealed class DeskPalDbContext(DbContextOptions<DeskPalDbContext> options)
 
         b.Entity<BuiltinRule>(e => e.HasIndex(x => new { x.Kind, x.Pattern }).IsUnique());
 
-        b.Entity<RoomRule>(e =>
+        b.Entity<UserRule>(e =>
         {
-            e.HasIndex(x => new { x.RoomId, x.Kind, x.Pattern }).IsUnique();
-            e.HasOne<Room>().WithMany().HasForeignKey(x => x.RoomId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => new { x.UserId, x.Kind, x.Pattern }).IsUnique();
+            e.HasIndex(x => new { x.Kind, x.Pattern });
+            e.Property(x => x.Pattern).HasMaxLength(200);
+            e.Property(x => x.Name).HasMaxLength(60);
+            e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<UnknownAppReport>(e =>
+        {
+            e.HasKey(x => new { x.UserId, x.Kind, x.Pattern });
+            e.Property(x => x.Pattern).HasMaxLength(200);
+            e.Property(x => x.DisplayName).HasMaxLength(60);
+            e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });
 
         b.Entity<AppMeta>(e => e.HasKey(x => x.Key));

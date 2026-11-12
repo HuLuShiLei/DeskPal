@@ -165,12 +165,12 @@ public class PresenceFormatterTests
     [Fact]
     public void Formats_headline_app_and_detail_separately()
     {
-        Assert.Equal(new PresenceView("在看视频", "哔哩哔哩", "猫"), Format(PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫"));
-        Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", "猫猫合集"), Format(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "猫猫合集"));
-        Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", null), Format(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", null));
-        Assert.Equal(new PresenceView("正在浏览网页", null, "新标签页"), Format(PresenceState.Browsing, ActivityCategory.Browsing, null, "新标签页"));
-        Assert.Equal(new PresenceView("正在使用 XMind", null, null), Format(PresenceState.Other, app: "XMind"));
-        Assert.Equal(new PresenceView("午休中", null, null), PresenceFormatter.Format(new PresenceSnapshot { State = PresenceState.Custom, CustomText = "午休中" }));
+        Assert.Equal(new PresenceView("在看视频", "哔哩哔哩", "猫", "relax"), Format(PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫"));
+        Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", "猫猫合集", "browse"), Format(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "猫猫合集"));
+        Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", null, "browse"), Format(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", null));
+        Assert.Equal(new PresenceView("正在浏览网页", null, "新标签页", "browse"), Format(PresenceState.Browsing, ActivityCategory.Browsing, null, "新标签页"));
+        Assert.Equal(new PresenceView("正在使用 XMind", null, null, "other"), Format(PresenceState.Other, app: "XMind"));
+        Assert.Equal(new PresenceView("午休中", null, null, "other"), PresenceFormatter.Format(new PresenceSnapshot { State = PresenceState.Custom, CustomText = "午休中" }));
     }
 
     [Theory]

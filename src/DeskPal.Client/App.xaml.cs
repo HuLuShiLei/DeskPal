@@ -64,11 +64,16 @@ public partial class App : Application
         updates.Exit = restart => ExitAsync(applyUpdate: true, restart: restart);
         services.GetRequiredService<PanelBridge>().Logout = LogoutAsync;
 
+        var personalRules = services.GetRequiredService<PersonalRules>();
+
         _tray = CreateTray(updates);
         rooms.Notify += (title, message) => Dispatcher.BeginInvoke(() => _tray.ShowNotification(title, message));
         hub.Received += rooms.Handle;
+        hub.Received += personalRules.Handle;
+        hub.Connected += personalRules.RefreshAsync;
 
         LoadCachedBuiltinRules(services);
+        personalRules.LoadCached();
         await _host.StartAsync();
         hub.Start();
         _ = RefreshBuiltinRulesAsync(services);
@@ -95,6 +100,7 @@ public partial class App : Application
             {
                 var me = await api.MeAsync();
                 settings.DisplayName = me.DisplayName;
+                settings.ShareUsage = me.ShareUsage;
                 store.Save(settings);
                 logs.Write("INF", "DeskPal", "Saved session restored");
                 return true;
@@ -149,6 +155,8 @@ public partial class App : Application
         s.AddSingleton<ActivityBus>();
         s.AddSingleton<LayeredClassifier>();
         s.AddSingleton(new PersonalRuleStore(Path.Combine(SettingsStore.Directory, "personal-rules.json")));
+        s.AddSingleton<UnclassifiedUsage>();
+        s.AddSingleton<PersonalRules>();
         s.AddSingleton<BuiltinRuleCache>();
         s.AddSingleton<ForegroundState>();
         s.AddSingleton<HubService>();
@@ -160,6 +168,7 @@ public partial class App : Application
         s.AddHostedService<IdleCollector>();
         s.AddHostedService<SessionCollector>();
         s.AddHostedService<MediaCollector>();
+        s.AddHostedService<UsageReporter>();
         s.AddSingleton<UpdateService>();
         s.AddSingleton<PanelBridge>();
         s.AddSingleton<PanelWindow>();

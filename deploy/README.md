@@ -6,7 +6,8 @@
 
 1. Portainer 新建 Stack，内容用 `stack.yml`。
 2. 在 Stack 的 Environment variables 里添加 `DESKPAL_JWT_KEY`：至少 32 个字符的随机串，可用 `openssl rand -base64 48` 生成。更换后所有客户端需要重新登录。
-3. 部署后在内网验证：`curl http://192.168.66.5:18820/health` 返回 `{"status":"ok","revision":"..."}`。`revision` 是构建该镜像的 Git 提交号；本地 `dotnet run` 时为空。
+3. 可选：添加 `DESKPAL_MAINTAINER_TOKEN`（同样用 `openssl rand -base64 48` 生成），见第 5 节“内置规则库候选”。不添加时不影响使用，只是不会自动生成规则库候选 PR。
+4. 部署后在内网验证：`curl http://192.168.66.5:18820/health` 返回 `{"status":"ok","revision":"..."}`。`revision` 是构建该镜像的 Git 提交号；本地 `dotnet run` 时为空。
 
 如果仓库是私有的，GHCR 镜像也是私有的，需要在 Portainer 的 Registries 里添加 `ghcr.io`（用户名 + 有 `read:packages` 权限的 token）。
 
@@ -27,13 +28,19 @@ Traefik 在 192.168.66.10 上，用 file provider 把 `deskpal.hafuhafu.cn`（44
 
 ## 数据和配置
 
-SQLite 数据库在 Docker 卷 `deskpal-data` 里（容器内 `/data/deskpal.db`）。只保存账号、Room、成员关系、隐私设置和分类规则，成员的最新状态只在内存里。
+SQLite 数据库在 Docker 卷 `deskpal-data` 里（容器内 `/data/deskpal.db`）。只保存账号、Room、成员关系、隐私设置、内置规则、每人的个人分类，以及同意分享的用户上报的未识别应用，成员的最新状态只在内存里。
+
+表结构变化不需要手动处理：Server 启动时自动执行还没应用的 EF Core 迁移。不要为了升级删除数据卷，否则账号和房间都会丢失。
 
 配置项在 `stack.yml` 的 `environment` 里按 `节__键` 的格式覆盖：
 
 - `Rooms__MaxOwnedRoomsPerUser`：每人最多创建的 Room 数，默认 5。
 - `Rooms__MaxMembersPerRoom`：每个房间的人数上限，默认 50。已有房间在列出或有人加入时改成这个数。
 - `Rooms__InviteLifetimeHours`：邀请码有效期，默认 24 小时。
+- `Rules__MinUsers`：一个应用至少有几个账号设置过个人分类或上报过，才进入候选，默认 5。
+- `Rules__MinAgreement`：个人分类里占比最高的类别至少占多少，才算多人一致，默认 0.8。
+- `Rules__MinAccountAgeDays`：注册满几天的账号才计票，默认 3。
+- `Rules__MaintainerToken`：`GET /api/rules/candidates` 的口令（请求头 `X-DeskPal-Maintainer`）。由 Stack 变量 `DESKPAL_MAINTAINER_TOKEN` 传入，为空时该接口返回 404。
 
 ## 4. 自动更新
 
@@ -44,3 +51,19 @@ GitHub Actions 在 main 的镜像推送成功后，POST 仓库 secret `PORTAINER
 如果 Stack 里还有上一版的 Watchtower，用现在的 `stack.yml` 更新一次 Stack，把它去掉。`DESKPAL_JWT_KEY` 保持不动。
 
 更新内置规则库：修改 `src/DeskPal.Server/Features/Rules/builtin-rules.json`，把 `version` 加 1，推送 main。镜像构建和 Portainer 更新都自动完成。Server 启动时发现版本号变化会替换规则表，客户端下次启动时自动下载新规则。
+
+## 5. 内置规则库候选
+
+用户改的分类只对自己生效（个人分类）。`.github/workflows/rule-candidates.yml` 每周一自动运行一次，也可以在 Actions 页面手动运行：
+
+1. 请求生产环境的 `/api/rules/candidates`。只统计同意分享使用数据、注册满 `Rules__MinAccountAgeDays` 天的账号，一个账号一票。
+2. 多人一致、且和当前内置规则不同的应用分类，写进 `builtin-rules.json` 并把 `version` 加 1；多人在用但没有识别的应用，只列在 PR 说明里，由人判断类别。
+3. 校验规则库后创建或更新分支 `rules/candidates` 的 PR。审核、修改后合并，镜像和 Portainer 更新照常自动完成。
+
+需要的设置：
+
+- Stack 变量和仓库 secret 都叫 `DESKPAL_MAINTAINER_TOKEN`，值相同。没有这个 secret 时工作流直接跳过。
+- 仓库 Settings → Actions → General → Workflow permissions 勾选 “Allow GitHub Actions to create and approve pull requests”。
+- 可选的仓库变量 `DESKPAL_SERVER`，默认 `https://deskpal.hafuhafu.cn:36443`。
+
+GitHub Actions 用默认 token 创建的 PR 不会自动触发 `ci.yml`，合并前在 PR 上手动运行一次 CI。

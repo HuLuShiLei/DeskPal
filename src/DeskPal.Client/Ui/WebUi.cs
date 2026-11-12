@@ -18,7 +18,32 @@ public static class WebUi
     /// <summary>Outside the Velopack current folder, which is replaced on every update.</summary>
     public static string UserDataFolder => AppPaths.WebView2Directory;
 
-    public static System.Drawing.Color Background { get; } = System.Drawing.Color.FromArgb(0xF4, 0xF5, 0xF7);
+    /// <summary>Shown while the page loads. Matches --bg in styles.css for the current Windows app theme.</summary>
+    public static System.Drawing.Color Background => IsDarkTheme()
+        ? System.Drawing.Color.FromArgb(0x20, 0x20, 0x20)
+        : System.Drawing.Color.FromArgb(0xF3, 0xF3, 0xF3);
+
+    public static System.Windows.Media.SolidColorBrush BackgroundBrush
+    {
+        get
+        {
+            var c = Background;
+            return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(c.R, c.G, c.B));
+        }
+    }
+
+    public static bool IsDarkTheme()
+    {
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            return key?.GetValue("AppsUseLightTheme") is int light && light == 0;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
 
     public static bool RuntimeAvailable()
     {
@@ -62,7 +87,12 @@ public static class WebUi
         core.Settings.AreDefaultContextMenusEnabled = debug;
         core.Settings.AreBrowserAcceleratorKeysEnabled = debug;
         core.Settings.IsZoomControlEnabled = false;
+        core.Settings.IsPinchZoomEnabled = false;
+        core.Settings.IsSwipeNavigationEnabled = false;
         core.Settings.IsStatusBarEnabled = false;
+        core.Settings.IsGeneralAutofillEnabled = false;
+        core.Settings.IsPasswordAutosaveEnabled = false;
+        core.Settings.IsNonClientRegionSupportEnabled = true;
         core.SetVirtualHostNameToFolderMapping(HostName, Path.Combine(AppContext.BaseDirectory, "web"), CoreWebView2HostResourceAccessKind.DenyCors);
 
         var start = StartUri(page);

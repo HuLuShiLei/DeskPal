@@ -50,8 +50,9 @@ public sealed class RoomNotifier(IHubContext<PresenceHub, IPresenceClient> hub, 
     public Task RenamedAsync(Guid roomId) =>
         hub.Clients.Group(GroupName(roomId)).Receive(ServerEnvelope(MessageTypes.RoomRenamed, roomId, null));
 
-    public Task RulesChangedAsync(Guid roomId, Guid changedBy) =>
-        hub.Clients.Group(GroupName(roomId)).Receive(ServerEnvelope(MessageTypes.RoomRulesChanged, roomId, changedBy));
+    /// <summary>Tells the user's other computers to reload. Other room members never see personal rules.</summary>
+    public Task PersonalRulesChangedAsync(Guid userId) =>
+        hub.Clients.Clients(connections.Get(userId)).Receive(ServerEnvelope(MessageTypes.PersonalRulesChanged, Guid.Empty, userId));
 
     public async Task DissolvedAsync(Guid roomId, IReadOnlyList<Guid> memberIds)
     {

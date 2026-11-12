@@ -1,9 +1,30 @@
 // 宿主（C#）和页面之间的消息。字段和 C# 的 PanelState、PanelBridge、LoginWindow 一一对应，两边一起改。
 
+export type Tone = "work" | "chat" | "relax" | "browse" | "other" | "away" | "offline";
+
 export interface PresenceView {
   headline: string;
   app: string | null;
   detail: string | null;
+  tone: Tone;
+}
+
+export type RuleKind = "Process" | "Domain" | "TitleKeyword";
+
+export interface MyRuleItem {
+  kind: RuleKind;
+  pattern: string;
+  name: string;
+  kindName: string;
+  category: string;
+  categoryName: string;
+}
+
+export interface UnclassifiedItem {
+  kind: RuleKind;
+  pattern: string;
+  name: string;
+  today: string;
 }
 
 export interface RoomItem {
@@ -52,7 +73,7 @@ export interface PanelState {
   emptyHint: string | null;
   members: MemberItem[];
   privacy: { rows: PrivacyRow[]; levels: Option<PrivacyLevel>[] } | null;
-  correction: { target: string | null; current: string; options: Option<string>[] };
+  correction: { target: string | null; current: string; options: Option<string>[]; personal: boolean };
   settings: {
     autoStart: boolean;
     topmost: boolean;
@@ -62,7 +83,11 @@ export interface PanelState {
     version: string;
     serverUrl: string;
     userName: string;
+    /** null：还没有回答是否分享使用数据。 */
+    shareUsage: boolean | null;
   };
+  myRules: MyRuleItem[];
+  unclassified: UnclassifiedItem[];
 }
 
 export type DialogKind = "confirm" | "info" | "warning";
@@ -88,6 +113,10 @@ export type Command =
   | { type: "presence.pause"; paused: boolean }
   | { type: "presence.manual"; text: string | null }
   | { type: "presence.correct"; category: string }
+  | { type: "presence.resetCorrection" }
+  | { type: "rules.set"; kind: RuleKind; pattern: string; name: string | null; category: string }
+  | { type: "rules.delete"; kind: RuleKind; pattern: string }
+  | { type: "settings.shareUsage"; enabled: boolean }
   | { type: "settings.autoStart"; enabled: boolean }
   | { type: "settings.topmost"; enabled: boolean }
   | { type: "update.check" }
@@ -97,8 +126,12 @@ export type Command =
   | { type: "auth.register"; serverUrl: string; userName: string; password: string; displayName: string }
   | { type: "auth.logout" };
 
-/** 不需要回复的消息。 */
-export type Notice = { type: "ready" } | { type: "dialog.answer"; dialogId: number; ok: boolean };
+/** 不需要回复的消息。window.* 是自绘标题栏的按钮，由窗口直接处理。 */
+export type Notice =
+  | { type: "ready" }
+  | { type: "dialog.answer"; dialogId: number; ok: boolean }
+  | { type: "window.minimize" }
+  | { type: "window.close" };
 
 export interface CommandResult {
   ok: boolean;

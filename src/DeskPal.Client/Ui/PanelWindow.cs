@@ -38,8 +38,9 @@ public sealed class PanelWindow : Window, IUserPrompt
         ResizeMode = ResizeMode.NoResize;
         WindowStartupLocation = WindowStartupLocation.Manual;
         Topmost = settings.Topmost;
-        Background = new SolidColorBrush(Color.FromRgb(WebUi.Background.R, WebUi.Background.G, WebUi.Background.B));
+        Background = WebUi.BackgroundBrush;
         FontFamily = new FontFamily("Microsoft YaHei UI");
+        WindowFrame.Apply(this);
 
         _release = new DispatcherTimer(ReleaseAfter, DispatcherPriority.Background, (_, _) => ReleaseWebView(), Dispatcher);
         _release.Stop();
@@ -148,6 +149,7 @@ public sealed class PanelWindow : Window, IUserPrompt
             return _ready.Task;
         }
 
+        Background = WebUi.BackgroundBrush;
         var web = new WebView2 { DefaultBackgroundColor = WebUi.Background };
         _web = web;
         Content = web;
@@ -176,7 +178,7 @@ public sealed class PanelWindow : Window, IUserPrompt
 
     private async void OnMessage(string json)
     {
-        if (WebCommand.Parse(json) is not { } command)
+        if (WebCommand.Parse(json) is not { } command || WindowFrame.Handle(this, command.Type))
         {
             return;
         }
@@ -241,17 +243,24 @@ public sealed class PanelWindow : Window, IUserPrompt
         Content = null;
     }
 
-    private static FrameworkElement Notice(string text, string? link)
+    /// <summary>Native fallback without the page's title bar, so it can be dragged anywhere and closed with its own button.</summary>
+    private FrameworkElement Notice(string text, string? link)
     {
-        var panel = new StackPanel { Margin = new Thickness(24) };
+        var panel = new StackPanel { Margin = new Thickness(24), Background = Brushes.Transparent };
+        panel.MouseLeftButtonDown += (_, _) => DragMove();
         panel.Children.Add(new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, FontSize = 14 });
+        var buttons = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 16, 0, 0) };
         if (link is not null)
         {
-            var button = new Button { Content = "打开下载页面", Margin = new Thickness(0, 16, 0, 0), Padding = new Thickness(12, 4, 12, 4), HorizontalAlignment = HorizontalAlignment.Left };
-            button.Click += (_, _) => WebUi.OpenExternal(link);
-            panel.Children.Add(button);
+            var download = new Button { Content = "打开下载页面", Padding = new Thickness(12, 4, 12, 4), Margin = new Thickness(0, 0, 8, 0) };
+            download.Click += (_, _) => WebUi.OpenExternal(link);
+            buttons.Children.Add(download);
         }
 
+        var close = new Button { Content = "关闭", Padding = new Thickness(12, 4, 12, 4) };
+        close.Click += (_, _) => Close();
+        buttons.Children.Add(close);
+        panel.Children.Add(buttons);
         return panel;
     }
 }

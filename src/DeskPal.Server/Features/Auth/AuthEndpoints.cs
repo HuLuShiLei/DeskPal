@@ -61,7 +61,7 @@ public static partial class AuthEndpoints
                 return Fail(401, "用户名或密码错误");
             }
 
-            return Results.Ok(new AuthResponse(tokens.Create(user), user.Id, user.UserName, user.DisplayName));
+            return Results.Ok(new AuthResponse(tokens.Create(user), user.Id, user.UserName, user.DisplayName, user.ShareUsage));
         });
 
         app.MapGet("/api/me", async (HttpContext ctx, DeskPalDbContext db) =>
@@ -69,7 +69,7 @@ public static partial class AuthEndpoints
             var user = await db.Users.FindAsync(ctx.User.GetUserId());
             return user is null
                 ? Fail(401, "账号不存在")
-                : Results.Ok(new AuthResponse("", user.Id, user.UserName, user.DisplayName));
+                : Results.Ok(new AuthResponse("", user.Id, user.UserName, user.DisplayName, user.ShareUsage));
         }).RequireAuthorization();
     }
 

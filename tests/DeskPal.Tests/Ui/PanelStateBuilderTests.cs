@@ -34,9 +34,9 @@ public class PanelStateBuilderTests
     {
         var me = PanelStateBuilder.Build(PanelSamples.Default()).Me;
 
-        Assert.Equal(new PresenceView("工作中", "Cursor", "plan.md - idea1 - Cursor"), me.View);
-        Assert.Equal("内置规则，稳定后同步", me.Source);
-        Assert.Equal("该房间成员看到：正在使用 Cursor", me.Visible);
+        Assert.Equal(new PresenceView("工作中", "Cursor", "plan.md - idea1 - Cursor", "work"), me.View);
+        Assert.Equal("默认分类，稳定后同步", me.Source);
+        Assert.Equal("正在使用 Cursor", me.Visible);
     }
 
     [Fact]
@@ -64,7 +64,20 @@ public class PanelStateBuilderTests
         Assert.Null(state.Privacy);
         Assert.StartsWith("还没有房间", state.EmptyHint);
         Assert.Null(state.Me.Visible);
-        Assert.Equal("内置规则", state.Me.Source);
+        Assert.Equal("按你的分类", state.Me.Source);
+        Assert.True(state.Correction.Personal);
+    }
+
+    [Fact]
+    public void Lists_my_rules_and_todays_unrecognized_apps()
+    {
+        var state = PanelStateBuilder.Build(PanelSamples.Default());
+
+        Assert.False(state.Correction.Personal);
+        Assert.Equal(
+            [("哔哩哔哩", "网站", "放松 · 视频"), ("微信", "应用", "工作")],
+            state.MyRules.Select(r => (r.Name, r.KindName, r.CategoryName)).ToList());
+        Assert.Equal([("XMind", "今天 42 分钟"), ("Snipaste", "今天 7 分钟")], state.Unclassified.Select(u => (u.Name, u.Today)).ToList());
     }
 
     [Fact]
@@ -124,9 +137,9 @@ public class PanelStateBuilderTests
 
         var me = PanelStateBuilder.Build(input).Me;
 
-        Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", "猫猫合集"), me.View);
+        Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", "猫猫合集", "browse"), me.View);
         Assert.Null(me.Source);
-        Assert.Equal("该房间成员看到：正在浏览网页 · bilibili.com", me.Visible);
+        Assert.Equal("正在浏览网页 · bilibili.com", me.Visible);
     }
 
     [Fact]

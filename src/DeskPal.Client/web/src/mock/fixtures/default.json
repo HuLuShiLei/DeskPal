@@ -8,10 +8,11 @@
     "view": {
       "headline": "工作中",
       "app": "Cursor",
-      "detail": "plan.md - idea1 - Cursor"
+      "detail": "plan.md - idea1 - Cursor",
+      "tone": "work"
     },
-    "source": "内置规则，稳定后同步",
-    "visible": "该房间成员看到：正在使用 Cursor",
+    "source": "默认分类，稳定后同步",
+    "visible": "正在使用 Cursor",
     "paused": false,
     "manualText": null,
     "manualPresets": [
@@ -49,7 +50,8 @@
       "view": {
         "headline": "在看视频",
         "app": "哔哩哔哩",
-        "detail": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和…"
+        "detail": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和…",
+        "tone": "relax"
       },
       "meta": "已持续 12 分钟"
     },
@@ -61,7 +63,8 @@
       "view": {
         "headline": "离线",
         "app": null,
-        "detail": null
+        "detail": null,
+        "tone": "offline"
       },
       "meta": "还没有收到状态"
     }
@@ -142,7 +145,8 @@
         "value": "Other",
         "name": "其他"
       }
-    ]
+    ],
+    "personal": false
   },
   "settings": {
     "autoStart": true,
@@ -152,6 +156,39 @@
     "version": "0.1.1-dev.12",
     "serverUrl": "https://deskpal.hafuhafu.cn:36443",
     "userName": "alice",
-    "updateActivity": null
-  }
+    "updateActivity": null,
+    "shareUsage": true
+  },
+  "myRules": [
+    {
+      "kind": "Domain",
+      "pattern": "bilibili.com",
+      "name": "哔哩哔哩",
+      "kindName": "网站",
+      "category": "Video",
+      "categoryName": "放松 · 视频"
+    },
+    {
+      "kind": "Process",
+      "pattern": "wechat",
+      "name": "微信",
+      "kindName": "应用",
+      "category": "Work",
+      "categoryName": "工作"
+    }
+  ],
+  "unclassified": [
+    {
+      "kind": "Process",
+      "pattern": "xmind",
+      "name": "XMind",
+      "today": "今天 42 分钟"
+    },
+    {
+      "kind": "Process",
+      "pattern": "snipaste",
+      "name": "Snipaste",
+      "today": "今天 7 分钟"
+    }
+  ]
 }

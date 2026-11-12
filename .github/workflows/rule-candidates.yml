@@ -1,0 +1,55 @@
+name: 内置规则库候选
+
+# 每周从生产环境请求 /api/rules/candidates：多人一致的个人分类写进 builtin-rules.json，
+# 没有识别的应用列在 PR 说明里，人工审核后合并。
+# 需要 secret DESKPAL_MAINTAINER_TOKEN，和 Server 环境变量 Rules__MaintainerToken 一致；
+# 仓库设置里要允许 GitHub Actions 创建 PR（Settings → Actions → General → Workflow permissions）。
+on:
+  schedule:
+    - cron: '0 1 * * 1'
+  workflow_dispatch:
+
+jobs:
+  candidates:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 合并候选
+        id: merge
+        env:
+          DESKPAL_MAINTAINER_TOKEN: ${{ secrets.DESKPAL_MAINTAINER_TOKEN }}
+          DESKPAL_SERVER: ${{ vars.DESKPAL_SERVER }}
+        run: |
+          if [ -z "$DESKPAL_MAINTAINER_TOKEN" ]; then
+            echo "未配置 secret DESKPAL_MAINTAINER_TOKEN，跳过"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          node .github/scripts/merge-rule-candidates.mjs --body "$RUNNER_TEMP/rule-candidates.md"
+
+      - name: 校验规则库
+        if: steps.merge.outputs.changed == 'true'
+        shell: pwsh
+        run: ./.cursor/skills/deskpal-builtin-rules/scripts/validate-rules.ps1
+
+      # GITHUB_TOKEN 创建的 PR 不会触发 ci.yml，合并前在 PR 页面手动运行一次 CI，或推一个提交。
+      - name: 创建或更新 PR
+        if: steps.merge.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: rules/candidates
+          delete-branch: true
+          add-paths: src/DeskPal.Server/Features/Rules/builtin-rules.json
+          commit-message: 'chore(rules): 根据用户分类更新内置规则库到版本 ${{ steps.merge.outputs.version }}'
+          title: 'chore(rules): 根据用户分类更新内置规则库到版本 ${{ steps.merge.outputs.version }}'
+          body-path: ${{ runner.temp }}/rule-candidates.md

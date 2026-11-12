@@ -130,8 +130,36 @@ export function createMockTransport(params: URLSearchParams): Transport {
         }
         break;
       }
-      case "member.poke":
       case "presence.correct":
+        state.correction.personal = true;
+        state.me.source = "按你的分类";
+        break;
+      case "presence.resetCorrection":
+        state.correction.personal = false;
+        state.me.source = "默认分类";
+        break;
+      case "rules.set": {
+        const name = (m.name as string | null) ?? (m.pattern as string);
+        const option = state.correction.options.find((o) => o.value === m.category);
+        state.myRules = state.myRules.filter((r) => !(r.kind === m.kind && r.pattern === m.pattern));
+        state.myRules.unshift({
+          kind: m.kind as PanelState["myRules"][number]["kind"],
+          pattern: m.pattern as string,
+          name,
+          kindName: m.kind === "Domain" ? "网站" : "应用",
+          category: m.category as string,
+          categoryName: option?.name ?? (m.category as string),
+        });
+        state.unclassified = state.unclassified.filter((u) => u.pattern !== m.pattern);
+        break;
+      }
+      case "rules.delete":
+        state.myRules = state.myRules.filter((r) => !(r.kind === m.kind && r.pattern === m.pattern));
+        break;
+      case "settings.shareUsage":
+        state.settings.shareUsage = m.enabled as boolean;
+        break;
+      case "member.poke":
       case "update.restart":
       case "auth.logout":
         break;
@@ -152,6 +180,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
         else pushState();
         return;
       }
+      if (m.type.startsWith("window.")) return;
       if (m.type === "dialog.answer") {
         dialogs.get(m.dialogId as number)?.(m.ok as boolean);
         dialogs.delete(m.dialogId as number);

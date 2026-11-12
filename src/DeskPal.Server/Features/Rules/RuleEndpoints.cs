@@ -1,14 +1,18 @@
+using System.Security.Cryptography;
+using System.Text;
 using DeskPal.Server.Common;
 using DeskPal.Server.Data;
 using DeskPal.Server.Features.Presence;
-using DeskPal.Server.Features.Rooms;
 using DeskPal.Shared.Api;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace DeskPal.Server.Features.Rules;
 
 public static class RuleEndpoints
 {
+    public const string MaintainerHeader = "X-DeskPal-Maintainer";
+
     public static void MapRuleEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/rules/builtin", async (int? version, DeskPalDbContext db) =>
@@ -25,51 +29,49 @@ public static class RuleEndpoints
             return Results.Ok(new BuiltinRulesResponse(current, rules));
         }).RequireAuthorization();
 
-        var group = app.MapGroup("/api/rooms/{roomId:guid}/rules").RequireAuthorization();
-
-        group.MapGet("/", async (Guid roomId, HttpContext ctx, RoomService rooms, DeskPalDbContext db) =>
+        app.MapGet("/api/rules/candidates", async (HttpContext ctx, RuleCandidateService candidates, IOptions<RuleOptions> options) =>
         {
-            if (!await rooms.IsMemberAsync(ctx.User.GetUserId(), roomId))
+            var expected = options.Value.MaintainerToken;
+            var given = ctx.Request.Headers[MaintainerHeader].ToString();
+            if (expected.Length == 0 || !CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(given), Encoding.UTF8.GetBytes(expected)))
             {
-                return ServiceResult<Unit>.Fail(404, "房间不存在，或者你不是该房间的成员").ToHttp();
+                return Results.NotFound();
             }
 
-            var rules = await db.RoomRules.Where(r => r.RoomId == roomId).ToListAsync();
-            return Results.Ok(rules
-                .OrderByDescending(r => r.UpdatedAt)
-                .Select(r => new RoomRuleDto(r.Kind, r.Pattern, r.Category, r.Name, r.CreatedBy, r.UpdatedAt))
-                .ToList());
+            return Results.Ok(await candidates.GetCandidatesAsync());
         });
 
-        group.MapPut("/", async (Guid roomId, UpsertRoomRuleRequest req, HttpContext ctx, RoomService rooms,
-            DeskPalDbContext db, RoomNotifier notifier, TimeProvider time) =>
+        var me = app.MapGroup("/api/me").RequireAuthorization();
+
+        me.MapGet("/rules", async (HttpContext ctx, UserRuleService rules) => Results.Ok(await rules.ListAsync(ctx.User.GetUserId())));
+
+        me.MapPut("/rules", async (UpsertUserRuleRequest req, HttpContext ctx, UserRuleService rules, RoomNotifier notifier) =>
         {
             var userId = ctx.User.GetUserId();
-            if (!await rooms.IsMemberAsync(userId, roomId))
+            var result = await rules.UpsertAsync(userId, req);
+            if (result.IsSuccess)
             {
-                return ServiceResult<Unit>.Fail(404, "房间不存在，或者你不是该房间的成员").ToHttp();
+                await notifier.PersonalRulesChangedAsync(userId);
             }
 
-            var pattern = RulePattern.Normalize(req.Kind, req.Pattern);
-            if (pattern.Length is < 1 or > 200)
-            {
-                return ServiceResult<Unit>.Fail(400, "规则内容不能为空，且不超过 200 个字符").ToHttp();
-            }
-
-            var rule = await db.RoomRules.SingleOrDefaultAsync(r => r.RoomId == roomId && r.Kind == req.Kind && r.Pattern == pattern);
-            if (rule is null)
-            {
-                rule = new RoomRule { Id = Guid.NewGuid(), RoomId = roomId, Kind = req.Kind, Pattern = pattern };
-                db.RoomRules.Add(rule);
-            }
-
-            rule.Category = req.Category;
-            rule.Name = string.IsNullOrWhiteSpace(req.Name) ? null : req.Name.Trim();
-            rule.CreatedBy = userId;
-            rule.UpdatedAt = time.GetUtcNow();
-            await db.SaveChangesAsync();
-            await notifier.RulesChangedAsync(roomId, userId);
-            return Results.Ok(new RoomRuleDto(rule.Kind, rule.Pattern, rule.Category, rule.Name, rule.CreatedBy, rule.UpdatedAt));
+            return result.ToHttp();
         });
+
+        me.MapDelete("/rules", async (RuleKind kind, string pattern, HttpContext ctx, UserRuleService rules, RoomNotifier notifier) =>
+        {
+            var userId = ctx.User.GetUserId();
+            if (await rules.DeleteAsync(userId, kind, pattern))
+            {
+                await notifier.PersonalRulesChangedAsync(userId);
+            }
+
+            return Results.NoContent();
+        });
+
+        me.MapPut("/sharing", async (SetSharingRequest req, HttpContext ctx, RuleCandidateService candidates) =>
+            (await candidates.SetSharingAsync(ctx.User.GetUserId(), req.Enabled)).ToHttp());
+
+        me.MapPost("/usage", async (UsageReportRequest req, HttpContext ctx, RuleCandidateService candidates) =>
+            (await candidates.ReportAsync(ctx.User.GetUserId(), req)).ToHttp());
     }
 }

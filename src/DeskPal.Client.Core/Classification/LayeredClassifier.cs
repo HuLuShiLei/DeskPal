@@ -7,7 +7,6 @@ namespace DeskPal.Client.Core.Classification;
 public enum RuleLayer
 {
     Personal,
-    Room,
     Builtin,
     Heuristic,
     Fallback,
@@ -17,20 +16,18 @@ public enum RuleLayer
 public sealed record ClassificationResult(ActivityCategory Category, string? AppDisplayName, RuleLayer Layer);
 
 /// <summary>
-/// Desktop apps: room, personal, builtin, heuristic, then Other.
-/// A browser checks room rules, then personal rules; otherwise it is Browsing, named by domain.
-/// A room rule wins for everyone currently in that room.
+/// Desktop apps: personal, builtin, heuristic, then Other.
+/// A browser checks personal rules; otherwise it is Browsing, named by domain.
+/// Personal rules belong to the account and are the same in every room. Only my own result changes:
+/// room members see the category I publish, they never reclassify it with their own rules.
 /// Music, Shopping, Social, News and Reading rules are skipped. Background playback is not a category.
 /// </summary>
 public sealed class LayeredClassifier
 {
     private volatile RuleSet _personal = RuleSet.Empty;
-    private volatile RuleSet _room = RuleSet.Empty;
     private volatile RuleSet _builtin = RuleSet.Empty;
 
     public void SetPersonal(RuleSet rules) => _personal = rules;
-
-    public void SetRoom(RuleSet rules) => _room = rules;
 
     public void SetBuiltin(RuleSet rules) => _builtin = rules;
 
@@ -47,7 +44,7 @@ public sealed class LayeredClassifier
             return ClassifyBrowser(snapshot);
         }
 
-        foreach (var (layer, rules) in new[] { (RuleLayer.Room, _room), (RuleLayer.Personal, _personal), (RuleLayer.Builtin, _builtin) })
+        foreach (var (layer, rules) in new[] { (RuleLayer.Personal, _personal), (RuleLayer.Builtin, _builtin) })
         {
             if (rules.Match(snapshot) is { } rule && !rule.Category.IsRetired())
             {
@@ -63,15 +60,12 @@ public sealed class LayeredClassifier
         return new ClassificationResult(ActivityCategory.Other, DefaultName(snapshot), RuleLayer.Fallback);
     }
 
-    /// <summary>Room rules, then personal rules, can reclassify a site. Builtin site rules do not.</summary>
+    /// <summary>Personal rules can reclassify a site. Builtin site rules do not.</summary>
     private ClassificationResult ClassifyBrowser(ActivitySnapshot snapshot)
     {
-        foreach (var (layer, rules) in new[] { (RuleLayer.Room, _room), (RuleLayer.Personal, _personal) })
+        if (_personal.Match(snapshot) is { } rule && !rule.Category.IsRetired())
         {
-            if (rules.Match(snapshot) is { } rule && !rule.Category.IsRetired())
-            {
-                return new ClassificationResult(rule.Category, rule.Name ?? BrowserSubject(snapshot), layer);
-            }
+            return new ClassificationResult(rule.Category, rule.Name ?? BrowserSubject(snapshot), RuleLayer.Personal);
         }
 
         return new ClassificationResult(ActivityCategory.Browsing, BrowserSubject(snapshot), RuleLayer.Browser);

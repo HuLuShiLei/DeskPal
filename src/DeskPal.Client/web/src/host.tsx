@@ -80,6 +80,9 @@ export function useHostServices(bridge: Bridge) {
       <div class="toasts" role="status">
         {toasts.map((t) => (
           <div key={t.id} class={t.error ? "toast error" : "toast"}>
+            <span class="icon" aria-hidden="true">
+              {t.error ? "\uE7BA" : "\uE8FB"}
+            </span>
             {t.text}
           </div>
         ))}
@@ -118,9 +121,10 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
           if (e.key === "Escape" && options.cancelText !== null) answer(false);
         }}
       >
+        <div class="dialog-body">
         <h2>{options.title}</h2>
         {options.message && <p class="dialog-message">{options.message}</p>}
-        {options.highlight && <p class="highlight">{options.highlight}</p>}
+        {options.highlight && <p class="highlight selectable">{options.highlight}</p>}
         {options.input && (
           <input
             aria-label={options.title}
@@ -150,13 +154,14 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
             {options.checkbox.label}
           </label>
         )}
+        </div>
         <div class="dialog-buttons">
           {options.cancelText !== null && (
             <button type="button" onClick={() => answer(false)}>
               {options.cancelText ?? "取消"}
             </button>
           )}
-          <button type="submit" class={options.danger ? "danger" : "primary"} disabled={blocked}>
+          <button type="submit" class={options.danger ? "primary danger" : "primary"} disabled={blocked}>
             {options.okText ?? "确定"}
           </button>
         </div>
@@ -166,11 +171,15 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
 }
 
 export function PresenceLines({ view }: { view: PresenceView }) {
+  const sub = [view.app, view.detail].filter(Boolean).join(" · ");
   return (
     <>
-      <p class="headline">{view.headline}</p>
-      {view.app && <p class="app">{view.app}</p>}
-      {view.detail && <p class="detail">{view.detail}</p>}
+      <p class={`headline tone-text-${view.tone}`}>{view.headline}</p>
+      {sub && (
+        <p class="sub" title={sub}>
+          {sub}
+        </p>
+      )}
     </>
   );
 }

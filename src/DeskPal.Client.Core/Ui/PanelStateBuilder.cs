@@ -29,6 +29,8 @@ public sealed record PanelInput
     public bool Paused { get; init; }
     public string? ManualText { get; init; }
     public string? CorrectionTarget { get; init; }
+    public IReadOnlyList<UserRuleDto> MyRules { get; init; } = [];
+    public IReadOnlyList<UnclassifiedApp> Unclassified { get; init; } = [];
     public required SettingsView Settings { get; init; }
     public required DateTimeOffset Now { get; init; }
 }
@@ -56,9 +58,24 @@ public static class PanelStateBuilder
             new CorrectionView(
                 input.CorrectionTarget,
                 input.Classification?.Category ?? ActivityCategory.Other,
-                PresenceFormatter.SelectableCategories.Select(c => new Option<ActivityCategory>(c, PresenceFormatter.CategoryName(c))).ToList()),
-            input.Settings);
+                PresenceFormatter.SelectableCategories.Select(c => new Option<ActivityCategory>(c, PresenceFormatter.CategoryName(c))).ToList(),
+                input.Classification?.Layer == RuleLayer.Personal),
+            input.Settings,
+            input.MyRules
+                .OrderByDescending(r => r.UpdatedAt)
+                .Select(r => new MyRuleItem(r.Kind, r.Pattern, r.Name ?? r.Pattern, KindName(r.Kind), r.Category, PresenceFormatter.CategoryName(r.Category)))
+                .ToList(),
+            input.Unclassified
+                .Select(a => new UnclassifiedItem(a.Kind, a.Pattern, a.DisplayName, $"今天 {PresenceFormatter.Duration(input.Now - a.Today, input.Now)}"))
+                .ToList());
     }
+
+    private static string KindName(RuleKind kind) => kind switch
+    {
+        RuleKind.Process => "应用",
+        RuleKind.Domain => "网站",
+        _ => "标题关键词",
+    };
 
     private static ConnectionView Connection(ConnectionStatus status) => status switch
     {
@@ -105,9 +122,8 @@ public static class PanelStateBuilder
         };
         var layer = input.Classification?.Layer switch
         {
-            RuleLayer.Personal => "个人规则",
-            RuleLayer.Room => "房间规则",
-            RuleLayer.Builtin => "内置规则",
+            RuleLayer.Personal => "按你的分类",
+            RuleLayer.Builtin => "默认分类",
             RuleLayer.Heuristic => "推测",
             RuleLayer.Browser => null,
             _ => "未识别",
@@ -119,7 +135,7 @@ public static class PanelStateBuilder
         if (room is not null && input.Committed is { } committed)
         {
             var filtered = PrivacyFilter.Apply(committed, input.PrivacyOf(room.Id));
-            visible = $"该房间成员看到：{PresenceFormatter.OneLine(PresenceFormatter.Format(filtered))}";
+            visible = PresenceFormatter.OneLine(PresenceFormatter.Format(filtered));
         }
 
         return new MeView(

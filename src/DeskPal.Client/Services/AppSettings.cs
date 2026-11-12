@@ -20,6 +20,9 @@ public sealed class AppSettings
 
     public bool Topmost { get; set; }
 
+    /// <summary>Copy of the account's answer on sharing usage data. null means not asked yet.</summary>
+    public bool? ShareUsage { get; set; }
+
     /// <summary>null 表示沿用安装渠道：测试版安装包继续接收测试版。</summary>
     public bool? IncludePrerelease { get; set; }
 

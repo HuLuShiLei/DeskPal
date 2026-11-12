@@ -8,10 +8,11 @@
     "view": {
       "headline": "暂停分享",
       "app": null,
-      "detail": null
+      "detail": null,
+      "tone": "away"
     },
     "source": null,
-    "visible": "该房间成员看到：暂停分享",
+    "visible": "暂停分享",
     "paused": true,
     "manualText": "午休中",
     "manualPresets": [
@@ -49,7 +50,8 @@
       "view": {
         "headline": "离线",
         "app": null,
-        "detail": null
+        "detail": null,
+        "tone": "offline"
       },
       "meta": ""
     }
@@ -130,7 +132,8 @@
         "value": "Other",
         "name": "其他"
       }
-    ]
+    ],
+    "personal": false
   },
   "settings": {
     "autoStart": false,
@@ -140,6 +143,9 @@
     "version": "0.1.0",
     "serverUrl": "https://deskpal.hafuhafu.cn:36443",
     "userName": "alice",
-    "updateActivity": null
-  }
+    "updateActivity": null,
+    "shareUsage": false
+  },
+  "myRules": [],
+  "unclassified": []
 }

@@ -10,6 +10,9 @@ public sealed class User
     public required string DisplayName { get; set; }
     public required string PasswordHash { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>null until the user has answered. Only users who agreed are counted when proposing builtin rules.</summary>
+    public bool? ShareUsage { get; set; }
 }
 
 public sealed class Room
@@ -61,16 +64,26 @@ public sealed class BuiltinRule
     public string? Name { get; set; }
 }
 
-public sealed class RoomRule
+public sealed class UserRule
 {
     public Guid Id { get; set; }
-    public Guid RoomId { get; set; }
+    public Guid UserId { get; set; }
     public RuleKind Kind { get; set; }
     public required string Pattern { get; set; }
     public ActivityCategory Category { get; set; }
     public string? Name { get; set; }
-    public Guid CreatedBy { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
+}
+
+/// <summary>Latest report per user and app. Only foreground minutes of one day, no titles or times of use.</summary>
+public sealed class UnknownAppReport
+{
+    public Guid UserId { get; set; }
+    public RuleKind Kind { get; set; }
+    public required string Pattern { get; set; }
+    public string? DisplayName { get; set; }
+    public int Minutes { get; set; }
+    public DateTimeOffset ReportedAt { get; set; }
 }
 
 public sealed class AppMeta

@@ -19,7 +19,7 @@ public sealed class PresenceCoordinator : BackgroundService
     private readonly HubService _hub;
     private readonly AppSettings _settings;
     private readonly SettingsStore _store;
-    private readonly PersonalRuleStore _personalRules;
+    private readonly UnclassifiedUsage _unclassified;
     private readonly ILogger<PresenceCoordinator> _logger;
     private readonly System.Threading.Channels.ChannelReader<ActivitySignal> _signals;
     private readonly PresenceDebouncer _debouncer;
@@ -35,7 +35,8 @@ public sealed class PresenceCoordinator : BackgroundService
         HubService hub,
         AppSettings settings,
         SettingsStore store,
-        PersonalRuleStore personalRules,
+        PersonalRules personalRules,
+        UnclassifiedUsage unclassified,
         ILogger<PresenceCoordinator> logger)
     {
         _classifier = classifier;
@@ -44,13 +45,12 @@ public sealed class PresenceCoordinator : BackgroundService
         _settings = settings;
         _logger = logger;
         _store = store;
-        _personalRules = personalRules;
+        _unclassified = unclassified;
         _signals = bus.Subscribe();
         _debouncer = new PresenceDebouncer(TimeSpan.FromSeconds(settings.StableSeconds), TimeSpan.FromSeconds(settings.StableSeconds));
-        _classifier.SetPersonal(new RuleSet(_personalRules.Load()));
         _rooms.RoomsReloaded += OnRoomsChangedAsync;
         _rooms.SelectionChanged += OnRoomsChangedAsync;
-        _rooms.RulesChanged += OnRoomsChangedAsync;
+        personalRules.Changed += Evaluate;
         _hub.Connected += () => PublishActiveAsync(_debouncer.Current);
     }
 
@@ -79,12 +79,6 @@ public sealed class PresenceCoordinator : BackgroundService
     {
         _settings.ManualText = string.IsNullOrWhiteSpace(text) ? null : text.Trim();
         _store.Save(_settings);
-        Evaluate();
-    }
-
-    public void ReloadPersonalRules()
-    {
-        _classifier.SetPersonal(new RuleSet(_personalRules.Load()));
         Evaluate();
     }
 
@@ -122,8 +116,13 @@ public sealed class PresenceCoordinator : BackgroundService
         {
             Classification = _classifier.Classify(Snapshot);
             Local = PresenceResolver.Resolve(Snapshot, Classification, _settings.ManualText, _settings.Paused);
+            var now = DateTimeOffset.UtcNow;
             var ready = Snapshot.Foreground is not null || Local.State != PresenceState.Other;
-            committed = ready ? _debouncer.Offer(Local, DateTimeOffset.UtcNow) : null;
+            committed = ready ? _debouncer.Offer(Local, now) : null;
+            var unrecognized = Classification.Layer == RuleLayer.Fallback && Local.State == PresenceState.Other
+                ? CorrectionTarget.From(Snapshot, Classification.AppDisplayName)
+                : null;
+            _unclassified.Record(unrecognized, now);
         }
 
         LocalChanged?.Invoke();

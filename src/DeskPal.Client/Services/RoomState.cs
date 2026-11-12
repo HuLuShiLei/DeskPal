@@ -1,4 +1,3 @@
-using DeskPal.Client.Core.Classification;
 using DeskPal.Shared.Api;
 using DeskPal.Shared.Messaging;
 using DeskPal.Shared.Presence;
@@ -11,7 +10,6 @@ public sealed class RoomState(
     ApiClient api,
     AppSettings settings,
     SettingsStore store,
-    LayeredClassifier classifier,
     HubService hub,
     ILogger<RoomState> logger)
 {
@@ -30,9 +28,6 @@ public sealed class RoomState(
 
     /// <summary>Raised after the active room changes to one already in the list.</summary>
     public event Func<Task>? SelectionChanged;
-
-    /// <summary>Raised after the active room's rules are reloaded from the server.</summary>
-    public event Func<Task>? RulesChanged;
 
     public Guid MyUserId => settings.UserId;
 
@@ -75,7 +70,6 @@ public sealed class RoomState(
     {
         try
         {
-            await ReloadRoomRulesAsync();
             if (SelectionChanged is { } handler)
             {
                 await handler();
@@ -132,8 +126,6 @@ public sealed class RoomState(
                 settings.SelectedRoomId = rooms.FirstOrDefault()?.Id;
                 store.Save(settings);
             }
-
-            await ReloadRoomRulesAsync();
         }
         finally
         {
@@ -144,30 +136,6 @@ public sealed class RoomState(
         if (RoomsReloaded is { } handler)
         {
             await handler();
-        }
-    }
-
-    public async Task ReloadRoomRulesAsync()
-    {
-        var room = SelectedRoom;
-        var rules = room is null ? [] : await api.GetRoomRulesAsync(room.Id);
-        classifier.SetRoom(new RuleSet(rules.OrderByDescending(r => r.UpdatedAt).Select(r => new RuleDto(r.Kind, r.Pattern, r.Category, r.Name))));
-    }
-
-    private async Task ApplyRoomRulesAsync()
-    {
-        try
-        {
-            await ReloadRoomRulesAsync();
-            Changed?.Invoke();
-            if (RulesChanged is { } handler)
-            {
-                await handler();
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "Reloading room rules failed");
         }
     }
 
@@ -228,10 +196,6 @@ public sealed class RoomState(
                 case MessageTypes.RoomDissolved:
                 case MessageTypes.RoomRenamed:
                     OnRoomEvent(envelope);
-                    break;
-
-                case MessageTypes.RoomRulesChanged:
-                    _ = ApplyRoomRulesAsync();
                     break;
             }
         }

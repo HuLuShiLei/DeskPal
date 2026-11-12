@@ -11,7 +11,9 @@ public static class MessageTypes
     public const string RoomOwnerChanged = "room.ownerChanged";
     public const string RoomDissolved = "room.dissolved";
     public const string RoomRenamed = "room.renamed";
-    public const string RoomRulesChanged = "rules.roomRulesChanged";
+
+    /// <summary>Sent only to the user's own connections. RoomId is empty.</summary>
+    public const string PersonalRulesChanged = "rules.personalChanged";
 
     /// <summary>Types a client is allowed to publish through the hub. Everything else is server-originated.</summary>
     public static readonly IReadOnlySet<string> ClientPublishable = new HashSet<string> { PresenceUpdate, Poke };

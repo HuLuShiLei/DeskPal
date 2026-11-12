@@ -1,6 +1,7 @@
 # Portainer Stack：Traefik 在另一台主机上，用 file provider 指向这里发布的端口。
 # 路由见 traefik-dynamic.yml。
 # 必填：在 Stack 的 Environment variables 里设置 DESKPAL_JWT_KEY（至少 32 个随机字符）。
+# 可选：DESKPAL_MAINTAINER_TOKEN，和 GitHub secret 同名同值，用于每周生成内置规则库候选 PR；不设置时该接口关闭。
 
 services:
   server:
@@ -11,6 +12,7 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__Default: Data Source=/data/deskpal.db
       Jwt__Key: ${DESKPAL_JWT_KEY:?DESKPAL_JWT_KEY is not set}
+      Rules__MaintainerToken: ${DESKPAL_MAINTAINER_TOKEN:-}
       TZ: Asia/Shanghai
     volumes:
       - deskpal-data:/data

@@ -20,7 +20,8 @@ public sealed class PanelBridge
     private readonly AppSettings _settings;
     private readonly SettingsStore _store;
     private readonly UpdateService _updates;
-    private readonly PersonalRuleStore _personalRules;
+    private readonly PersonalRules _personalRules;
+    private readonly UnclassifiedUsage _unclassified;
 
     public PanelBridge(
         RoomState rooms,
@@ -30,7 +31,8 @@ public sealed class PanelBridge
         AppSettings settings,
         SettingsStore store,
         UpdateService updates,
-        PersonalRuleStore personalRules)
+        PersonalRules personalRules,
+        UnclassifiedUsage unclassified)
     {
         _rooms = rooms;
         _presence = presence;
@@ -40,6 +42,8 @@ public sealed class PanelBridge
         _store = store;
         _updates = updates;
         _personalRules = personalRules;
+        _unclassified = unclassified;
+        personalRules.Changed += RaiseChanged;
         rooms.Changed += RaiseChanged;
         presence.LocalChanged += RaiseChanged;
         hub.StateChanged += _ => RaiseChanged();
@@ -78,6 +82,8 @@ public sealed class PanelBridge
         Paused = _presence.Paused,
         ManualText = _presence.ManualText,
         CorrectionTarget = CorrectionTarget.From(_presence.Snapshot, _presence.Classification?.AppDisplayName)?.DisplayName,
+        MyRules = _personalRules.Rules,
+        Unclassified = _unclassified.Top(TimeSpan.FromMinutes(5), 5),
         Settings = new SettingsView(
             AutoStart.IsEnabled(),
             _settings.Topmost,
@@ -86,7 +92,8 @@ public sealed class PanelBridge
             _updates.VersionLabel,
             _settings.ServerUrl,
             _settings.UserName ?? "",
-            _updates.ActivityText),
+            _updates.ActivityText,
+            _settings.ShareUsage),
         Now = DateTimeOffset.UtcNow,
     });
 
@@ -225,6 +232,48 @@ public sealed class PanelBridge
             case "presence.correct":
                 return await CorrectAsync(c);
 
+            case "presence.resetCorrection":
+            {
+                if (CorrectionTarget.From(_presence.Snapshot, _presence.Classification?.AppDisplayName) is not { } target)
+                {
+                    return CommandResult.Fail("还没有识别到当前使用的应用。");
+                }
+
+                await _personalRules.DeleteAsync(target.Kind, target.Pattern);
+                return CommandResult.Success;
+            }
+
+            case "rules.set":
+            {
+                if (!Enum.TryParse<RuleKind>(c.String("kind"), out var kind) || !Enum.TryParse<ActivityCategory>(c.String("category"), out var category))
+                {
+                    return CommandResult.Fail("请选择类别");
+                }
+
+                await _personalRules.SetAsync(kind, c.String("pattern"), category, c.OptionalString("name"));
+                return CommandResult.Success;
+            }
+
+            case "rules.delete":
+            {
+                if (!Enum.TryParse<RuleKind>(c.String("kind"), out var kind))
+                {
+                    return CommandResult.Fail("规则类型不正确");
+                }
+
+                await _personalRules.DeleteAsync(kind, c.String("pattern"));
+                return CommandResult.Success;
+            }
+
+            case "settings.shareUsage":
+            {
+                var enabled = c.Bool("enabled");
+                await _api.SetSharingAsync(enabled);
+                _settings.ShareUsage = enabled;
+                _store.Save(_settings);
+                return CommandResult.Success;
+            }
+
             case "settings.autoStart":
                 AutoStart.Set(c.Bool("enabled"));
                 return CommandResult.Success;
@@ -286,17 +335,7 @@ public sealed class PanelBridge
             return CommandResult.Fail("请选择类别");
         }
 
-        var rule = new RuleDto(target.Kind, target.Pattern, category, target.DisplayName);
-        if (_rooms.SelectedRoom is { } room)
-        {
-            await _api.UpsertRoomRuleAsync(room.Id, new UpsertRoomRuleRequest(rule.Kind, rule.Pattern, rule.Category, rule.Name));
-            await _rooms.ReloadRoomRulesAsync();
-            _presence.Reevaluate();
-            return CommandResult.Success;
-        }
-
-        _personalRules.Upsert(rule);
-        _presence.ReloadPersonalRules();
+        await _personalRules.SetAsync(target.Kind, target.Pattern, category, target.DisplayName);
         return CommandResult.Success;
     }
 

@@ -6,7 +6,8 @@ namespace DeskPal.Client.Core.Presence;
 /// <param name="Headline">State line, e.g. "工作中" or "正在使用 XMind".</param>
 /// <param name="App">App name, null when the headline already contains it.</param>
 /// <param name="Detail">Window or media title, shortened for display.</param>
-public sealed record PresenceView(string Headline, string? App, string? Detail);
+/// <param name="Tone">Color of the status dot: work, chat, relax, browse, other, away, offline.</param>
+public sealed record PresenceView(string Headline, string? App, string? Detail, string Tone = "offline");
 
 public static class PresenceFormatter
 {
@@ -44,7 +45,18 @@ public static class PresenceFormatter
             _ => snapshot.State.ToString(),
         };
 
-        return new PresenceView(headline, state == PresenceState.Other ? null : app, Shorten(snapshot.Detail));
+        var tone = state switch
+        {
+            PresenceState.Working or PresenceState.Meeting => "work",
+            PresenceState.Communicating => "chat",
+            PresenceState.Slacking => "relax",
+            PresenceState.Browsing => "browse",
+            PresenceState.Other or PresenceState.Custom => "other",
+            PresenceState.Away or PresenceState.Locked or PresenceState.Paused => "away",
+            _ => "offline",
+        };
+
+        return new PresenceView(headline, state == PresenceState.Other ? null : app, Shorten(snapshot.Detail), tone);
     }
 
     public static string OneLine(PresenceView view) =>

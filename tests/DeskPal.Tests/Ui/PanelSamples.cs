@@ -40,7 +40,8 @@ public static class PanelSamples
         Version: "0.1.1-dev.12",
         ServerUrl: "https://deskpal.hafuhafu.cn:36443",
         UserName: "alice",
-        UpdateActivity: null);
+        UpdateActivity: null,
+        ShareUsage: true);
 
     public static PanelInput Default()
     {
@@ -70,6 +71,16 @@ public static class PanelSamples
             Classification = new ClassificationResult(ActivityCategory.Work, "Cursor", RuleLayer.Builtin),
             Committed = new CommittedPresence(earlier, Now.AddMinutes(-1)),
             CorrectionTarget = "Cursor",
+            MyRules =
+            [
+                new UserRuleDto(RuleKind.Process, "wechat", ActivityCategory.Work, "微信", Now.AddDays(-1)),
+                new UserRuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Video, "哔哩哔哩", Now.AddHours(-2)),
+            ],
+            Unclassified =
+            [
+                new UnclassifiedApp(RuleKind.Process, "xmind", "XMind", TimeSpan.FromMinutes(42)),
+                new UnclassifiedApp(RuleKind.Process, "snipaste", "Snipaste", TimeSpan.FromMinutes(7)),
+            ],
             Settings = Settings,
             Now = Now,
         };
@@ -83,9 +94,12 @@ public static class PanelSamples
             Rooms = [],
             SelectedRoom = null,
             Local = local,
-            Classification = new ClassificationResult(ActivityCategory.Communication, "QQ", RuleLayer.Builtin),
+            Classification = new ClassificationResult(ActivityCategory.Communication, "QQ", RuleLayer.Personal),
             Committed = new CommittedPresence(local, Now.AddMinutes(-3)),
             CorrectionTarget = "QQ",
+            MyRules = [new UserRuleDto(RuleKind.Process, "qq", ActivityCategory.Communication, "QQ", Now.AddDays(-3))],
+            Unclassified = [],
+            Settings = Settings with { ShareUsage = null },
         };
     }
 
@@ -104,7 +118,9 @@ public static class PanelSamples
             Paused = true,
             ManualText = "午休中",
             CorrectionTarget = null,
-            Settings = Settings with { AutoStart = false, Topmost = true, ReceiveBeta = false, UpdateReady = true, Version = "0.1.0" },
+            MyRules = [],
+            Unclassified = [],
+            Settings = Settings with { AutoStart = false, Topmost = true, ReceiveBeta = false, UpdateReady = true, Version = "0.1.0", ShareUsage = false },
         };
     }
 

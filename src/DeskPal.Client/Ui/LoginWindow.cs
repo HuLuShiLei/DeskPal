@@ -24,7 +24,8 @@ public sealed class LoginWindow : Window
         Height = 560;
         ResizeMode = ResizeMode.NoResize;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
-        Background = new SolidColorBrush(Color.FromRgb(WebUi.Background.R, WebUi.Background.G, WebUi.Background.B));
+        Background = WebUi.BackgroundBrush;
+        WindowFrame.Apply(this);
         Content = _web;
         Loaded += async (_, _) =>
         {
@@ -43,7 +44,7 @@ public sealed class LoginWindow : Window
 
     private async void OnMessage(string json)
     {
-        if (WebCommand.Parse(json) is not { } command)
+        if (WebCommand.Parse(json) is not { } command || WindowFrame.Handle(this, command.Type))
         {
             return;
         }
@@ -91,6 +92,7 @@ public sealed class LoginWindow : Window
             _settings.UserId = response.UserId;
             _settings.UserName = response.UserName;
             _settings.DisplayName = response.DisplayName;
+            _settings.ShareUsage = response.ShareUsage;
             _settings.SetToken(response.Token);
             _store.Save(_settings);
             return CommandResult.Success;
