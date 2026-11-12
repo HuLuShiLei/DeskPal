@@ -85,6 +85,27 @@ namespace DeskPal.Server.Data.Migrations
                     b.ToTable("Rooms");
                 });
 
+            modelBuilder.Entity("DeskPal.Server.Data.RoomBan", b =>
+                {
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("BannedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("BannedBy")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("RoomId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RoomBans");
+                });
+
             modelBuilder.Entity("DeskPal.Server.Data.RoomInvite", b =>
                 {
                     b.Property<Guid>("Id")
@@ -203,6 +224,21 @@ namespace DeskPal.Server.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("DeskPal.Server.Data.RoomBan", b =>
+                {
+                    b.HasOne("DeskPal.Server.Data.Room", null)
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DeskPal.Server.Data.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DeskPal.Server.Data.RoomInvite", b =>

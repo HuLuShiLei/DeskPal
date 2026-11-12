@@ -26,6 +26,9 @@ public sealed class RoomNotifier(IHubContext<PresenceHub, IPresenceClient> hub, 
         }
     }
 
+    public Task KickedAsync(Guid roomId, Guid userId) =>
+        hub.Clients.Clients(connections.Get(userId)).Receive(ServerEnvelope(MessageTypes.RoomKicked, roomId, userId));
+
     public async Task MemberLeftAsync(Guid roomId, Guid userId)
     {
         var group = GroupName(roomId);

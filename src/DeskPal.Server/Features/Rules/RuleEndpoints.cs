@@ -31,7 +31,7 @@ public static class RuleEndpoints
         {
             if (!await rooms.IsMemberAsync(ctx.User.GetUserId(), roomId))
             {
-                return ServiceResult<Unit>.Fail(404, "Room 不存在，或者你不是该 Room 的成员").ToHttp();
+                return ServiceResult<Unit>.Fail(404, "房间不存在，或者你不是该房间的成员").ToHttp();
             }
 
             var rules = await db.RoomRules.Where(r => r.RoomId == roomId).ToListAsync();
@@ -47,7 +47,7 @@ public static class RuleEndpoints
             var userId = ctx.User.GetUserId();
             if (!await rooms.IsMemberAsync(userId, roomId))
             {
-                return ServiceResult<Unit>.Fail(404, "Room 不存在，或者你不是该 Room 的成员").ToHttp();
+                return ServiceResult<Unit>.Fail(404, "房间不存在，或者你不是该房间的成员").ToHttp();
             }
 
             var pattern = RulePattern.Normalize(req.Kind, req.Pattern);

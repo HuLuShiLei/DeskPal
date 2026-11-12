@@ -32,7 +32,7 @@ SQLite 数据库在 Docker 卷 `deskpal-data` 里（容器内 `/data/deskpal.db`
 配置项在 `stack.yml` 的 `environment` 里按 `节__键` 的格式覆盖：
 
 - `Rooms__MaxOwnedRoomsPerUser`：每人最多创建的 Room 数，默认 5。
-- `Rooms__MaxMembersPerRoom`：新建 Room 的人数上限，默认 2。
+- `Rooms__MaxMembersPerRoom`：每个房间的人数上限，默认 50。已有房间在列出或有人加入时改成这个数。
 - `Rooms__InviteLifetimeHours`：邀请码有效期，默认 24 小时。
 
 ## 4. 自动更新

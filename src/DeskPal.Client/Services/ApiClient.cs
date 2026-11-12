@@ -34,6 +34,9 @@ public sealed class ApiClient(AppSettings settings)
 
     public Task LeaveRoomAsync(Guid roomId) => SendAsync<object>(HttpMethod.Post, $"/api/rooms/{roomId}/leave", new { });
 
+    public Task KickMemberAsync(Guid roomId, Guid userId) =>
+        SendAsync<object>(HttpMethod.Post, $"/api/rooms/{roomId}/kick", new KickMemberRequest(userId));
+
     public Task<RoomDto> TransferOwnerAsync(Guid roomId, Guid newOwner) =>
         SendAsync<RoomDto>(HttpMethod.Post, $"/api/rooms/{roomId}/transfer", new TransferOwnerRequest(newOwner));
 

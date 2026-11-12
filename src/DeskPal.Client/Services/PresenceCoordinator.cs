@@ -8,8 +8,8 @@ using Microsoft.Extensions.Hosting;
 namespace DeskPal.Client.Services;
 
 /// <summary>
-/// Folds collector signals into a snapshot, classifies it, debounces the result, and publishes it to every Room
-/// after applying that Room's privacy profile.
+/// Folds collector signals into a snapshot, classifies it, debounces the result, and publishes it to the
+/// room the user is currently in, after applying that room's privacy profile.
 /// </summary>
 public sealed class PresenceCoordinator : BackgroundService
 {
@@ -22,6 +22,8 @@ public sealed class PresenceCoordinator : BackgroundService
     private readonly System.Threading.Channels.ChannelReader<ActivitySignal> _signals;
     private readonly PresenceDebouncer _debouncer;
     private readonly Lock _lock = new();
+    private readonly SemaphoreSlim _publishGate = new(1, 1);
+    private readonly HashSet<Guid> _offlined = new();
 
     public PresenceCoordinator(
         ActivityBus bus,
@@ -41,8 +43,9 @@ public sealed class PresenceCoordinator : BackgroundService
         _signals = bus.Subscribe();
         _debouncer = new PresenceDebouncer(TimeSpan.FromSeconds(settings.StableSeconds), TimeSpan.FromSeconds(settings.StableSeconds));
         _classifier.SetPersonal(new RuleSet(_personalRules.Load()));
-        _rooms.RoomsReloaded += PublishCurrentAsync;
-        _hub.Connected += PublishCurrentAsync;
+        _rooms.RoomsReloaded += OnRoomsChangedAsync;
+        _rooms.SelectionChanged += OnRoomsChangedAsync;
+        _hub.Connected += () => PublishActiveAsync(_debouncer.Current);
     }
 
     public event Action? LocalChanged;
@@ -124,14 +127,52 @@ public sealed class PresenceCoordinator : BackgroundService
         }
     }
 
-    private Task PublishCurrentAsync() => _debouncer.Current is { } current ? PublishAsync(current) : Task.CompletedTask;
-
-    private async Task PublishAsync(CommittedPresence committed)
+    private async Task OnRoomsChangedAsync()
     {
-        foreach (var room in _rooms.Rooms)
+        Reevaluate();
+        await PublishActiveAsync(_debouncer.Current);
+    }
+
+    private Task PublishAsync(CommittedPresence committed) => PublishActiveAsync(committed);
+
+    private async Task PublishActiveAsync(CommittedPresence? committed)
+    {
+        await _publishGate.WaitAsync();
+        try
         {
-            var snapshot = PrivacyFilter.Apply(committed, _rooms.GetPrivacy(room.Id));
-            await _hub.TryPublishAsync(Envelope.Create(MessageTypes.PresenceUpdate, room.Id, snapshot));
+            var selected = _rooms.SelectedRoom?.Id;
+            var memberIds = _rooms.Rooms.Select(r => r.Id).ToHashSet();
+            _offlined.RemoveWhere(id => !memberIds.Contains(id) || id == selected);
+            foreach (var roomId in memberIds)
+            {
+                if (roomId == selected || !_offlined.Add(roomId))
+                {
+                    continue;
+                }
+
+                if (!await PublishOfflineAsync(roomId))
+                {
+                    _offlined.Remove(roomId);
+                }
+            }
+
+            if (selected is null || committed is null)
+            {
+                return;
+            }
+
+            var snapshot = PrivacyFilter.Apply(committed, _rooms.GetPrivacy(selected.Value));
+            await _hub.TryPublishAsync(Envelope.Create(MessageTypes.PresenceUpdate, selected.Value, snapshot));
+        }
+        finally
+        {
+            _publishGate.Release();
         }
     }
+
+    private Task<bool> PublishOfflineAsync(Guid roomId) =>
+        _hub.TryPublishAsync(Envelope.Create(
+            MessageTypes.PresenceUpdate,
+            roomId,
+            PresenceSnapshot.Offline(DateTimeOffset.UtcNow)));
 }

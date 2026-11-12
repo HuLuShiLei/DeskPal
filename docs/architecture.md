@@ -22,7 +22,7 @@ flowchart LR
     Coordinator --> Classifier["LayeredClassifier"]
     Coordinator --> Resolver["PresenceResolver"]
     Resolver --> Debouncer["PresenceDebouncer"]
-    Debouncer --> Filter["PrivacyFilter（每个 Room 一次）"]
+    Debouncer --> Filter["PrivacyFilter（当前房间）"]
     Bus -.->|"以后"| Game["游戏模块"]
   end
   Filter -->|"presence.update"| Hub["PresenceHub"]
@@ -33,8 +33,8 @@ flowchart LR
 
 1. 采集器把事实发布到 `ActivityBus`（基于 Channel 的一对多广播）。
 2. `PresenceCoordinator` 把信号合并进 `ActivitySnapshot`，分类后得到 `LocalPresence`，交给防抖器。
-3. 防抖器提交 `CommittedPresence` 以后，对用户加入的每个 Room 按该 Room 的隐私配置过滤一次，再分别发布。
-4. Server 只检查发送者是否为 Room 成员，然后转发给同一 Group 的其他连接，并把最新状态缓存在内存里。
+3. 防抖器提交 `CommittedPresence` 以后，只按当前进入的房间做隐私过滤并发布。切换房间时，先给上一个房间发离线，再给当前房间发状态。已加入但没进入的房间留在列表里，再次进入不用邀请码。分类只使用当前房间的规则。
+4. Server 只检查发送者是否为该房间的成员，然后转发给同一 Group 的其他连接，并把最新状态缓存在内存里。
 
 ## 采集信号
 
@@ -53,7 +53,7 @@ flowchart LR
 - 前台是浏览器：只查个人规则和 Room 规则。都没有命中时归为 `Browsing`，应用名用域名（没有域名则为空），详情用去掉浏览器后缀的窗口标题。不使用内置的网站和标题规则，也不因为全屏或正在播放而归成视频、音乐。个人规则和 Room 规则里仍然先按域名（取最具体的后缀），再按标题关键词，最后按进程名。
 - 其他应用：个人规则 → Room 规则 → 内置规则 → 推测 → `Other`，只按进程名匹配。
 - 推测层只对非浏览器、且前三层都没命中时生效：路径含 `\steamapps\` 的程序归为 `Game`；全屏且正在播放媒体归为 `Video`；正在播放媒体归为 `Music`。
-- 个人规则保存在 `%APPDATA%\DeskPal\personal-rules.json`。用户点“这个判断不对”时，可以选只对自己生效，或者同步到当前 Room（写入 Room 规则）。浏览器也可以这样把某一个网站改成其他类别。
+- 个人规则保存在 `%APPDATA%\DeskPal\personal-rules.json`。用户点“这个判断不对”时，可以选只对自己生效，或者同步到当前房间（写入该房间的规则）。浏览器也可以这样把某一个网站改成其他类别。分类只加载当前进入的房间的规则。
 - 内置规则保存在 `builtin-rules.json`（目前版本 2，266 条），Server 启动时写入数据库；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。里面的网站和标题规则不参与浏览器的默认分类。
 - 分类口径：桌面应用里，企业微信、飞书、钉钉、Slack、Teams、邮箱和会议软件归为 `Work`；QQ、微信、Telegram 等个人聊天归为 `Communication`。浏览器里的网页不再按网站种类细分。
 
@@ -96,7 +96,7 @@ flowchart LR
 | 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`member.poke`、`presence.pause / manual / correct`、`settings.autoStart / topmost`、`update.check / beta / restart`、`auth.login / register` |
 | 页面 → 宿主，不回复 | `ready`、`dialog.answer{dialogId, ok}` |
 
-`PanelState` 由 `PanelStateBuilder` 在 Client.Core 里生成，界面上的文字（连接状态、空提示、规则来源、“该 Room 成员看到”）都在 C# 里算好，页面只负责显示。`PanelFixtureTests` 把几组样例序列化到 `web/src/mock/fixtures/`，不一致就失败，改了 `PanelState` 或文案后用 `DESKPAL_UPDATE_FIXTURES=1` 运行测试更新。
+`PanelState` 由 `PanelStateBuilder` 在 Client.Core 里生成，界面上的文字（连接状态、空提示、规则来源、“该房间成员看到”）都在 C# 里算好，页面只负责显示。页面写「房间」，不写 Room。`PanelFixtureTests` 把几组样例序列化到 `web/src/mock/fixtures/`，不一致就失败，改了 `PanelState` 或文案后用 `DESKPAL_UPDATE_FIXTURES=1` 运行测试更新。
 
 在浏览器里调试：`cd src/DeskPal.Client/web; npm run dev`，打开 `http://localhost:5190/`。没有 `chrome.webview` 时页面用模拟宿主，参数 `?mock=default|no-room|guest` 切换样例，`?fail` 让所有命令失败，`?page=login` 打开登录页，发出的命令记录在 `window.__sent`。Debug 版客户端设置环境变量 `DESKPAL_UI_URL=http://localhost:5190/` 可以直接加载开发服务器。
 
@@ -118,12 +118,13 @@ flowchart LR
 | GET | `/api/me` | 当前用户 |
 | GET | `/api/rooms` | 我加入的 Room |
 | POST | `/api/rooms` | 创建 Room（每人最多拥有 `MaxOwnedRoomsPerUser` 个） |
-| POST | `/api/rooms/{id}/invites` | 生成邀请码，旧邀请码失效，24 小时过期 |
-| POST | `/api/rooms/join` | 用邀请码加入（人数上限 `MaxMembersPerRoom`） |
-| POST | `/api/rooms/{id}/leave` | 退出；所有者退出返回 409 |
+| POST | `/api/rooms/{id}/invites` | 生成邀请码，旧邀请码失效，24 小时过期。同时删除踢出记录，被踢出的人可以用新邀请码加入 |
+| POST | `/api/rooms/join` | 用邀请码加入（人数上限 `MaxMembersPerRoom`，默认 50）。被踢出且邀请码尚未更新时返回 403 |
+| POST | `/api/rooms/{id}/leave` | 退出；所有者退出返回 409。退出后可以用邀请码再次加入 |
+| POST | `/api/rooms/{id}/kick` | 所有者踢出成员（`KickMemberRequest`）。对方从房间列表消失。生成新邀请码后可以再加入 |
 | POST | `/api/rooms/{id}/transfer` | 所有者转让所有权 |
 | PUT | `/api/rooms/{id}` | 所有者修改 Room 名称（`RenameRoomRequest`，去掉首尾空格后 1 到 30 个字符）；名称有变化时广播 `room.renamed` |
-| DELETE | `/api/rooms/{id}` | 所有者解散，级联删除成员、邀请码、Room 规则 |
+| DELETE | `/api/rooms/{id}` | 所有者解散，级联删除成员、邀请码、房间规则和踢出记录 |
 | GET/PUT | `/api/rooms/{id}/privacy` | 我在该 Room 的隐私配置 |
 | GET/PUT | `/api/rooms/{id}/rules` | Room 规则；PUT 按（种类，标准化后的内容）新增或覆盖 |
 | GET | `/api/rules/builtin?version=N` | 内置规则；版本相同时 `rules` 为 null |
@@ -135,9 +136,10 @@ flowchart LR
 
 | 类型 | 发送方 | Payload | 说明 |
 |---|---|---|---|
-| `presence.update` | 客户端 | `PresenceSnapshot` | Server 缓存最新一条；新连接会收到同 Room 其他人的缓存；最后一个连接断开时 Server 广播 `Offline` |
+| `presence.update` | 客户端 | `PresenceSnapshot` | 客户端只向当前进入的房间发布，切换时向上一个房间发离线。Server 缓存最新一条；新连接会收到同房间其他人的缓存；最后一个连接断开时，Server 向该用户加入的每个房间广播 `Offline` |
 | `interaction.poke` | 客户端 | `PokePayload(Text, TargetUserId)` | 对方显示托盘气泡；对方离线时丢失 |
 | `room.memberJoined` / `room.memberLeft` | Server | `RoomEventPayload(UserId)` | 同时增删 SignalR Group |
+| `room.kicked` | Server | `RoomEventPayload(被踢出的人)` | 只发给被踢出的人。客户端提示邀请码更新后才能再次加入，并重新拉取房间列表 |
 | `room.ownerChanged` | Server | `RoomEventPayload(新所有者)` | |
 | `room.renamed` | Server | `RoomEventPayload(null)` | 客户端重新拉取 Room 列表 |
 | `room.dissolved` | Server | `RoomEventPayload(null)` | 之后所有成员移出 Group |
@@ -151,6 +153,7 @@ flowchart LR
 | `Rooms` | Id、Name、OwnerId、MaxMembers、CreatedAt |
 | `RoomMembers` | RoomId + UserId、Role、JoinedAt、PrivacyProfileJson（为空时用默认值） |
 | `RoomInvites` | Code、RoomId、CreatedBy、ExpiresAt |
+| `RoomBans` | RoomId + UserId、BannedBy、BannedAt。生成新邀请码时删除，被踢出的人即可用新邀请码加入 |
 | `RoomRules` | RoomId、Kind、Pattern、Category、Name、CreatedBy、UpdatedAt |
 | `BuiltinRules` / `AppMeta` | 内置规则和规则库版本号 |
 

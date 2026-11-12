@@ -62,7 +62,7 @@ main { padding: 12px; display: grid; gap: 10px; }
 .room-list, .members { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 4px; }
 .room-item { width: 100%; display: flex; justify-content: space-between; align-items: center; text-align: left; padding: 6px 10px; }
 .room-item[aria-pressed=true] { border-color: var(--accent); background: #eef3ff; }
-.members li { display: flex; gap: 6px; align-items: center; }
+.members li { display: flex; gap: 6px; align-items: center; justify-content: space-between; }
 .privacy { border-collapse: collapse; width: 100%; }
 .privacy th { text-align: left; font-weight: normal; padding: 3px 8px 3px 0; white-space: nowrap; }
 .privacy select { width: 100%; }

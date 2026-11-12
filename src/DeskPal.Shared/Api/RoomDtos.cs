@@ -22,4 +22,6 @@ public sealed record InviteDto(string Code, DateTimeOffset ExpiresAt);
 
 public sealed record TransferOwnerRequest(Guid NewOwnerUserId);
 
+public sealed record KickMemberRequest(Guid UserId);
+
 public sealed record PrivacyProfileDto(Dictionary<ActivityCategory, PrivacyLevel> Levels);

@@ -54,16 +54,16 @@ export function createMockTransport(params: URLSearchParams): Transport {
         state.selectedRoomId = m.roomId as string;
         break;
       case "room.create":
-        state.rooms.push({ id: crypto.randomUUID(), name: m.name as string, isOwner: true, memberCount: 1, maxMembers: 2 });
+        state.rooms.push({ id: crypto.randomUUID(), name: m.name as string, isOwner: true, memberCount: 1, maxMembers: 50 });
         state.selectedRoomId = state.rooms.at(-1)!.id;
         break;
       case "room.join":
         if (m.code === "00000000") return { ok: false, error: "邀请码无效或已过期" };
-        state.rooms.push({ id: crypto.randomUUID(), name: "加入的 Room", isOwner: false, memberCount: 2, maxMembers: 2 });
+        state.rooms.push({ id: crypto.randomUUID(), name: "加入的房间", isOwner: false, memberCount: 2, maxMembers: 50 });
         break;
       case "room.rename": {
         const r = room(m.roomId);
-        if (!r?.isOwner) return { ok: false, error: "只有所有者可以修改 Room 名称" };
+        if (!r?.isOwner) return { ok: false, error: "只有所有者可以修改房间名称" };
         r.name = m.name as string;
         break;
       }
@@ -71,7 +71,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
         return {
           ok: true,
           error: null,
-          data: { code: "K7Q2M9XA", message: "邀请码已复制到剪贴板，11 月 12 日 15:00 前有效。重新生成后旧邀请码失效。" },
+          data: { code: "K7Q2M9XA", message: "邀请码已复制到剪贴板，11 月 12 日 15:00 前有效。重新生成后旧邀请码失效，被踢出的人可以用新邀请码加入。" },
         };
       case "room.privacy": {
         const levels = m.levels as Record<string, PrivacyLevel>;
@@ -83,6 +83,13 @@ export function createMockTransport(params: URLSearchParams): Transport {
         if (r) r.isOwner = false;
         break;
       }
+      case "room.kick": {
+        const r = room(m.roomId);
+        if (!r?.isOwner) return { ok: false, error: "只有所有者可以踢出成员" };
+        state.members = state.members.filter((member) => member.userId !== m.userId);
+        r.memberCount = Math.max(1, r.memberCount - 1);
+        break;
+      }
       case "room.leave":
       case "room.dissolve":
         state.rooms = state.rooms.filter((r) => r.id !== m.roomId);
@@ -90,7 +97,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
         if (!state.selectedRoomId) {
           state.members = [];
           state.privacy = null;
-          state.emptyHint = "还没有 Room。到「Room」页创建 Room，或者用邀请码加入。";
+          state.emptyHint = "还没有房间。到「房间」页创建房间，或者用邀请码加入。";
         }
         break;
       case "presence.pause":

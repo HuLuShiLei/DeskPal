@@ -35,6 +35,14 @@ public sealed class RoomMember
     public User? User { get; set; }
 }
 
+public sealed class RoomBan
+{
+    public Guid RoomId { get; set; }
+    public Guid UserId { get; set; }
+    public Guid BannedBy { get; set; }
+    public DateTimeOffset BannedAt { get; set; }
+}
+
 public sealed class RoomInvite
 {
     public Guid Id { get; set; }

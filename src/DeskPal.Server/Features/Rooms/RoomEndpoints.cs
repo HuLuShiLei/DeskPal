@@ -68,6 +68,18 @@ public static class RoomEndpoints
             return result.ToHttp();
         });
 
+        group.MapPost("/{roomId:guid}/kick", async (Guid roomId, KickMemberRequest req, HttpContext ctx, RoomService rooms, RoomNotifier notifier) =>
+        {
+            var result = await rooms.KickAsync(ctx.User.GetUserId(), roomId, req.UserId);
+            if (result.IsSuccess)
+            {
+                await notifier.KickedAsync(roomId, req.UserId);
+                await notifier.MemberLeftAsync(roomId, req.UserId);
+            }
+
+            return result.ToHttp();
+        });
+
         group.MapPost("/{roomId:guid}/transfer", async (Guid roomId, TransferOwnerRequest req, HttpContext ctx, RoomService rooms, RoomNotifier notifier) =>
         {
             var result = await rooms.TransferOwnerAsync(ctx.User.GetUserId(), roomId, req.NewOwnerUserId);

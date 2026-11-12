@@ -81,6 +81,7 @@ export type Command =
   | { type: "room.invite"; roomId: string }
   | { type: "room.privacy"; roomId: string; levels: Record<string, PrivacyLevel> }
   | { type: "room.transfer"; roomId: string; userId: string }
+  | { type: "room.kick"; roomId: string; userId: string }
   | { type: "room.leave"; roomId: string }
   | { type: "room.dissolve"; roomId: string }
   | { type: "member.poke"; roomId: string; userId: string; text: string | null }

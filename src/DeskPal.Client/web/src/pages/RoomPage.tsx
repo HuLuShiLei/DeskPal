@@ -7,19 +7,19 @@ export function RoomPage({ state }: { state: PanelState }) {
   const room = state.rooms.find((r) => r.id === state.selectedRoomId);
 
   const create = async () => {
-    const a = await ask({ title: "创建 Room", input: { placeholder: "Room 名称（1 到 30 个字符）", maxLength: 30, required: true }, okText: "创建" });
+    const a = await ask({ title: "创建房间", input: { placeholder: "房间名称（1 到 30 个字符）", maxLength: 30, required: true }, okText: "创建" });
     if (a.ok) await run({ type: "room.create", name: a.text }, "已创建");
   };
   const join = async () => {
-    const a = await ask({ title: "用邀请码加入 Room", input: { placeholder: "输入对方发给你的邀请码", maxLength: 20, required: true }, okText: "加入" });
+    const a = await ask({ title: "用邀请码加入房间", input: { placeholder: "输入对方发给你的邀请码", maxLength: 20, required: true }, okText: "加入" });
     if (a.ok) await run({ type: "room.join", code: a.text }, "已加入");
   };
 
   return (
     <>
-      <section class="card" aria-label="我的 Room">
-        <h2>我的 Room</h2>
-        {state.rooms.length === 0 && <p class="meta">还没有 Room。</p>}
+      <section class="card" aria-label="我的房间">
+        <h2>我的房间</h2>
+        {state.rooms.length === 0 && <p class="meta">还没有房间。</p>}
         <ul class="room-list">
           {state.rooms.map((r) => (
             <li key={r.id}>
@@ -35,8 +35,11 @@ export function RoomPage({ state }: { state: PanelState }) {
             </li>
           ))}
         </ul>
+        {state.rooms.length > 0 && (
+          <p class="meta">点选切换当前房间，不用重新输入邀请码。同一时间只进入一个房间，离开的房间里会显示为离线。</p>
+        )}
         <div class="actions">
-          <button onClick={create}>创建 Room</button>
+          <button onClick={create}>创建房间</button>
           <button onClick={join}>用邀请码加入</button>
         </div>
       </section>
@@ -51,7 +54,7 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
   const others = state.members;
 
   const rename = async () => {
-    const a = await ask({ title: "修改 Room 名称", input: { initial: room.name, maxLength: 30, required: true }, okText: "保存" });
+    const a = await ask({ title: "修改房间名称", input: { initial: room.name, maxLength: 30, required: true }, okText: "保存" });
     if (a.ok && a.text !== room.name) await run({ type: "room.rename", roomId: room.id, name: a.text }, "已修改");
   };
   const invite = async () => {
@@ -68,14 +71,28 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
     });
     if (a.ok) await run({ type: "room.transfer", roomId: room.id, userId: a.selected }, "已转让");
   };
+  const kick = async (userId: string, name: string) => {
+    const a = await ask({
+      title: "踢出房间",
+      message: `确定把「${name}」踢出房间？对方会离开这个房间。邀请码换成新的之后，对方才能再次加入。`,
+      okText: "踢出",
+      danger: true,
+    });
+    if (a.ok) await run({ type: "room.kick", roomId: room.id, userId }, "已踢出");
+  };
   const leave = async () => {
-    const a = await ask({ title: "退出 Room", message: `确定退出 Room「${room.name}」？`, okText: "退出", danger: true });
+    const a = await ask({
+      title: "退出房间",
+      message: `确定退出房间「${room.name}」？退出后会从列表里移除，再次加入需要邀请码。`,
+      okText: "退出",
+      danger: true,
+    });
     if (a.ok) await run({ type: "room.leave", roomId: room.id }, "已退出");
   };
   const dissolve = async () => {
     const a = await ask({
-      title: "解散 Room",
-      message: `确定解散 Room「${room.name}」？成员关系和 Room 规则会一起删除，不能恢复。`,
+      title: "解散房间",
+      message: `确定解散房间「${room.name}」？成员关系和房间规则会一起删除，不能恢复。`,
       okText: "解散",
       danger: true,
     });
@@ -83,31 +100,40 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
   };
 
   return (
-    <section class="card" aria-label={`Room「${room.name}」`}>
-      <h2>Room「{room.name}」</h2>
+    <section class="card" aria-label={`房间「${room.name}」`}>
+      <h2>房间「{room.name}」</h2>
       <ul class="members">
         <li>
-          {state.me.displayName}（我）{room.isOwner && <span class="badge">所有者</span>}
+          <span>
+            {state.me.displayName}（我）{room.isOwner && <span class="badge">所有者</span>}
+          </span>
         </li>
         {others.map((m) => (
           <li key={m.userId}>
-            {m.name}
-            {m.isOwner && <span class="badge">所有者</span>}
+            <span>
+              {m.name}
+              {m.isOwner && <span class="badge">所有者</span>}
+            </span>
+            {room.isOwner && (
+              <button class="danger" aria-label={`把${m.name}踢出房间`} onClick={() => kick(m.userId, m.name)}>
+                踢出
+              </button>
+            )}
           </li>
         ))}
       </ul>
       <div class="actions">
-        {room.isOwner && <button onClick={rename}>修改 Room 名称</button>}
+        {room.isOwner && <button onClick={rename}>修改房间名称</button>}
         <button onClick={invite}>生成邀请码</button>
         {room.isOwner && others.length > 0 && <button onClick={transfer}>转让所有者</button>}
         {!room.isOwner && (
           <button class="danger" onClick={leave}>
-            退出 Room
+            退出房间
           </button>
         )}
         {room.isOwner && (
           <button class="danger" onClick={dissolve}>
-            解散 Room
+            解散房间
           </button>
         )}
       </div>
@@ -125,7 +151,7 @@ function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
   return (
     <section class="card" aria-label="隐私设置">
       <h2>隐私设置</h2>
-      <p class="meta">设置 Room「{room.name}」的成员能看到你多少信息。只影响这个 Room。</p>
+      <p class="meta">设置房间「{room.name}」的成员能看到你多少信息。只影响这个房间。</p>
       <table class="privacy">
         <tbody>
           {privacy.rows.map((r) => (

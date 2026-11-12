@@ -7,7 +7,7 @@ import { StatusPage } from "./pages/StatusPage";
 
 const tabs = [
   { id: "status", name: "状态" },
-  { id: "room", name: "Room" },
+  { id: "room", name: "房间" },
   { id: "settings", name: "设置" },
 ] as const;
 
@@ -40,7 +40,7 @@ export function App({ bridge }: { bridge: Bridge }) {
       <header class="topbar" inert={dialogOpen}>
         {state.rooms.length > 0 ? (
           <select
-            aria-label="当前 Room"
+            aria-label="当前房间"
             value={state.selectedRoomId ?? ""}
             onChange={(e) => host.run({ type: "room.select", roomId: e.currentTarget.value })}
           >
@@ -51,7 +51,7 @@ export function App({ bridge }: { bridge: Bridge }) {
             ))}
           </select>
         ) : (
-          <span class="muted">没有 Room</span>
+          <span class="muted">没有房间</span>
         )}
         <span class={state.connection.connected ? "conn ok" : "conn"}>{state.connection.text}</span>
       </header>

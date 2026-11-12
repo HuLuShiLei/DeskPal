@@ -19,14 +19,14 @@ public static class PanelSamples
 
     public const string LongTitle = "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋";
 
-    public static readonly RoomDto OwnedRoom = new(MyRoom, "测试 Room", Alice, 3, Now.AddDays(-3),
+    public static readonly RoomDto OwnedRoom = new(MyRoom, "测试房间", Alice, 50, Now.AddDays(-3),
     [
         new RoomMemberDto(Alice, "Alice", RoomRole.Owner, Now.AddDays(-3)),
         new RoomMemberDto(Bob, "Bob", RoomRole.Member, Now.AddDays(-2)),
         new RoomMemberDto(Carol, "Carol", RoomRole.Member, Now.AddDays(-1)),
     ]);
 
-    public static readonly RoomDto GuestRoom = new(TeamRoom, "同事 Room", Dave, 2, Now.AddDays(-5),
+    public static readonly RoomDto GuestRoom = new(TeamRoom, "同事房间", Dave, 50, Now.AddDays(-5),
     [
         new RoomMemberDto(Dave, "Dave", RoomRole.Owner, Now.AddDays(-5)),
         new RoomMemberDto(Alice, "Alice", RoomRole.Member, Now.AddDays(-4)),

@@ -11,7 +11,7 @@
       "detail": "plan.md - idea1 - Cursor"
     },
     "source": "内置规则，稳定后同步",
-    "visible": "该 Room 成员看到：正在使用 Cursor",
+    "visible": "该房间成员看到：正在使用 Cursor",
     "paused": false,
     "manualText": null,
     "manualPresets": [
@@ -25,17 +25,17 @@
   "rooms": [
     {
       "id": "00000000-0000-0000-0000-0000000000a1",
-      "name": "测试 Room",
+      "name": "测试房间",
       "isOwner": true,
       "memberCount": 3,
-      "maxMembers": 3
+      "maxMembers": 50
     },
     {
       "id": "00000000-0000-0000-0000-0000000000a2",
-      "name": "同事 Room",
+      "name": "同事房间",
       "isOwner": false,
       "memberCount": 2,
-      "maxMembers": 2
+      "maxMembers": 50
     }
   ],
   "selectedRoomId": "00000000-0000-0000-0000-0000000000a1",

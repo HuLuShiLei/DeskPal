@@ -1,10 +1,10 @@
 # DeskPal
 
-Windows 状态共享客户端：同一 Room 的成员实时看到对方在工作、聊天还是放松（以及在看什么、玩什么）。不截图，只采集前台应用、浏览器域名、空闲、锁屏、媒体播放这几类信号，在本机分类、按 Room 的隐私设置过滤后，再通过 SignalR 推送。
+Windows 状态共享客户端：同一个房间的成员实时看到对方在工作、聊天还是放松（以及在看什么、玩什么）。不截图，只采集前台应用、浏览器域名、空闲、锁屏、媒体播放这几类信号，在本机分类、按该房间的隐私设置过滤后，再通过 SignalR 推送。
 
-当前处于**第一期原型**：两人 Room。设计按多人 Room 和后续游戏化（类似 Steam 上 Bongo Cat 的“打字攒道具”）预留了扩展点。
+当前可以加入多个房间，同一时间只进入一个。设计按后续游戏化（类似 Steam 上 Bongo Cat 的“打字攒道具”）预留了扩展点。
 
-对用户用中文，产品术语（Room、Room 成员、Presence、Envelope）保持英文。界面文案和 Server 返回的错误信息用中文。
+对用户用中文。页面和会显示在页面上的错误信息写「房间」，不写 Room。代码、协议字段和类型名仍用 Room。Presence、Envelope 保持英文。
 
 ## 先读什么
 
@@ -53,8 +53,8 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 1. **不截图、不装键盘钩子、不注入、不提权。** 客户端以普通用户权限运行。后期游戏化如果要统计按键，只能用 Raw Input 计次数，不读按键内容。
 2. **原始窗口标题和媒体标题不离开本机**，除非该 Room 成员把对应类别的隐私级别设为“显示详情”。上报前必须经过 `PrivacyFilter.Apply`。
 3. **Server 只按 `Envelope.Type` 和 `RoomId` 路由，不解析 `Payload`。** 这是为以后做端到端加密（`Enc` 字段）留的口子。Server 自己生成的消息（离线、Room 事件）例外。
-4. **成员的最新状态只存在 Server 内存里**（`PresenceStore`），不写数据库。数据库只存账号、Room、成员关系、邀请码、隐私设置和规则。
-5. **数据模型按 Room 设计，不按“一对”设计。** 人数上限来自配置，不要在代码里写死 2。
+4. **成员的最新状态只存在 Server 内存里**（`PresenceStore`），不写数据库。数据库只存账号、Room、成员关系、邀请码、踢出后的禁止再次加入记录、隐私设置和规则。
+5. **数据模型按 Room 设计，不按“一对”设计。** 人数上限来自配置 `Rooms:MaxMembersPerRoom`，默认 50。已有房间在列出或有人加入时改成当前配置。
 6. **Room 成员关系变化后，必须调用 `RoomNotifier` 同步 SignalR Group。** 否则退出 Room 的人还会继续收到消息。
 7. Server 运行时目录叫 `storage/`，源码目录叫 `Data/`。Windows 路径不区分大小写，不要把数据库目录改回 `data`。容器内数据库是 `/data/deskpal.db`（Linux 区分大小写，没有冲突），路径由连接串决定。
 8. 默认不 commit、不 push。

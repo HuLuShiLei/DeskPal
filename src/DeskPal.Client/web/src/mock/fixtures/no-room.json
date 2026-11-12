@@ -24,7 +24,7 @@
   },
   "rooms": [],
   "selectedRoomId": null,
-  "emptyHint": "还没有 Room。到「Room」页创建 Room，或者用邀请码加入。",
+  "emptyHint": "还没有房间。到「房间」页创建房间，或者用邀请码加入。",
   "members": [],
   "privacy": null,
   "correction": {

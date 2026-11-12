@@ -7,6 +7,7 @@ public static class MessageTypes
 
     public const string RoomMemberJoined = "room.memberJoined";
     public const string RoomMemberLeft = "room.memberLeft";
+    public const string RoomKicked = "room.kicked";
     public const string RoomOwnerChanged = "room.ownerChanged";
     public const string RoomDissolved = "room.dissolved";
     public const string RoomRenamed = "room.renamed";

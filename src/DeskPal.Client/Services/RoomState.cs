@@ -28,6 +28,9 @@ public sealed class RoomState(
     /// <summary>Raised after rooms or privacy profiles change, so my presence is re-sent with the right filter.</summary>
     public event Func<Task>? RoomsReloaded;
 
+    /// <summary>Raised after the active room changes to one already in the list.</summary>
+    public event Func<Task>? SelectionChanged;
+
     public Guid MyUserId => settings.UserId;
 
     public IReadOnlyList<RoomDto> Rooms
@@ -54,9 +57,30 @@ public sealed class RoomState(
 
     public void Select(Guid roomId)
     {
+        var changed = settings.SelectedRoomId != roomId;
         settings.SelectedRoomId = roomId;
         store.Save(settings);
         Changed?.Invoke();
+        if (changed && Rooms.Any(r => r.Id == roomId))
+        {
+            _ = ActivateSelectedAsync();
+        }
+    }
+
+    private async Task ActivateSelectedAsync()
+    {
+        try
+        {
+            await ReloadRoomRulesAsync();
+            if (SelectionChanged is { } handler)
+            {
+                await handler();
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Switching the active room failed");
+        }
     }
 
     public PrivacyProfile GetPrivacy(Guid roomId)
@@ -99,6 +123,12 @@ public sealed class RoomState(
                 }
             }
 
+            if (settings.SelectedRoomId is { } selected && rooms.All(r => r.Id != selected))
+            {
+                settings.SelectedRoomId = rooms.FirstOrDefault()?.Id;
+                store.Save(settings);
+            }
+
             await ReloadRoomRulesAsync();
         }
         finally
@@ -115,13 +145,9 @@ public sealed class RoomState(
 
     public async Task ReloadRoomRulesAsync()
     {
-        var all = new List<RoomRuleDto>();
-        foreach (var room in Rooms)
-        {
-            all.AddRange(await api.GetRoomRulesAsync(room.Id));
-        }
-
-        classifier.SetRoom(new RuleSet(all.OrderByDescending(r => r.UpdatedAt).Select(r => new RuleDto(r.Kind, r.Pattern, r.Category, r.Name))));
+        var room = SelectedRoom;
+        var rules = room is null ? [] : await api.GetRoomRulesAsync(room.Id);
+        classifier.SetRoom(new RuleSet(rules.OrderByDescending(r => r.UpdatedAt).Select(r => new RuleDto(r.Kind, r.Pattern, r.Category, r.Name))));
     }
 
     public async Task SavePrivacyAsync(Guid roomId, PrivacyProfile profile)
@@ -171,6 +197,10 @@ public sealed class RoomState(
 
                     break;
 
+                case MessageTypes.RoomKicked:
+                    OnKicked(envelope);
+                    break;
+
                 case MessageTypes.RoomMemberJoined:
                 case MessageTypes.RoomMemberLeft:
                 case MessageTypes.RoomOwnerChanged:
@@ -192,15 +222,15 @@ public sealed class RoomState(
 
     private void OnRoomEvent(Envelope envelope)
     {
-        var roomName = Rooms.FirstOrDefault(r => r.Id == envelope.RoomId)?.Name ?? "Room";
+        var roomName = Rooms.FirstOrDefault(r => r.Id == envelope.RoomId)?.Name ?? "房间";
         var userId = envelope.ReadPayload<RoomEventPayload>()?.UserId;
         if (envelope.Type == MessageTypes.RoomDissolved)
         {
-            Notify?.Invoke(roomName, "该 Room 已被所有者解散");
+            Notify?.Invoke(roomName, "该房间已被所有者解散");
         }
         else if (envelope.Type == MessageTypes.RoomMemberJoined && userId is { } joined && joined != MyUserId)
         {
-            _ = RefreshAsync().ContinueWith(_ => Notify?.Invoke(roomName, $"{MemberName(envelope.RoomId, joined)} 加入了 Room"), TaskScheduler.Default);
+            _ = RefreshAsync().ContinueWith(_ => Notify?.Invoke(roomName, $"{MemberName(envelope.RoomId, joined)} 加入了房间"), TaskScheduler.Default);
             return;
         }
 
@@ -208,5 +238,18 @@ public sealed class RoomState(
     }
 
     private string MemberName(Guid roomId, Guid userId) =>
-        Rooms.FirstOrDefault(r => r.Id == roomId)?.Members.FirstOrDefault(m => m.UserId == userId)?.DisplayName ?? "Room 成员";
+        Rooms.FirstOrDefault(r => r.Id == roomId)?.Members.FirstOrDefault(m => m.UserId == userId)?.DisplayName ?? "房间成员";
+
+    private void OnKicked(Envelope envelope)
+    {
+        var userId = envelope.ReadPayload<RoomEventPayload>()?.UserId;
+        if (userId != MyUserId)
+        {
+            return;
+        }
+
+        var roomName = Rooms.FirstOrDefault(r => r.Id == envelope.RoomId)?.Name ?? "房间";
+        Notify?.Invoke(roomName, "你已被移出该房间。邀请码更新后才能再次加入");
+        _ = RefreshAsync().ContinueWith(t => logger.LogWarning(t.Exception, "Refreshing rooms failed"), TaskContinuationOptions.OnlyOnFaulted);
+    }
 }

@@ -8,7 +8,7 @@ alwaysApply: false
 
 - 按功能放在 `Features/<功能>/`：Service、Endpoints、Options 放在同一目录。新增功能（例如 Game）新建目录，不改动其他功能的文件。
 - 业务逻辑写在 Service 里，返回 `ServiceResult<T>`；Endpoints 只做参数绑定、调用 Service、调用 `RoomNotifier`，最后 `.ToHttp()`。
-- 错误信息用中文，客户端直接展示，例如 `ServiceResult<RoomDto>.Fail(409, "该 Room 已满（上限 2 人）")`。
+- 错误信息用中文，客户端直接展示，例如 `ServiceResult<RoomDto>.Fail(409, "该房间已满（上限 50 人）")`。页面上写「房间」，不写 Room。人数上限来自 `Rooms:MaxMembersPerRoom`，默认 50。
 - 时间一律从注入的 `TimeProvider` 取，不直接用 `DateTimeOffset.UtcNow`，方便测试。
 
 ## SQLite 限制

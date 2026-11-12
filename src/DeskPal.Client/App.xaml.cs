@@ -184,7 +184,7 @@ public partial class App : Application
             }
             catch (ApiException ex)
             {
-                _tray?.ShowNotification("DeskPal", $"加载 Room 失败：{ex.Message}");
+                _tray?.ShowNotification("DeskPal", $"加载房间失败：{ex.Message}");
                 return;
             }
         }

@@ -22,7 +22,7 @@ public sealed class RoomServiceTests : IDisposable
         _connection.Open();
         _db = new DeskPalDbContext(new DbContextOptionsBuilder<DeskPalDbContext>().UseSqlite(_connection).Options);
         _db.Database.EnsureCreated();
-        _rooms = new RoomService(_db, _time, Options.Create(new RoomOptions { MaxOwnedRoomsPerUser = 2, MaxMembersPerRoom = 2, InviteLifetimeHours = 24 }));
+        _rooms = new RoomService(_db, _time, Options.Create(new RoomOptions { MaxOwnedRoomsPerUser = 2, MaxMembersPerRoom = 50, InviteLifetimeHours = 24 }));
         _alice = AddUser("alice");
         _bob = AddUser("bob");
         _carol = AddUser("carol");
@@ -55,8 +55,12 @@ public sealed class RoomServiceTests : IDisposable
         var joined = await _rooms.JoinAsync(_bob, invite.Code.ToLowerInvariant());
         Assert.Equal(2, joined.Value!.Members.Count);
 
+        Assert.Equal(50, joined.Value.MaxMembers);
         Assert.Equal(409, (await _rooms.JoinAsync(_bob, invite.Code)).Status);
-        Assert.Equal(409, (await _rooms.JoinAsync(_carol, invite.Code)).Status);
+
+        var carol = await _rooms.JoinAsync(_carol, invite.Code);
+        Assert.True(carol.IsSuccess);
+        Assert.Equal(3, carol.Value!.Members.Count);
     }
 
     [Fact]
@@ -140,6 +144,69 @@ public sealed class RoomServiceTests : IDisposable
 
         Assert.True(PasswordHasher.Verify("password123", hash));
         Assert.False(PasswordHasher.Verify("password124", hash));
+    }
+
+    [Fact]
+    public async Task Leaving_does_not_block_rejoining_with_the_same_invite()
+    {
+        var room = (await _rooms.CreateAsync(_alice, "Home")).Value!;
+        var invite = (await _rooms.CreateInviteAsync(_alice, room.Id)).Value!;
+        Assert.True((await _rooms.JoinAsync(_bob, invite.Code)).IsSuccess);
+
+        Assert.True((await _rooms.LeaveAsync(_bob, room.Id)).IsSuccess);
+        Assert.True((await _rooms.JoinAsync(_bob, invite.Code)).IsSuccess);
+        Assert.Equal(0, await _db.RoomBans.CountAsync());
+    }
+
+    [Fact]
+    public async Task Kicked_member_cannot_rejoin_and_leaves_the_list()
+    {
+        var room = await CreateFullRoomAsync();
+
+        Assert.Equal(403, (await _rooms.KickAsync(_bob, room, _alice)).Status);
+        Assert.Equal(400, (await _rooms.KickAsync(_alice, room, _alice)).Status);
+        Assert.Equal(404, (await _rooms.KickAsync(_alice, room, _carol)).Status);
+
+        var kicked = await _rooms.KickAsync(_alice, room, _bob);
+        Assert.True(kicked.IsSuccess);
+        Assert.Empty(await _rooms.ListForUserAsync(_bob));
+        Assert.Single((await _rooms.ListForUserAsync(_alice)).Single().Members);
+        Assert.Equal(1, await _db.RoomBans.CountAsync());
+
+        var current = await _db.RoomInvites.SingleAsync(i => i.RoomId == room);
+        var rejected = await _rooms.JoinAsync(_bob, current.Code);
+        Assert.Equal(403, rejected.Status);
+        Assert.Equal("你已被移出该房间。邀请码更新后才能再次加入", rejected.Error);
+
+        var renewed = (await _rooms.CreateInviteAsync(_alice, room)).Value!;
+        Assert.Equal(0, await _db.RoomBans.CountAsync());
+        Assert.Equal(404, (await _rooms.JoinAsync(_bob, current.Code)).Status);
+        Assert.True((await _rooms.JoinAsync(_bob, renewed.Code)).IsSuccess);
+        Assert.Equal(2, (await _rooms.ListForUserAsync(_alice)).Single().Members.Count);
+
+        Assert.True((await _rooms.KickAsync(_alice, room, _bob)).IsSuccess);
+        Assert.Equal(1, await _db.RoomBans.CountAsync());
+        Assert.True((await _rooms.DissolveAsync(_alice, room)).IsSuccess);
+        Assert.Equal(0, await _db.RoomBans.CountAsync());
+    }
+
+    [Fact]
+    public async Task Configured_cap_raises_an_existing_room_and_rejects_the_next_person()
+    {
+        var room = (await _rooms.CreateAsync(_alice, "Home")).Value!;
+        var stored = await _db.Rooms.SingleAsync(r => r.Id == room.Id);
+        stored.MaxMembers = 8;
+        await _db.SaveChangesAsync();
+
+        var capped = new RoomService(_db, _time, Options.Create(new RoomOptions { MaxMembersPerRoom = 3, InviteLifetimeHours = 24 }));
+        var invite = (await capped.CreateInviteAsync(_alice, room.Id)).Value!;
+        Assert.Equal(3, (await capped.ListForUserAsync(_alice)).Single().MaxMembers);
+        Assert.True((await capped.JoinAsync(_bob, invite.Code)).IsSuccess);
+        Assert.True((await capped.JoinAsync(_carol, invite.Code)).IsSuccess);
+
+        var rejected = await capped.JoinAsync(AddUser("dave"), invite.Code);
+        Assert.Equal(409, rejected.Status);
+        Assert.Equal("该房间已满（上限 3 人）", rejected.Error);
     }
 
     private async Task<Guid> CreateFullRoomAsync()

@@ -36,7 +36,7 @@ public class PanelStateBuilderTests
 
         Assert.Equal(new PresenceView("工作中", "Cursor", "plan.md - idea1 - Cursor"), me.View);
         Assert.Equal("内置规则，稳定后同步", me.Source);
-        Assert.Equal("该 Room 成员看到：正在使用 Cursor", me.Visible);
+        Assert.Equal("该房间成员看到：正在使用 Cursor", me.Visible);
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class PanelStateBuilderTests
         Assert.Empty(state.Members);
         Assert.Null(state.SelectedRoomId);
         Assert.Null(state.Privacy);
-        Assert.StartsWith("还没有 Room", state.EmptyHint);
+        Assert.StartsWith("还没有房间", state.EmptyHint);
         Assert.Null(state.Me.Visible);
         Assert.Equal("内置规则", state.Me.Source);
     }
@@ -72,7 +72,7 @@ public class PanelStateBuilderTests
     {
         var input = PanelSamples.Default() with { SelectedRoom = PanelSamples.OwnedRoom with { Members = [PanelSamples.OwnedRoom.Members[0]] } };
 
-        Assert.StartsWith("Room 里还没有其他成员", PanelStateBuilder.Build(input).EmptyHint);
+        Assert.StartsWith("房间里还没有其他成员", PanelStateBuilder.Build(input).EmptyHint);
     }
 
     [Fact]
@@ -126,7 +126,7 @@ public class PanelStateBuilderTests
 
         Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", "猫猫合集"), me.View);
         Assert.Null(me.Source);
-        Assert.Equal("该 Room 成员看到：正在浏览网页 · bilibili.com", me.Visible);
+        Assert.Equal("该房间成员看到：正在浏览网页 · bilibili.com", me.Visible);
     }
 
     [Fact]

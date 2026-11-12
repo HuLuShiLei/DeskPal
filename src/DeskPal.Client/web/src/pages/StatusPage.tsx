@@ -58,8 +58,8 @@ function MyStatus({ state }: { state: PanelState }) {
       message: `把「${correction.target}」归类为：`,
       select: { options: correction.options, initial: correction.current },
       checkbox: room
-        ? { label: `同步给 Room「${room.name}」的所有成员`, initial: true }
-        : { label: "同步给 Room（当前没有 Room）", initial: false, disabled: true },
+        ? { label: `同步给房间「${room.name}」的所有成员`, initial: true }
+        : { label: "同步给房间（当前没有房间）", initial: false, disabled: true },
       okText: "保存",
     });
     if (a.ok) await run({ type: "presence.correct", category: a.selected, shareToRoom: a.checked }, "已保存，之后按新的类别识别");
@@ -90,7 +90,7 @@ function ManualStatus({ state }: { state: PanelState }) {
   return (
     <section class="card" aria-label="手动状态">
       <h2>手动状态</h2>
-      {current ? <p>当前：{current}</p> : <p class="meta">设置后，Room 成员看到这段文字，而不是自动识别的结果。</p>}
+      {current ? <p>当前：{current}</p> : <p class="meta">设置后，房间成员看到这段文字，而不是自动识别的结果。</p>}
       <div class="chips">
         {state.me.manualPresets.map((p) => (
           <button key={p} class="chip" aria-pressed={current === p} onClick={() => run({ type: "presence.manual", text: p })}>

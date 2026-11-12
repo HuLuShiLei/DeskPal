@@ -15,7 +15,7 @@ alwaysApply: false
 - 动态插入的元素 `autoFocus` 不生效，要用 ref 在 `useEffect` 里聚焦。对话框打开时背后的内容设为 `inert`。
 - 改了页面，先 `npm run dev` 在 Cursor 自带浏览器里用 `?mock=` 各样例看一遍，再跑真实客户端。
 - WPF 项目的隐式 using 不包含 `System.IO` 和 `System.Net.Http`。`System.IO` 已经在 `GlobalUsings.cs` 里补了；用 `HttpClient` 的文件要自己写 `using System.Net.Http;`。
-- 界面文案用书面中文，产品名用英文原名：“Room 成员”“生成邀请码”，不要自造简称。
+- 界面文案用书面中文。页面上写「房间」，例如「房间成员」「创建房间」「该房间成员看到」，不要写 Room，也不要自造简称。代码和协议里的类型名仍用 Room。
 - 面板大小固定（`ResizeMode.NoResize`），登录窗口同样不能调整。
 - 面板关闭时只隐藏（`AllowClose` 为 false），真正退出走托盘菜单的“退出”，它会先停止后台服务、断开 Hub、释放单实例 Mutex。
 - 通知用托盘气泡 `TaskbarIcon.ShowNotification`，由 `RoomState.Notify` 事件触发。

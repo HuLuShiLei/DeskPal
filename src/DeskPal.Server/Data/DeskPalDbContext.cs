@@ -8,6 +8,7 @@ public sealed class DeskPalDbContext(DbContextOptions<DeskPalDbContext> options)
     public DbSet<Room> Rooms => Set<Room>();
     public DbSet<RoomMember> RoomMembers => Set<RoomMember>();
     public DbSet<RoomInvite> RoomInvites => Set<RoomInvite>();
+    public DbSet<RoomBan> RoomBans => Set<RoomBan>();
     public DbSet<BuiltinRule> BuiltinRules => Set<BuiltinRule>();
     public DbSet<RoomRule> RoomRules => Set<RoomRule>();
     public DbSet<AppMeta> AppMeta => Set<AppMeta>();
@@ -40,6 +41,13 @@ public sealed class DeskPalDbContext(DbContextOptions<DeskPalDbContext> options)
             e.HasIndex(x => x.Code).IsUnique();
             e.HasIndex(x => x.RoomId);
             e.HasOne<Room>().WithMany().HasForeignKey(x => x.RoomId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<RoomBan>(e =>
+        {
+            e.HasKey(x => new { x.RoomId, x.UserId });
+            e.HasOne<Room>().WithMany().HasForeignKey(x => x.RoomId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });
 
         b.Entity<BuiltinRule>(e => e.HasIndex(x => new { x.Kind, x.Pattern }).IsUnique());

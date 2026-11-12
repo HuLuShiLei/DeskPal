@@ -42,8 +42,8 @@ public static class PanelStateBuilder
         var room = input.SelectedRoom;
         var members = room is null ? [] : Members(input, room);
         string? emptyHint = room is null
-            ? "还没有 Room。到「Room」页创建 Room，或者用邀请码加入。"
-            : members.Count == 0 ? "Room 里还没有其他成员。到「Room」页生成邀请码，发给对方。" : null;
+            ? "还没有房间。到「房间」页创建房间，或者用邀请码加入。"
+            : members.Count == 0 ? "房间里还没有其他成员。到「房间」页生成邀请码，发给对方。" : null;
 
         return new PanelState(
             Connection(input.Connection),
@@ -106,7 +106,7 @@ public static class PanelStateBuilder
         var layer = input.Classification?.Layer switch
         {
             RuleLayer.Personal => "个人规则",
-            RuleLayer.Room => "Room 规则",
+            RuleLayer.Room => "房间规则",
             RuleLayer.Builtin => "内置规则",
             RuleLayer.Heuristic => "推测",
             RuleLayer.Browser => null,
@@ -119,7 +119,7 @@ public static class PanelStateBuilder
         if (room is not null && input.Committed is { } committed)
         {
             var filtered = PrivacyFilter.Apply(committed, input.PrivacyOf(room.Id));
-            visible = $"该 Room 成员看到：{PresenceFormatter.OneLine(PresenceFormatter.Format(filtered))}";
+            visible = $"该房间成员看到：{PresenceFormatter.OneLine(PresenceFormatter.Format(filtered))}";
         }
 
         return new MeView(

@@ -119,7 +119,7 @@ public sealed class PanelBridge
                 var name = c.String("name").Trim();
                 if (name.Length == 0)
                 {
-                    return CommandResult.Fail("请输入 Room 名称");
+                    return CommandResult.Fail("请输入房间名称");
                 }
 
                 var room = await _api.CreateRoomAsync(name);
@@ -163,7 +163,7 @@ public sealed class PanelBridge
                 return new CommandResult(true, Data: new
                 {
                     code = invite.Code,
-                    message = $"邀请码已复制到剪贴板，{invite.ExpiresAt.LocalDateTime:M 月 d 日 HH:mm} 前有效。重新生成后旧邀请码失效。",
+                    message = $"邀请码已复制到剪贴板，{invite.ExpiresAt.LocalDateTime:M 月 d 日 HH:mm} 前有效。重新生成后旧邀请码失效，被踢出的人可以用新邀请码加入。",
                 });
             }
 
@@ -193,6 +193,11 @@ public sealed class PanelBridge
 
             case "room.leave":
                 await _api.LeaveRoomAsync(c.Guid("roomId"));
+                await _rooms.RefreshAsync();
+                return CommandResult.Success;
+
+            case "room.kick":
+                await _api.KickMemberAsync(c.Guid("roomId"), c.Guid("userId"));
                 await _rooms.RefreshAsync();
                 return CommandResult.Success;
 

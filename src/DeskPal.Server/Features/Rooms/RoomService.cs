@@ -13,8 +13,8 @@ namespace DeskPal.Server.Features.Rooms;
 public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions<RoomOptions> options)
 {
     private const string InviteAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    private const string NotMember = "Room 不存在，或者你不是该 Room 的成员";
-    private const string InvalidName = "Room 名称需要 1 到 30 个字符";
+    private const string NotMember = "房间不存在，或者你不是该房间的成员";
+    private const string InvalidName = "房间名称需要 1 到 30 个字符";
 
     private readonly RoomOptions _options = options.Value;
 
@@ -24,6 +24,17 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         var rooms = await db.Rooms.Where(r => roomIds.Contains(r.Id))
             .Include(r => r.Members).ThenInclude(m => m.User)
             .ToListAsync();
+        var changed = false;
+        foreach (var room in rooms)
+        {
+            changed |= ApplyMemberCap(room);
+        }
+
+        if (changed)
+        {
+            await db.SaveChangesAsync();
+        }
+
         return rooms.OrderBy(r => r.CreatedAt).Select(ToDto).ToList();
     }
 
@@ -38,7 +49,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         var owned = await db.Rooms.CountAsync(r => r.OwnerId == userId);
         if (owned >= _options.MaxOwnedRoomsPerUser)
         {
-            return ServiceResult<RoomDto>.Fail(409, $"每个用户最多创建 {_options.MaxOwnedRoomsPerUser} 个 Room");
+            return ServiceResult<RoomDto>.Fail(409, $"每个用户最多创建 {_options.MaxOwnedRoomsPerUser} 个房间");
         }
 
         var now = time.GetUtcNow();
@@ -64,6 +75,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         }
 
         db.RoomInvites.RemoveRange(db.RoomInvites.Where(i => i.RoomId == roomId));
+        db.RoomBans.RemoveRange(db.RoomBans.Where(b => b.RoomId == roomId));
 
         string code;
         do
@@ -97,12 +109,18 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         var room = await db.Rooms.Include(r => r.Members).SingleAsync(r => r.Id == invite.RoomId);
         if (room.Members.Any(m => m.UserId == userId))
         {
-            return ServiceResult<RoomDto>.Fail(409, "你已经是该 Room 的成员");
+            return ServiceResult<RoomDto>.Fail(409, "你已经是该房间的成员");
         }
 
+        if (await db.RoomBans.AnyAsync(b => b.RoomId == room.Id && b.UserId == userId))
+        {
+            return ServiceResult<RoomDto>.Fail(403, "你已被移出该房间。邀请码更新后才能再次加入");
+        }
+
+        ApplyMemberCap(room);
         if (room.Members.Count >= room.MaxMembers)
         {
-            return ServiceResult<RoomDto>.Fail(409, $"该 Room 已满（上限 {room.MaxMembers} 人）");
+            return ServiceResult<RoomDto>.Fail(409, $"该房间已满（上限 {room.MaxMembers} 人）");
         }
 
         room.Members.Add(new RoomMember { RoomId = room.Id, UserId = userId, Role = RoomRole.Member, JoinedAt = time.GetUtcNow() });
@@ -120,10 +138,50 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
 
         if (member.Role == RoomRole.Owner)
         {
-            return ServiceResult<Unit>.Fail(409, "所有者不能直接退出，请先转让所有者或解散 Room");
+            return ServiceResult<Unit>.Fail(409, "所有者不能直接退出，请先转让所有者或解散房间");
         }
 
         db.RoomMembers.Remove(member);
+        await db.SaveChangesAsync();
+        return ServiceResult<Unit>.Ok(Unit.Value);
+    }
+
+    public async Task<ServiceResult<Unit>> KickAsync(Guid userId, Guid roomId, Guid targetUserId)
+    {
+        var room = await db.Rooms.Include(r => r.Members).SingleOrDefaultAsync(r => r.Id == roomId);
+        if (room is null || room.Members.All(m => m.UserId != userId))
+        {
+            return ServiceResult<Unit>.Fail(404, NotMember);
+        }
+
+        if (room.OwnerId != userId)
+        {
+            return ServiceResult<Unit>.Fail(403, "只有所有者可以踢出成员");
+        }
+
+        if (targetUserId == room.OwnerId)
+        {
+            return ServiceResult<Unit>.Fail(400, "不能踢出所有者");
+        }
+
+        var target = room.Members.SingleOrDefault(m => m.UserId == targetUserId);
+        if (target is null)
+        {
+            return ServiceResult<Unit>.Fail(404, "该成员不在房间中");
+        }
+
+        room.Members.Remove(target);
+        if (!await db.RoomBans.AnyAsync(b => b.RoomId == roomId && b.UserId == targetUserId))
+        {
+            db.RoomBans.Add(new RoomBan
+            {
+                RoomId = roomId,
+                UserId = targetUserId,
+                BannedBy = userId,
+                BannedAt = time.GetUtcNow(),
+            });
+        }
+
         await db.SaveChangesAsync();
         return ServiceResult<Unit>.Ok(Unit.Value);
     }
@@ -144,7 +202,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         var target = room.Members.SingleOrDefault(m => m.UserId == newOwnerId);
         if (target is null || newOwnerId == userId)
         {
-            return ServiceResult<RoomDto>.Fail(400, "只能转让给该 Room 的其他成员");
+            return ServiceResult<RoomDto>.Fail(400, "只能转让给该房间的其他成员");
         }
 
         room.Members.Single(m => m.UserId == userId).Role = RoomRole.Member;
@@ -164,7 +222,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
 
         if (room.OwnerId != userId)
         {
-            return ServiceResult<RenamedRoom>.Fail(403, "只有所有者可以修改 Room 名称");
+            return ServiceResult<RenamedRoom>.Fail(403, "只有所有者可以修改房间名称");
         }
 
         name = name?.Trim() ?? "";
@@ -194,7 +252,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
 
         if (room.OwnerId != userId)
         {
-            return ServiceResult<IReadOnlyList<Guid>>.Fail(403, "只有所有者可以解散 Room");
+            return ServiceResult<IReadOnlyList<Guid>>.Fail(403, "只有所有者可以解散房间");
         }
 
         var memberIds = room.Members.Select(m => m.UserId).ToList();
@@ -241,6 +299,17 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         db.RoomMembers.Where(m => m.RoomId == roomId).Select(m => m.UserId).ToListAsync();
 
     private static bool IsValidName(string name) => name.Length is >= 1 and <= 30;
+
+    private bool ApplyMemberCap(Room room)
+    {
+        if (room.MaxMembers == _options.MaxMembersPerRoom)
+        {
+            return false;
+        }
+
+        room.MaxMembers = _options.MaxMembersPerRoom;
+        return true;
+    }
 
     private async Task<RoomDto?> GetDtoAsync(Guid roomId)
     {

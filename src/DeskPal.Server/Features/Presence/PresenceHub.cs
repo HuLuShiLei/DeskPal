@@ -59,7 +59,7 @@ public sealed class PresenceHub(RoomService rooms, ConnectionRegistry connection
         var userId = Context.User!.GetUserId();
         if (!await rooms.IsMemberAsync(userId, envelope.RoomId))
         {
-            throw new HubException("你不是该 Room 的成员");
+            throw new HubException("你不是该房间的成员");
         }
 
         var stamped = envelope with { SenderId = userId, Ts = time.GetUtcNow() };
