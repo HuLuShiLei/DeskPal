@@ -21,9 +21,6 @@ public partial class App : Application
     private IHost? _host;
     private TaskbarIcon? _tray;
     private PanelWindow? _panel;
-    private MenuItem? _betaMenu;
-    private MenuItem? _checkMenu;
-    private MenuItem? _restartMenu;
     private CancellationTokenSource? _updates;
     private bool _exiting;
 
@@ -55,9 +52,7 @@ public partial class App : Application
         var hub = services.GetRequiredService<HubService>();
         var updates = services.GetRequiredService<UpdateService>();
         updates.Exit = restart => ExitAsync(applyUpdate: true, restart: restart);
-        updates.Checked += result => Dispatcher.BeginInvoke(() => _tray?.ShowNotification("DeskPal", result.Message));
-        updates.Notice += message => Dispatcher.BeginInvoke(() => _tray?.ShowNotification("DeskPal", message));
-        updates.Changed += () => Dispatcher.BeginInvoke(SyncUpdateMenu);
+        services.GetRequiredService<PanelBridge>().Logout = LogoutAsync;
 
         _tray = CreateTray(updates);
         rooms.Notify += (title, message) => Dispatcher.BeginInvoke(() => _tray.ShowNotification(title, message));
@@ -195,38 +190,10 @@ public partial class App : Application
         var menu = new ContextMenu();
         var open = new MenuItem { Header = "打开 DeskPal" };
         open.Click += (_, _) => _panel?.ShowAndActivate();
-        _checkMenu = new MenuItem { Header = "检查更新" };
-        _checkMenu.Click += async (_, _) => await UpdateInteraction.CheckAsync(updates, updates.Exit!, quietWhenCurrent: false, Prompt());
-        _betaMenu = new MenuItem { Header = "加入测试版", IsCheckable = true, IsChecked = updates.ReceiveBeta };
-        _betaMenu.Click += async (_, _) =>
-        {
-            if (updates.ReceiveBeta == (_betaMenu.IsChecked == true))
-            {
-                return;
-            }
-
-            updates.ReceiveBeta = _betaMenu.IsChecked == true;
-            await UpdateInteraction.CheckAsync(updates, updates.Exit!, quietWhenCurrent: true, Prompt());
-        };
-        _restartMenu = new MenuItem { Header = "立即重启并更新", IsEnabled = updates.UpdateReady };
-        _restartMenu.Click += async (_, _) =>
-        {
-            if (updates.Exit is not null)
-            {
-                await updates.Exit(true);
-            }
-        };
-        var logout = new MenuItem { Header = "退出登录" };
-        logout.Click += async (_, _) => await LogoutAsync();
         var exit = new MenuItem { Header = "退出" };
         exit.Click += async (_, _) => await ExitAsync();
         menu.Items.Add(open);
         menu.Items.Add(new Separator());
-        menu.Items.Add(_checkMenu);
-        menu.Items.Add(_betaMenu);
-        menu.Items.Add(_restartMenu);
-        menu.Items.Add(new Separator());
-        menu.Items.Add(logout);
         menu.Items.Add(exit);
 
         var tray = new TaskbarIcon
@@ -255,27 +222,6 @@ public partial class App : Application
         };
         tray.ForceCreate(false);
         return tray;
-    }
-
-    private IUserPrompt Prompt() => (IUserPrompt?)_panel ?? MessageBoxPrompt.Instance;
-
-    private void SyncUpdateMenu()
-    {
-        var updates = _host?.Services.GetService<UpdateService>();
-        if (updates is null || _betaMenu is null || _restartMenu is null)
-        {
-            return;
-        }
-
-        _restartMenu.IsEnabled = updates.UpdateReady;
-        if (_checkMenu is not null)
-        {
-            _checkMenu.IsEnabled = updates.ActivityText is null;
-        }
-        if (_betaMenu.IsChecked != updates.ReceiveBeta)
-        {
-            _betaMenu.IsChecked = updates.ReceiveBeta;
-        }
     }
 
     private async Task LogoutAsync()

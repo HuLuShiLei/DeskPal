@@ -133,6 +133,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "member.poke":
       case "presence.correct":
       case "update.restart":
+      case "auth.logout":
         break;
       default:
         return { ok: false, error: `不支持的操作：${m.type}` };

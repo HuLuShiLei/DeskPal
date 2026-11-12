@@ -68,11 +68,6 @@ public sealed class UpdateService
 
     public event Action? Changed;
 
-    public event Action<UpdateCheckResult>? Checked;
-
-    /// <summary>一次手动检查或下载开始时通知。百分比变化不走这里。</summary>
-    public event Action<string>? Notice;
-
     public string? ActivityText
     {
         get
@@ -296,7 +291,6 @@ public sealed class UpdateService
         }
 
         Changed?.Invoke();
-        Notice?.Invoke(text);
     }
 
     private void EndInteractive()
@@ -322,13 +316,12 @@ public sealed class UpdateService
         }
     }
 
-    /// <summary>面板显示带百分比的句子。气泡只在进入下载时发一次。</summary>
+    /// <summary>面板显示带百分比的句子。</summary>
     private void ReportDownload(string version, int? percent)
     {
         var text = percent is null
             ? $"正在下载新版本 {version}…"
             : $"正在下载新版本 {version}（{percent}%）";
-        string? previous;
         lock (_state)
         {
             if (_interactive == 0 || _activity == text)
@@ -336,15 +329,10 @@ public sealed class UpdateService
                 return;
             }
 
-            previous = _activity;
             _activity = text;
         }
 
         Changed?.Invoke();
-        if (previous is null || !previous.StartsWith("正在下载", StringComparison.Ordinal))
-        {
-            Notice?.Invoke($"正在下载新版本 {version}");
-        }
     }
 
     public async Task RunPeriodicAsync(CancellationToken cancellationToken)
@@ -354,12 +342,7 @@ public sealed class UpdateService
             await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken).ConfigureAwait(false);
             while (!cancellationToken.IsCancellationRequested)
             {
-                var result = await CheckAsync(cancellationToken).ConfigureAwait(false);
-                if (result.Kind == UpdateCheckKind.Ready)
-                {
-                    Checked?.Invoke(result);
-                }
-
+                await CheckAsync(cancellationToken).ConfigureAwait(false);
                 await Task.Delay(TimeSpan.FromHours(6), cancellationToken).ConfigureAwait(false);
             }
         }

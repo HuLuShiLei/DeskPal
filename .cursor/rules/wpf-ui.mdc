@@ -17,6 +17,6 @@ alwaysApply: false
 - WPF 项目的隐式 using 不包含 `System.IO` 和 `System.Net.Http`。`System.IO` 已经在 `GlobalUsings.cs` 里补了；用 `HttpClient` 的文件要自己写 `using System.Net.Http;`。
 - 界面文案用书面中文。页面上写「房间」，例如「房间成员」「创建房间」「该房间成员看到」，不要写 Room，也不要自造简称。代码和协议里的类型名仍用 Room。
 - 面板大小固定（`ResizeMode.NoResize`），登录窗口同样不能调整。
-- 面板关闭时只隐藏（`AllowClose` 为 false），真正退出走托盘菜单的“退出”，它会先停止后台服务、断开 Hub、释放单实例 Mutex。
+- 托盘菜单只有「打开 DeskPal」和「退出」。退出登录在设置的账号里。面板关闭时只隐藏（`AllowClose` 为 false），真正退出走托盘菜单的“退出”，它会先停止后台服务、断开 Hub、释放单实例 Mutex。
 - 通知用托盘气泡 `TaskbarIcon.ShowNotification`，由 `RoomState.Notify` 事件触发。
 - lambda 的参数不要命名成 `_` 又在函数体里写 `_ = ...`，那是给参数赋值，不是丢弃返回值。

@@ -54,6 +54,9 @@ public sealed class PanelBridge
     /// <summary>Where update confirmations are shown. Set by the panel window.</summary>
     public IUserPrompt Prompt { get; set; } = MessageBoxPrompt.Instance;
 
+    /// <summary>由 App 赋值。清除登录状态并重新启动，回到登录页。</summary>
+    public Func<Task>? Logout { get; set; }
+
     public PanelState BuildState() => PanelStateBuilder.Build(new PanelInput
     {
         MyUserId = _rooms.MyUserId,
@@ -254,6 +257,15 @@ public sealed class PanelBridge
                     await exit(true);
                 }
 
+                return CommandResult.Success;
+
+            case "auth.logout":
+                if (Logout is null)
+                {
+                    return CommandResult.Fail("现在不能退出登录。");
+                }
+
+                await Logout();
                 return CommandResult.Success;
 
             default:

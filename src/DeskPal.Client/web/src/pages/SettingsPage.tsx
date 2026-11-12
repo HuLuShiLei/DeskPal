@@ -3,7 +3,7 @@ import type { PanelState } from "../bridge";
 import { useHost } from "../host";
 
 export function SettingsPage({ state }: { state: PanelState }) {
-  const { run } = useHost();
+  const { run, ask } = useHost();
   const s = state.settings;
   const [pressed, setPressed] = useState(false);
   const seen = useRef(false);
@@ -22,6 +22,16 @@ export function SettingsPage({ state }: { state: PanelState }) {
     }
   };
 
+  const logout = async () => {
+    const answer = await ask({
+      title: "退出登录",
+      message: "确定退出登录？之后会回到登录页，可以换账号或服务器。",
+      okText: "退出登录",
+      danger: true,
+    });
+    if (answer.ok) await run({ type: "auth.logout" });
+  };
+
   return (
     <>
       <section class="card" aria-label="账号">
@@ -34,7 +44,12 @@ export function SettingsPage({ state }: { state: PanelState }) {
           <dt>服务器</dt>
           <dd>{s.serverUrl}</dd>
         </dl>
-        <p class="meta">要换账号或服务器，从托盘菜单选择「退出登录」，再在登录页修改。</p>
+        <p class="meta">退出后会回到登录页，可以换账号或服务器。</p>
+        <div class="actions">
+          <button class="danger" onClick={logout}>
+            退出登录
+          </button>
+        </div>
       </section>
       <section class="card" aria-label="常规">
         <h2>常规</h2>

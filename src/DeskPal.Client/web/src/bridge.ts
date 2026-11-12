@@ -94,7 +94,8 @@ export type Command =
   | { type: "update.beta"; enabled: boolean }
   | { type: "update.restart" }
   | { type: "auth.login"; serverUrl: string; userName: string; password: string }
-  | { type: "auth.register"; serverUrl: string; userName: string; password: string; displayName: string };
+  | { type: "auth.register"; serverUrl: string; userName: string; password: string; displayName: string }
+  | { type: "auth.logout" };
 
 /** 不需要回复的消息。 */
 export type Notice = { type: "ready" } | { type: "dialog.answer"; dialogId: number; ok: boolean };
