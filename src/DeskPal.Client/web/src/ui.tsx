@@ -21,7 +21,6 @@ const glyphs = {
   warning: "\uE7BA",
   ring: "\uEA8F",
   refresh: "\uE72C",
-  view: "\uE890",
   timer: "\uE916",
 } as const;
 
@@ -36,7 +35,7 @@ export function Icon({ name, class: cls }: { name: IconName; class?: string }) {
 }
 
 /** 自绘标题栏。空白处可以拖动窗口（app-region: drag），按钮区域不参与拖动。 */
-export function TitleBar({ bridge, title, children }: { bridge: Bridge; title: string; children?: ComponentChildren }) {
+export function TitleBar({ bridge, title, children, onClose }: { bridge: Bridge; title: string; children?: ComponentChildren; onClose?: () => void }) {
   return (
     <header class="titlebar">
       <span class="app-mark" aria-hidden="true">
@@ -48,7 +47,7 @@ export function TitleBar({ bridge, title, children }: { bridge: Bridge; title: s
         <button class="caption" aria-label="最小化" title="最小化" onClick={() => bridge.notify({ type: "window.minimize" })}>
           <Icon name="minimize" />
         </button>
-        <button class="caption close" aria-label="关闭" title="关闭" onClick={() => bridge.notify({ type: "window.close" })}>
+        <button class="caption close" aria-label="关闭" title="关闭" onClick={() => (onClose ? onClose() : bridge.notify({ type: "window.close" }))}>
           <Icon name="close" />
         </button>
       </div>

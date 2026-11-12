@@ -1,4 +1,3 @@
-import { useState } from "preact/hooks";
 import type { MemberItem, PanelState, UnclassifiedItem } from "../bridge";
 import { PresenceDetail, StatusBadge, useCountdown, useHost } from "../host";
 import { Avatar, Hint, Icon, Section, Switch } from "../ui";
@@ -18,28 +17,17 @@ export function StatusPage({ state }: { state: PanelState }) {
         {state.members.length > 0 && (
           <ul class="list">
             {state.members.map((m) => (
-              <MemberRow key={m.userId} member={m} roomId={state.selectedRoomId!} />
+              <MemberRow key={m.userId} member={m} />
             ))}
           </ul>
         )}
       </Section>
       {state.unclassified.length > 0 && <Unclassified state={state} />}
-      <ManualStatus state={state} />
     </>
   );
 }
 
-function MemberRow({ member, roomId }: { member: MemberItem; roomId: string }) {
-  const { ask, run } = useHost();
-  const poke = async () => {
-    const a = await ask({
-      title: `戳一下 ${member.name}`,
-      input: { placeholder: "想说点什么？可以留空。", maxLength: 50 },
-      okText: "发送",
-    });
-    if (a.ok) await run({ type: "member.poke", roomId, userId: member.userId, text: a.text || null }, "已发送");
-  };
-
+function MemberRow({ member }: { member: MemberItem }) {
   return (
     <li class={member.online ? "list-row member" : "list-row member offline"} aria-label={member.name}>
       <Avatar name={member.name} tone={member.view.tone} />
@@ -54,9 +42,6 @@ function MemberRow({ member, roomId }: { member: MemberItem; roomId: string }) {
         </div>
         <PresenceDetail view={member.view} />
       </div>
-      <button class="icon-button" onClick={poke} disabled={!member.online} title={member.online ? "戳一下" : "对方离线，收不到"} aria-label={`戳一下${member.name}`}>
-        <Icon name="ring" />
-      </button>
     </li>
   );
 }
@@ -103,13 +88,6 @@ function MyStatus({ state }: { state: PanelState }) {
           </div>
         </div>
         {me.pending && <Pending pending={me.pending} source={me.source} />}
-        {me.visible && (
-          <p class="visible-line" title={`房间成员看到：${me.visible}`}>
-            <Icon name="view" />
-            <span class="visible-label">房间成员看到</span>
-            <span class="visible-text">{me.visible}</span>
-          </p>
-        )}
         <div class="toolbar">
           {!me.paused && (
             <button onClick={correct}>
@@ -164,47 +142,6 @@ function Pending({ pending, source }: { pending: NonNullable<PanelState["me"]["p
   );
 }
 
-function ManualStatus({ state }: { state: PanelState }) {
-  const { run } = useHost();
-  const { me } = state;
-  const [draft, setDraft] = useState("");
-  const custom = async () => {
-    const text = draft.trim();
-    if (text && (await run({ type: "presence.manual", text })).ok) setDraft("");
-  };
-
-  return (
-    <Section title="手动状态">
-      <div class="card">
-        <p class="hint-text">{me.manualText ? `当前：${me.manualText}` : "设置后，房间成员看到这段文字，而不是自动识别的结果。"}</p>
-        <div class="chips">
-          {me.manualPresets.map((p) => (
-            <button key={p} class="chip" aria-pressed={me.manualText === p} onClick={() => run({ type: "presence.manual", text: me.manualText === p ? null : p })}>
-              {p}
-            </button>
-          ))}
-        </div>
-        <form
-          class="inline-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void custom();
-          }}
-        >
-          <input aria-label="自定义手动状态" placeholder="自定义文字" maxLength={30} value={draft} onInput={(e) => setDraft(e.currentTarget.value)} />
-          <button type="submit" disabled={!draft.trim()}>
-            设置
-          </button>
-          {me.manualText && (
-            <button type="button" onClick={() => run({ type: "presence.manual", text: null })}>
-              清除
-            </button>
-          )}
-        </form>
-      </div>
-    </Section>
-  );
-}
 
 function Unclassified({ state }: { state: PanelState }) {
   const { ask, run } = useHost();

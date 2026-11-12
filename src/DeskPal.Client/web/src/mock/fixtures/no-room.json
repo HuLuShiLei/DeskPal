@@ -71,7 +71,8 @@
     "userName": "alice",
     "updateActivity": null,
     "shareUsage": null,
-    "theme": "system"
+    "theme": "system",
+    "closeAction": "ask"
   },
   "myRules": [
     {

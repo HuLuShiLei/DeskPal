@@ -147,7 +147,8 @@
     "userName": "alice",
     "updateActivity": null,
     "shareUsage": false,
-    "theme": "system"
+    "theme": "system",
+    "closeAction": "ask"
   },
   "myRules": [],
   "unclassified": []

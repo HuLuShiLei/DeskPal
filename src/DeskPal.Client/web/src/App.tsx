@@ -19,8 +19,43 @@ type Tab = "status" | "room" | "settings";
 export function App({ bridge }: { bridge: Bridge }) {
   const [state, setState] = useState<PanelState | null>(null);
   const [tab, setTab] = useState<Tab>("status");
+  const [closeAction, setCloseAction] = useState<"ask" | "minimize" | "tray">("ask");
   const { host, overlay, dialogOpen } = useHostServices(bridge);
   const askedSharing = useRef(false);
+  const closing = useRef(false);
+
+  const closePanel = async () => {
+    if (closing.current) return;
+    closing.current = true;
+    try {
+      let action: "minimize" | "tray" = closeAction === "minimize" ? "minimize" : "tray";
+      if (closeAction !== "minimize" && closeAction !== "tray") {
+        const answer = await host.ask({
+          title: "关闭窗口",
+          message: "点击关闭按钮时",
+          select: {
+            presentation: "radio",
+            initial: "tray",
+            options: [
+              { value: "minimize", name: "最小化" },
+              { value: "tray", name: "最小化到系统托盘" },
+            ],
+          },
+          checkbox: { label: "不再提示", initial: false },
+          okText: "确定",
+        });
+        if (!answer.ok) return;
+        action = answer.selected === "minimize" ? "minimize" : "tray";
+        if (answer.checked) {
+          setCloseAction(action);
+          await host.run({ type: "settings.closeAction", action });
+        }
+      }
+      bridge.notify({ type: action === "minimize" ? "window.minimize" : "window.close" });
+    } finally {
+      closing.current = false;
+    }
+  };
 
   useEffect(() => {
     bridge.on(async (m) => {
@@ -42,6 +77,10 @@ export function App({ bridge }: { bridge: Bridge }) {
   }, [state?.settings.theme]);
 
   useEffect(() => {
+    if (state?.settings.closeAction) setCloseAction(state.settings.closeAction);
+  }, [state?.settings.closeAction]);
+
+  useEffect(() => {
     if (state && state.settings.shareUsage === null && !askedSharing.current) {
       askedSharing.current = true;
       void askSharing(host);
@@ -52,7 +91,7 @@ export function App({ bridge }: { bridge: Bridge }) {
     <HostContext.Provider value={host}>
       <div class="window">
         <div class="chrome" inert={dialogOpen}>
-          <TitleBar bridge={bridge} title="DeskPal">
+          <TitleBar bridge={bridge} title="DeskPal" onClose={() => void closePanel()}>
             {state && <RoomSwitcher state={state} onManage={() => setTab("room")} />}
           </TitleBar>
         </div>

@@ -8,7 +8,7 @@ export interface DialogOptions {
   /** 醒目显示的一段文字，例如邀请码。 */
   highlight?: string;
   input?: { initial?: string; placeholder?: string; maxLength?: number; required?: boolean };
-  select?: { options: { value: string; name: string }[]; initial?: string };
+  select?: { options: { value: string; name: string }[]; initial?: string; presentation?: "radio" };
   checkbox?: { label: string; initial: boolean; disabled?: boolean };
   okText?: string;
   /** null 表示只有一个按钮。 */
@@ -134,14 +134,25 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
             onInput={(e) => setText(e.currentTarget.value)}
           />
         )}
-        {options.select && (
-          <select aria-label={options.title} value={selected} onChange={(e) => setSelected(e.currentTarget.value)}>
+        {options.select?.presentation === "radio" ? (
+          <div class="choices" role="radiogroup" aria-label={options.title}>
             {options.select.options.map((o) => (
-              <option key={o.value} value={o.value}>
+              <label key={o.value}>
+                <input type="radio" name="choice" value={o.value} checked={selected === o.value} onChange={() => setSelected(o.value)} />
                 {o.name}
-              </option>
+              </label>
             ))}
-          </select>
+          </div>
+        ) : (
+          options.select && (
+            <select aria-label={options.title} value={selected} onChange={(e) => setSelected(e.currentTarget.value)}>
+              {options.select.options.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.name}
+                </option>
+              ))}
+            </select>
+          )
         )}
         {options.checkbox && (
           <label class="check">

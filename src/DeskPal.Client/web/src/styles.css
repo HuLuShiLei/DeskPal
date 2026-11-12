@@ -112,12 +112,12 @@ button.link-button { color: var(--accent); padding: 0; min-height: 0; justify-co
 button.link-button:hover { text-decoration: underline; }
 button.wide { width: 100%; min-height: 34px; }
 
-input:not([type=checkbox]), select {
+input:not([type=checkbox]):not([type=radio]), select {
   min-height: 30px; padding: 4px 10px; border-radius: var(--radius); min-width: 0;
   border: 1px solid var(--line); border-bottom: 1px solid var(--line-strong);
   background: var(--surface-strong);
 }
-input:not([type=checkbox]):focus { border-bottom: 2px solid var(--accent); padding-bottom: 3px; }
+input:not([type=checkbox]):not([type=radio]):focus { border-bottom: 2px solid var(--accent); padding-bottom: 3px; }
 input::placeholder { color: var(--faint); }
 select { padding-right: 6px; }
 select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text) 3%); }
@@ -235,10 +235,7 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 .progress { height: 3px; margin: 5px -12px 0; background: color-mix(in srgb, var(--tv) 16%, transparent); }
 .progress > span { display: block; height: 100%; background: var(--tv); transition: width 0.25s linear; }
 
-.visible-line { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 12px; color: var(--faint); }
-.visible-line .icon { font-size: 12px; }
-.visible-label { flex: none; }
-.visible-text { min-width: 0; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 
 .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .toolbar.end { justify-content: flex-end; }
@@ -388,11 +385,15 @@ button.hint-button:active:not(:disabled) { background: var(--pressed); color: va
 .dialog-body { padding: 20px 20px 18px; display: grid; gap: 12px; }
 .dialog h2 { font-size: 17px; font-weight: 600; }
 .dialog-message { white-space: pre-wrap; color: var(--text); line-height: 1.55; }
-.dialog-body select, .dialog-body input:not([type=checkbox]) { width: 100%; }
+.dialog-body select, .dialog-body input:not([type=checkbox]):not([type=radio]) { width: 100%; }
 .dialog-buttons { display: flex; gap: 8px; padding: 16px 20px; background: var(--bg); border-top: 1px solid var(--line); }
 .dialog-buttons button { flex: 1; }
 .highlight { font: 600 24px/1.2 Consolas, monospace; letter-spacing: 3px; text-align: center; padding: 10px; background: var(--hover); border-radius: var(--radius); }
 .check { display: flex; align-items: center; gap: 8px; }
+.choices { display: grid; gap: 2px; }
+.choices label { display: flex; align-items: center; gap: 8px; min-height: 28px; }
+.choices input { margin: 0; width: 16px; height: 16px; min-height: 16px; padding: 0; flex: none; accent-color: var(--accent); }
+.choices label { white-space: nowrap; }
 
 .toasts { position: fixed; left: 72px; right: 14px; bottom: 14px; display: grid; gap: 6px; z-index: 50; pointer-events: none; }
 .toast {

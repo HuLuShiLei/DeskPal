@@ -91,6 +91,8 @@ export interface PanelState {
     shareUsage: boolean | null;
     /** system 跟随 Windows，light / dark 固定。 */
     theme: "system" | "light" | "dark";
+    /** ask 每次询问，minimize 最小化，tray 最小化到系统托盘。 */
+    closeAction: "ask" | "minimize" | "tray";
   };
   myRules: MyRuleItem[];
   unclassified: UnclassifiedItem[];
@@ -126,6 +128,7 @@ export type Command =
   | { type: "settings.autoStart"; enabled: boolean }
   | { type: "settings.topmost"; enabled: boolean }
   | { type: "settings.theme"; theme: "system" | "light" | "dark" }
+  | { type: "settings.closeAction"; action: "ask" | "minimize" | "tray" }
   | { type: "update.check" }
   | { type: "update.beta"; enabled: boolean }
   | { type: "update.restart" }

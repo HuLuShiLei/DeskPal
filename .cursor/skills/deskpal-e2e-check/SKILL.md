@@ -94,9 +94,9 @@ Start-Process src\DeskPal.Client\bin\Debug\net10.0-windows10.0.19041.0\DeskPal.e
 | “我的状态” | 大字是房间成员当前看到的状态，悬停问号显示识别方式，下面一行“房间成员看到”；切换到另一类应用后出现“n 秒后变更为”的倒计时，归零后大字换成新状态，模拟成员同时收到 |
 | 纠正分类 | 保存后只有 alice 自己的连接收到 `rules.personalChanged`（模拟成员收不到），`%APPDATA%\DeskPal\personal-rules.json` 更新，设置页「我的分类」出现这一条；切换房间后仍然生效 |
 | 模拟成员收到 alice 的状态 | 首条状态不是空的 `Other`；10 秒左右收到稳定后的状态 |
-| 点“戳一下”，不点输入框直接打字，按回车 | 输入框自动获得焦点；模拟成员收到 `interaction.poke`，文字一致 |
+| 戳一下、手动状态 | 面板上不显示 |
 | 勾选“暂停分享” | 模拟成员立即收到 `Paused` |
-| 关闭面板 5 分钟后 | 用户数据目录是 `DeskPal\WebView2` 的 `msedgewebview2` 进程全部退出（下面的命令计数为 0）；再从托盘打开能正常显示 |
+| 点关闭，选「最小化到系统托盘」并确定；5 分钟后 | 用户数据目录是 `DeskPal\WebView2` 的 `msedgewebview2` 进程全部退出（下面的命令计数为 0）；再从托盘打开能正常显示 |
 
 ```powershell
 Get-CimInstance Win32_Process -Filter "Name='msedgewebview2.exe'" | Where-Object CommandLine -match 'DeskPal\\WebView2' | Measure-Object

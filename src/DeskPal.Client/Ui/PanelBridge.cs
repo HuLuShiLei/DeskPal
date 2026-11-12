@@ -98,7 +98,8 @@ public sealed class PanelBridge
             _settings.UserName ?? "",
             _updates.ActivityText,
             _settings.ShareUsage,
-            NormalizeTheme(_settings.Theme)),
+            NormalizeTheme(_settings.Theme),
+            NormalizeCloseAction(_settings.CloseAction)),
         Now = DateTimeOffset.UtcNow,
     });
 
@@ -289,6 +290,20 @@ public sealed class PanelBridge
                 TopmostChanged?.Invoke(_settings.Topmost);
                 return CommandResult.Success;
 
+            case "settings.closeAction":
+            {
+                var action = NormalizeCloseAction(c.String("action"));
+                if (action != c.String("action"))
+                {
+                    return CommandResult.Fail("关闭选项不正确");
+                }
+
+                _settings.CloseAction = action;
+                _store.Save(_settings);
+                RaiseChanged();
+                return CommandResult.Success;
+            }
+
             case "settings.theme":
             {
                 var theme = NormalizeTheme(c.String("theme"));
@@ -359,6 +374,8 @@ public sealed class PanelBridge
     }
 
     private static string NormalizeTheme(string? theme) => theme is "light" or "dark" or "system" ? theme : "system";
+
+    private static string NormalizeCloseAction(string? action) => action is "minimize" or "tray" or "ask" ? action : "ask";
 
     private void RaiseChanged() => Changed?.Invoke();
 }

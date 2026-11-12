@@ -72,4 +72,5 @@ public sealed record SettingsView(
     string UserName,
     string? UpdateActivity,
     bool? ShareUsage = null,
-    string Theme = "system");
+    string Theme = "system",
+    string CloseAction = "ask");
