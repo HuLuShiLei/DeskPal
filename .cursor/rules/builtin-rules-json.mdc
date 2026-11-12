@@ -10,5 +10,5 @@ alwaysApply: false
 - `kind` 取 `Process`、`Domain`、`TitleKeyword`；`category` 必须是 `ActivityCategory` 的成员名；`name` 是展示给 Room 成员看的名字。
 - `Process` 写进程名，不带 `.exe`，小写；`Domain` 写不带 `www.` 的 host，子域名会按后缀匹配；`TitleKeyword` 只对浏览器窗口标题生效。
 - 浏览器进程（chrome、msedge 等）不要写 `Process` 规则。内置的 `Domain` 和 `TitleKeyword` 不参与前台浏览器的默认分类；个人规则和 Room 规则仍按域名、标题关键词、进程名匹配。
-- 拿不准的应用不要加，识别不出来会显示为“正在使用 XX”，不算放松，比误判好。
+- 不要新增 `Music`、`Shopping`、`Social`、`News`、`Reading`。拿不准的应用不要加，识别不出来会显示为“正在使用 XX”，不算放松，比误判好。
 - 批量修改和校验的步骤见 skill `deskpal-builtin-rules`。

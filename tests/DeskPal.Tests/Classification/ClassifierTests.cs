@@ -82,9 +82,9 @@ public class ClassifierTests
     {
         var classifier = Create();
         var snapshot = TestData.Browser("bilibili.com");
-        classifier.SetPersonal(new RuleSet([new RuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Reading)]));
+        classifier.SetPersonal(new RuleSet([new RuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Video, "哔哩哔哩")]));
         var personal = classifier.Classify(snapshot);
-        Assert.Equal((ActivityCategory.Reading, "bilibili.com", RuleLayer.Personal), (personal.Category, personal.AppDisplayName, personal.Layer));
+        Assert.Equal((ActivityCategory.Video, "哔哩哔哩", RuleLayer.Personal), (personal.Category, personal.AppDisplayName, personal.Layer));
 
         classifier.SetRoom(new RuleSet([new RuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Work, "B 站学习")]));
         var room = classifier.Classify(snapshot);
@@ -121,11 +121,26 @@ public class ClassifierTests
     }
 
     [Fact]
-    public void Unknown_app_with_media_playing_is_music()
+    public void Background_media_does_not_change_the_focused_app()
     {
         var snapshot = TestData.App("unknownplayer").Apply(new MediaSignal(true, "晴天", "周杰伦", "unknownplayer"));
 
-        Assert.Equal(ActivityCategory.Music, Create().Classify(snapshot).Category);
+        Assert.Equal(ActivityCategory.Other, Create().Classify(snapshot).Category);
+    }
+
+    [Fact]
+    public void Retired_rules_fall_through_to_browsing_or_other()
+    {
+        Assert.Equal(ActivityCategory.Other, Create().Classify(TestData.App("cloudmusic")).Category);
+
+        var classifier = Create();
+        classifier.SetRoom(new RuleSet([new RuleDto(RuleKind.Domain, "amazon.com", ActivityCategory.Shopping, "Amazon")]));
+        var shop = classifier.Classify(TestData.Browser("www.amazon.com"));
+        Assert.Equal((ActivityCategory.Browsing, "amazon.com", RuleLayer.Browser), (shop.Category, shop.AppDisplayName, shop.Layer));
+
+        classifier.SetRoom(new RuleSet([new RuleDto(RuleKind.Process, "kindle", ActivityCategory.Reading, "Kindle")]));
+        var reading = classifier.Classify(TestData.App("kindle"));
+        Assert.Equal((ActivityCategory.Other, "kindle", RuleLayer.Fallback), (reading.Category, reading.AppDisplayName, reading.Layer));
     }
 
     [Fact]

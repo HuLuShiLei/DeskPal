@@ -25,7 +25,6 @@ public class BuiltinRulesTests
     [InlineData("wechat", ActivityCategory.Communication)]
     [InlineData("qq", ActivityCategory.Communication)]
     [InlineData("telegram", ActivityCategory.Communication)]
-    [InlineData("discord", ActivityCategory.Social)]
     public void Office_chat_is_work_and_personal_chat_is_chatting(string process, ActivityCategory expected)
     {
         Assert.Equal(expected, Rules.Match(TestData.App(process))!.Category);
@@ -42,9 +41,12 @@ public class BuiltinRulesTests
     }
 
     [Fact]
-    public void Meeting_is_no_longer_used()
+    public void Meeting_and_retired_categories_are_not_in_the_builtin_rules()
     {
-        Assert.True(File.Version >= 2);
-        Assert.DoesNotContain(File.Rules, r => r.Category == ActivityCategory.Meeting);
+        Assert.True(File.Version >= 3);
+        Assert.DoesNotContain(File.Rules, r => r.Category == ActivityCategory.Meeting || r.Category.IsRetired());
+        Assert.Null(Rules.Match(TestData.App("discord")));
+        Assert.Null(Rules.Match(TestData.App("kindle")));
+        Assert.Null(Rules.Match(TestData.App("cloudmusic")));
     }
 }

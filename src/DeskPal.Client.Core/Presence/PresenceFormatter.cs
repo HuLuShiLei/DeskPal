@@ -12,15 +12,24 @@ public static class PresenceFormatter
 {
     public const int DetailMaxLength = 36;
 
-    /// <summary>Categories a user can pick when correcting a classification or setting privacy. Meeting is no longer produced.</summary>
-    public static IReadOnlyList<ActivityCategory> SelectableCategories { get; } = Enum.GetValues<ActivityCategory>()
-        .Where(c => c is not (ActivityCategory.None or ActivityCategory.Meeting))
-        .ToList();
+    /// <summary>Categories a user can pick when correcting a classification or setting privacy. Meeting and the retired leisure categories are no longer produced. Browsing is listed before Other.</summary>
+    public static IReadOnlyList<ActivityCategory> SelectableCategories { get; } =
+    [
+        ActivityCategory.Work,
+        ActivityCategory.Communication,
+        ActivityCategory.Video,
+        ActivityCategory.Game,
+        ActivityCategory.Browsing,
+        ActivityCategory.Other,
+    ];
 
     public static PresenceView Format(PresenceSnapshot snapshot)
     {
         var app = snapshot.AppDisplayName is { Length: > 0 } name ? name : null;
-        var headline = snapshot.State switch
+        var state = snapshot.State == PresenceState.Slacking && snapshot.Category.IsRetired()
+            ? snapshot.Category == ActivityCategory.Music ? PresenceState.Other : PresenceState.Browsing
+            : snapshot.State;
+        var headline = state switch
         {
             PresenceState.Offline => "离线",
             PresenceState.Paused => "暂停分享",
@@ -35,7 +44,7 @@ public static class PresenceFormatter
             _ => snapshot.State.ToString(),
         };
 
-        return new PresenceView(headline, snapshot.State == PresenceState.Other ? null : app, Shorten(snapshot.Detail));
+        return new PresenceView(headline, state == PresenceState.Other ? null : app, Shorten(snapshot.Detail));
     }
 
     public static string OneLine(PresenceView view) =>

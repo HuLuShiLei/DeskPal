@@ -41,7 +41,8 @@ public class PresenceResolverTests
 
         var music = TestData.App("cloudmusic").Apply(new MediaSignal(true, "晴天", "周杰伦", "cloudmusic"));
         var result = PresenceResolver.Resolve(music, new ClassificationResult(ActivityCategory.Music, "网易云音乐", RuleLayer.Builtin), null, false);
-        Assert.Equal("晴天 - 周杰伦", result.Detail);
+        Assert.Equal(PresenceState.Other, result.State);
+        Assert.Null(result.Detail);
     }
 
     [Fact]
@@ -176,7 +177,8 @@ public class PresenceFormatterTests
     [InlineData(PresenceState.Working, ActivityCategory.Work, "工作中")]
     [InlineData(PresenceState.Meeting, ActivityCategory.Meeting, "工作中")]
     [InlineData(PresenceState.Communicating, ActivityCategory.Communication, "在聊天")]
-    [InlineData(PresenceState.Slacking, ActivityCategory.Social, "在看社交网站")]
+    [InlineData(PresenceState.Slacking, ActivityCategory.Social, "正在浏览网页")]
+    [InlineData(PresenceState.Slacking, ActivityCategory.Music, "工作中")]
     [InlineData(PresenceState.Slacking, ActivityCategory.None, "在放松")]
     [InlineData(PresenceState.Other, ActivityCategory.Other, "工作中")]
     [InlineData(PresenceState.Away, ActivityCategory.None, "暂时离开")]
@@ -202,6 +204,8 @@ public class PresenceFormatterTests
     {
         Assert.DoesNotContain(ActivityCategory.Meeting, PresenceFormatter.SelectableCategories);
         Assert.DoesNotContain(ActivityCategory.None, PresenceFormatter.SelectableCategories);
+        Assert.DoesNotContain(PresenceFormatter.SelectableCategories, ActivityCategoryExtensions.IsRetired);
+        Assert.True(PresenceFormatter.SelectableCategories.ToList().IndexOf(ActivityCategory.Browsing) < PresenceFormatter.SelectableCategories.ToList().IndexOf(ActivityCategory.Other));
         var labels = PresenceFormatter.SelectableCategories.Select(PresenceFormatter.CategoryName)
             .Concat(Enum.GetValues<PrivacyLevel>().Select(PresenceFormatter.PrivacyLevelName))
             .Concat(Enum.GetValues<PresenceState>().Select(s => Format(s, ActivityCategory.Video).Headline));

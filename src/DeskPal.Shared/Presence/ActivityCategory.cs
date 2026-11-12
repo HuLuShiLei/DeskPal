@@ -19,18 +19,21 @@ public enum ActivityCategory
 
 public static class ActivityCategoryExtensions
 {
+    /// <summary>Kept in the enum so old rules and snapshots still parse. Not produced.</summary>
+    public static bool IsRetired(this ActivityCategory category) => category is
+        ActivityCategory.Music or ActivityCategory.Shopping or ActivityCategory.Social or
+        ActivityCategory.News or ActivityCategory.Reading;
+
     public static bool IsSlacking(this ActivityCategory category) => category is
-        ActivityCategory.Video or ActivityCategory.Music or ActivityCategory.Shopping or
-        ActivityCategory.Social or ActivityCategory.News or ActivityCategory.Game or ActivityCategory.Reading;
+        ActivityCategory.Video or ActivityCategory.Game;
 
     public static PresenceState ToState(this ActivityCategory category) => category switch
     {
         ActivityCategory.Work => PresenceState.Working,
         ActivityCategory.Meeting => PresenceState.Meeting,
         ActivityCategory.Communication => PresenceState.Communicating,
-        ActivityCategory.None => PresenceState.Other,
-        ActivityCategory.Other => PresenceState.Other,
-        ActivityCategory.Browsing => PresenceState.Browsing,
+        ActivityCategory.None or ActivityCategory.Other or ActivityCategory.Music => PresenceState.Other,
+        ActivityCategory.Browsing or ActivityCategory.Shopping or ActivityCategory.Social or ActivityCategory.News or ActivityCategory.Reading => PresenceState.Browsing,
         _ => PresenceState.Slacking,
     };
 }

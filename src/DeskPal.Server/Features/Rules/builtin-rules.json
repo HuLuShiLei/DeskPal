@@ -1,1601 +1,1145 @@
 {
-    "version":  2,
-    "rules":  [
-                  {
-                      "kind":  "Process",
-                      "pattern":  "devenv",
-                      "category":  "Work",
-                      "name":  "Visual Studio"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "code",
-                      "category":  "Work",
-                      "name":  "VS Code"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "cursor",
-                      "category":  "Work",
-                      "name":  "Cursor"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "windsurf",
-                      "category":  "Work",
-                      "name":  "Windsurf"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "trae",
-                      "category":  "Work",
-                      "name":  "Trae"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "rider64",
-                      "category":  "Work",
-                      "name":  "Rider"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "idea64",
-                      "category":  "Work",
-                      "name":  "IntelliJ IDEA"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "pycharm64",
-                      "category":  "Work",
-                      "name":  "PyCharm"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "webstorm64",
-                      "category":  "Work",
-                      "name":  "WebStorm"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "goland64",
-                      "category":  "Work",
-                      "name":  "GoLand"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "clion64",
-                      "category":  "Work",
-                      "name":  "CLion"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "datagrip64",
-                      "category":  "Work",
-                      "name":  "DataGrip"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "studio64",
-                      "category":  "Work",
-                      "name":  "Android Studio"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "sublime_text",
-                      "category":  "Work",
-                      "name":  "Sublime Text"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "notepad++",
-                      "category":  "Work",
-                      "name":  "Notepad++"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "notepad",
-                      "category":  "Work",
-                      "name":  "记事本"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "windowsterminal",
-                      "category":  "Work",
-                      "name":  "终端"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "cmd",
-                      "category":  "Work",
-                      "name":  "命令提示符"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "powershell",
-                      "category":  "Work",
-                      "name":  "PowerShell"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "pwsh",
-                      "category":  "Work",
-                      "name":  "PowerShell"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "excel",
-                      "category":  "Work",
-                      "name":  "Excel"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "winword",
-                      "category":  "Work",
-                      "name":  "Word"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "powerpnt",
-                      "category":  "Work",
-                      "name":  "PowerPoint"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "onenote",
-                      "category":  "Work",
-                      "name":  "OneNote"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "msaccess",
-                      "category":  "Work",
-                      "name":  "Access"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "visio",
-                      "category":  "Work",
-                      "name":  "Visio"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "winproj",
-                      "category":  "Work",
-                      "name":  "Project"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "acrobat",
-                      "category":  "Work",
-                      "name":  "Acrobat"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "acrord32",
-                      "category":  "Work",
-                      "name":  "Acrobat Reader"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "wps",
-                      "category":  "Work",
-                      "name":  "WPS"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "et",
-                      "category":  "Work",
-                      "name":  "WPS 表格"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "wpp",
-                      "category":  "Work",
-                      "name":  "WPS 演示"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "ssms",
-                      "category":  "Work",
-                      "name":  "SQL Server Management Studio"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "navicat",
-                      "category":  "Work",
-                      "name":  "Navicat"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "dbeaver",
-                      "category":  "Work",
-                      "name":  "DBeaver"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "postman",
-                      "category":  "Work",
-                      "name":  "Postman"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "apifox",
-                      "category":  "Work",
-                      "name":  "Apifox"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "docker desktop",
-                      "category":  "Work",
-                      "name":  "Docker Desktop"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "figma",
-                      "category":  "Work",
-                      "name":  "Figma"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "photoshop",
-                      "category":  "Work",
-                      "name":  "Photoshop"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "illustrator",
-                      "category":  "Work",
-                      "name":  "Illustrator"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "afterfx",
-                      "category":  "Work",
-                      "name":  "After Effects"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "adobe premiere pro",
-                      "category":  "Work",
-                      "name":  "Premiere Pro"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "xmind",
-                      "category":  "Work",
-                      "name":  "XMind"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "typora",
-                      "category":  "Work",
-                      "name":  "Typora"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "obsidian",
-                      "category":  "Work",
-                      "name":  "Obsidian"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "notion",
-                      "category":  "Work",
-                      "name":  "Notion"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "mstsc",
-                      "category":  "Work",
-                      "name":  "远程桌面"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "vmware",
-                      "category":  "Work",
-                      "name":  "VMware"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "virtualbox",
-                      "category":  "Work",
-                      "name":  "VirtualBox"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "filezilla",
-                      "category":  "Work",
-                      "name":  "FileZilla"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "winscp",
-                      "category":  "Work",
-                      "name":  "WinSCP"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "putty",
-                      "category":  "Work",
-                      "name":  "PuTTY"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "xshell",
-                      "category":  "Work",
-                      "name":  "Xshell"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "mobaxterm",
-                      "category":  "Work",
-                      "name":  "MobaXterm"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "sourcetree",
-                      "category":  "Work",
-                      "name":  "Sourcetree"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "gitkraken",
-                      "category":  "Work",
-                      "name":  "GitKraken"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "githubdesktop",
-                      "category":  "Work",
-                      "name":  "GitHub Desktop"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "explorer",
-                      "category":  "Work",
-                      "name":  "文件资源管理器"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "everything",
-                      "category":  "Work",
-                      "name":  "Everything"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "wechat",
-                      "category":  "Communication",
-                      "name":  "微信"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "weixin",
-                      "category":  "Communication",
-                      "name":  "微信"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "wxwork",
-                      "category":  "Work",
-                      "name":  "企业微信"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "dingtalk",
-                      "category":  "Work",
-                      "name":  "钉钉"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "feishu",
-                      "category":  "Work",
-                      "name":  "飞书"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "lark",
-                      "category":  "Work",
-                      "name":  "Lark"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "qq",
-                      "category":  "Communication",
-                      "name":  "QQ"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "tim",
-                      "category":  "Communication",
-                      "name":  "TIM"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "outlook",
-                      "category":  "Work",
-                      "name":  "Outlook"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "olk",
-                      "category":  "Work",
-                      "name":  "Outlook"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "foxmail",
-                      "category":  "Work",
-                      "name":  "Foxmail"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "thunderbird",
-                      "category":  "Work",
-                      "name":  "Thunderbird"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "slack",
-                      "category":  "Work",
-                      "name":  "Slack"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "ms-teams",
-                      "category":  "Work",
-                      "name":  "Teams"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "teams",
-                      "category":  "Work",
-                      "name":  "Teams"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "telegram",
-                      "category":  "Communication",
-                      "name":  "Telegram"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "whatsapp",
-                      "category":  "Communication",
-                      "name":  "WhatsApp"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "skype",
-                      "category":  "Communication",
-                      "name":  "Skype"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "zoom",
-                      "category":  "Work",
-                      "name":  "Zoom"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "wemeetapp",
-                      "category":  "Work",
-                      "name":  "腾讯会议"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "webexmta",
-                      "category":  "Work",
-                      "name":  "Webex"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "ciscocollabhost",
-                      "category":  "Work",
-                      "name":  "Webex"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "discord",
-                      "category":  "Social",
-                      "name":  "Discord"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "cloudmusic",
-                      "category":  "Music",
-                      "name":  "网易云音乐"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "qqmusic",
-                      "category":  "Music",
-                      "name":  "QQ 音乐"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "kugou",
-                      "category":  "Music",
-                      "name":  "酷狗音乐"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "kwmusic",
-                      "category":  "Music",
-                      "name":  "酷我音乐"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "spotify",
-                      "category":  "Music",
-                      "name":  "Spotify"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "applemusic",
-                      "category":  "Music",
-                      "name":  "Apple Music"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "foobar2000",
-                      "category":  "Music",
-                      "name":  "foobar2000"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "musicbee",
-                      "category":  "Music",
-                      "name":  "MusicBee"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "aimp",
-                      "category":  "Music",
-                      "name":  "AIMP"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "potplayermini64",
-                      "category":  "Video",
-                      "name":  "PotPlayer"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "potplayermini",
-                      "category":  "Video",
-                      "name":  "PotPlayer"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "vlc",
-                      "category":  "Video",
-                      "name":  "VLC"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "mpc-hc64",
-                      "category":  "Video",
-                      "name":  "MPC-HC"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "qqlive",
-                      "category":  "Video",
-                      "name":  "腾讯视频"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "qyclient",
-                      "category":  "Video",
-                      "name":  "爱奇艺"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "youkudesktop",
-                      "category":  "Video",
-                      "name":  "优酷"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "douyin",
-                      "category":  "Video",
-                      "name":  "抖音"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "steam",
-                      "category":  "Game",
-                      "name":  "Steam"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "steamwebhelper",
-                      "category":  "Game",
-                      "name":  "Steam"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "epicgameslauncher",
-                      "category":  "Game",
-                      "name":  "Epic Games"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "wegame",
-                      "category":  "Game",
-                      "name":  "WeGame"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "leagueclient",
-                      "category":  "Game",
-                      "name":  "英雄联盟"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "league of legends",
-                      "category":  "Game",
-                      "name":  "英雄联盟"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "yuanshen",
-                      "category":  "Game",
-                      "name":  "原神"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "genshinimpact",
-                      "category":  "Game",
-                      "name":  "原神"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "starrail",
-                      "category":  "Game",
-                      "name":  "崩坏：星穹铁道"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "battle.net",
-                      "category":  "Game",
-                      "name":  "Battle.net"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "cs2",
-                      "category":  "Game",
-                      "name":  "CS2"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "dota2",
-                      "category":  "Game",
-                      "name":  "Dota 2"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "valorant",
-                      "category":  "Game",
-                      "name":  "无畏契约"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "hearthstone",
-                      "category":  "Game",
-                      "name":  "炉石传说"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "wow",
-                      "category":  "Game",
-                      "name":  "魔兽世界"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "overwatch",
-                      "category":  "Game",
-                      "name":  "守望先锋"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "tslgame",
-                      "category":  "Game",
-                      "name":  "绝地求生"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "kindle",
-                      "category":  "Reading",
-                      "name":  "Kindle"
-                  },
-                  {
-                      "kind":  "Process",
-                      "pattern":  "calibre",
-                      "category":  "Reading",
-                      "name":  "calibre"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "bilibili.com",
-                      "category":  "Video",
-                      "name":  "哔哩哔哩"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "youku.com",
-                      "category":  "Video",
-                      "name":  "优酷"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "iqiyi.com",
-                      "category":  "Video",
-                      "name":  "爱奇艺"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "v.qq.com",
-                      "category":  "Video",
-                      "name":  "腾讯视频"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "mgtv.com",
-                      "category":  "Video",
-                      "name":  "芒果 TV"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "douyin.com",
-                      "category":  "Video",
-                      "name":  "抖音"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "kuaishou.com",
-                      "category":  "Video",
-                      "name":  "快手"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "ixigua.com",
-                      "category":  "Video",
-                      "name":  "西瓜视频"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "youtube.com",
-                      "category":  "Video",
-                      "name":  "YouTube"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "netflix.com",
-                      "category":  "Video",
-                      "name":  "Netflix"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "twitch.tv",
-                      "category":  "Video",
-                      "name":  "Twitch"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "huya.com",
-                      "category":  "Video",
-                      "name":  "虎牙"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "douyu.com",
-                      "category":  "Video",
-                      "name":  "斗鱼"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "acfun.cn",
-                      "category":  "Video",
-                      "name":  "AcFun"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "tiktok.com",
-                      "category":  "Video",
-                      "name":  "TikTok"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "music.163.com",
-                      "category":  "Music",
-                      "name":  "网易云音乐"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "y.qq.com",
-                      "category":  "Music",
-                      "name":  "QQ 音乐"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "kugou.com",
-                      "category":  "Music",
-                      "name":  "酷狗音乐"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "kuwo.cn",
-                      "category":  "Music",
-                      "name":  "酷我音乐"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "spotify.com",
-                      "category":  "Music",
-                      "name":  "Spotify"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "taobao.com",
-                      "category":  "Shopping",
-                      "name":  "淘宝"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "tmall.com",
-                      "category":  "Shopping",
-                      "name":  "天猫"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "jd.com",
-                      "category":  "Shopping",
-                      "name":  "京东"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "pinduoduo.com",
-                      "category":  "Shopping",
-                      "name":  "拼多多"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "yangkeduo.com",
-                      "category":  "Shopping",
-                      "name":  "拼多多"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "vip.com",
-                      "category":  "Shopping",
-                      "name":  "唯品会"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "suning.com",
-                      "category":  "Shopping",
-                      "name":  "苏宁易购"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "amazon.com",
-                      "category":  "Shopping",
-                      "name":  "Amazon"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "amazon.cn",
-                      "category":  "Shopping",
-                      "name":  "亚马逊"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "dangdang.com",
-                      "category":  "Shopping",
-                      "name":  "当当"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "goofish.com",
-                      "category":  "Shopping",
-                      "name":  "闲鱼"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "smzdm.com",
-                      "category":  "Shopping",
-                      "name":  "什么值得买"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "dewu.com",
-                      "category":  "Shopping",
-                      "name":  "得物"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "weibo.com",
-                      "category":  "Social",
-                      "name":  "微博"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "xiaohongshu.com",
-                      "category":  "Social",
-                      "name":  "小红书"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "douban.com",
-                      "category":  "Social",
-                      "name":  "豆瓣"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "tieba.baidu.com",
-                      "category":  "Social",
-                      "name":  "百度贴吧"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "zhihu.com",
-                      "category":  "Social",
-                      "name":  "知乎"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "hupu.com",
-                      "category":  "Social",
-                      "name":  "虎扑"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "twitter.com",
-                      "category":  "Social",
-                      "name":  "X"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "x.com",
-                      "category":  "Social",
-                      "name":  "X"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "facebook.com",
-                      "category":  "Social",
-                      "name":  "Facebook"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "instagram.com",
-                      "category":  "Social",
-                      "name":  "Instagram"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "reddit.com",
-                      "category":  "Social",
-                      "name":  "Reddit"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "v2ex.com",
-                      "category":  "Social",
-                      "name":  "V2EX"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "nga.cn",
-                      "category":  "Social",
-                      "name":  "NGA"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "discord.com",
-                      "category":  "Social",
-                      "name":  "Discord"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "news.qq.com",
-                      "category":  "News",
-                      "name":  "腾讯新闻"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "163.com",
-                      "category":  "News",
-                      "name":  "网易"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "sina.com.cn",
-                      "category":  "News",
-                      "name":  "新浪"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "sohu.com",
-                      "category":  "News",
-                      "name":  "搜狐"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "ifeng.com",
-                      "category":  "News",
-                      "name":  "凤凰网"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "thepaper.cn",
-                      "category":  "News",
-                      "name":  "澎湃新闻"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "toutiao.com",
-                      "category":  "News",
-                      "name":  "今日头条"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "36kr.com",
-                      "category":  "News",
-                      "name":  "36 氪"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "huxiu.com",
-                      "category":  "News",
-                      "name":  "虎嗅"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "ithome.com",
-                      "category":  "News",
-                      "name":  "IT 之家"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "cnbeta.com.tw",
-                      "category":  "News",
-                      "name":  "cnBeta"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "bbc.com",
-                      "category":  "News",
-                      "name":  "BBC"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "nytimes.com",
-                      "category":  "News",
-                      "name":  "纽约时报"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "cnn.com",
-                      "category":  "News",
-                      "name":  "CNN"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "theverge.com",
-                      "category":  "News",
-                      "name":  "The Verge"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "store.steampowered.com",
-                      "category":  "Game",
-                      "name":  "Steam"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "steamcommunity.com",
-                      "category":  "Game",
-                      "name":  "Steam 社区"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "epicgames.com",
-                      "category":  "Game",
-                      "name":  "Epic Games"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "4399.com",
-                      "category":  "Game",
-                      "name":  "4399"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "7k7k.com",
-                      "category":  "Game",
-                      "name":  "7k7k"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "poki.com",
-                      "category":  "Game",
-                      "name":  "Poki"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "taptap.cn",
-                      "category":  "Game",
-                      "name":  "TapTap"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "gamersky.com",
-                      "category":  "Game",
-                      "name":  "游民星空"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "3dmgame.com",
-                      "category":  "Game",
-                      "name":  "3DM"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "qidian.com",
-                      "category":  "Reading",
-                      "name":  "起点中文网"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "jjwxc.net",
-                      "category":  "Reading",
-                      "name":  "晋江文学城"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "fanqienovel.com",
-                      "category":  "Reading",
-                      "name":  "番茄小说"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "weread.qq.com",
-                      "category":  "Reading",
-                      "name":  "微信读书"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "zongheng.com",
-                      "category":  "Reading",
-                      "name":  "纵横中文网"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "github.com",
-                      "category":  "Work",
-                      "name":  "GitHub"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "gitlab.com",
-                      "category":  "Work",
-                      "name":  "GitLab"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "stackoverflow.com",
-                      "category":  "Work",
-                      "name":  "Stack Overflow"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "learn.microsoft.com",
-                      "category":  "Work",
-                      "name":  "Microsoft Learn"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "atlassian.net",
-                      "category":  "Work",
-                      "name":  "Jira / Confluence"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "feishu.cn",
-                      "category":  "Work",
-                      "name":  "飞书文档"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "larksuite.com",
-                      "category":  "Work",
-                      "name":  "Lark"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "yuque.com",
-                      "category":  "Work",
-                      "name":  "语雀"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "notion.so",
-                      "category":  "Work",
-                      "name":  "Notion"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "figma.com",
-                      "category":  "Work",
-                      "name":  "Figma"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "chatgpt.com",
-                      "category":  "Work",
-                      "name":  "ChatGPT"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "claude.ai",
-                      "category":  "Work",
-                      "name":  "Claude"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "kimi.com",
-                      "category":  "Work",
-                      "name":  "Kimi"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "kimi.moonshot.cn",
-                      "category":  "Work",
-                      "name":  "Kimi"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "doubao.com",
-                      "category":  "Work",
-                      "name":  "豆包"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "deepseek.com",
-                      "category":  "Work",
-                      "name":  "DeepSeek"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "tongyi.aliyun.com",
-                      "category":  "Work",
-                      "name":  "通义"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "cursor.com",
-                      "category":  "Work",
-                      "name":  "Cursor"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "office.com",
-                      "category":  "Work",
-                      "name":  "Office"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "sharepoint.com",
-                      "category":  "Work",
-                      "name":  "SharePoint"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "docs.qq.com",
-                      "category":  "Work",
-                      "name":  "腾讯文档"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "shimo.im",
-                      "category":  "Work",
-                      "name":  "石墨文档"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "kdocs.cn",
-                      "category":  "Work",
-                      "name":  "金山文档"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "csdn.net",
-                      "category":  "Work",
-                      "name":  "CSDN"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "cnblogs.com",
-                      "category":  "Work",
-                      "name":  "博客园"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "juejin.cn",
-                      "category":  "Work",
-                      "name":  "掘金"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "segmentfault.com",
-                      "category":  "Work",
-                      "name":  "SegmentFault"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "apifox.com",
-                      "category":  "Work",
-                      "name":  "Apifox"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "postman.com",
-                      "category":  "Work",
-                      "name":  "Postman"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "aliyun.com",
-                      "category":  "Work",
-                      "name":  "阿里云"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "cloud.tencent.com",
-                      "category":  "Work",
-                      "name":  "腾讯云"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "portal.azure.com",
-                      "category":  "Work",
-                      "name":  "Azure"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "aws.amazon.com",
-                      "category":  "Work",
-                      "name":  "AWS"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "datadoghq.com",
-                      "category":  "Work",
-                      "name":  "Datadog"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "translate.google.com",
-                      "category":  "Work",
-                      "name":  "Google 翻译"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "fanyi.baidu.com",
-                      "category":  "Work",
-                      "name":  "百度翻译"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "deepl.com",
-                      "category":  "Work",
-                      "name":  "DeepL"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "localhost",
-                      "category":  "Work",
-                      "name":  "本地开发"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "mail.qq.com",
-                      "category":  "Work",
-                      "name":  "QQ 邮箱"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "mail.163.com",
-                      "category":  "Work",
-                      "name":  "网易邮箱"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "outlook.office.com",
-                      "category":  "Work",
-                      "name":  "Outlook"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "outlook.live.com",
-                      "category":  "Work",
-                      "name":  "Outlook"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "mail.google.com",
-                      "category":  "Work",
-                      "name":  "Gmail"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "wx.qq.com",
-                      "category":  "Communication",
-                      "name":  "微信网页版"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "web.whatsapp.com",
-                      "category":  "Communication",
-                      "name":  "WhatsApp"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "slack.com",
-                      "category":  "Work",
-                      "name":  "Slack"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "teams.microsoft.com",
-                      "category":  "Work",
-                      "name":  "Teams"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "meeting.tencent.com",
-                      "category":  "Work",
-                      "name":  "腾讯会议"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "zoom.us",
-                      "category":  "Work",
-                      "name":  "Zoom"
-                  },
-                  {
-                      "kind":  "Domain",
-                      "pattern":  "meet.google.com",
-                      "category":  "Work",
-                      "name":  "Google Meet"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "哔哩哔哩",
-                      "category":  "Video",
-                      "name":  "哔哩哔哩"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "bilibili",
-                      "category":  "Video",
-                      "name":  "哔哩哔哩"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "youtube",
-                      "category":  "Video",
-                      "name":  "YouTube"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "抖音",
-                      "category":  "Video",
-                      "name":  "抖音"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "爱奇艺",
-                      "category":  "Video",
-                      "name":  "爱奇艺"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "腾讯视频",
-                      "category":  "Video",
-                      "name":  "腾讯视频"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "优酷",
-                      "category":  "Video",
-                      "name":  "优酷"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "淘宝",
-                      "category":  "Shopping",
-                      "name":  "淘宝"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "天猫",
-                      "category":  "Shopping",
-                      "name":  "天猫"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "京东",
-                      "category":  "Shopping",
-                      "name":  "京东"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "拼多多",
-                      "category":  "Shopping",
-                      "name":  "拼多多"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "小红书",
-                      "category":  "Social",
-                      "name":  "小红书"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "微博",
-                      "category":  "Social",
-                      "name":  "微博"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "知乎",
-                      "category":  "Social",
-                      "name":  "知乎"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "虎扑",
-                      "category":  "Social",
-                      "name":  "虎扑"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "豆瓣",
-                      "category":  "Social",
-                      "name":  "豆瓣"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "网易云音乐",
-                      "category":  "Music",
-                      "name":  "网易云音乐"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "起点中文网",
-                      "category":  "Reading",
-                      "name":  "起点中文网"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "番茄小说",
-                      "category":  "Reading",
-                      "name":  "番茄小说"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "github",
-                      "category":  "Work",
-                      "name":  "GitHub"
-                  },
-                  {
-                      "kind":  "TitleKeyword",
-                      "pattern":  "stack overflow",
-                      "category":  "Work",
-                      "name":  "Stack Overflow"
-                  }
-              ]
+    "version": 3,
+    "rules": [
+        {
+            "kind": "Process",
+            "pattern": "devenv",
+            "category": "Work",
+            "name": "Visual Studio"
+        },
+        {
+            "kind": "Process",
+            "pattern": "code",
+            "category": "Work",
+            "name": "VS Code"
+        },
+        {
+            "kind": "Process",
+            "pattern": "cursor",
+            "category": "Work",
+            "name": "Cursor"
+        },
+        {
+            "kind": "Process",
+            "pattern": "windsurf",
+            "category": "Work",
+            "name": "Windsurf"
+        },
+        {
+            "kind": "Process",
+            "pattern": "trae",
+            "category": "Work",
+            "name": "Trae"
+        },
+        {
+            "kind": "Process",
+            "pattern": "rider64",
+            "category": "Work",
+            "name": "Rider"
+        },
+        {
+            "kind": "Process",
+            "pattern": "idea64",
+            "category": "Work",
+            "name": "IntelliJ IDEA"
+        },
+        {
+            "kind": "Process",
+            "pattern": "pycharm64",
+            "category": "Work",
+            "name": "PyCharm"
+        },
+        {
+            "kind": "Process",
+            "pattern": "webstorm64",
+            "category": "Work",
+            "name": "WebStorm"
+        },
+        {
+            "kind": "Process",
+            "pattern": "goland64",
+            "category": "Work",
+            "name": "GoLand"
+        },
+        {
+            "kind": "Process",
+            "pattern": "clion64",
+            "category": "Work",
+            "name": "CLion"
+        },
+        {
+            "kind": "Process",
+            "pattern": "datagrip64",
+            "category": "Work",
+            "name": "DataGrip"
+        },
+        {
+            "kind": "Process",
+            "pattern": "studio64",
+            "category": "Work",
+            "name": "Android Studio"
+        },
+        {
+            "kind": "Process",
+            "pattern": "sublime_text",
+            "category": "Work",
+            "name": "Sublime Text"
+        },
+        {
+            "kind": "Process",
+            "pattern": "notepad++",
+            "category": "Work",
+            "name": "Notepad++"
+        },
+        {
+            "kind": "Process",
+            "pattern": "notepad",
+            "category": "Work",
+            "name": "记事本"
+        },
+        {
+            "kind": "Process",
+            "pattern": "windowsterminal",
+            "category": "Work",
+            "name": "终端"
+        },
+        {
+            "kind": "Process",
+            "pattern": "cmd",
+            "category": "Work",
+            "name": "命令提示符"
+        },
+        {
+            "kind": "Process",
+            "pattern": "powershell",
+            "category": "Work",
+            "name": "PowerShell"
+        },
+        {
+            "kind": "Process",
+            "pattern": "pwsh",
+            "category": "Work",
+            "name": "PowerShell"
+        },
+        {
+            "kind": "Process",
+            "pattern": "excel",
+            "category": "Work",
+            "name": "Excel"
+        },
+        {
+            "kind": "Process",
+            "pattern": "winword",
+            "category": "Work",
+            "name": "Word"
+        },
+        {
+            "kind": "Process",
+            "pattern": "powerpnt",
+            "category": "Work",
+            "name": "PowerPoint"
+        },
+        {
+            "kind": "Process",
+            "pattern": "onenote",
+            "category": "Work",
+            "name": "OneNote"
+        },
+        {
+            "kind": "Process",
+            "pattern": "msaccess",
+            "category": "Work",
+            "name": "Access"
+        },
+        {
+            "kind": "Process",
+            "pattern": "visio",
+            "category": "Work",
+            "name": "Visio"
+        },
+        {
+            "kind": "Process",
+            "pattern": "winproj",
+            "category": "Work",
+            "name": "Project"
+        },
+        {
+            "kind": "Process",
+            "pattern": "acrobat",
+            "category": "Work",
+            "name": "Acrobat"
+        },
+        {
+            "kind": "Process",
+            "pattern": "acrord32",
+            "category": "Work",
+            "name": "Acrobat Reader"
+        },
+        {
+            "kind": "Process",
+            "pattern": "wps",
+            "category": "Work",
+            "name": "WPS"
+        },
+        {
+            "kind": "Process",
+            "pattern": "et",
+            "category": "Work",
+            "name": "WPS 表格"
+        },
+        {
+            "kind": "Process",
+            "pattern": "wpp",
+            "category": "Work",
+            "name": "WPS 演示"
+        },
+        {
+            "kind": "Process",
+            "pattern": "ssms",
+            "category": "Work",
+            "name": "SQL Server Management Studio"
+        },
+        {
+            "kind": "Process",
+            "pattern": "navicat",
+            "category": "Work",
+            "name": "Navicat"
+        },
+        {
+            "kind": "Process",
+            "pattern": "dbeaver",
+            "category": "Work",
+            "name": "DBeaver"
+        },
+        {
+            "kind": "Process",
+            "pattern": "postman",
+            "category": "Work",
+            "name": "Postman"
+        },
+        {
+            "kind": "Process",
+            "pattern": "apifox",
+            "category": "Work",
+            "name": "Apifox"
+        },
+        {
+            "kind": "Process",
+            "pattern": "docker desktop",
+            "category": "Work",
+            "name": "Docker Desktop"
+        },
+        {
+            "kind": "Process",
+            "pattern": "figma",
+            "category": "Work",
+            "name": "Figma"
+        },
+        {
+            "kind": "Process",
+            "pattern": "photoshop",
+            "category": "Work",
+            "name": "Photoshop"
+        },
+        {
+            "kind": "Process",
+            "pattern": "illustrator",
+            "category": "Work",
+            "name": "Illustrator"
+        },
+        {
+            "kind": "Process",
+            "pattern": "afterfx",
+            "category": "Work",
+            "name": "After Effects"
+        },
+        {
+            "kind": "Process",
+            "pattern": "adobe premiere pro",
+            "category": "Work",
+            "name": "Premiere Pro"
+        },
+        {
+            "kind": "Process",
+            "pattern": "xmind",
+            "category": "Work",
+            "name": "XMind"
+        },
+        {
+            "kind": "Process",
+            "pattern": "typora",
+            "category": "Work",
+            "name": "Typora"
+        },
+        {
+            "kind": "Process",
+            "pattern": "obsidian",
+            "category": "Work",
+            "name": "Obsidian"
+        },
+        {
+            "kind": "Process",
+            "pattern": "notion",
+            "category": "Work",
+            "name": "Notion"
+        },
+        {
+            "kind": "Process",
+            "pattern": "mstsc",
+            "category": "Work",
+            "name": "远程桌面"
+        },
+        {
+            "kind": "Process",
+            "pattern": "vmware",
+            "category": "Work",
+            "name": "VMware"
+        },
+        {
+            "kind": "Process",
+            "pattern": "virtualbox",
+            "category": "Work",
+            "name": "VirtualBox"
+        },
+        {
+            "kind": "Process",
+            "pattern": "filezilla",
+            "category": "Work",
+            "name": "FileZilla"
+        },
+        {
+            "kind": "Process",
+            "pattern": "winscp",
+            "category": "Work",
+            "name": "WinSCP"
+        },
+        {
+            "kind": "Process",
+            "pattern": "putty",
+            "category": "Work",
+            "name": "PuTTY"
+        },
+        {
+            "kind": "Process",
+            "pattern": "xshell",
+            "category": "Work",
+            "name": "Xshell"
+        },
+        {
+            "kind": "Process",
+            "pattern": "mobaxterm",
+            "category": "Work",
+            "name": "MobaXterm"
+        },
+        {
+            "kind": "Process",
+            "pattern": "sourcetree",
+            "category": "Work",
+            "name": "Sourcetree"
+        },
+        {
+            "kind": "Process",
+            "pattern": "gitkraken",
+            "category": "Work",
+            "name": "GitKraken"
+        },
+        {
+            "kind": "Process",
+            "pattern": "githubdesktop",
+            "category": "Work",
+            "name": "GitHub Desktop"
+        },
+        {
+            "kind": "Process",
+            "pattern": "explorer",
+            "category": "Work",
+            "name": "文件资源管理器"
+        },
+        {
+            "kind": "Process",
+            "pattern": "everything",
+            "category": "Work",
+            "name": "Everything"
+        },
+        {
+            "kind": "Process",
+            "pattern": "wechat",
+            "category": "Communication",
+            "name": "微信"
+        },
+        {
+            "kind": "Process",
+            "pattern": "weixin",
+            "category": "Communication",
+            "name": "微信"
+        },
+        {
+            "kind": "Process",
+            "pattern": "wxwork",
+            "category": "Work",
+            "name": "企业微信"
+        },
+        {
+            "kind": "Process",
+            "pattern": "dingtalk",
+            "category": "Work",
+            "name": "钉钉"
+        },
+        {
+            "kind": "Process",
+            "pattern": "feishu",
+            "category": "Work",
+            "name": "飞书"
+        },
+        {
+            "kind": "Process",
+            "pattern": "lark",
+            "category": "Work",
+            "name": "Lark"
+        },
+        {
+            "kind": "Process",
+            "pattern": "qq",
+            "category": "Communication",
+            "name": "QQ"
+        },
+        {
+            "kind": "Process",
+            "pattern": "tim",
+            "category": "Communication",
+            "name": "TIM"
+        },
+        {
+            "kind": "Process",
+            "pattern": "outlook",
+            "category": "Work",
+            "name": "Outlook"
+        },
+        {
+            "kind": "Process",
+            "pattern": "olk",
+            "category": "Work",
+            "name": "Outlook"
+        },
+        {
+            "kind": "Process",
+            "pattern": "foxmail",
+            "category": "Work",
+            "name": "Foxmail"
+        },
+        {
+            "kind": "Process",
+            "pattern": "thunderbird",
+            "category": "Work",
+            "name": "Thunderbird"
+        },
+        {
+            "kind": "Process",
+            "pattern": "slack",
+            "category": "Work",
+            "name": "Slack"
+        },
+        {
+            "kind": "Process",
+            "pattern": "ms-teams",
+            "category": "Work",
+            "name": "Teams"
+        },
+        {
+            "kind": "Process",
+            "pattern": "teams",
+            "category": "Work",
+            "name": "Teams"
+        },
+        {
+            "kind": "Process",
+            "pattern": "telegram",
+            "category": "Communication",
+            "name": "Telegram"
+        },
+        {
+            "kind": "Process",
+            "pattern": "whatsapp",
+            "category": "Communication",
+            "name": "WhatsApp"
+        },
+        {
+            "kind": "Process",
+            "pattern": "skype",
+            "category": "Communication",
+            "name": "Skype"
+        },
+        {
+            "kind": "Process",
+            "pattern": "zoom",
+            "category": "Work",
+            "name": "Zoom"
+        },
+        {
+            "kind": "Process",
+            "pattern": "wemeetapp",
+            "category": "Work",
+            "name": "腾讯会议"
+        },
+        {
+            "kind": "Process",
+            "pattern": "webexmta",
+            "category": "Work",
+            "name": "Webex"
+        },
+        {
+            "kind": "Process",
+            "pattern": "ciscocollabhost",
+            "category": "Work",
+            "name": "Webex"
+        },
+        {
+            "kind": "Process",
+            "pattern": "potplayermini64",
+            "category": "Video",
+            "name": "PotPlayer"
+        },
+        {
+            "kind": "Process",
+            "pattern": "potplayermini",
+            "category": "Video",
+            "name": "PotPlayer"
+        },
+        {
+            "kind": "Process",
+            "pattern": "vlc",
+            "category": "Video",
+            "name": "VLC"
+        },
+        {
+            "kind": "Process",
+            "pattern": "mpc-hc64",
+            "category": "Video",
+            "name": "MPC-HC"
+        },
+        {
+            "kind": "Process",
+            "pattern": "qqlive",
+            "category": "Video",
+            "name": "腾讯视频"
+        },
+        {
+            "kind": "Process",
+            "pattern": "qyclient",
+            "category": "Video",
+            "name": "爱奇艺"
+        },
+        {
+            "kind": "Process",
+            "pattern": "youkudesktop",
+            "category": "Video",
+            "name": "优酷"
+        },
+        {
+            "kind": "Process",
+            "pattern": "douyin",
+            "category": "Video",
+            "name": "抖音"
+        },
+        {
+            "kind": "Process",
+            "pattern": "steam",
+            "category": "Game",
+            "name": "Steam"
+        },
+        {
+            "kind": "Process",
+            "pattern": "steamwebhelper",
+            "category": "Game",
+            "name": "Steam"
+        },
+        {
+            "kind": "Process",
+            "pattern": "epicgameslauncher",
+            "category": "Game",
+            "name": "Epic Games"
+        },
+        {
+            "kind": "Process",
+            "pattern": "wegame",
+            "category": "Game",
+            "name": "WeGame"
+        },
+        {
+            "kind": "Process",
+            "pattern": "leagueclient",
+            "category": "Game",
+            "name": "英雄联盟"
+        },
+        {
+            "kind": "Process",
+            "pattern": "league of legends",
+            "category": "Game",
+            "name": "英雄联盟"
+        },
+        {
+            "kind": "Process",
+            "pattern": "yuanshen",
+            "category": "Game",
+            "name": "原神"
+        },
+        {
+            "kind": "Process",
+            "pattern": "genshinimpact",
+            "category": "Game",
+            "name": "原神"
+        },
+        {
+            "kind": "Process",
+            "pattern": "starrail",
+            "category": "Game",
+            "name": "崩坏：星穹铁道"
+        },
+        {
+            "kind": "Process",
+            "pattern": "battle.net",
+            "category": "Game",
+            "name": "Battle.net"
+        },
+        {
+            "kind": "Process",
+            "pattern": "cs2",
+            "category": "Game",
+            "name": "CS2"
+        },
+        {
+            "kind": "Process",
+            "pattern": "dota2",
+            "category": "Game",
+            "name": "Dota 2"
+        },
+        {
+            "kind": "Process",
+            "pattern": "valorant",
+            "category": "Game",
+            "name": "无畏契约"
+        },
+        {
+            "kind": "Process",
+            "pattern": "hearthstone",
+            "category": "Game",
+            "name": "炉石传说"
+        },
+        {
+            "kind": "Process",
+            "pattern": "wow",
+            "category": "Game",
+            "name": "魔兽世界"
+        },
+        {
+            "kind": "Process",
+            "pattern": "overwatch",
+            "category": "Game",
+            "name": "守望先锋"
+        },
+        {
+            "kind": "Process",
+            "pattern": "tslgame",
+            "category": "Game",
+            "name": "绝地求生"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "bilibili.com",
+            "category": "Video",
+            "name": "哔哩哔哩"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "youku.com",
+            "category": "Video",
+            "name": "优酷"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "iqiyi.com",
+            "category": "Video",
+            "name": "爱奇艺"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "v.qq.com",
+            "category": "Video",
+            "name": "腾讯视频"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "mgtv.com",
+            "category": "Video",
+            "name": "芒果 TV"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "douyin.com",
+            "category": "Video",
+            "name": "抖音"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "kuaishou.com",
+            "category": "Video",
+            "name": "快手"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "ixigua.com",
+            "category": "Video",
+            "name": "西瓜视频"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "youtube.com",
+            "category": "Video",
+            "name": "YouTube"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "netflix.com",
+            "category": "Video",
+            "name": "Netflix"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "twitch.tv",
+            "category": "Video",
+            "name": "Twitch"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "huya.com",
+            "category": "Video",
+            "name": "虎牙"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "douyu.com",
+            "category": "Video",
+            "name": "斗鱼"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "acfun.cn",
+            "category": "Video",
+            "name": "AcFun"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "tiktok.com",
+            "category": "Video",
+            "name": "TikTok"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "store.steampowered.com",
+            "category": "Game",
+            "name": "Steam"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "steamcommunity.com",
+            "category": "Game",
+            "name": "Steam 社区"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "epicgames.com",
+            "category": "Game",
+            "name": "Epic Games"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "4399.com",
+            "category": "Game",
+            "name": "4399"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "7k7k.com",
+            "category": "Game",
+            "name": "7k7k"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "poki.com",
+            "category": "Game",
+            "name": "Poki"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "taptap.cn",
+            "category": "Game",
+            "name": "TapTap"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "gamersky.com",
+            "category": "Game",
+            "name": "游民星空"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "3dmgame.com",
+            "category": "Game",
+            "name": "3DM"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "github.com",
+            "category": "Work",
+            "name": "GitHub"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "gitlab.com",
+            "category": "Work",
+            "name": "GitLab"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "stackoverflow.com",
+            "category": "Work",
+            "name": "Stack Overflow"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "learn.microsoft.com",
+            "category": "Work",
+            "name": "Microsoft Learn"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "atlassian.net",
+            "category": "Work",
+            "name": "Jira / Confluence"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "feishu.cn",
+            "category": "Work",
+            "name": "飞书文档"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "larksuite.com",
+            "category": "Work",
+            "name": "Lark"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "yuque.com",
+            "category": "Work",
+            "name": "语雀"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "notion.so",
+            "category": "Work",
+            "name": "Notion"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "figma.com",
+            "category": "Work",
+            "name": "Figma"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "chatgpt.com",
+            "category": "Work",
+            "name": "ChatGPT"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "claude.ai",
+            "category": "Work",
+            "name": "Claude"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "kimi.com",
+            "category": "Work",
+            "name": "Kimi"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "kimi.moonshot.cn",
+            "category": "Work",
+            "name": "Kimi"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "doubao.com",
+            "category": "Work",
+            "name": "豆包"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "deepseek.com",
+            "category": "Work",
+            "name": "DeepSeek"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "tongyi.aliyun.com",
+            "category": "Work",
+            "name": "通义"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "cursor.com",
+            "category": "Work",
+            "name": "Cursor"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "office.com",
+            "category": "Work",
+            "name": "Office"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "sharepoint.com",
+            "category": "Work",
+            "name": "SharePoint"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "docs.qq.com",
+            "category": "Work",
+            "name": "腾讯文档"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "shimo.im",
+            "category": "Work",
+            "name": "石墨文档"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "kdocs.cn",
+            "category": "Work",
+            "name": "金山文档"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "csdn.net",
+            "category": "Work",
+            "name": "CSDN"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "cnblogs.com",
+            "category": "Work",
+            "name": "博客园"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "juejin.cn",
+            "category": "Work",
+            "name": "掘金"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "segmentfault.com",
+            "category": "Work",
+            "name": "SegmentFault"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "apifox.com",
+            "category": "Work",
+            "name": "Apifox"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "postman.com",
+            "category": "Work",
+            "name": "Postman"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "aliyun.com",
+            "category": "Work",
+            "name": "阿里云"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "cloud.tencent.com",
+            "category": "Work",
+            "name": "腾讯云"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "portal.azure.com",
+            "category": "Work",
+            "name": "Azure"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "aws.amazon.com",
+            "category": "Work",
+            "name": "AWS"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "datadoghq.com",
+            "category": "Work",
+            "name": "Datadog"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "translate.google.com",
+            "category": "Work",
+            "name": "Google 翻译"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "fanyi.baidu.com",
+            "category": "Work",
+            "name": "百度翻译"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "deepl.com",
+            "category": "Work",
+            "name": "DeepL"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "localhost",
+            "category": "Work",
+            "name": "本地开发"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "mail.qq.com",
+            "category": "Work",
+            "name": "QQ 邮箱"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "mail.163.com",
+            "category": "Work",
+            "name": "网易邮箱"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "outlook.office.com",
+            "category": "Work",
+            "name": "Outlook"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "outlook.live.com",
+            "category": "Work",
+            "name": "Outlook"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "mail.google.com",
+            "category": "Work",
+            "name": "Gmail"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "wx.qq.com",
+            "category": "Communication",
+            "name": "微信网页版"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "web.whatsapp.com",
+            "category": "Communication",
+            "name": "WhatsApp"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "slack.com",
+            "category": "Work",
+            "name": "Slack"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "teams.microsoft.com",
+            "category": "Work",
+            "name": "Teams"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "meeting.tencent.com",
+            "category": "Work",
+            "name": "腾讯会议"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "zoom.us",
+            "category": "Work",
+            "name": "Zoom"
+        },
+        {
+            "kind": "Domain",
+            "pattern": "meet.google.com",
+            "category": "Work",
+            "name": "Google Meet"
+        },
+        {
+            "kind": "TitleKeyword",
+            "pattern": "哔哩哔哩",
+            "category": "Video",
+            "name": "哔哩哔哩"
+        },
+        {
+            "kind": "TitleKeyword",
+            "pattern": "bilibili",
+            "category": "Video",
+            "name": "哔哩哔哩"
+        },
+        {
+            "kind": "TitleKeyword",
+            "pattern": "youtube",
+            "category": "Video",
+            "name": "YouTube"
+        },
+        {
+            "kind": "TitleKeyword",
+            "pattern": "抖音",
+            "category": "Video",
+            "name": "抖音"
+        },
+        {
+            "kind": "TitleKeyword",
+            "pattern": "爱奇艺",
+            "category": "Video",
+            "name": "爱奇艺"
+        },
+        {
+            "kind": "TitleKeyword",
+            "pattern": "腾讯视频",
+            "category": "Video",
+            "name": "腾讯视频"
+        },
+        {
+            "kind": "TitleKeyword",
+            "pattern": "优酷",
+            "category": "Video",
+            "name": "优酷"
+        },
+        {
+            "kind": "TitleKeyword",
+            "pattern": "github",
+            "category": "Work",
+            "name": "GitHub"
+        },
+        {
+            "kind": "TitleKeyword",
+            "pattern": "stack overflow",
+            "category": "Work",
+            "name": "Stack Overflow"
+        }
+    ]
 }

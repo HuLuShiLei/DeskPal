@@ -20,6 +20,7 @@ public sealed record ClassificationResult(ActivityCategory Category, string? App
 /// Desktop apps: room, personal, builtin, heuristic, then Other.
 /// A browser checks room rules, then personal rules; otherwise it is Browsing, named by domain.
 /// A room rule wins for everyone currently in that room.
+/// Music, Shopping, Social, News and Reading rules are skipped. Background playback is not a category.
 /// </summary>
 public sealed class LayeredClassifier
 {
@@ -48,7 +49,7 @@ public sealed class LayeredClassifier
 
         foreach (var (layer, rules) in new[] { (RuleLayer.Room, _room), (RuleLayer.Personal, _personal), (RuleLayer.Builtin, _builtin) })
         {
-            if (rules.Match(snapshot) is { } rule)
+            if (rules.Match(snapshot) is { } rule && !rule.Category.IsRetired())
             {
                 return new ClassificationResult(rule.Category, rule.Name ?? DefaultName(snapshot), layer);
             }
@@ -67,7 +68,7 @@ public sealed class LayeredClassifier
     {
         foreach (var (layer, rules) in new[] { (RuleLayer.Room, _room), (RuleLayer.Personal, _personal) })
         {
-            if (rules.Match(snapshot) is { } rule)
+            if (rules.Match(snapshot) is { } rule && !rule.Category.IsRetired())
             {
                 return new ClassificationResult(rule.Category, rule.Name ?? BrowserSubject(snapshot), layer);
             }
@@ -87,11 +88,6 @@ public sealed class LayeredClassifier
         if (foreground.IsFullscreen && snapshot.Media.IsPlaying)
         {
             return ActivityCategory.Video;
-        }
-
-        if (snapshot.Media.IsPlaying)
-        {
-            return ActivityCategory.Music;
         }
 
         return null;

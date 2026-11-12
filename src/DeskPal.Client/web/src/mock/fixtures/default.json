@@ -84,43 +84,18 @@
         "level": "Category"
       },
       {
-        "category": "Music",
-        "name": "放松 · 音乐",
-        "level": "Category"
-      },
-      {
-        "category": "Shopping",
-        "name": "放松 · 购物",
-        "level": "Category"
-      },
-      {
-        "category": "Social",
-        "name": "放松 · 社交网站",
-        "level": "Category"
-      },
-      {
-        "category": "News",
-        "name": "放松 · 新闻",
-        "level": "Category"
-      },
-      {
         "category": "Game",
         "name": "放松 · 游戏",
         "level": "Category"
       },
       {
-        "category": "Reading",
-        "name": "放松 · 阅读",
+        "category": "Browsing",
+        "name": "浏览网页",
         "level": "Category"
       },
       {
         "category": "Other",
         "name": "其他",
-        "level": "Category"
-      },
-      {
-        "category": "Browsing",
-        "name": "浏览网页",
         "level": "Category"
       }
     ],
@@ -156,36 +131,16 @@
         "name": "放松 · 视频"
       },
       {
-        "value": "Music",
-        "name": "放松 · 音乐"
-      },
-      {
-        "value": "Shopping",
-        "name": "放松 · 购物"
-      },
-      {
-        "value": "Social",
-        "name": "放松 · 社交网站"
-      },
-      {
-        "value": "News",
-        "name": "放松 · 新闻"
-      },
-      {
         "value": "Game",
         "name": "放松 · 游戏"
       },
       {
-        "value": "Reading",
-        "name": "放松 · 阅读"
+        "value": "Browsing",
+        "name": "浏览网页"
       },
       {
         "value": "Other",
         "name": "其他"
-      },
-      {
-        "value": "Browsing",
-        "name": "浏览网页"
       }
     ]
   },
