@@ -4,6 +4,16 @@ import { useHost } from "../host";
 import { sharingMessage } from "../sharing";
 import { Icon, Section, SettingRow, Switch } from "../ui";
 
+const issuePageUrl = "https://github.com/HuLuShiLei/DeskPal/issues/new/choose";
+
+function openIssuePage() {
+  const link = document.createElement("a");
+  link.href = issuePageUrl;
+  link.target = "_blank";
+  link.rel = "noreferrer";
+  link.click();
+}
+
 export function SettingsPage({ state }: { state: PanelState }) {
   const { run, ask } = useHost();
   const s = state.settings;
@@ -63,17 +73,17 @@ export function SettingsPage({ state }: { state: PanelState }) {
       </Section>
       <Section title="常规">
         <div class="card flush">
-          <SettingRow title="开机自启" description="登录 Windows 后在后台启动">
+          <SettingRow title="开机自启" hint="登录 Windows 后在后台启动">
             <Switch checked={s.autoStart} label="开机自启" onChange={(v) => run({ type: "settings.autoStart", enabled: v })} />
           </SettingRow>
-          <SettingRow title="窗口置顶" description="面板显示在其他窗口上面">
+          <SettingRow title="窗口置顶" hint="面板显示在其他窗口上面">
             <Switch checked={s.topmost} label="窗口置顶" onChange={(v) => run({ type: "settings.topmost", enabled: v })} />
           </SettingRow>
         </div>
       </Section>
       <Section title="分类">
         <div class="card flush">
-          <SettingRow title="帮助改进默认分类" description="上传没有识别的桌面应用和你的分类，不含窗口标题和网页">
+          <SettingRow title="帮助改进默认分类" hint="上传没有识别的桌面应用和你的分类，不含窗口标题和网页">
             <Switch checked={s.shareUsage === true} label="帮助改进默认分类" onChange={sharing} />
           </SettingRow>
         </div>
@@ -86,7 +96,7 @@ export function SettingsPage({ state }: { state: PanelState }) {
               {waiting ? "请稍候…" : "检查更新"}
             </button>
           </SettingRow>
-          <SettingRow title="加入测试版" description="更早收到新功能，可能不稳定">
+          <SettingRow title="加入测试版" hint="更早收到新功能，可能不稳定">
             <Switch checked={s.receiveBeta} label="加入测试版" onChange={(v) => run({ type: "update.beta", enabled: v })} />
           </SettingRow>
           {s.updateReady && (
@@ -96,6 +106,13 @@ export function SettingsPage({ state }: { state: PanelState }) {
               </button>
             </SettingRow>
           )}
+        </div>
+      </Section>
+      <Section title="反馈">
+        <div class="card flush">
+          <SettingRow title="问题与建议" hint="在浏览器中提交问题反馈或功能建议">
+            <button onClick={openIssuePage}>打开</button>
+          </SettingRow>
         </div>
       </Section>
     </>
@@ -121,7 +138,7 @@ function MyRules({ state }: { state: PanelState }) {
 
   return (
     <div class="card flush">
-      <SettingRow title="我的分类" description="在状态页「纠正分类」后出现在这里。所有房间和电脑通用，只影响你自己。" />
+      <SettingRow title="我的分类" hint="在状态页「纠正分类」后出现在这里。所有房间和电脑通用，只影响你自己。" />
       {state.myRules.length === 0 ? (
         <p class="card-note">还没有设置过。</p>
       ) : (

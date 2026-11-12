@@ -1,5 +1,5 @@
 import type { ComponentChildren } from "preact";
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import type { Bridge, PresenceView } from "./bridge";
 
 // Segoe Fluent Icons（Windows 11）/ Segoe MDL2 Assets（Windows 10）里的字形。
@@ -73,13 +73,75 @@ export function Switch({ checked, label, disabled, onChange }: { checked: boolea
   );
 }
 
-/** 设置页的一行：左边是名称和说明，右边是控件。 */
-export function SettingRow({ icon, title, description, children }: { icon?: IconName; title: string; description?: ComponentChildren; children?: ComponentChildren }) {
+/** 标题旁的圆形问号。悬停或键盘聚焦时显示说明，避免被滚动区域裁切。 */
+export function Hint({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const bubbleRef = useRef<HTMLSpanElement>(null);
+
+  useLayoutEffect(() => {
+    const button = buttonRef.current;
+    const bubble = bubbleRef.current;
+    if (!open || !button || !bubble) return;
+    const anchor = button.getBoundingClientRect();
+    const margin = 8;
+    const gap = 6;
+    const width = bubble.offsetWidth;
+    const height = bubble.offsetHeight;
+    let left = anchor.left;
+    const maxLeft = window.innerWidth - margin - width;
+    if (left > maxLeft) left = Math.max(margin, maxLeft);
+    const below = anchor.bottom + gap;
+    const above = anchor.top - gap - height;
+    const top = below + height > window.innerHeight - margin && above >= margin ? above : below;
+    bubble.style.left = `${left}px`;
+    bubble.style.top = `${top}px`;
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("blur", close);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("blur", close);
+    };
+  }, [open]);
+
+  return (
+    <span class="hint">
+      <button
+        type="button"
+        class="hint-button"
+        ref={buttonRef}
+        aria-label={`说明。${text}`}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+      >
+        ?
+      </button>
+      {open && (
+        <span class="hint-bubble" ref={bubbleRef} role="tooltip">
+          {text}
+        </span>
+      )}
+    </span>
+  );
+}
+
+/** 设置页的一行：左边是名称，说明放在问号里；动态状态仍直接写在名称下面。右边是控件。 */
+export function SettingRow({ icon, title, description, hint, children }: { icon?: IconName; title: string; description?: ComponentChildren; hint?: string; children?: ComponentChildren }) {
   return (
     <div class="setting-row">
       {icon && <Icon name={icon} class="setting-icon" />}
       <div class="setting-text">
-        <p class="setting-title">{title}</p>
+        <div class="setting-title">
+          <span>{title}</span>
+          {hint && <Hint text={hint} />}
+        </div>
         {description && <p class="setting-desc">{description}</p>}
       </div>
       {children && <div class="setting-control">{children}</div>}

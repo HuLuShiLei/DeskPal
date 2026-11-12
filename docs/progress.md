@@ -32,6 +32,7 @@
 | 发布 | 代码在 GitHub `HuLuShiLei/DeskPal`；推送默认分支自动构建 Server 镜像，并调用 Portainer Business Edition 的 webhook 拉取重建；客户端测试版在 main 改了客户端时自动发 Pre-release，正式版只在手动推送 `vX.Y.Z` 标签时发布。安装包文件名是 `DeskPal-<版本号>-Setup.exe`。对外地址 `https://deskpal.hafuhafu.cn:36443`，也是客户端默认地址 | 运营商封了 80/443，只能用 36443；3 节点以内的 Business Edition 许可证免费；试用期要小步更新；用户要求安装包文件名带版本号 |
 | 安装目录 | 安装包是 Inno Setup 向导（`installer/DeskPal.iss`），用户选择安装目录，默认 `%LocalAppData%\Programs\DeskPal`，再次安装时默认上次的目录。向导内嵌 Velopack 的 Setup.exe，用 `--installto` 静默安装，只为当前用户安装。拒绝磁盘根目录、已有其他文件的目录和不可写的目录；换目录时提示旧目录不会自动删除。安装版的日志在 `<安装目录>\logs`，WebView2 缓存在 `<安装目录>\WebView2`；`settings.json` 和规则仍在 `%APPDATA%\DeskPal`。直接运行或安装目录不可写时，日志和缓存回到 `%APPDATA%\DeskPal\logs` 和 `%LOCALAPPDATA%\DeskPal\WebView2`。已装在 `%LocalAppData%\DeskPal` 的客户端更新后，旧日志留在 `%APPDATA%\DeskPal\logs`，不迁移。换目录安装时，指向旧目录的开机自启改到新目录 | 用户不想固定装在 AppData。Velopack 在同一目录重新安装或卸载都会清空整个安装目录，指向已有文件的目录时会删掉其中的文件；设置留在用户目录才不会丢登录状态 |
 | Meeting | 不采集麦克风，不再产生。枚举成员保留，收到时显示为工作中。纠正和隐私设置不列出这一类 | 规则类别按整数保存，删掉中间成员会让后面的类别错位 |
+| 问题与建议 | 设置页「反馈」提供入口，在系统浏览器打开 GitHub Issue 选择页（空白 Issue 已关闭，只能选「问题反馈」或「功能建议」） | 用户要求设置里可以跳去提交 Issue |
 
 ## 已完成（第一期原型）
 
@@ -102,3 +103,5 @@
 | 2026-11-12 | 安装包改为 Inno Setup 向导，可以选择安装目录（默认 `%LocalAppData%\Programs\DeskPal`）。安装版的日志写到 `<安装目录>\logs`，WebView2 缓存写到 `<安装目录>\WebView2`；设置和规则仍在 `%APPDATA%\DeskPal`。覆盖安装时保留旧日志，安装日志保存为 `logs\setup.log`。Release 上不再提供 Velopack 自带的 Setup.exe |
 | 2026-11-12 | 去掉房间规则，改为按账号保存在 Server 的个人分类：「纠正分类」只影响自己，所有房间和电脑通用，别人看到的是你自己的分类。新增设置页「我的分类」、状态页「恢复默认」和「待归类」。首次打开面板询问是否分享使用数据；同意后上报未识别应用，Server 统计多人一致的个人分类和未识别应用，每周由 GitHub Actions 开 PR 更新内置规则库。迁移 `ReplaceRoomRulesWithUserRules` 删除 `RoomRules` 表，Server 启动时自动执行 |
 | 2026-11-12 | 界面改成桌面程序样式：去掉系统标题栏，页面内绘制标题栏（可拖动、最小化、关闭），保留圆角和阴影；左侧导航、标题栏切换房间；跟随系统浅色和深色；Windows 11 风格的开关、设置行、菜单和对话框 |
+| 2026-11-12 | 设置页增加「反馈」一节。点击「打开」后，在系统浏览器打开 GitHub Issue 选择页，用户选择「问题反馈」或「功能建议」后提交 |
+| 2026-11-12 | 设置页的固定说明改到标题旁的圆形问号里，悬停或键盘聚焦时显示。账号、分类明细和检查更新的进度仍直接显示 |

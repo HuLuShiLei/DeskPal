@@ -271,8 +271,23 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 .setting-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; min-height: 52px; }
 .setting-icon { font-size: 16px; color: var(--muted); }
 .setting-text { flex: 1; min-width: 0; }
-.setting-title { font-weight: 500; }
+.setting-title { font-weight: 500; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.setting-title > span { min-width: 0; }
 .setting-desc { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.hint { display: inline-flex; flex: none; }
+button.hint-button {
+  width: 18px; height: 18px; min-height: 18px; padding: 0; border-radius: 50%;
+  border: 1px solid var(--faint); background: transparent; color: var(--muted);
+  font-size: 11px; font-weight: 600; line-height: 1;
+}
+button.hint-button:hover:not(:disabled) { background: var(--hover); color: var(--text); border-color: var(--muted); }
+button.hint-button:active:not(:disabled) { background: var(--pressed); color: var(--text); }
+.hint-bubble {
+  position: fixed; z-index: 35; max-width: 240px; padding: 8px 10px;
+  border-radius: var(--radius); background: var(--surface-strong); color: var(--text);
+  border: 1px solid var(--line-strong); box-shadow: var(--shadow);
+  font-size: 12px; font-weight: 400; line-height: 1.45; pointer-events: none;
+}
 .setting-desc .sub { display: block; }
 .setting-control { flex: none; display: flex; align-items: center; gap: 6px; }
 .setting-control select { min-width: 136px; }
