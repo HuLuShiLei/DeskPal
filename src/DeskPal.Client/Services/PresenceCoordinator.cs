@@ -4,6 +4,7 @@ using DeskPal.Client.Core.Presence;
 using DeskPal.Shared.Messaging;
 using DeskPal.Shared.Presence;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace DeskPal.Client.Services;
 
@@ -19,11 +20,13 @@ public sealed class PresenceCoordinator : BackgroundService
     private readonly AppSettings _settings;
     private readonly SettingsStore _store;
     private readonly PersonalRuleStore _personalRules;
+    private readonly ILogger<PresenceCoordinator> _logger;
     private readonly System.Threading.Channels.ChannelReader<ActivitySignal> _signals;
     private readonly PresenceDebouncer _debouncer;
     private readonly Lock _lock = new();
     private readonly SemaphoreSlim _publishGate = new(1, 1);
     private readonly HashSet<Guid> _offlined = new();
+    private string? _loggedPresence;
 
     public PresenceCoordinator(
         ActivityBus bus,
@@ -32,12 +35,14 @@ public sealed class PresenceCoordinator : BackgroundService
         HubService hub,
         AppSettings settings,
         SettingsStore store,
-        PersonalRuleStore personalRules)
+        PersonalRuleStore personalRules,
+        ILogger<PresenceCoordinator> logger)
     {
         _classifier = classifier;
         _rooms = rooms;
         _hub = hub;
         _settings = settings;
+        _logger = logger;
         _store = store;
         _personalRules = personalRules;
         _signals = bus.Subscribe();
@@ -162,6 +167,7 @@ public sealed class PresenceCoordinator : BackgroundService
                 return;
             }
 
+            LogPresence(committed);
             var snapshot = PrivacyFilter.Apply(committed, _rooms.GetPrivacy(selected.Value));
             await _hub.TryPublishAsync(Envelope.Create(MessageTypes.PresenceUpdate, selected.Value, snapshot));
         }
@@ -169,6 +175,31 @@ public sealed class PresenceCoordinator : BackgroundService
         {
             _publishGate.Release();
         }
+    }
+
+    private void LogPresence(CommittedPresence committed)
+    {
+        string? process;
+        RuleLayer? layer;
+        lock (_lock)
+        {
+            process = Snapshot.Foreground?.ProcessName;
+            layer = Classification?.Layer;
+        }
+
+        var summary = $"{committed.Presence.State}|{committed.Presence.Category}|{layer}|{process}";
+        if (summary == _loggedPresence)
+        {
+            return;
+        }
+
+        _loggedPresence = summary;
+        _logger.LogInformation(
+            "Presence {State} {Category} layer {Layer} process {Process}",
+            committed.Presence.State,
+            committed.Presence.Category,
+            layer,
+            process);
     }
 
     private Task<bool> PublishOfflineAsync(Guid roomId) =>

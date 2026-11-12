@@ -59,7 +59,7 @@ public sealed class HubService(AppSettings settings, ILogger<HubService> logger)
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Publishing {Type} failed", envelope.Type);
+            logger.LogWarning("Publishing {Type} failed ({Error})", envelope.Type, ex.GetType().Name);
             return false;
         }
     }
@@ -88,7 +88,7 @@ public sealed class HubService(AppSettings settings, ILogger<HubService> logger)
             }
             catch (Exception ex) when (!token.IsCancellationRequested)
             {
-                logger.LogInformation(ex, "Connecting to hub failed, retrying in {Delay}", delay);
+                logger.LogInformation("Connecting to hub failed ({Error}), retrying in {Delay}", ex.GetType().Name, delay);
                 await Notify(HubConnectionState.Disconnected);
                 await Task.Delay(delay, token);
                 delay = TimeSpan.FromSeconds(Math.Min(delay.TotalSeconds * 2, 60));
@@ -98,6 +98,7 @@ public sealed class HubService(AppSettings settings, ILogger<HubService> logger)
 
     private Task Notify(HubConnectionState state)
     {
+        logger.LogInformation("Hub {State}", state);
         StateChanged?.Invoke(state);
         return Task.CompletedTask;
     }

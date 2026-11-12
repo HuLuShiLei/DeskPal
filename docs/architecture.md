@@ -166,6 +166,7 @@ flowchart LR
 | `settings.json` | Server 地址（默认 `https://deskpal.hafuhafu.cn:36443`）、当前用户、DPAPI 加密的 token、选中的 Room、空闲和防抖参数、暂停和手动状态、是否加入测试版（`includePrerelease`，空则沿用安装渠道） |
 | `personal-rules.json` | 个人规则 |
 | `builtin-rules.json` | 内置规则缓存 |
+| `logs\deskpal.log` | 客户端运行日志。超过 1 MB 后改名为 `deskpal-时间.log`，最多保留 5 个旧文件，超过 7 天的旧文件删除。不记录窗口标题、媒体标题、域名、页面标题、手动状态、戳一下内容、密码、token、邀请码 |
 
 `settings.json` 里还有窗口置顶（`topmost`）。WebView2 的缓存在 `%LOCALAPPDATA%\DeskPal\WebView2`。开机自启写入 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`；用命名 Mutex 保证单实例运行。
 

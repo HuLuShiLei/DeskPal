@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using DeskPal.Client.Collectors;
 using DeskPal.Client.Core.Classification;
+using DeskPal.Client.Core.Diagnostics;
 using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Services;
 using DeskPal.Client.Ui;
@@ -22,32 +23,41 @@ public partial class App : Application
     private TaskbarIcon? _tray;
     private PanelWindow? _panel;
     private CancellationTokenSource? _updates;
+    private ClientLogFiles? _logs;
     private bool _exiting;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
+        _logs = new ClientLogFiles(Path.Combine(SettingsStore.Directory, "logs"));
+        RegisterCrashHandlers(_logs);
         _singleInstance = new Mutex(false, "DeskPal.Client.SingleInstance");
         if (!_singleInstance.WaitOne(TimeSpan.FromSeconds(3)))
         {
+            _logs.Write("INF", "DeskPal", "Already running");
             MessageBox.Show("DeskPal 已经在运行，请从任务栏右下角的托盘图标打开。", "DeskPal");
             _singleInstance = null;
+            _logs.Dispose();
             Shutdown();
             return;
         }
 
+        _logs.Write("INF", "DeskPal", "Starting");
         var store = new SettingsStore();
         var settings = store.Load();
         var api = new ApiClient(settings);
-        if (!await EnsureLoggedInAsync(settings, store, api))
+        if (!await EnsureLoggedInAsync(settings, store, api, _logs))
         {
+            _logs.Write("INF", "DeskPal", "Stopped before the panel opened");
+            _logs.Dispose();
             Shutdown();
             return;
         }
 
-        _host = BuildHost(settings, store, api);
+        _host = BuildHost(settings, store, api, _logs);
         var services = _host.Services;
+        services.GetRequiredService<ILogger<App>>().LogInformation("Ready version {Version}", services.GetRequiredService<UpdateService>().VersionLabel);
         var rooms = services.GetRequiredService<RoomState>();
         var hub = services.GetRequiredService<HubService>();
         var updates = services.GetRequiredService<UpdateService>();
@@ -77,7 +87,7 @@ public partial class App : Application
         }
     }
 
-    private static async Task<bool> EnsureLoggedInAsync(AppSettings settings, SettingsStore store, ApiClient api)
+    private static async Task<bool> EnsureLoggedInAsync(AppSettings settings, SettingsStore store, ApiClient api, ClientLogFiles logs)
     {
         if (settings.GetToken() is not null)
         {
@@ -86,14 +96,17 @@ public partial class App : Application
                 var me = await api.MeAsync();
                 settings.DisplayName = me.DisplayName;
                 store.Save(settings);
+                logs.Write("INF", "DeskPal", "Saved session restored");
                 return true;
             }
             catch (ApiException ex) when (ex.Status == 0)
             {
+                logs.Write("INF", "DeskPal", "Saved session kept because the server was unreachable");
                 return true;
             }
-            catch (ApiException)
+            catch (ApiException ex)
             {
+                logs.Write("WRN", "DeskPal", $"Saved session rejected ({ex.Status})");
                 settings.SetToken(null);
                 store.Save(settings);
             }
@@ -108,13 +121,28 @@ public partial class App : Application
         return new LoginWindow(settings, store, api).ShowDialog() == true;
     }
 
-    private static IHost BuildHost(AppSettings settings, SettingsStore store, ApiClient api)
+    private static void RegisterCrashHandlers(ClientLogFiles logs)
+    {
+        Current.DispatcherUnhandledException += (_, args) => logs.Write("ERR", "Unhandled", args.Exception.ToString());
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+        {
+            if (args.ExceptionObject is Exception ex)
+            {
+                logs.Write("ERR", "Unhandled", ex.ToString());
+            }
+        };
+        TaskScheduler.UnobservedTaskException += (_, args) => logs.Write("ERR", "Unobserved", args.Exception.ToString());
+    }
+
+    private static IHost BuildHost(AppSettings settings, SettingsStore store, ApiClient api, ClientLogFiles logs)
     {
         var builder = Host.CreateApplicationBuilder();
         builder.Logging.ClearProviders();
         builder.Logging.AddDebug();
+        builder.Logging.AddProvider(new ClientFileLoggerProvider(logs));
 
         var s = builder.Services;
+        s.AddSingleton(logs);
         s.AddSingleton(settings);
         s.AddSingleton(store);
         s.AddSingleton(api);
@@ -242,6 +270,7 @@ public partial class App : Application
         }
 
         _exiting = true;
+        _logs?.Write("INF", "DeskPal", restart ? "Restarting" : "Exiting");
         var updates = _host?.Services.GetService<UpdateService>();
 
         if (_panel is not null)
@@ -257,6 +286,9 @@ public partial class App : Application
             _host.Dispose();
             _host = null;
         }
+
+        _logs?.Dispose();
+        _logs = null;
 
         _tray?.Dispose();
         _singleInstance?.ReleaseMutex();

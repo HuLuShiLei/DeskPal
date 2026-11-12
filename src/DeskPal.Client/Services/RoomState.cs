@@ -63,6 +63,7 @@ public sealed class RoomState(
         var changed = settings.SelectedRoomId != roomId;
         settings.SelectedRoomId = roomId;
         store.Save(settings);
+        logger.LogInformation("Selected room {RoomId}", roomId);
         Changed?.Invoke();
         if (changed && Rooms.Any(r => r.Id == roomId))
         {

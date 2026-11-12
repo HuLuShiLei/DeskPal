@@ -1,5 +1,6 @@
 using System.Reflection;
 using DeskPal.Client.Core.Updates;
+using Microsoft.Extensions.Logging;
 using Velopack;
 using Velopack.Sources;
 
@@ -23,6 +24,7 @@ public sealed class UpdateService
 
     private readonly AppSettings _settings;
     private readonly SettingsStore _store;
+    private readonly ILogger<UpdateService> _logger;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly object _state = new();
     private readonly bool _installed;
@@ -35,9 +37,10 @@ public sealed class UpdateService
     private string? _activity;
     private int _interactive;
 
-    public UpdateService(AppSettings settings, SettingsStore store)
+    public UpdateService(AppSettings settings, SettingsStore store, ILogger<UpdateService> logger)
     {
         _settings = settings;
+        _logger = logger;
         _store = store;
         try
         {
@@ -134,6 +137,7 @@ public sealed class UpdateService
             {
             if (!_installed || _locator is null)
             {
+                _logger.LogInformation("Update check skipped because the app is not installed");
                 return new UpdateCheckResult(UpdateCheckKind.NotInstalled, NotInstalledMessage, VersionLabel);
             }
 
@@ -153,6 +157,7 @@ public sealed class UpdateService
             }
             catch (Exception ex)
             {
+                _logger.LogWarning("Update check failed ({Error})", ex.GetType().Name);
                 return new UpdateCheckResult(UpdateCheckKind.Failed, $"检查更新失败：{ex.Message}", VersionLabel);
             }
 
@@ -192,6 +197,7 @@ public sealed class UpdateService
                     throw new OperationCanceledException(cancellationToken);
                 }
 
+                _logger.LogWarning("Update download failed ({Error})", ex.GetType().Name);
                 return new UpdateCheckResult(UpdateCheckKind.Failed, $"下载更新失败：{ex.Message}", target);
             }
 
@@ -202,6 +208,7 @@ public sealed class UpdateService
             }
 
             Changed?.Invoke();
+            _logger.LogInformation("Update {Version} downloaded", target);
             return new UpdateCheckResult(UpdateCheckKind.Ready, $"新版本 {target} 已下载，退出后自动安装。", target);
             }
             finally
