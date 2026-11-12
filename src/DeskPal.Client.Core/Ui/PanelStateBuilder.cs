@@ -26,6 +26,11 @@ public sealed record PanelInput
     public LocalPresence? Local { get; init; }
     public ClassificationResult? Classification { get; init; }
     public CommittedPresence? Committed { get; init; }
+
+    /// <summary>When the pending local presence will be committed; null when nothing is waiting.</summary>
+    public DateTimeOffset? PendingDeadline { get; init; }
+
+    public TimeSpan StableFor { get; init; } = TimeSpan.FromSeconds(10);
     public bool Paused { get; init; }
     public string? ManualText { get; init; }
     public string? CorrectionTarget { get; init; }
@@ -93,7 +98,7 @@ public static class PanelStateBuilder
             var view = snapshot is null ? new PresenceView("离线", null, null) : PresenceFormatter.Format(snapshot);
             var meta = snapshot is null
                 ? "还没有收到状态"
-                : snapshot.State == PresenceState.Offline ? "" : $"已持续 {PresenceFormatter.Duration(snapshot.Since, input.Now)}";
+                : snapshot.State == PresenceState.Offline ? "" : Lasted(snapshot.Since, input.Now);
             return new MemberItem(
                 m.UserId,
                 m.DisplayName,
@@ -112,24 +117,28 @@ public static class PanelStateBuilder
             return new MeView(input.DisplayName, new PresenceView("正在识别…", null, null), null, null, input.Paused, input.ManualText, ManualPresets);
         }
 
-        var full = new PresenceSnapshot
-        {
-            State = local.State,
-            Category = local.Category,
-            AppDisplayName = local.AppDisplayName,
-            Detail = local.Detail,
-            CustomText = local.CustomText,
-        };
+        var localView = PresenceFormatter.Format(Unfiltered(local));
+        var current = input.Committed;
+        var waiting = current is not null && current.Presence.Key != local.Key;
+        var view = waiting ? PresenceFormatter.Format(Unfiltered(current!.Presence)) : localView;
+        PendingView? pending = waiting && input.PendingDeadline is { } deadline
+            ? new PendingView(
+                localView,
+                Math.Max(0, (int)(deadline - input.Now).TotalMilliseconds),
+                (int)Math.Round(input.StableFor.TotalSeconds))
+            : null;
+
         var layer = input.Classification?.Layer switch
         {
-            RuleLayer.Personal => "按你的分类",
-            RuleLayer.Builtin => "默认分类",
-            RuleLayer.Heuristic => "推测",
+            RuleLayer.Personal => "按你设置的分类识别",
+            RuleLayer.Builtin => "按默认分类识别",
+            RuleLayer.Heuristic => "按窗口特征推测",
             RuleLayer.Browser => null,
-            _ => "未识别",
+            _ => "没有识别出类别，显示为正在使用",
         };
-        var pending = input.Committed is { } c && c.Presence.Key != local.Key ? "稳定后同步" : null;
-        var source = string.Join("，", new[] { local.Category == ActivityCategory.None ? null : layer, pending }.Where(p => p is not null));
+        string? source = local.Category == ActivityCategory.None || layer is null
+            ? null
+            : input.CorrectionTarget is { } target ? $"「{target}」{layer}。" : $"{layer}。";
 
         string? visible = null;
         if (room is not null && input.Committed is { } committed)
@@ -140,13 +149,27 @@ public static class PanelStateBuilder
 
         return new MeView(
             input.DisplayName,
-            PresenceFormatter.Format(full),
-            source.Length == 0 ? null : source,
+            view,
+            source,
             visible,
             input.Paused,
             input.ManualText,
-            ManualPresets);
+            ManualPresets,
+            pending,
+            current is null ? null : Lasted(current.Since, input.Now));
     }
+
+    private static PresenceSnapshot Unfiltered(LocalPresence local) => new()
+    {
+        State = local.State,
+        Category = local.Category,
+        AppDisplayName = local.AppDisplayName,
+        Detail = local.Detail,
+        CustomText = local.CustomText,
+    };
+
+    private static string Lasted(DateTimeOffset since, DateTimeOffset now) =>
+        now - since < TimeSpan.FromMinutes(1) ? "刚刚开始" : $"已持续 {PresenceFormatter.Duration(since, now)}";
 
     private static PrivacyView Privacy(PrivacyProfile profile) => new(
         PresenceFormatter.SelectableCategories

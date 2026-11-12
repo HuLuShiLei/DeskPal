@@ -6,12 +6,12 @@
   "me": {
     "displayName": "Alice",
     "view": {
-      "headline": "工作中",
-      "app": "Cursor",
-      "detail": "plan.md - idea1 - Cursor",
-      "tone": "work"
+      "headline": "正在使用 Cursor",
+      "app": null,
+      "detail": null,
+      "tone": "other"
     },
-    "source": "默认分类，稳定后同步",
+    "source": "「Cursor」按默认分类识别。",
     "visible": "正在使用 Cursor",
     "paused": false,
     "manualText": null,
@@ -21,7 +21,18 @@
       "开会中",
       "有空，来聊",
       "在路上"
-    ]
+    ],
+    "pending": {
+      "view": {
+        "headline": "工作中",
+        "app": "Cursor",
+        "detail": "plan.md - idea1 - Cursor",
+        "tone": "work"
+      },
+      "remainingMs": 7000,
+      "totalSeconds": 10
+    },
+    "meta": "已持续 1 分钟"
   },
   "rooms": [
     {

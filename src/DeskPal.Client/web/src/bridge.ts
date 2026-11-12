@@ -62,11 +62,15 @@ export interface PanelState {
   me: {
     displayName: string;
     view: PresenceView;
+    /** 当前应用是怎么识别的，悬停显示。 */
     source: string | null;
     visible: string | null;
     paused: boolean;
     manualText: string | null;
     manualPresets: string[];
+    /** 本机的新状态还没稳定、尚未同步给房间成员时才有。 */
+    pending: { view: PresenceView; remainingMs: number; totalSeconds: number } | null;
+    meta: string | null;
   };
   rooms: RoomItem[];
   selectedRoomId: string | null;

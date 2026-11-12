@@ -21,6 +21,8 @@ const glyphs = {
   warning: "\uE7BA",
   ring: "\uEA8F",
   refresh: "\uE72C",
+  view: "\uE890",
+  timer: "\uE916",
 } as const;
 
 export type IconName = keyof typeof glyphs;
@@ -166,7 +168,7 @@ export function Section({ title, aside, children, label }: { title?: string; asi
 export function Avatar({ name, tone }: { name: string; tone: PresenceView["tone"] }) {
   const initial = Array.from(name.trim())[0]?.toUpperCase() ?? "?";
   return (
-    <span class="avatar" aria-hidden="true">
+    <span class={`avatar tv-${tone}`} aria-hidden="true">
       {initial}
       <span class={`presence-dot tone-${tone}`} />
     </span>

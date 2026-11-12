@@ -135,11 +135,11 @@ export function createMockTransport(params: URLSearchParams): Transport {
       }
       case "presence.correct":
         state.correction.personal = true;
-        state.me.source = "按你的分类";
+        state.me.source = `「${state.correction.target}」按你设置的分类识别。`;
         break;
       case "presence.resetCorrection":
         state.correction.personal = false;
-        state.me.source = "默认分类";
+        state.me.source = `「${state.correction.target}」按默认分类识别。`;
         break;
       case "rules.set": {
         const name = (m.name as string | null) ?? (m.pattern as string);
@@ -181,6 +181,16 @@ export function createMockTransport(params: URLSearchParams): Transport {
       if (m.type === "ready") {
         if (login) emit({ type: "login", serverUrl: "https://deskpal.hafuhafu.cn:36443", userName: "alice" });
         else pushState();
+        const pending = state.me.pending;
+        if (pending) {
+          setTimeout(() => {
+            state.me.view = pending.view;
+            state.me.pending = null;
+            state.me.meta = "刚刚开始";
+            if (state.me.visible) state.me.visible = pending.view.headline;
+            pushState();
+          }, pending.remainingMs + 300);
+        }
         return;
       }
       if (m.type.startsWith("window.")) return;

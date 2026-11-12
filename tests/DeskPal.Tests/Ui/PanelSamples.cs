@@ -71,6 +71,8 @@ public static class PanelSamples
             Local = local,
             Classification = new ClassificationResult(ActivityCategory.Work, "Cursor", RuleLayer.Builtin),
             Committed = new CommittedPresence(earlier, Now.AddMinutes(-1)),
+            PendingDeadline = Now.AddSeconds(7),
+            StableFor = TimeSpan.FromSeconds(10),
             CorrectionTarget = "Cursor",
             MyRules =
             [
@@ -97,6 +99,7 @@ public static class PanelSamples
             Local = local,
             Classification = new ClassificationResult(ActivityCategory.Communication, "QQ", RuleLayer.Personal),
             Committed = new CommittedPresence(local, Now.AddMinutes(-3)),
+            PendingDeadline = null,
             CorrectionTarget = "QQ",
             MyRules = [new UserRuleDto(RuleKind.Process, "qq", ActivityCategory.Communication, "QQ", Now.AddDays(-3))],
             Unclassified = [],
@@ -116,6 +119,7 @@ public static class PanelSamples
             Local = paused,
             Classification = null,
             Committed = new CommittedPresence(paused, Now.AddMinutes(-5)),
+            PendingDeadline = null,
             Paused = true,
             ManualText = "午休中",
             CorrectionTarget = null,

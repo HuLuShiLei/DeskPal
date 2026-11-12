@@ -26,6 +26,7 @@ public sealed class PresenceCoordinator : BackgroundService
     private readonly Lock _lock = new();
     private readonly SemaphoreSlim _publishGate = new(1, 1);
     private readonly HashSet<Guid> _offlined = new();
+    private readonly Timer _deadline;
     private string? _loggedPresence;
 
     public PresenceCoordinator(
@@ -48,6 +49,7 @@ public sealed class PresenceCoordinator : BackgroundService
         _unclassified = unclassified;
         _signals = bus.Subscribe();
         _debouncer = new PresenceDebouncer(TimeSpan.FromSeconds(settings.StableSeconds), TimeSpan.FromSeconds(settings.StableSeconds));
+        _deadline = new Timer(_ => Evaluate());
         _rooms.RoomsReloaded += OnRoomsChangedAsync;
         _rooms.SelectionChanged += OnRoomsChangedAsync;
         personalRules.Changed += Evaluate;
@@ -63,6 +65,19 @@ public sealed class PresenceCoordinator : BackgroundService
     public LocalPresence? Local { get; private set; }
 
     public CommittedPresence? Committed => _debouncer.Current;
+
+    public DateTimeOffset? PendingDeadline
+    {
+        get
+        {
+            lock (_lock)
+            {
+                return _debouncer.PendingDeadline;
+            }
+        }
+    }
+
+    public TimeSpan StableFor => _debouncer.StableFor;
 
     public bool Paused => _settings.Paused;
 
@@ -112,17 +127,27 @@ public sealed class PresenceCoordinator : BackgroundService
     private void Evaluate()
     {
         CommittedPresence? committed;
+        DateTimeOffset? deadline;
+        DateTimeOffset now;
         lock (_lock)
         {
             Classification = _classifier.Classify(Snapshot);
             Local = PresenceResolver.Resolve(Snapshot, Classification, _settings.ManualText, _settings.Paused);
-            var now = DateTimeOffset.UtcNow;
+            now = DateTimeOffset.UtcNow;
             var ready = Snapshot.Foreground is not null || Local.State != PresenceState.Other;
             committed = ready ? _debouncer.Offer(Local, now) : null;
+            deadline = _debouncer.PendingDeadline;
             var unrecognized = Classification.Layer == RuleLayer.Fallback && Local.State == PresenceState.Other
                 ? CorrectionTarget.From(Snapshot, Classification.AppDisplayName)
                 : null;
             _unclassified.Record(unrecognized, now);
+        }
+
+        if (deadline is { } due)
+        {
+            // Commit right when the countdown on the panel ends instead of waiting for the next tick.
+            var delay = due - now + TimeSpan.FromMilliseconds(50);
+            _deadline.Change(delay > TimeSpan.Zero ? delay : TimeSpan.Zero, Timeout.InfiniteTimeSpan);
         }
 
         LocalChanged?.Invoke();
@@ -199,6 +224,12 @@ public sealed class PresenceCoordinator : BackgroundService
             committed.Presence.Category,
             layer,
             process);
+    }
+
+    public override void Dispose()
+    {
+        _deadline.Dispose();
+        base.Dispose();
     }
 
     private Task<bool> PublishOfflineAsync(Guid roomId) =>

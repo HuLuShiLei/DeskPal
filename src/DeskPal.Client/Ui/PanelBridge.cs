@@ -81,6 +81,8 @@ public sealed class PanelBridge
         Local = _presence.Local,
         Classification = _presence.Classification,
         Committed = _presence.Committed,
+        PendingDeadline = _presence.PendingDeadline,
+        StableFor = _presence.StableFor,
         Paused = _presence.Paused,
         ManualText = _presence.ManualText,
         CorrectionTarget = CorrectionTarget.From(_presence.Snapshot, _presence.Classification?.AppDisplayName)?.DisplayName,

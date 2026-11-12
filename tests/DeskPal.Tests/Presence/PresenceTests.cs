@@ -82,10 +82,12 @@ public class PresenceDebouncerTests
 
         Assert.Null(d.Offer(Video, T0.AddSeconds(1)));
         Assert.Null(d.Offer(Video, T0.AddSeconds(20)));
+        Assert.Equal(T0.AddSeconds(31), d.PendingDeadline);
         var committed = d.Offer(Video, T0.AddSeconds(31));
 
         Assert.Equal(PresenceState.Slacking, committed!.Presence.State);
         Assert.Equal(T0.AddSeconds(1), committed.Since);
+        Assert.Null(d.PendingDeadline);
     }
 
     [Fact]
@@ -96,6 +98,7 @@ public class PresenceDebouncerTests
 
         Assert.Null(d.Offer(Video, T0.AddSeconds(1)));
         Assert.Null(d.Offer(Working, T0.AddSeconds(5)));
+        Assert.Null(d.PendingDeadline);
         Assert.Null(d.Offer(Working, T0.AddSeconds(60)));
         Assert.Equal(PresenceState.Working, d.Current!.Presence.State);
     }

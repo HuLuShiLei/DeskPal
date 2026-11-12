@@ -79,7 +79,8 @@ flowchart LR
 
 `PresenceDebouncer`：
 
-- 新状态要持续 `StableSeconds`（默认 30 秒）才提交，`Since` 记为开始出现的时刻。
+- 新状态要持续 `StableSeconds`（10 秒，不写入 `settings.json`）才提交，`Since` 记为开始出现的时刻。`PresenceCoordinator` 在到期时刻再判定一次，不等下一次 5 秒的定时判定。
+- 状态页「我的状态」大字显示已提交的状态（房间成员当前看到的内容，未经隐私过滤）。有待提交的新状态时，下方显示「n 秒后变更为」和新状态，`PanelState.me.pending` 给出剩余毫秒，页面自己倒数。只有详情变了的，直接显示本机的新详情，不显示倒计时。
 - 暂停分享、手动状态、锁屏，进入和退出都立即提交。
 - 状态不变、只是详情变了（例如切换到另一个视频），按同样的间隔限频。
 
@@ -120,7 +121,7 @@ flowchart LR
 | 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`member.poke`、`presence.pause / manual / correct / resetCorrection`、`rules.set / delete`、`settings.autoStart / topmost / shareUsage`、`update.check / beta / restart`、`auth.login / register / logout` |
 | 页面 → 宿主，不回复 | `ready`、`dialog.answer{dialogId, ok}`、`window.minimize`、`window.close` |
 
-`PanelState` 由 `PanelStateBuilder` 在 Client.Core 里生成，界面上的文字（连接状态、空提示、识别方式、房间成员看到的内容、我的分类、待归类）都在 C# 里算好，页面只负责显示。页面写「房间」，不写 Room。`PanelFixtureTests` 把几组样例序列化到 `web/src/mock/fixtures/`，不一致就失败，改了 `PanelState` 或文案后用 `DESKPAL_UPDATE_FIXTURES=1` 运行测试更新。
+`PanelState` 由 `PanelStateBuilder` 在 Client.Core 里生成，界面上的文字（连接状态、空提示、识别方式（悬停问号显示）、房间成员看到的内容、待提交状态、我的分类、待归类）都在 C# 里算好，页面只负责显示。页面写「房间」，不写 Room。`PanelFixtureTests` 把几组样例序列化到 `web/src/mock/fixtures/`，不一致就失败，改了 `PanelState` 或文案后用 `DESKPAL_UPDATE_FIXTURES=1` 运行测试更新。
 
 在浏览器里调试：`cd src/DeskPal.Client/web; npm run dev`，打开 `http://localhost:5190/`。没有 `chrome.webview` 时页面用模拟宿主，参数 `?mock=default|no-room|guest` 切换样例，`?fail` 让所有命令失败，`?page=login` 打开登录页，发出的命令记录在 `window.__sent`。Debug 版客户端设置环境变量 `DESKPAL_UI_URL=http://localhost:5190/` 可以直接加载开发服务器。
 

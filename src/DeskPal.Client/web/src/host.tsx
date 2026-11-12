@@ -170,16 +170,36 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
   );
 }
 
-export function PresenceLines({ view }: { view: PresenceView }) {
-  const sub = [view.app, view.detail].filter(Boolean).join(" · ");
+/** 带状态色的标签，例如「● 在聊天」。 */
+export function StatusBadge({ view }: { view: PresenceView }) {
   return (
-    <>
-      <p class={`headline tone-text-${view.tone}`}>{view.headline}</p>
-      {sub && (
-        <p class="sub" title={sub}>
-          {sub}
-        </p>
-      )}
-    </>
+    <span class={`status-badge tv-${view.tone}`}>
+      <span class="status-dot" aria-hidden="true" />
+      {view.headline}
+    </span>
   );
+}
+
+/** 应用名一行，窗口标题最多两行；完整内容悬停查看。 */
+export function PresenceDetail({ view }: { view: PresenceView }) {
+  if (!view.app && !view.detail) return null;
+  return (
+    <div class="presence-detail" title={[view.app, view.detail].filter(Boolean).join("\n")}>
+      {view.app && <p class="presence-app">{view.app}</p>}
+      {view.detail && <p class="presence-title">{view.detail}</p>}
+    </div>
+  );
+}
+
+/** 从宿主给的剩余毫秒开始倒数。每次推送都重新对时。 */
+export function useCountdown(remainingMs: number) {
+  const [deadline, setDeadline] = useState(() => Date.now() + remainingMs);
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    setDeadline(Date.now() + remainingMs);
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(timer);
+  }, [remainingMs]);
+  return Math.max(0, deadline - now);
 }

@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import type { MemberItem, PanelState, UnclassifiedItem } from "../bridge";
-import { PresenceLines, useHost } from "../host";
-import { Avatar, Icon, Section, Switch } from "../ui";
+import { PresenceDetail, StatusBadge, useCountdown, useHost } from "../host";
+import { Avatar, Hint, Icon, Section, Switch } from "../ui";
 
 export function StatusPage({ state }: { state: PanelState }) {
   const room = state.rooms.find((r) => r.id === state.selectedRoomId);
@@ -49,7 +49,10 @@ function MemberRow({ member, roomId }: { member: MemberItem; roomId: string }) {
           {member.isOwner && <span class="badge">所有者</span>}
           {member.meta && <span class="row-meta">{member.meta}</span>}
         </p>
-        <PresenceLines view={member.view} />
+        <div>
+          <StatusBadge view={member.view} />
+        </div>
+        <PresenceDetail view={member.view} />
       </div>
       <button class="icon-button" onClick={poke} disabled={!member.online} title={member.online ? "戳一下" : "对方离线，收不到"} aria-label={`戳一下${member.name}`}>
         <Icon name="ring" />
@@ -69,7 +72,7 @@ function MyStatus({ state }: { state: PanelState }) {
     }
     const a = await ask({
       title: "纠正分类",
-      message: `把「${correction.target}」归为所选类别。只改变你自己的识别结果，所有房间和电脑通用，房间里的其他人不受影响。`,
+      message: `把「${correction.target}」归为所选类别。`,
       select: { options: correction.options, initial: correction.current },
       okText: "保存",
     });
@@ -83,29 +86,29 @@ function MyStatus({ state }: { state: PanelState }) {
 
   return (
     <Section label="我的状态">
-      <div class="card me">
+      <div class={`card me tv-${me.view.tone}`}>
         <div class="me-head">
           <Avatar name={me.displayName} tone={me.view.tone} />
           <div class="row-main">
-            <p class="row-title">{me.displayName}（我）</p>
-            <PresenceLines view={me.view} />
+            <p class="row-title">
+              {me.displayName}（我）
+              {me.meta && <span class="row-meta">{me.meta}</span>}
+            </p>
+            <p class={`me-headline tv-${me.view.tone}`}>
+              <span class="status-dot" aria-hidden="true" />
+              <span>{me.view.headline}</span>
+              {me.source && !me.pending && <Hint text={me.source} />}
+            </p>
+            <PresenceDetail view={me.view} />
           </div>
         </div>
-        {(me.source || me.visible) && (
-          <dl class="facts">
-            {me.source && (
-              <>
-                <dt>识别方式</dt>
-                <dd>{me.source}</dd>
-              </>
-            )}
-            {me.visible && (
-              <>
-                <dt>房间成员看到</dt>
-                <dd>{me.visible}</dd>
-              </>
-            )}
-          </dl>
+        {me.pending && <Pending pending={me.pending} source={me.source} />}
+        {me.visible && (
+          <p class="visible-line" title={`房间成员看到：${me.visible}`}>
+            <Icon name="view" />
+            <span class="visible-label">房间成员看到</span>
+            <span class="visible-text">{me.visible}</span>
+          </p>
         )}
         <div class="toolbar">
           {!me.paused && (
@@ -128,6 +131,36 @@ function MyStatus({ state }: { state: PanelState }) {
         </div>
       </div>
     </Section>
+  );
+}
+
+function Pending({ pending, source }: { pending: NonNullable<PanelState["me"]["pending"]>; source: string | null }) {
+  const left = useCountdown(pending.remainingMs);
+  const seconds = Math.ceil(left / 1000);
+  const progress = Math.min(1, Math.max(0, 1 - left / (pending.totalSeconds * 1000)));
+  const why = `保持 ${pending.totalSeconds} 秒不变后同步给房间成员`;
+  return (
+    <div class={`pending tv-${pending.view.tone}`} role="status" aria-label={seconds > 0 ? `${seconds} 秒后变更为${pending.view.headline}` : `即将变更为${pending.view.headline}`}>
+      <div class="pending-head">
+        <Icon name="timer" class="pending-icon" />
+        <span class="pending-count">
+          {seconds > 0 ? (
+            <>
+              <b>{seconds}</b> 秒后变更为
+            </>
+          ) : (
+            "即将变更为"
+          )}
+        </span>
+        <StatusBadge view={pending.view} />
+        <span class="spacer" />
+        <Hint text={source ? `${source}\n${why}` : why} />
+      </div>
+      <PresenceDetail view={pending.view} />
+      <div class="progress" aria-hidden="true">
+        <span style={{ width: `${progress * 100}%` }} />
+      </div>
+    </div>
   );
 }
 

@@ -14,7 +14,9 @@ public sealed class AppSettings
     public string? ProtectedToken { get; set; }
     public Guid? SelectedRoomId { get; set; }
     public int IdleMinutes { get; set; } = 5;
-    public int StableSeconds { get; set; } = 30;
+    /// <summary>Not saved: older settings files carry 30, which must not override the current default.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int StableSeconds { get; set; } = 10;
     public bool Paused { get; set; }
     public string? ManualText { get; set; }
 

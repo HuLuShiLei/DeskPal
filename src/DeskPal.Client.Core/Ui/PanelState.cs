@@ -23,6 +23,10 @@ public sealed record PanelState(
 
 public sealed record ConnectionView(bool Connected, string Text);
 
+/// <param name="View">What the room currently gets (the committed presence, unfiltered); the local presence before the first commit.</param>
+/// <param name="Source">How the current app was recognized. Shown on hover.</param>
+/// <param name="Pending">A newer local presence waiting to become stable; null when nothing is waiting.</param>
+/// <param name="Meta">How long the current status has lasted.</param>
 public sealed record MeView(
     string DisplayName,
     PresenceView View,
@@ -30,7 +34,13 @@ public sealed record MeView(
     string? Visible,
     bool Paused,
     string? ManualText,
-    IReadOnlyList<string> ManualPresets);
+    IReadOnlyList<string> ManualPresets,
+    PendingView? Pending = null,
+    string? Meta = null);
+
+/// <param name="RemainingMs">Time left when the state was built. The page counts down from here.</param>
+/// <param name="TotalSeconds">The full stable interval, for the progress bar.</param>
+public sealed record PendingView(PresenceView View, int RemainingMs, int TotalSeconds);
 
 public sealed record RoomItem(Guid Id, string Name, bool IsOwner, int MemberCount, int MaxMembers);
 

@@ -30,13 +30,29 @@ public class PanelStateBuilderTests
     }
 
     [Fact]
-    public void My_status_shows_source_pending_sync_and_what_the_room_sees()
+    public void My_status_shows_the_committed_state_with_a_countdown_to_the_pending_one()
     {
         var me = PanelStateBuilder.Build(PanelSamples.Default()).Me;
 
-        Assert.Equal(new PresenceView("工作中", "Cursor", "plan.md - idea1 - Cursor", "work"), me.View);
-        Assert.Equal("默认分类，稳定后同步", me.Source);
+        Assert.Equal(new PresenceView("正在使用 Cursor", null, null, "other"), me.View);
+        Assert.Equal("已持续 1 分钟", me.Meta);
+        Assert.Equal(new PresenceView("工作中", "Cursor", "plan.md - idea1 - Cursor", "work"), me.Pending!.View);
+        Assert.Equal(7000, me.Pending.RemainingMs);
+        Assert.Equal(10, me.Pending.TotalSeconds);
+        Assert.Equal("「Cursor」按默认分类识别。", me.Source);
         Assert.Equal("正在使用 Cursor", me.Visible);
+    }
+
+    [Fact]
+    public void Detail_only_change_shows_the_local_title_without_a_countdown()
+    {
+        var input = PanelSamples.Default();
+        var committed = input.Local! with { Detail = "old.md - idea1 - Cursor" };
+        var me = PanelStateBuilder.Build(input with { Committed = new CommittedPresence(committed, PanelSamples.Now.AddSeconds(-20)), PendingDeadline = null }).Me;
+
+        Assert.Equal("plan.md - idea1 - Cursor", me.View.Detail);
+        Assert.Null(me.Pending);
+        Assert.Equal("刚刚开始", me.Meta);
     }
 
     [Fact]
@@ -64,7 +80,8 @@ public class PanelStateBuilderTests
         Assert.Null(state.Privacy);
         Assert.StartsWith("还没有房间", state.EmptyHint);
         Assert.Null(state.Me.Visible);
-        Assert.Equal("按你的分类", state.Me.Source);
+        Assert.Equal("「QQ」按你设置的分类识别。", state.Me.Source);
+        Assert.Null(state.Me.Pending);
         Assert.True(state.Correction.Personal);
     }
 

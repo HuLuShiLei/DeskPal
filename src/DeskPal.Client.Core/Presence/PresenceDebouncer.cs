@@ -18,6 +18,11 @@ public sealed class PresenceDebouncer(TimeSpan stableFor, TimeSpan detailInterva
 
     public CommittedPresence? Current => _committed;
 
+    public TimeSpan StableFor => stableFor;
+
+    /// <summary>When the pending presence will be committed if it stays unchanged; null when nothing is waiting.</summary>
+    public DateTimeOffset? PendingDeadline => _pending is null ? null : _pendingSince + stableFor;
+
     /// <returns>The newly committed presence, or null when nothing should be sent.</returns>
     public CommittedPresence? Offer(LocalPresence candidate, DateTimeOffset now)
     {
