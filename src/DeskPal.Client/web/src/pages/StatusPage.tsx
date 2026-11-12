@@ -54,22 +54,26 @@ function MyStatus({ state }: { state: PanelState }) {
       return;
     }
     const a = await ask({
-      title: "这条分错了",
-      message: `把「${correction.target}」归类为：`,
+      title: "纠正分类",
+      message: room
+        ? `把「${correction.target}」归为所选类别。保存后，房间「${room.name}」的所有成员都按这个类别识别。`
+        : `把「${correction.target}」归为所选类别。当前没有进入房间，只保存在这台电脑上。`,
       select: { options: correction.options, initial: correction.current },
-      checkbox: room
-        ? { label: `同步给房间「${room.name}」的所有成员`, initial: true }
-        : { label: "同步给房间（当前没有房间）", initial: false, disabled: true },
       okText: "保存",
     });
-    if (a.ok) await run({ type: "presence.correct", category: a.selected, shareToRoom: a.checked }, "已保存，之后按新的类别识别");
+    if (a.ok) {
+      await run(
+        { type: "presence.correct", category: a.selected },
+        room ? "已保存到这个房间，所有成员都会按这个类别识别" : "已保存在这台电脑上",
+      );
+    }
   };
 
   return (
     <section class="card mine" aria-label="我的状态">
       <div class="card-head">
         <h2>我的状态</h2>
-        {!me.paused && <button onClick={correct}>这条分错了</button>}
+        {!me.paused && <button onClick={correct}>纠正分类</button>}
       </div>
       <PresenceLines view={me.view} />
       {me.source && <p class="meta">{me.source}</p>}

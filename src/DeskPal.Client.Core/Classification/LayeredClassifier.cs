@@ -17,8 +17,9 @@ public enum RuleLayer
 public sealed record ClassificationResult(ActivityCategory Category, string? AppDisplayName, RuleLayer Layer);
 
 /// <summary>
-/// Desktop apps: personal, room, builtin, heuristic, then Other.
-/// A browser checks personal and room rules only; otherwise it is Browsing, named by domain.
+/// Desktop apps: room, personal, builtin, heuristic, then Other.
+/// A browser checks room rules, then personal rules; otherwise it is Browsing, named by domain.
+/// A room rule wins for everyone currently in that room.
 /// </summary>
 public sealed class LayeredClassifier
 {
@@ -45,7 +46,7 @@ public sealed class LayeredClassifier
             return ClassifyBrowser(snapshot);
         }
 
-        foreach (var (layer, rules) in new[] { (RuleLayer.Personal, _personal), (RuleLayer.Room, _room), (RuleLayer.Builtin, _builtin) })
+        foreach (var (layer, rules) in new[] { (RuleLayer.Room, _room), (RuleLayer.Personal, _personal), (RuleLayer.Builtin, _builtin) })
         {
             if (rules.Match(snapshot) is { } rule)
             {
@@ -61,10 +62,10 @@ public sealed class LayeredClassifier
         return new ClassificationResult(ActivityCategory.Other, DefaultName(snapshot), RuleLayer.Fallback);
     }
 
-    /// <summary>Personal and room rules can still reclassify a site. Builtin site rules do not.</summary>
+    /// <summary>Room rules, then personal rules, can reclassify a site. Builtin site rules do not.</summary>
     private ClassificationResult ClassifyBrowser(ActivitySnapshot snapshot)
     {
-        foreach (var (layer, rules) in new[] { (RuleLayer.Personal, _personal), (RuleLayer.Room, _room) })
+        foreach (var (layer, rules) in new[] { (RuleLayer.Room, _room), (RuleLayer.Personal, _personal) })
         {
             if (rules.Match(snapshot) is { } rule)
             {

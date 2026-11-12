@@ -31,6 +31,9 @@ public sealed class RoomState(
     /// <summary>Raised after the active room changes to one already in the list.</summary>
     public event Func<Task>? SelectionChanged;
 
+    /// <summary>Raised after the active room's rules are reloaded from the server.</summary>
+    public event Func<Task>? RulesChanged;
+
     public Guid MyUserId => settings.UserId;
 
     public IReadOnlyList<RoomDto> Rooms
@@ -150,6 +153,23 @@ public sealed class RoomState(
         classifier.SetRoom(new RuleSet(rules.OrderByDescending(r => r.UpdatedAt).Select(r => new RuleDto(r.Kind, r.Pattern, r.Category, r.Name))));
     }
 
+    private async Task ApplyRoomRulesAsync()
+    {
+        try
+        {
+            await ReloadRoomRulesAsync();
+            Changed?.Invoke();
+            if (RulesChanged is { } handler)
+            {
+                await handler();
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Reloading room rules failed");
+        }
+    }
+
     public async Task SavePrivacyAsync(Guid roomId, PrivacyProfile profile)
     {
         var saved = await api.SetPrivacyAsync(roomId, new PrivacyProfileDto(profile.Levels));
@@ -210,7 +230,7 @@ public sealed class RoomState(
                     break;
 
                 case MessageTypes.RoomRulesChanged:
-                    _ = ReloadRoomRulesAsync().ContinueWith(_ => Changed?.Invoke(), TaskScheduler.Default);
+                    _ = ApplyRoomRulesAsync();
                     break;
             }
         }

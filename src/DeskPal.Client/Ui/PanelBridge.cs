@@ -287,14 +287,16 @@ public sealed class PanelBridge
         }
 
         var rule = new RuleDto(target.Kind, target.Pattern, category, target.DisplayName);
-        _personalRules.Upsert(rule);
-        _presence.ReloadPersonalRules();
-        if (c.Bool("shareToRoom") && _rooms.SelectedRoom is { } room)
+        if (_rooms.SelectedRoom is { } room)
         {
             await _api.UpsertRoomRuleAsync(room.Id, new UpsertRoomRuleRequest(rule.Kind, rule.Pattern, rule.Category, rule.Name));
             await _rooms.ReloadRoomRulesAsync();
+            _presence.Reevaluate();
+            return CommandResult.Success;
         }
 
+        _personalRules.Upsert(rule);
+        _presence.ReloadPersonalRules();
         return CommandResult.Success;
     }
 

@@ -78,19 +78,30 @@ public class ClassifierTests
     }
 
     [Fact]
-    public void Personal_override_beats_room_rule()
+    public void Room_rule_beats_personal_rule()
     {
         var classifier = Create();
         var snapshot = TestData.Browser("bilibili.com");
-        Assert.Equal(ActivityCategory.Browsing, classifier.Classify(snapshot).Category);
+        classifier.SetPersonal(new RuleSet([new RuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Reading)]));
+        var personal = classifier.Classify(snapshot);
+        Assert.Equal((ActivityCategory.Reading, "bilibili.com", RuleLayer.Personal), (personal.Category, personal.AppDisplayName, personal.Layer));
 
         classifier.SetRoom(new RuleSet([new RuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Work, "B 站学习")]));
         var room = classifier.Classify(snapshot);
         Assert.Equal((ActivityCategory.Work, "B 站学习", RuleLayer.Room), (room.Category, room.AppDisplayName, room.Layer));
+    }
 
-        classifier.SetPersonal(new RuleSet([new RuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Reading)]));
-        var personal = classifier.Classify(snapshot);
-        Assert.Equal((ActivityCategory.Reading, "bilibili.com", RuleLayer.Personal), (personal.Category, personal.AppDisplayName, personal.Layer));
+    [Fact]
+    public void Room_process_rule_beats_personal_and_builtin()
+    {
+        var classifier = Create();
+        var snapshot = TestData.App("DevEnv");
+        classifier.SetPersonal(new RuleSet([new RuleDto(RuleKind.Process, "devenv.exe", ActivityCategory.Game, "VS")]));
+        Assert.Equal((ActivityCategory.Game, "VS", RuleLayer.Personal), (classifier.Classify(snapshot).Category, classifier.Classify(snapshot).AppDisplayName, classifier.Classify(snapshot).Layer));
+
+        classifier.SetRoom(new RuleSet([new RuleDto(RuleKind.Process, "devenv.exe", ActivityCategory.Work, "Visual Studio")]));
+        var room = classifier.Classify(snapshot);
+        Assert.Equal((ActivityCategory.Work, "Visual Studio", RuleLayer.Room), (room.Category, room.AppDisplayName, room.Layer));
     }
 
     [Fact]

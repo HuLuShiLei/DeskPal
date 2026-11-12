@@ -87,7 +87,7 @@ export type Command =
   | { type: "member.poke"; roomId: string; userId: string; text: string | null }
   | { type: "presence.pause"; paused: boolean }
   | { type: "presence.manual"; text: string | null }
-  | { type: "presence.correct"; category: string; shareToRoom: boolean }
+  | { type: "presence.correct"; category: string }
   | { type: "settings.autoStart"; enabled: boolean }
   | { type: "settings.topmost"; enabled: boolean }
   | { type: "update.check" }

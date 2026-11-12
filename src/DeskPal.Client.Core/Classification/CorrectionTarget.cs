@@ -3,7 +3,7 @@ using DeskPal.Shared.Api;
 
 namespace DeskPal.Client.Core.Classification;
 
-/// <summary>What a "这条分错了" correction is recorded against: the browser domain when known, otherwise the process.</summary>
+/// <summary>What a correction is recorded against: the browser domain when known, otherwise the process.</summary>
 public sealed record CorrectionTarget(RuleKind Kind, string Pattern, string DisplayName)
 {
     public static CorrectionTarget? From(ActivitySnapshot snapshot, string? currentDisplayName)

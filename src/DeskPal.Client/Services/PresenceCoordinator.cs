@@ -45,6 +45,7 @@ public sealed class PresenceCoordinator : BackgroundService
         _classifier.SetPersonal(new RuleSet(_personalRules.Load()));
         _rooms.RoomsReloaded += OnRoomsChangedAsync;
         _rooms.SelectionChanged += OnRoomsChangedAsync;
+        _rooms.RulesChanged += OnRoomsChangedAsync;
         _hub.Connected += () => PublishActiveAsync(_debouncer.Current);
     }
 
