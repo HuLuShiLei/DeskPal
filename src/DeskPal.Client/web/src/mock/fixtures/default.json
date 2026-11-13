@@ -25,14 +25,15 @@
     "pending": {
       "view": {
         "headline": "工作中",
-        "app": "Cursor",
-        "detail": "plan.md - idea1 - Cursor",
+        "app": null,
+        "detail": null,
         "tone": "work"
       },
       "remainingMs": 7000,
       "totalSeconds": 10
     },
-    "meta": "已持续 1 分钟"
+    "meta": "已持续 1 分钟",
+    "hidden": "按隐私设置，房间成员看不到标题"
   },
   "rooms": [
     {

@@ -85,6 +85,12 @@ function MyStatus({ state }: { state: PanelState }) {
               {me.source && !me.pending && <Hint text={me.source} />}
             </p>
             <PresenceDetail view={me.view} />
+            {me.hidden && (
+              <p class="me-hidden">
+                <Icon name="hide" />
+                {me.hidden}
+              </p>
+            )}
           </div>
         </div>
         {me.pending && <Pending pending={me.pending} source={me.source} />}

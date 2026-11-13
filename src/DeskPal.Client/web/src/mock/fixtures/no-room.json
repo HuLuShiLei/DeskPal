@@ -23,7 +23,8 @@
       "在路上"
     ],
     "pending": null,
-    "meta": "已持续 3 分钟"
+    "meta": "已持续 3 分钟",
+    "hidden": null
   },
   "rooms": [],
   "selectedRoomId": null,

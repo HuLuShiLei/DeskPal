@@ -30,13 +30,14 @@ public class PanelStateBuilderTests
     }
 
     [Fact]
-    public void My_status_shows_the_committed_state_with_a_countdown_to_the_pending_one()
+    public void My_status_shows_what_the_room_gets_with_a_countdown_to_the_pending_one()
     {
         var me = PanelStateBuilder.Build(PanelSamples.Default()).Me;
 
         Assert.Equal(new PresenceView("正在使用 Cursor", null, null, "other"), me.View);
+        Assert.Equal("按隐私设置，房间成员看不到标题", me.Hidden);
         Assert.Equal("已持续 1 分钟", me.Meta);
-        Assert.Equal(new PresenceView("工作中", "Cursor", "plan.md - idea1 - Cursor", "work"), me.Pending!.View);
+        Assert.Equal(new PresenceView("工作中", null, null, "work"), me.Pending!.View);
         Assert.Equal(7000, me.Pending.RemainingMs);
         Assert.Equal(10, me.Pending.TotalSeconds);
         Assert.Equal("「Cursor」按默认分类识别。", me.Source);
@@ -48,11 +49,35 @@ public class PanelStateBuilderTests
     {
         var input = PanelSamples.Default();
         var committed = input.Local! with { Detail = "old.md - idea1 - Cursor" };
-        var me = PanelStateBuilder.Build(input with { Committed = new CommittedPresence(committed, PanelSamples.Now.AddSeconds(-20)), PendingDeadline = null }).Me;
+        var me = PanelStateBuilder.Build(input with
+        {
+            Committed = new CommittedPresence(committed, PanelSamples.Now.AddSeconds(-20)),
+            PendingDeadline = null,
+            PrivacyOf = _ => new PrivacyProfile { Levels = { [ActivityCategory.Work] = PrivacyLevel.Detail } },
+        }).Me;
 
         Assert.Equal("plan.md - idea1 - Cursor", me.View.Detail);
+        Assert.Null(me.Hidden);
         Assert.Null(me.Pending);
         Assert.Equal("刚刚开始", me.Meta);
+    }
+
+    [Theory]
+    [InlineData(PrivacyLevel.StateOnly, null, null, "按隐私设置，房间成员看不到应用名和标题")]
+    [InlineData(PrivacyLevel.Category, "Cursor", null, "按隐私设置，房间成员看不到标题")]
+    [InlineData(PrivacyLevel.Detail, "Cursor", "plan.md - idea1 - Cursor", null)]
+    public void My_status_follows_the_privacy_level_of_the_selected_room(PrivacyLevel level, string? app, string? detail, string? hidden)
+    {
+        var input = PanelSamples.Default();
+        var me = PanelStateBuilder.Build(input with
+        {
+            Committed = new CommittedPresence(input.Local!, PanelSamples.Now.AddMinutes(-1)),
+            PendingDeadline = null,
+            PrivacyOf = _ => new PrivacyProfile { Levels = { [ActivityCategory.Work] = level } },
+        }).Me;
+
+        Assert.Equal(new PresenceView("工作中", app, detail, "work"), me.View);
+        Assert.Equal(hidden, me.Hidden);
     }
 
     [Fact]
@@ -80,6 +105,8 @@ public class PanelStateBuilderTests
         Assert.Null(state.Privacy);
         Assert.StartsWith("还没有房间", state.EmptyHint);
         Assert.Null(state.Me.Visible);
+        Assert.Equal("理工生陷入云吸猫 (64)", state.Me.View.Detail);
+        Assert.Null(state.Me.Hidden);
         Assert.Equal("「QQ」按你设置的分类识别。", state.Me.Source);
         Assert.Null(state.Me.Pending);
         Assert.True(state.Correction.Personal);
@@ -154,7 +181,8 @@ public class PanelStateBuilderTests
 
         var me = PanelStateBuilder.Build(input).Me;
 
-        Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", "猫猫合集", "browse"), me.View);
+        Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", null, "browse"), me.View);
+        Assert.Equal("按隐私设置，房间成员看不到标题", me.Hidden);
         Assert.Null(me.Source);
         Assert.Equal("正在浏览网页 · bilibili.com", me.Visible);
     }

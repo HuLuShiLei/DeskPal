@@ -58,7 +58,7 @@ public static class PanelSamples
             },
         };
         var local = new LocalPresence(PresenceState.Working, ActivityCategory.Work, "Cursor", "plan.md - idea1 - Cursor", null);
-        var earlier = new LocalPresence(PresenceState.Other, ActivityCategory.Other, "Cursor", null, null);
+        var earlier = new LocalPresence(PresenceState.Other, ActivityCategory.Other, "Cursor", "roadmap.md - idea1 - Cursor", null);
         return new PanelInput
         {
             MyUserId = Alice,

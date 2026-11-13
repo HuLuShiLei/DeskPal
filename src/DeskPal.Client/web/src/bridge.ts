@@ -71,6 +71,8 @@ export interface PanelState {
     /** 本机的新状态还没稳定、尚未同步给房间成员时才有。 */
     pending: { view: PresenceView; remainingMs: number; totalSeconds: number } | null;
     meta: string | null;
+    /** 按当前房间的隐私设置没有发出去的内容，例如标题。 */
+    hidden: string | null;
   };
   rooms: RoomItem[];
   selectedRoomId: string | null;

@@ -23,10 +23,11 @@ public sealed record PanelState(
 
 public sealed record ConnectionView(bool Connected, string Text);
 
-/// <param name="View">What the room currently gets (the committed presence, unfiltered); the local presence before the first commit.</param>
+/// <param name="View">What the room currently gets (the committed presence, filtered by my privacy in the selected room); the local presence before the first commit. Unfiltered when there is no room.</param>
 /// <param name="Source">How the current app was recognized. Shown on hover.</param>
-/// <param name="Pending">A newer local presence waiting to become stable; null when nothing is waiting.</param>
+/// <param name="Pending">A newer local presence waiting to become stable, filtered the same way; null when nothing is waiting.</param>
 /// <param name="Meta">How long the current status has lasted.</param>
+/// <param name="Hidden">What the privacy setting keeps from the room, e.g. the title; null when nothing is held back.</param>
 public sealed record MeView(
     string DisplayName,
     PresenceView View,
@@ -36,7 +37,8 @@ public sealed record MeView(
     string? ManualText,
     IReadOnlyList<string> ManualPresets,
     PendingView? Pending = null,
-    string? Meta = null);
+    string? Meta = null,
+    string? Hidden = null);
 
 /// <param name="RemainingMs">Time left when the state was built. The page counts down from here.</param>
 /// <param name="TotalSeconds">The full stable interval, for the progress bar.</param>

@@ -117,10 +117,16 @@ public static class PanelStateBuilder
             return new MeView(input.DisplayName, new PresenceView("正在识别…", null, null), null, null, input.Paused, input.ManualText, ManualPresets);
         }
 
-        var localView = PresenceFormatter.Format(Unfiltered(local));
+        var privacy = room is null ? null : input.PrivacyOf(room.Id);
+        PresenceView Shown(LocalPresence presence) => privacy is null
+            ? PresenceFormatter.Format(Unfiltered(presence))
+            : PresenceFormatter.Format(PrivacyFilter.Apply(new CommittedPresence(presence, input.Now), privacy));
+
+        var localView = Shown(local);
         var current = input.Committed;
         var waiting = current is not null && current.Presence.Key != local.Key;
-        var view = waiting ? PresenceFormatter.Format(Unfiltered(current!.Presence)) : localView;
+        var shownPresence = waiting ? current!.Presence : local;
+        var view = Shown(shownPresence);
         PendingView? pending = waiting && input.PendingDeadline is { } deadline
             ? new PendingView(
                 localView,
@@ -156,7 +162,31 @@ public static class PanelStateBuilder
             input.ManualText,
             ManualPresets,
             pending,
-            current is null ? null : Lasted(current.Since, input.Now));
+            current is null ? null : Lasted(current.Since, input.Now),
+            Hidden(shownPresence, privacy));
+    }
+
+    /// <summary>What the room does not get because of my privacy level, so the card is not mistaken for the full picture.</summary>
+    private static string? Hidden(LocalPresence presence, PrivacyProfile? privacy)
+    {
+        if (privacy is null || presence.Category == ActivityCategory.None)
+        {
+            return null;
+        }
+
+        var level = privacy.LevelFor(presence.Category);
+        var parts = new List<string>();
+        if (level == PrivacyLevel.StateOnly && !string.IsNullOrWhiteSpace(presence.AppDisplayName))
+        {
+            parts.Add(presence.Category == ActivityCategory.Browsing ? "网站" : "应用名");
+        }
+
+        if (level != PrivacyLevel.Detail && PresenceFormatter.Format(Unfiltered(presence)).Detail is not null)
+        {
+            parts.Add("标题");
+        }
+
+        return parts.Count == 0 ? null : $"按隐私设置，房间成员看不到{string.Join("和", parts)}";
     }
 
     private static PresenceSnapshot Unfiltered(LocalPresence local) => new()

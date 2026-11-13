@@ -22,6 +22,7 @@ const glyphs = {
   ring: "\uEA8F",
   refresh: "\uE72C",
   timer: "\uE916",
+  hide: "\uED1A",
 } as const;
 
 export type IconName = keyof typeof glyphs;
