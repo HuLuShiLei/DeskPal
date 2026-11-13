@@ -54,12 +54,12 @@ export function createMockTransport(params: URLSearchParams): Transport {
         state.selectedRoomId = m.roomId as string;
         break;
       case "room.create":
-        state.rooms.push({ id: crypto.randomUUID(), name: m.name as string, isOwner: true, memberCount: 1, maxMembers: 50 });
+        state.rooms.push({ id: crypto.randomUUID(), name: m.name as string, isOwner: true, memberCount: 1, maxMembers: 20 });
         state.selectedRoomId = state.rooms.at(-1)!.id;
         break;
       case "room.join":
         if (m.code === "00000000") return { ok: false, error: "邀请码无效或已过期" };
-        state.rooms.push({ id: crypto.randomUUID(), name: "加入的房间", isOwner: false, memberCount: 2, maxMembers: 50 });
+        state.rooms.push({ id: crypto.randomUUID(), name: "加入的房间", isOwner: false, memberCount: 2, maxMembers: 20 });
         break;
       case "room.rename": {
         const r = room(m.roomId);

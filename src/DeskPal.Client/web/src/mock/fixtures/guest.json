@@ -31,14 +31,14 @@
       "name": "测试房间",
       "isOwner": true,
       "memberCount": 3,
-      "maxMembers": 50
+      "maxMembers": 20
     },
     {
       "id": "00000000-0000-0000-0000-0000000000a2",
       "name": "同事房间",
       "isOwner": false,
       "memberCount": 2,
-      "maxMembers": 50
+      "maxMembers": 20
     }
   ],
   "selectedRoomId": "00000000-0000-0000-0000-0000000000a2",

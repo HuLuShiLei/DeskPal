@@ -22,7 +22,7 @@ public sealed class RoomServiceTests : IDisposable
         _connection.Open();
         _db = new DeskPalDbContext(new DbContextOptionsBuilder<DeskPalDbContext>().UseSqlite(_connection).Options);
         _db.Database.EnsureCreated();
-        _rooms = new RoomService(_db, _time, Options.Create(new RoomOptions { MaxOwnedRoomsPerUser = 2, MaxMembersPerRoom = 50, InviteLifetimeHours = 24 }));
+        _rooms = new RoomService(_db, _time, Options.Create(new RoomOptions { MaxOwnedRoomsPerUser = 2, MaxMembersPerRoom = 20, InviteLifetimeHours = 24 }));
         _alice = AddUser("alice");
         _bob = AddUser("bob");
         _carol = AddUser("carol");
@@ -55,7 +55,7 @@ public sealed class RoomServiceTests : IDisposable
         var joined = await _rooms.JoinAsync(_bob, invite.Code.ToLowerInvariant());
         Assert.Equal(2, joined.Value!.Members.Count);
 
-        Assert.Equal(50, joined.Value.MaxMembers);
+        Assert.Equal(20, joined.Value.MaxMembers);
         Assert.Equal(409, (await _rooms.JoinAsync(_bob, invite.Code)).Status);
 
         var carol = await _rooms.JoinAsync(_carol, invite.Code);
