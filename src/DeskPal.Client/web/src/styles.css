@@ -105,13 +105,11 @@ button.primary { background: var(--accent); border-color: transparent; color: va
 button.primary:hover:not(:disabled) { background: var(--accent-hover); }
 button.primary:active:not(:disabled) { background: var(--accent); color: var(--on-accent); opacity: 0.85; }
 button.primary.danger { background: var(--danger); color: #fff; }
-button.subtle, button.icon-button, button.link-button { background: transparent; border-color: transparent; }
+button.subtle, button.icon-button { background: transparent; border-color: transparent; }
 button.subtle:hover:not(:disabled), button.icon-button:hover:not(:disabled) { background: var(--hover); }
 button.subtle:active:not(:disabled), button.icon-button:active:not(:disabled) { background: var(--pressed); }
 button.danger { color: var(--danger); }
 button.icon-button { width: 30px; padding: 0; color: var(--muted); }
-button.link-button { color: var(--accent); padding: 0; min-height: 0; justify-content: flex-start; }
-button.link-button:hover { text-decoration: underline; }
 button.wide { width: 100%; min-height: 34px; }
 
 input:not([type=checkbox]):not([type=radio]), select {
@@ -450,7 +448,6 @@ button.hint-button:active:not(:disabled) { background: var(--pressed); color: va
 .login-brand h1 { font-size: 22px; font-weight: 600; margin-top: 4px; }
 .login label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
 .login label input { color: var(--text); font-size: 13px; }
-.login .link-button { font-size: 12px; color: var(--muted); white-space: normal; text-align: left; }
 .segmented { display: flex; padding: 3px; gap: 3px; border-radius: var(--radius-lg); background: var(--hover); }
 .segmented button { flex: 1; border: none; background: transparent; min-height: 28px; color: var(--muted); }
 .segmented button[aria-selected=true] { background: var(--surface-strong); color: var(--text); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }

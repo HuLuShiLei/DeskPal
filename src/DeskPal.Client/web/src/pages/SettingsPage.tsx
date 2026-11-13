@@ -66,15 +66,7 @@ export function SettingsPage({ state }: { state: PanelState }) {
     <>
       <Section title={t("settings.account")}>
         <div class="card flush">
-          <SettingRow title={state.me.displayName} description={
-              <>
-                {s.userName}
-                <span class="sub" title={s.serverUrl}>
-                  {s.serverUrl}
-                </span>
-              </>
-            }
-          >
+          <SettingRow title={state.me.displayName} description={s.userName}>
             <button class="icon-button" title={t("settings.rename")} aria-label={t("settings.rename")} onClick={rename}>
               <Icon name="edit" />
             </button>

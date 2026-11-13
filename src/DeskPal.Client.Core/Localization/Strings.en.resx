@@ -414,9 +414,6 @@
   <data name="Login_SessionExpired" xml:space="preserve">
     <value>Your session has expired. Please sign in again.</value>
   </data>
-  <data name="Login_InvalidServer" xml:space="preserve">
-    <value>The server address must start with http:// or https://</value>
-  </data>
   <data name="Login_DisplayNameRequired" xml:space="preserve">
     <value>Enter a display name to create an account</value>
   </data>
@@ -518,7 +515,7 @@ Restart DeskPal after installing it.</value>
     <value>Invalid time range</value>
   </data>
   <data name="Api_Unreachable" xml:space="preserve">
-    <value>Cannot reach the server {0}: {1}</value>
+    <value>Cannot reach the server. Check your network and try again.</value>
   </data>
   <data name="Api_Failed" xml:space="preserve">
     <value>Request failed (HTTP {0})</value>

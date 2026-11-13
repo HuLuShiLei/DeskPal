@@ -40,7 +40,6 @@ public static class PanelSamples
         ReceiveBeta: true,
         UpdateReady: false,
         Version: "0.1.1-dev.12",
-        ServerUrl: "https://deskpal.hafuhafu.cn:36443",
         UserName: "alice",
         UpdateActivity: null,
         ShareUsage: true,

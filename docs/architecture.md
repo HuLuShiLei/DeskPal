@@ -133,7 +133,7 @@ flowchart LR
 
 | 方向 | 消息 |
 |---|---|
-| 宿主 → 页面 | `state`（完整的 `PanelState`，变化后最多每 200 毫秒推一次）、`result{id, ok, error, data}`、`dialog{id, kind, message}`、`login{serverUrl, userName}` |
+| 宿主 → 页面 | `state`（完整的 `PanelState`，变化后最多每 200 毫秒推一次）、`result{id, ok, error, data}`、`dialog{id, kind, message}`、`login{userName, notice}`（不带服务器地址，登录页不显示也不能修改，地址只在 `settings.json` 的 `serverUrl`） |
 | 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`presence.pause / correct / resetCorrection`、`rules.set / delete`、`stats.query / export / import / clear / retention / noTitle.add / noTitle.remove`、`settings.autoStart / topmost / shareUsage / theme / closeAction / language`、`update.check / beta / restart`、`changelog.seen`、`auth.login / register / logout` |
 | 页面 → 宿主，不回复 | `ready`、`dialog.answer{dialogId, ok}`、`window.minimize`、`window.close` |
 
@@ -238,7 +238,7 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 
 | 文件 | 内容 |
 |---|---|
-| `settings.json` | Server 地址（默认 `https://deskpal.hafuhafu.cn:36443`）、当前用户、DPAPI 加密的 token、选中的 Room、是否为无房间（`noRoom`）、空闲和防抖参数、暂停分享、是否加入测试版（`includePrerelease`，空则沿用安装渠道）、是否分享使用数据（`shareUsage`，以 Server 为准）、关闭按钮（`closeAction`：`ask`、`minimize`、`tray`）、本机设备号（`deviceId`，写进统计片段）、统计保留天数（`usageRetentionDays`）、不记录标题的规则（`noTitleRules`，每条是 `kind` + `pattern`） |
+| `settings.json` | Server 地址（默认 `https://deskpal.hafuhafu.cn:36443`，界面上不显示也不能修改，联调时只能改这里）、当前用户、DPAPI 加密的 token、选中的 Room、是否为无房间（`noRoom`）、空闲和防抖参数、暂停分享、是否加入测试版（`includePrerelease`，空则沿用安装渠道）、是否分享使用数据（`shareUsage`，以 Server 为准）、关闭按钮（`closeAction`：`ask`、`minimize`、`tray`）、本机设备号（`deviceId`，写进统计片段）、统计保留天数（`usageRetentionDays`）、不记录标题的规则（`noTitleRules`，每条是 `kind` + `pattern`） |
 | `usage\<userId>.db` | 使用统计（SQLite），见「使用统计」。卸载不删除，可以在统计页清除 |
 | `personal-rules.json` | 个人分类的缓存（`userId` + `rules`），以 Server 为准 |
 | `builtin-rules.json` | 内置规则缓存（含其他语言的名称） |

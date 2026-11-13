@@ -107,7 +107,6 @@ export interface PanelState {
     updateReady: boolean;
     updateActivity: string | null;
     version: string;
-    serverUrl: string;
     userName: string;
     /** null：还没有回答是否分享使用数据。 */
     shareUsage: boolean | null;
@@ -177,7 +176,7 @@ export type HostMessage =
   | { type: "state"; state: PanelState }
   | { type: "result"; id: number; ok: boolean; error: string | null; data?: unknown }
   | { type: "dialog"; id: number; kind: DialogKind; message: string }
-  | { type: "login"; serverUrl: string; userName: string; notice?: string | null }
+  | { type: "login"; userName: string; notice?: string | null }
   | CardMessage;
 
 export type Command =
@@ -219,12 +218,12 @@ export type Command =
   | { type: "update.beta"; enabled: boolean }
   | { type: "update.restart" }
   | { type: "changelog.seen" }
-  | { type: "auth.login"; serverUrl: string; userName: string; password: string }
+  | { type: "auth.login"; userName: string; password: string }
   | { type: "signupInvites.list" }
   | { type: "signupInvites.create" }
   | { type: "signupInvites.copy"; code: string }
   | { type: "signupInvites.revoke"; code: string }
-  | { type: "auth.register"; serverUrl: string; userName: string; password: string; displayName: string; signupCode: string }
+  | { type: "auth.register"; userName: string; password: string; displayName: string; signupCode: string }
   | { type: "auth.logout" };
 
 /** 注册邀请码列表的一行。text 是宿主按语言生成的「生成时间」或「谁在什么时候用它注册」。 */

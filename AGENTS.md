@@ -46,7 +46,7 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 - 发布：推送 main 会自动构建 Server 镜像（`ghcr.io/hulushilei/deskpal-server:latest`），构建成功后调用 Portainer webhook 拉取并重建容器。webhook 地址放在 GitHub secret `PORTAINER_WEBHOOK_URL`，不进仓库。main 上改了客户端时，CI 会发测试版 Pre-release（`DeskPal-<版本>-Setup.exe`，例如 `DeskPal-0.1.2-dev.15-Setup.exe`）；打 `vX.Y.Z` 标签并推送，会发正式版 `DeskPal-<版本>-Setup.exe`（例如 `DeskPal-0.1.2-Setup.exe`）。远程仓库是 `https://github.com/HuLuShiLei/DeskPal.git`。
 - **推送 main 前先更新根目录的 `CHANGELOG.md`**：把这次要推送、用户能感受到的改动整理成书面中文条目，写进最上面一节，和代码一起推送。最上面一节是下一个正式版的版本号（例如 `## 0.1.2`），测试版的改动也写在这一节。发布正式版 `vX.Y.Z` 后，下一次推送先新开 `## X.Y.(Z+1)`。CI 发布时检查最上面一节的版本号：正式版必须和标签一致，测试版不能低于自动算出的版本号，否则发布失败；改了客户端却没改 `CHANGELOG.md` 时只给出警告。客户端更新后，第一次打开面板时按界面语言显示还没看过的条目。每条下面缩进一行 `en:` 写英文；看过与否按中文比对，改了中文会再显示一次。
 - 安装包是 `installer/DeskPal.iss` 编译的 Inno Setup 向导，用户可以选择安装目录（默认 `%LocalAppData%\Programs\DeskPal`）。安装版的日志在 `<安装目录>\logs`，设置和规则在 `%APPDATA%\DeskPal`。
-- 客户端默认 Server 地址是生产环境 `https://deskpal.hafuhafu.cn:36443`，本地联调要在登录窗口或 `settings.json` 里改成 `http://localhost:5180`。
+- 客户端默认 Server 地址是生产环境 `https://deskpal.hafuhafu.cn:36443`，本地联调要在 `settings.json` 的 `serverUrl` 里改成 `http://localhost:5180`。登录页和设置页不显示、也不能修改 Server 地址，不要加回来。
 - `dotnet-ef` 是本地工具（`dotnet-tools.json`），新机器先执行 `dotnet tool restore`。
 - 根目录 `nuget.config` 只保留 nuget.org。本机全局配置里的公司源在当前网络下连不上，会让还原卡住，不要删这个文件。
 - 开发端口是 5180。默认的 5284 被 QQ 占用。前端开发服务器是 5190。

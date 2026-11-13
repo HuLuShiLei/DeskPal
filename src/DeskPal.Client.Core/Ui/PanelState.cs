@@ -98,7 +98,6 @@ public sealed record SettingsView(
     bool ReceiveBeta,
     bool UpdateReady,
     string Version,
-    string ServerUrl,
     string UserName,
     string? UpdateActivity,
     bool? ShareUsage = null,

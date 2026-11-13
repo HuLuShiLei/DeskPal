@@ -310,7 +310,6 @@ export function createMockTransport(params: URLSearchParams): Transport {
         if (login)
           emit({
             type: "login",
-            serverUrl: "https://deskpal.hafuhafu.cn:36443",
             userName: "alice",
             notice: params.has("signedOut") ? L("账号已在另一台电脑登录，这台电脑已退出。请重新登录。", "Your account was signed in on another computer, so this one was signed out. Sign in again to continue.") : null,
           });

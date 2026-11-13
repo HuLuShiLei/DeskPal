@@ -185,7 +185,6 @@
     "receiveBeta": true,
     "updateReady": false,
     "version": "0.1.2-dev.18",
-    "serverUrl": "https://deskpal.hafuhafu.cn:36443",
     "userName": "alice",
     "updateActivity": null,
     "shareUsage": true,

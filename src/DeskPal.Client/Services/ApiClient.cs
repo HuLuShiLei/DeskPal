@@ -6,7 +6,7 @@ using DeskPal.Shared.Api;
 
 namespace DeskPal.Client.Services;
 
-public sealed class ApiException(string message, int status) : Exception(message)
+public sealed class ApiException(string message, int status, Exception? inner = null) : Exception(message, inner)
 {
     public int Status { get; } = status;
 }
@@ -99,7 +99,7 @@ public sealed class ApiClient(AppSettings settings)
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
-            throw new ApiException(UiLanguage.Format(Strings.Api_Unreachable, settings.ServerUrl, ex.Message), 0);
+            throw new ApiException(Strings.Api_Unreachable, 0, ex);
         }
 
         using (response)

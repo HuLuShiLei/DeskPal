@@ -5,7 +5,6 @@ import { Icon, TitleBar } from "../ui";
 
 export function LoginPage({ bridge }: { bridge: Bridge }) {
   const [register, setRegister] = useState(false);
-  const [serverUrl, setServerUrl] = useState("");
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -13,14 +12,12 @@ export function LoginPage({ bridge }: { bridge: Bridge }) {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [showServer, setShowServer] = useState(false);
   const userNameInput = useRef<HTMLInputElement>(null);
   const passwordInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     bridge.on((m) => {
       if (m.type === "login") {
-        setServerUrl(m.serverUrl);
         setUserName(m.userName);
         setNotice(m.notice ?? null);
         (m.userName ? passwordInput : userNameInput).current?.focus();
@@ -35,8 +32,8 @@ export function LoginPage({ bridge }: { bridge: Bridge }) {
     setBusy(true);
     const result = await bridge.request(
       register
-        ? { type: "auth.register", serverUrl, userName, password, displayName, signupCode }
-        : { type: "auth.login", serverUrl, userName, password },
+        ? { type: "auth.register", userName, password, displayName, signupCode }
+        : { type: "auth.login", userName, password },
     );
     setBusy(false);
     if (!result.ok) setError(result.error ?? t("login.failed"));
@@ -82,16 +79,6 @@ export function LoginPage({ bridge }: { bridge: Bridge }) {
             {t("login.signupCode")}
             <input value={signupCode} maxLength={16} placeholder={t("login.signupCodeHint")} onInput={(e) => setSignupCode(e.currentTarget.value)} />
           </label>
-        )}
-        {showServer ? (
-          <label>
-            {t("login.server")}
-            <input value={serverUrl} onInput={(e) => setServerUrl(e.currentTarget.value)} required />
-          </label>
-        ) : (
-          <button type="button" class="link-button" onClick={() => setShowServer(true)}>
-            {t("login.serverLink", { url: serverUrl || t("login.serverUnset") })}
-          </button>
         )}
         {notice && !error && (
           <p class="infobar" role="status">

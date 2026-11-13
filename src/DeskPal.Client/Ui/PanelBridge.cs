@@ -115,7 +115,6 @@ public sealed class PanelBridge
             _updates.ReceiveBeta,
             _updates.UpdateReady,
             _updates.VersionLabel,
-            _settings.ServerUrl,
             _settings.UserName ?? "",
             _updates.ActivityText,
             _settings.ShareUsage,

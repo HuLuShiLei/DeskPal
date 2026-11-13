@@ -414,9 +414,6 @@
   <data name="Login_SessionExpired" xml:space="preserve">
     <value>登录已失效，请重新登录。</value>
   </data>
-  <data name="Login_InvalidServer" xml:space="preserve">
-    <value>服务器地址需要以 http:// 或 https:// 开头</value>
-  </data>
   <data name="Login_DisplayNameRequired" xml:space="preserve">
     <value>注册需要填写显示名称</value>
   </data>
@@ -518,7 +515,7 @@
     <value>统计范围不正确</value>
   </data>
   <data name="Api_Unreachable" xml:space="preserve">
-    <value>无法连接服务器 {0}：{1}</value>
+    <value>无法连接服务器，请检查网络后重试</value>
   </data>
   <data name="Api_Failed" xml:space="preserve">
     <value>请求失败（HTTP {0}）</value>

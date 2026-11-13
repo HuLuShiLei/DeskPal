@@ -55,7 +55,7 @@ public sealed class LoginWindow : Window
 
         if (command.Type == "ready")
         {
-            WebUi.Post(_web, new { type = "login", serverUrl = _settings.ServerUrl, userName = _settings.UserName ?? "", notice = _notice });
+            WebUi.Post(_web, new { type = "login", userName = _settings.UserName ?? "", notice = _notice });
             return;
         }
 
@@ -75,19 +75,12 @@ public sealed class LoginWindow : Window
 
     private async Task<CommandResult> SubmitAsync(WebCommand c, bool register)
     {
-        var server = c.String("serverUrl").Trim().TrimEnd('/');
-        if (!Uri.TryCreate(server, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
-        {
-            return CommandResult.Fail(Strings.Login_InvalidServer);
-        }
-
         var displayName = c.String("displayName").Trim();
         if (register && displayName.Length == 0)
         {
             return CommandResult.Fail(Strings.Login_DisplayNameRequired);
         }
 
-        _settings.ServerUrl = server;
         try
         {
             var response = register

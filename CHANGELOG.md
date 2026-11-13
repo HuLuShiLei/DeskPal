@@ -74,6 +74,8 @@
   en: The stats note now says data is stored locally only, encrypted in transit, and not kept on the server
 - 英文界面里，默认分类识别出的应用和网站显示英文名称，例如微信显示为 WeChat；房间成员各自按自己的界面语言显示
   en: In the English interface, apps and sites recognized by the default categories show English names, such as WeChat. Each member sees names in their own interface language
+- 登录页和设置页不再显示服务器地址，连接失败时的提示也不再包含地址
+  en: The sign-in page and Settings no longer show the server address, and connection errors no longer include it
 
 ## 0.1.1
 
