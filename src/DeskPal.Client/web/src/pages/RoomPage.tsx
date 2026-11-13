@@ -189,12 +189,18 @@ function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
   const privacy = state.privacy!;
   const initial = Object.fromEntries(privacy.rows.map((r) => [r.category, r.level])) as Record<string, PrivacyLevel>;
   const [levels, setLevels] = useState(initial);
-  const changed = privacy.rows.some((r) => levels[r.category] !== r.level);
+
+  const change = async (category: string, level: PrivacyLevel) => {
+    const next = { ...levels, [category]: level };
+    setLevels(next);
+    const result = await run({ type: "room.privacy", roomId: room.id, levels: next }, "隐私设置已保存");
+    if (!result.ok) setLevels(initial);
+  };
 
   return (
     <Section title="隐私设置" label="隐私设置">
       <div class="card flush">
-        <p class="card-note">房间「{room.name}」的成员能看到你多少信息。只影响这个房间。</p>
+        <p class="card-note">房间「{room.name}」的成员能看到你多少信息。只影响这个房间，修改后立即生效。</p>
         {privacy.rows.map((r) => (
           <div key={r.category} class="setting-row">
             <div class="setting-text">
@@ -204,7 +210,7 @@ function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
               <select
                 aria-label={`${r.name}的隐私级别`}
                 value={levels[r.category]}
-                onChange={(e) => setLevels({ ...levels, [r.category]: e.currentTarget.value as PrivacyLevel })}
+                onChange={(e) => void change(r.category, e.currentTarget.value as PrivacyLevel)}
               >
                 {privacy.levels.map((l) => (
                   <option key={l.value} value={l.value}>
@@ -215,12 +221,6 @@ function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
             </div>
           </div>
         ))}
-      </div>
-      <div class="toolbar end">
-        {changed && <button onClick={() => setLevels(initial)}>撤销修改</button>}
-        <button class="primary" disabled={!changed} onClick={() => run({ type: "room.privacy", roomId: room.id, levels }, "隐私设置已保存")}>
-          保存隐私设置
-        </button>
       </div>
     </Section>
   );
