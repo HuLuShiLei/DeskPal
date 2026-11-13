@@ -8,7 +8,7 @@ namespace DeskPal.Client.Core.Diagnostics;
 /// Append-only client log under one directory. The active file is deskpal.log; when it reaches the size
 /// limit it is renamed to deskpal-yyyyMMdd-HHmmss.log and a new file is started. Archives older than the
 /// age limit, and archives beyond the kept count, are deleted. Lines are truncated and tokens are redacted.
-/// Callers must not pass window titles, media titles, domains, manual text, poke text, or invite codes.
+/// Callers must not pass window titles, media titles, domains, or invite codes.
 /// </summary>
 public sealed partial class ClientLogFiles : IDisposable
 {

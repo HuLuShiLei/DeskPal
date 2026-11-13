@@ -81,18 +81,9 @@ public sealed class PresenceCoordinator : BackgroundService
 
     public bool Paused => _settings.Paused;
 
-    public string? ManualText => _settings.ManualText;
-
     public void SetPaused(bool paused)
     {
         _settings.Paused = paused;
-        _store.Save(_settings);
-        Evaluate();
-    }
-
-    public void SetManualText(string? text)
-    {
-        _settings.ManualText = string.IsNullOrWhiteSpace(text) ? null : text.Trim();
         _store.Save(_settings);
         Evaluate();
     }
@@ -132,7 +123,7 @@ public sealed class PresenceCoordinator : BackgroundService
         lock (_lock)
         {
             Classification = _classifier.Classify(Snapshot);
-            Local = PresenceResolver.Resolve(Snapshot, Classification, _settings.ManualText, _settings.Paused);
+            Local = PresenceResolver.Resolve(Snapshot, Classification, _settings.Paused);
             now = DateTimeOffset.UtcNow;
             var ready = Snapshot.Foreground is not null || Local.State != PresenceState.Other;
             committed = ready ? _debouncer.Offer(Local, now) : null;

@@ -1,6 +1,6 @@
 ---
 name: deskpal-e2e-check
-description: 在本机对 DeskPal 做端到端自检：启动 Server，用 REST 创建测试账号和 Room，以测试账号启动 WPF 客户端，再用一个模拟 Room 成员的 SignalR 小程序收发状态和“戳一下”，最后清理现场。改了采集器、PresenceHub、RoomState、PresenceCoordinator 或界面后，或者用户说自检、联调、端到端测试时使用。
+description: 在本机对 DeskPal 做端到端自检：启动 Server，用 REST 创建测试账号和 Room，以测试账号启动 WPF 客户端，再用一个模拟 Room 成员的 SignalR 小程序收发状态，最后清理现场。改了采集器、PresenceHub、RoomState、PresenceCoordinator 或界面后，或者用户说自检、联调、端到端测试时使用。
 ---
 
 # DeskPal 端到端自检
@@ -91,10 +91,9 @@ Start-Process src\DeskPal.Client\bin\Debug\net10.0-windows10.0.19041.0\DeskPal.e
 | 面板外观 | 没有系统标题栏；页面内的标题栏中间是房间切换菜单，可以拖动窗口，最小化和关闭可用；Windows 11 上有圆角和阴影；左侧导航底部的圆点是绿色（已连接） |
 | 第一次打开 | 弹出“帮助改进默认分类”的询问；选择后 `GET /api/me` 的 `shareUsage` 和本机 `settings.json` 一致 |
 | Bob 的卡片 | 带状态色的“在看视频”标签，下面是“哔哩哔哩”和最多两行的标题，右上角“已持续 12 分钟” |
-| “我的状态” | 大字是房间成员当前看到的状态，悬停问号显示识别方式，下面一行“房间成员看到”；切换到另一类应用后出现“n 秒后变更为”的倒计时，归零后大字换成新状态，模拟成员同时收到 |
+| “我的状态” | 大字是房间成员当前看到的状态，悬停问号显示识别方式；隐私级别挡住了应用名或标题时，下面有一行灰字说明；切换到另一类应用后出现“n 秒后变更为”的倒计时，归零后大字换成新状态，模拟成员同时收到 |
 | 纠正分类 | 保存后只有 alice 自己的连接收到 `rules.personalChanged`（模拟成员收不到），`%APPDATA%\DeskPal\personal-rules.json` 更新，「分类」页的「我的分类」出现这一条；切换房间后仍然生效 |
 | 模拟成员收到 alice 的状态 | 首条状态不是空的 `Other`；10 秒左右收到稳定后的状态 |
-| 戳一下、手动状态 | 面板上不显示 |
 | 勾选“暂停分享” | 模拟成员立即收到 `Paused` |
 | 点关闭，选「最小化到系统托盘」并确定；5 分钟后 | 用户数据目录是 `DeskPal\WebView2` 的 `msedgewebview2` 进程全部退出（下面的命令计数为 0）；再从托盘打开能正常显示 |
 

@@ -7,10 +7,9 @@ public sealed record LocalPresence(
     PresenceState State,
     ActivityCategory Category,
     string? AppDisplayName,
-    string? Detail,
-    string? CustomText)
+    string? Detail)
 {
-    public (PresenceState, ActivityCategory, string?, string?) Key => (State, Category, AppDisplayName, CustomText);
+    public (PresenceState, ActivityCategory, string?) Key => (State, Category, AppDisplayName);
 }
 
 public sealed record CommittedPresence(LocalPresence Presence, DateTimeOffset Since);

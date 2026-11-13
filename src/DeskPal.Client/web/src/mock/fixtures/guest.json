@@ -14,14 +14,6 @@
     "source": null,
     "visible": "暂停分享",
     "paused": true,
-    "manualText": "午休中",
-    "manualPresets": [
-      "别打扰",
-      "午休中",
-      "开会中",
-      "有空，来聊",
-      "在路上"
-    ],
     "pending": null,
     "meta": "已持续 5 分钟",
     "hidden": null

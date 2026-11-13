@@ -11,37 +11,31 @@ public static class PresenceResolver
         " - Google Chrome", " - Microsoft Edge", " - Mozilla Firefox", " - 360安全浏览器", " - QQ浏览器", " - 搜狗高速浏览器",
     ];
 
-    /// <summary>Priority: paused, manual status, locked, idle, then the classified foreground activity.</summary>
-    public static LocalPresence Resolve(ActivitySnapshot snapshot, ClassificationResult classification, string? manualText, bool paused)
+    /// <summary>Priority: paused, locked, idle, then the classified foreground activity.</summary>
+    public static LocalPresence Resolve(ActivitySnapshot snapshot, ClassificationResult classification, bool paused)
     {
         if (paused)
         {
-            return new LocalPresence(PresenceState.Paused, ActivityCategory.None, null, null, null);
-        }
-
-        if (!string.IsNullOrWhiteSpace(manualText))
-        {
-            return new LocalPresence(PresenceState.Custom, ActivityCategory.None, null, null, manualText.Trim());
+            return new LocalPresence(PresenceState.Paused, ActivityCategory.None, null, null);
         }
 
         if (snapshot.IsLocked)
         {
-            return new LocalPresence(PresenceState.Locked, ActivityCategory.None, null, null, null);
+            return new LocalPresence(PresenceState.Locked, ActivityCategory.None, null, null);
         }
 
 
         var watchingFullscreen = snapshot.Foreground?.IsFullscreen == true && snapshot.Media.IsPlaying;
         if (snapshot.IsIdle && !watchingFullscreen)
         {
-            return new LocalPresence(PresenceState.Away, ActivityCategory.None, null, null, null);
+            return new LocalPresence(PresenceState.Away, ActivityCategory.None, null, null);
         }
 
         return new LocalPresence(
             classification.Category.ToState(),
             classification.Category,
             classification.AppDisplayName,
-            BuildDetail(snapshot, classification.Category),
-            null);
+            BuildDetail(snapshot, classification.Category));
     }
 
     private static string? BuildDetail(ActivitySnapshot snapshot, ActivityCategory category)

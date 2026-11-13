@@ -54,4 +54,4 @@ await hub.DisposeAsync();
 
 `AddJsonProtocol` 是 `Microsoft.Extensions.DependencyInjection` 命名空间下的扩展方法，漏了这个 using 会编译失败。
 
-要测其他消息，改 `Envelope.Create` 的类型和 payload 即可，例如发 `MessageTypes.Poke` 加 `new PokePayload("测试", aliceId)`。
+要测其他消息，改 `Envelope.Create` 的类型和 payload 即可，例如发 `PresenceState.Paused` 的状态。

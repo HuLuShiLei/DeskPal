@@ -7,7 +7,7 @@ description: 给 DeskPal 的 Envelope 协议新增一种消息类型（例如表
 
 先判断消息是谁发的：
 
-- **客户端发、Server 转发给同一 Room 的其他成员**（例如 `interaction.poke`）：走第 1、2a、3、4 步。
+- **客户端发、Server 转发给同一 Room 的其他成员**（例如 `presence.update`）：走第 1、2a、3、4 步。
 - **Server 在某个业务动作后主动推送**（例如 `room.memberJoined`）：走第 1、2b、3、4 步。
 
 ## 1. Shared
@@ -16,7 +16,7 @@ description: 给 DeskPal 的 Envelope 协议新增一种消息类型（例如表
 
 ```csharp
 public const string Reaction = "interaction.reaction";   // 命名：<领域>.<动作>，小驼峰
-public static readonly IReadOnlySet<string> ClientPublishable = new HashSet<string> { PresenceUpdate, Poke, Reaction };
+public static readonly IReadOnlySet<string> ClientPublishable = new HashSet<string> { PresenceUpdate, Reaction };
 ```
 
 Payload 定义成 `sealed record`，放在同一个文件里（或者领域自己的文件），只放必须的字段：

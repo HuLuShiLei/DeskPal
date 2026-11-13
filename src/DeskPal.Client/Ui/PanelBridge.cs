@@ -84,7 +84,6 @@ public sealed class PanelBridge
         PendingDeadline = _presence.PendingDeadline,
         StableFor = _presence.StableFor,
         Paused = _presence.Paused,
-        ManualText = _presence.ManualText,
         CorrectionTarget = CorrectionTarget.From(_presence.Snapshot, _presence.Classification?.AppDisplayName)?.DisplayName,
         MyRules = _personalRules.Rules,
         Unclassified = _unclassified.Top(TimeSpan.FromMinutes(5), 5),
@@ -222,17 +221,8 @@ public sealed class PanelBridge
                 await _rooms.RefreshAsync();
                 return CommandResult.Success;
 
-            case "member.poke":
-                return await _rooms.PokeAsync(c.Guid("roomId"), c.Guid("userId"), c.OptionalString("text"))
-                    ? CommandResult.Success
-                    : CommandResult.Fail("没有发出去：当前未连接服务器。");
-
             case "presence.pause":
                 _presence.SetPaused(c.Bool("paused"));
-                return CommandResult.Success;
-
-            case "presence.manual":
-                _presence.SetManualText(c.OptionalString("text"));
                 return CommandResult.Success;
 
             case "presence.correct":

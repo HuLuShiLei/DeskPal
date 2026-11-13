@@ -42,7 +42,7 @@ CameraSignal c => this with { Camera = c },
 
 ## 4. 参与状态判断（可选）
 
-要影响状态的话，改 `PresenceResolver.Resolve`。**插入位置决定优先级**，现有顺序是：暂停分享 → 手动状态 → 锁屏 → 空闲 → 分类结果。在这里插入新规则，同时更新 rule `client-core` 和 `docs/architecture.md` 里的优先级说明。
+要影响状态的话，改 `PresenceResolver.Resolve`。**插入位置决定优先级**，现有顺序是：暂停分享 → 锁屏 → 空闲 → 分类结果。在这里插入新规则，同时更新 rule `client-core` 和 `docs/architecture.md` 里的优先级说明。
 
 ## 5. 测试
 

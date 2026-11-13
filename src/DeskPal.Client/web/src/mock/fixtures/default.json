@@ -14,14 +14,6 @@
     "source": "「Cursor」按默认分类识别。",
     "visible": "正在使用 Cursor",
     "paused": false,
-    "manualText": null,
-    "manualPresets": [
-      "别打扰",
-      "午休中",
-      "开会中",
-      "有空，来聊",
-      "在路上"
-    ],
     "pending": {
       "view": {
         "headline": "工作中",

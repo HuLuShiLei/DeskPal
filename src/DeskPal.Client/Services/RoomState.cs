@@ -10,7 +10,6 @@ public sealed class RoomState(
     ApiClient api,
     AppSettings settings,
     SettingsStore store,
-    HubService hub,
     ILogger<RoomState> logger)
 {
     private readonly Lock _lock = new();
@@ -154,9 +153,6 @@ public sealed class RoomState(
         }
     }
 
-    public Task<bool> PokeAsync(Guid roomId, Guid targetUserId, string? text) =>
-        hub.TryPublishAsync(Envelope.Create(MessageTypes.Poke, roomId, new PokePayload(text, targetUserId)));
-
     public void Handle(Envelope envelope)
     {
         try
@@ -172,16 +168,6 @@ public sealed class RoomState(
                         }
 
                         Changed?.Invoke();
-                    }
-
-                    break;
-
-                case MessageTypes.Poke:
-                    var poke = envelope.ReadPayload<PokePayload>();
-                    if (poke?.TargetUserId is null || poke.TargetUserId == MyUserId)
-                    {
-                        var text = string.IsNullOrWhiteSpace(poke?.Text) ? "戳了你一下" : $"戳了你一下：{poke!.Text}";
-                        Notify?.Invoke(MemberName(envelope.RoomId, envelope.SenderId), text);
                     }
 
                     break;

@@ -4,12 +4,12 @@ namespace DeskPal.Client.Core.Presence;
 
 /// <summary>
 /// A new presence must stay unchanged for StableFor before it is committed, so quick window switches are not broadcast.
-/// Paused, manual status and lock are committed at once, and so is leaving them.
+/// Paused and lock are committed at once, and so is leaving them.
 /// Detail-only changes (same app, new title) are committed at most once per DetailInterval.
 /// </summary>
 public sealed class PresenceDebouncer(TimeSpan stableFor, TimeSpan detailInterval)
 {
-    private static readonly HashSet<PresenceState> Immediate = [PresenceState.Paused, PresenceState.Custom, PresenceState.Locked];
+    private static readonly HashSet<PresenceState> Immediate = [PresenceState.Paused, PresenceState.Locked];
 
     private CommittedPresence? _committed;
     private DateTimeOffset _lastCommitAt;

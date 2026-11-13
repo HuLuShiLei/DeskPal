@@ -22,7 +22,7 @@ public sealed class PresenceHubTests : IClassFixture<PresenceHubTests.ServerFact
     public PresenceHubTests(ServerFactory factory) => _factory = factory;
 
     [Fact]
-    public async Task Presence_poke_offline_and_leave_flow()
+    public async Task Presence_offline_and_leave_flow()
     {
         var http = _factory.CreateClient();
         var alice = await RegisterAsync(http, "alice");
@@ -41,14 +41,12 @@ public sealed class PresenceHubTests : IClassFixture<PresenceHubTests.ServerFact
         Assert.Equal(alice.UserId, received.SenderId);
         Assert.Equal(ActivityCategory.Video, received.ReadPayload<PresenceSnapshot>()!.Category);
 
-        await aliceHub.InvokeAsync(HubContract.Publish, Envelope.Create(MessageTypes.Poke, room.Id, new PokePayload("吃饭了吗", bob.UserId)));
-        Assert.Equal("吃饭了吗", (await NextAsync(bobInbox, e => e.Type == MessageTypes.Poke)).ReadPayload<PokePayload>()!.Text);
-
         await SendAsync<RoomDto>(http, HttpMethod.Put, $"/api/rooms/{room.Id}", new RenameRoomRequest("我们家"), alice.Token);
         Assert.Equal(room.Id, (await NextAsync(bobInbox, e => e.Type == MessageTypes.RoomRenamed)).RoomId);
 
         var (carolHub, _) = await ConnectAsync(carol.Token);
-        await Assert.ThrowsAsync<HubException>(() => carolHub.InvokeAsync(HubContract.Publish, Envelope.Create(MessageTypes.Poke, room.Id, new PokePayload(null, null))));
+        await Assert.ThrowsAsync<HubException>(() => carolHub.InvokeAsync(HubContract.Publish, Envelope.Create(MessageTypes.PresenceUpdate, room.Id, video)));
+        await Assert.ThrowsAsync<HubException>(() => aliceHub.InvokeAsync(HubContract.Publish, Envelope.Create("interaction.poke", room.Id, new RoomEventPayload(bob.UserId))));
         await Assert.ThrowsAsync<HubException>(() => aliceHub.InvokeAsync(HubContract.Publish, Envelope.Create(MessageTypes.RoomDissolved, room.Id, new RoomEventPayload(null))));
 
         var (_, bobInbox2) = await ConnectAsync(bob.Token);

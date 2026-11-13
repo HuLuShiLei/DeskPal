@@ -14,14 +14,6 @@
     "source": "「QQ」按你设置的分类识别。",
     "visible": null,
     "paused": false,
-    "manualText": null,
-    "manualPresets": [
-      "别打扰",
-      "午休中",
-      "开会中",
-      "有空，来聊",
-      "在路上"
-    ],
     "pending": null,
     "meta": "已持续 3 分钟",
     "hidden": null

@@ -103,9 +103,6 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "presence.pause":
         state.me.paused = m.paused as boolean;
         break;
-      case "presence.manual":
-        state.me.manualText = (m.text as string | null) ?? null;
-        break;
       case "settings.autoStart":
         state.settings.autoStart = m.enabled as boolean;
         break;
@@ -168,7 +165,6 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "settings.shareUsage":
         state.settings.shareUsage = m.enabled as boolean;
         break;
-      case "member.poke":
       case "update.restart":
       case "auth.logout":
         break;

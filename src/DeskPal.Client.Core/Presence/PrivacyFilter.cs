@@ -12,7 +12,6 @@ public static class PrivacyFilter
         {
             State = presence.State,
             Since = committed.Since,
-            CustomText = presence.State == PresenceState.Custom ? presence.CustomText : null,
         };
 
         if (presence.Category == ActivityCategory.None)

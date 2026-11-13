@@ -57,8 +57,8 @@ public static class PanelSamples
                 Since = Now.AddMinutes(-12),
             },
         };
-        var local = new LocalPresence(PresenceState.Working, ActivityCategory.Work, "Cursor", "plan.md - idea1 - Cursor", null);
-        var earlier = new LocalPresence(PresenceState.Other, ActivityCategory.Other, "Cursor", "roadmap.md - idea1 - Cursor", null);
+        var local = new LocalPresence(PresenceState.Working, ActivityCategory.Work, "Cursor", "plan.md - idea1 - Cursor");
+        var earlier = new LocalPresence(PresenceState.Other, ActivityCategory.Other, "Cursor", "roadmap.md - idea1 - Cursor");
         return new PanelInput
         {
             MyUserId = Alice,
@@ -91,7 +91,7 @@ public static class PanelSamples
 
     public static PanelInput NoRoom()
     {
-        var local = new LocalPresence(PresenceState.Communicating, ActivityCategory.Communication, "QQ", "理工生陷入云吸猫 (64)", null);
+        var local = new LocalPresence(PresenceState.Communicating, ActivityCategory.Communication, "QQ", "理工生陷入云吸猫 (64)");
         return Default() with
         {
             Rooms = [],
@@ -109,7 +109,7 @@ public static class PanelSamples
 
     public static PanelInput Guest()
     {
-        var paused = new LocalPresence(PresenceState.Paused, ActivityCategory.None, null, null, null);
+        var paused = new LocalPresence(PresenceState.Paused, ActivityCategory.None, null, null);
         var offline = new PresenceSnapshot { State = PresenceState.Offline, Since = Now.AddHours(-2) };
         return Default() with
         {
@@ -121,7 +121,6 @@ public static class PanelSamples
             Committed = new CommittedPresence(paused, Now.AddMinutes(-5)),
             PendingDeadline = null,
             Paused = true,
-            ManualText = "午休中",
             CorrectionTarget = null,
             MyRules = [],
             Unclassified = [],

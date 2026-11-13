@@ -146,7 +146,6 @@ public class PanelStateBuilderTests
         Assert.Equal("", dave.Meta);
         Assert.Equal("暂停分享", state.Me.View.Headline);
         Assert.True(state.Me.Paused);
-        Assert.Equal("午休中", state.Me.ManualText);
         Assert.Null(state.Correction.Target);
     }
 
@@ -171,7 +170,7 @@ public class PanelStateBuilderTests
     [Fact]
     public void Browser_shows_the_page_without_a_guess_label()
     {
-        var local = new LocalPresence(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "猫猫合集", null);
+        var local = new LocalPresence(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "猫猫合集");
         var input = PanelSamples.Default() with
         {
             Local = local,

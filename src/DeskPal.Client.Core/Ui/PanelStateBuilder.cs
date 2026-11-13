@@ -32,7 +32,6 @@ public sealed record PanelInput
 
     public TimeSpan StableFor { get; init; } = TimeSpan.FromSeconds(10);
     public bool Paused { get; init; }
-    public string? ManualText { get; init; }
     public string? CorrectionTarget { get; init; }
     public IReadOnlyList<UserRuleDto> MyRules { get; init; } = [];
     public IReadOnlyList<UnclassifiedApp> Unclassified { get; init; } = [];
@@ -42,8 +41,6 @@ public sealed record PanelInput
 
 public static class PanelStateBuilder
 {
-    public static IReadOnlyList<string> ManualPresets { get; } = ["别打扰", "午休中", "开会中", "有空，来聊", "在路上"];
-
     public static PanelState Build(PanelInput input)
     {
         var room = input.SelectedRoom;
@@ -114,7 +111,7 @@ public static class PanelStateBuilder
         var local = input.Local;
         if (local is null)
         {
-            return new MeView(input.DisplayName, new PresenceView("正在识别…", null, null), null, null, input.Paused, input.ManualText, ManualPresets);
+            return new MeView(input.DisplayName, new PresenceView("正在识别…", null, null), null, null, input.Paused);
         }
 
         var privacy = room is null ? null : input.PrivacyOf(room.Id);
@@ -159,8 +156,6 @@ public static class PanelStateBuilder
             source,
             visible,
             input.Paused,
-            input.ManualText,
-            ManualPresets,
             pending,
             current is null ? null : Lasted(current.Since, input.Now),
             Hidden(shownPresence, privacy));
@@ -195,7 +190,6 @@ public static class PanelStateBuilder
         Category = local.Category,
         AppDisplayName = local.AppDisplayName,
         Detail = local.Detail,
-        CustomText = local.CustomText,
     };
 
     private static string Lasted(DateTimeOffset since, DateTimeOffset now) =>

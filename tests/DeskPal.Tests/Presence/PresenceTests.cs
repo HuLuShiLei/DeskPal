@@ -10,17 +10,16 @@ public class PresenceResolverTests
     private static readonly ClassificationResult Video = new(ActivityCategory.Video, "哔哩哔哩", RuleLayer.Builtin);
 
     [Fact]
-    public void Priority_is_paused_then_manual_then_locked_then_idle_then_classification()
+    public void Priority_is_paused_then_locked_then_idle_then_classification()
     {
         var all = TestData.Browser("bilibili.com", "视频 - Google Chrome")
             .Apply(new LockSignal(true))
             .Apply(new IdleSignal(true));
 
-        Assert.Equal(PresenceState.Paused, PresenceResolver.Resolve(all, Video, "午休", paused: true).State);
-        Assert.Equal(PresenceState.Custom, PresenceResolver.Resolve(all, Video, "午休", paused: false).State);
-        Assert.Equal(PresenceState.Locked, PresenceResolver.Resolve(all, Video, null, false).State);
-        Assert.Equal(PresenceState.Away, PresenceResolver.Resolve(all with { IsLocked = false }, Video, null, false).State);
-        Assert.Equal(PresenceState.Slacking, PresenceResolver.Resolve(all with { IsLocked = false, IsIdle = false }, Video, null, false).State);
+        Assert.Equal(PresenceState.Paused, PresenceResolver.Resolve(all, Video, paused: true).State);
+        Assert.Equal(PresenceState.Locked, PresenceResolver.Resolve(all, Video, false).State);
+        Assert.Equal(PresenceState.Away, PresenceResolver.Resolve(all with { IsLocked = false }, Video, false).State);
+        Assert.Equal(PresenceState.Slacking, PresenceResolver.Resolve(all with { IsLocked = false, IsIdle = false }, Video, false).State);
     }
 
     [Fact]
@@ -30,17 +29,17 @@ public class PresenceResolverTests
             .Apply(new MediaSignal(true, "番剧", null, "chrome"))
             .Apply(new IdleSignal(true));
 
-        Assert.Equal(PresenceState.Slacking, PresenceResolver.Resolve(snapshot, Video, null, false).State);
+        Assert.Equal(PresenceState.Slacking, PresenceResolver.Resolve(snapshot, Video, false).State);
     }
 
     [Fact]
     public void Detail_strips_browser_suffix_and_prefers_media_title_when_slacking()
     {
         var browser = TestData.Browser("bilibili.com", "【4K】猫猫合集 - Google Chrome");
-        Assert.Equal("【4K】猫猫合集", PresenceResolver.Resolve(browser, Video, null, false).Detail);
+        Assert.Equal("【4K】猫猫合集", PresenceResolver.Resolve(browser, Video, false).Detail);
 
         var music = TestData.App("cloudmusic").Apply(new MediaSignal(true, "晴天", "周杰伦", "cloudmusic"));
-        var result = PresenceResolver.Resolve(music, new ClassificationResult(ActivityCategory.Music, "网易云音乐", RuleLayer.Builtin), null, false);
+        var result = PresenceResolver.Resolve(music, new ClassificationResult(ActivityCategory.Music, "网易云音乐", RuleLayer.Builtin), false);
         Assert.Equal(PresenceState.Other, result.State);
         Assert.Null(result.Detail);
     }
@@ -52,7 +51,7 @@ public class PresenceResolverTests
             .Apply(new MediaSignal(true, "晴天", "周杰伦", "chrome"));
         var classification = new ClassificationResult(ActivityCategory.Browsing, "bilibili.com", RuleLayer.Browser);
 
-        var result = PresenceResolver.Resolve(browser, classification, null, false);
+        var result = PresenceResolver.Resolve(browser, classification, false);
 
         Assert.Equal(PresenceState.Browsing, result.State);
         Assert.Equal("bilibili.com", result.AppDisplayName);
@@ -63,8 +62,8 @@ public class PresenceResolverTests
 public class PresenceDebouncerTests
 {
     private static readonly DateTimeOffset T0 = new(2026, 11, 10, 9, 0, 0, TimeSpan.Zero);
-    private static readonly LocalPresence Working = new(PresenceState.Working, ActivityCategory.Work, "VS Code", "a.cs", null);
-    private static readonly LocalPresence Video = new(PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫", null);
+    private static readonly LocalPresence Working = new(PresenceState.Working, ActivityCategory.Work, "VS Code", "a.cs");
+    private static readonly LocalPresence Video = new(PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫");
 
     private static PresenceDebouncer Create() => new(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
 
@@ -108,7 +107,7 @@ public class PresenceDebouncerTests
     {
         var d = Create();
         d.Offer(Working, T0);
-        var locked = new LocalPresence(PresenceState.Locked, ActivityCategory.None, null, null, null);
+        var locked = new LocalPresence(PresenceState.Locked, ActivityCategory.None, null, null);
 
         Assert.Equal(PresenceState.Locked, d.Offer(locked, T0.AddSeconds(1))!.Presence.State);
         Assert.Equal(PresenceState.Working, d.Offer(Working, T0.AddSeconds(2))!.Presence.State);
@@ -131,7 +130,7 @@ public class PresenceDebouncerTests
 public class PrivacyFilterTests
 {
     private static readonly CommittedPresence Video = new(
-        new LocalPresence(PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫猫合集", null),
+        new LocalPresence(PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫猫合集"),
         DateTimeOffset.UnixEpoch);
 
     [Fact]
@@ -139,12 +138,12 @@ public class PrivacyFilterTests
     {
         var profile = PrivacyProfile.CreateDefault();
         var video = PrivacyFilter.Apply(Video, profile);
-        var work = PrivacyFilter.Apply(new CommittedPresence(new LocalPresence(PresenceState.Working, ActivityCategory.Work, "Excel", "工资表.xlsx", null), DateTimeOffset.UnixEpoch), profile);
+        var work = PrivacyFilter.Apply(new CommittedPresence(new LocalPresence(PresenceState.Working, ActivityCategory.Work, "Excel", "工资表.xlsx"), DateTimeOffset.UnixEpoch), profile);
 
         Assert.Equal((ActivityCategory.Video, "哔哩哔哩", (string?)null), (video.Category, video.AppDisplayName, video.Detail));
         Assert.Equal((PresenceState.Working, ActivityCategory.None, (string?)null, (string?)null), (work.State, work.Category, work.AppDisplayName, work.Detail));
 
-        var browsing = PrivacyFilter.Apply(new CommittedPresence(new LocalPresence(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "猫猫合集", null), DateTimeOffset.UnixEpoch), profile);
+        var browsing = PrivacyFilter.Apply(new CommittedPresence(new LocalPresence(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "猫猫合集"), DateTimeOffset.UnixEpoch), profile);
         Assert.Equal((PresenceState.Browsing, "bilibili.com", (string?)null), (browsing.State, browsing.AppDisplayName, browsing.Detail));
     }
 

@@ -66,8 +66,6 @@ export interface PanelState {
     source: string | null;
     visible: string | null;
     paused: boolean;
-    manualText: string | null;
-    manualPresets: string[];
     /** 本机的新状态还没稳定、尚未同步给房间成员时才有。 */
     pending: { view: PresenceView; remainingMs: number; totalSeconds: number } | null;
     meta: string | null;
@@ -119,9 +117,7 @@ export type Command =
   | { type: "room.kick"; roomId: string; userId: string }
   | { type: "room.leave"; roomId: string }
   | { type: "room.dissolve"; roomId: string }
-  | { type: "member.poke"; roomId: string; userId: string; text: string | null }
   | { type: "presence.pause"; paused: boolean }
-  | { type: "presence.manual"; text: string | null }
   | { type: "presence.correct"; category: string }
   | { type: "presence.resetCorrection" }
   | { type: "rules.set"; kind: RuleKind; pattern: string; name: string | null; category: string }

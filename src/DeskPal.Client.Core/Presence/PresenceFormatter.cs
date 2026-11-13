@@ -34,6 +34,7 @@ public static class PresenceFormatter
         {
             PresenceState.Offline => "离线",
             PresenceState.Paused => "暂停分享",
+            // Older clients may still send a manual status.
             PresenceState.Custom => snapshot.CustomText ?? "自定义状态",
             PresenceState.Locked => "已锁屏",
             PresenceState.Away => "暂时离开",

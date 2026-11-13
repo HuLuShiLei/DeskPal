@@ -18,7 +18,6 @@ public sealed class AppSettings
     [System.Text.Json.Serialization.JsonIgnore]
     public int StableSeconds { get; set; } = 10;
     public bool Paused { get; set; }
-    public string? ManualText { get; set; }
 
     public bool Topmost { get; set; }
 

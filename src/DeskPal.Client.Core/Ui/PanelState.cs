@@ -34,8 +34,6 @@ public sealed record MeView(
     string? Source,
     string? Visible,
     bool Paused,
-    string? ManualText,
-    IReadOnlyList<string> ManualPresets,
     PendingView? Pending = null,
     string? Meta = null,
     string? Hidden = null);
