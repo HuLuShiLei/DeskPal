@@ -2,8 +2,9 @@
 // 地址参数：?mock=default|no-room|guest|updated 选样例；?fail 让所有命令失败；?page=login 打开登录页；?page=card 打开第一个成员的置顶小卡片。
 // 发出的命令记在 window.__sent，方便检查。
 
-import type { CommandResult, HostMessage, PanelState, PrivacyLevel, Transport } from "../bridge";
+import type { CommandResult, HostMessage, NoTitleKind, PanelState, PrivacyLevel, StatsView, Transport } from "../bridge";
 import defaultState from "./fixtures/default.json";
+import statsViews from "./fixtures/stats.json";
 import guestState from "./fixtures/guest.json";
 import noRoomState from "./fixtures/no-room.json";
 import updatedState from "./fixtures/updated.json";
@@ -88,6 +89,37 @@ export function createMockTransport(params: URLSearchParams): Transport {
         state.privacy?.rows.forEach((row) => (row.level = levels[row.category] ?? row.level));
         break;
       }
+      case "room.shareStats":
+        if (state.privacy) Object.assign(state.privacy, { shareStats: m.enabled as boolean, statsDays: m.days as number });
+        break;
+      case "stats.query": {
+        // 样例只有「今天」所在的日、周、月；翻页时返回同一份。
+        await new Promise((resolve) => setTimeout(resolve, m.userId ? 600 : 80));
+        const key = `${m.userId ? "member-" : ""}${m.scale}-${m.granularity}`;
+        const view = (statsViews as unknown as Record<string, StatsView>)[key];
+        return view ? { ok: true, error: null, data: view } : { ok: false, error: "对方不在线、现在不在这个房间，或者没有响应。" };
+      }
+      case "stats.export":
+        return { ok: true, error: null, data: { message: "已导出到 C:\\Users\\alice\\Documents\\DeskPal-使用统计-20261111.json" } };
+      case "stats.import":
+        return { ok: true, error: null, data: { message: "已导入 1280 段记录、0 条按天汇总。" } };
+      case "stats.clear":
+        if (state.usage) state.usage.viewers = [];
+        break;
+      case "stats.retention":
+        if (state.usage) state.usage.retentionDays = m.days as number;
+        break;
+      case "stats.noTitle.add": {
+        const kind = m.kind as NoTitleKind;
+        const pattern = (m.pattern as string).trim();
+        const label = { App: "应用", Process: "进程", Domain: "网址", Title: "标题含" }[kind];
+        if (state.usage && !state.usage.noTitleRules.some((r) => r.kind === kind && r.pattern === pattern))
+          state.usage.noTitleRules.push({ kind, pattern, label: `${label} · ${pattern}` });
+        break;
+      }
+      case "stats.noTitle.remove":
+        if (state.usage) state.usage.noTitleRules = state.usage.noTitleRules.filter((r) => !(r.kind === m.kind && r.pattern === m.pattern));
+        break;
       case "room.transfer": {
         const r = room(m.roomId);
         if (r) r.isOwner = false;

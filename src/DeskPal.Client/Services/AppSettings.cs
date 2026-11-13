@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using DeskPal.Client.Core.Usage;
 using DeskPal.Shared;
 
 namespace DeskPal.Client.Services;
@@ -35,6 +36,15 @@ public sealed class AppSettings
 
     /// <summary>null 表示沿用安装渠道：测试版安装包继续接收测试版。</summary>
     public bool? IncludePrerelease { get; set; }
+
+    /// <summary>Identifies this computer in exported usage files, so importing them twice does not count twice.</summary>
+    public Guid DeviceId { get; set; }
+
+    /// <summary>Days raw usage segments are kept; older days keep only per-day totals.</summary>
+    public int UsageRetentionDays { get; set; } = 90;
+
+    /// <summary>Apps, processes, sites and title keywords whose titles are never recorded in the usage stats.</summary>
+    public List<NoTitleRule> NoTitleRules { get; set; } = [];
 
     public string? GetToken()
     {

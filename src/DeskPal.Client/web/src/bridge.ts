@@ -1,6 +1,6 @@
 // 宿主（C#）和页面之间的消息。字段和 C# 的 PanelState、PanelBridge、LoginWindow 一一对应，两边一起改。
 
-export type Tone = "work" | "chat" | "relax" | "browse" | "other" | "away" | "offline";
+export type Tone = "work" | "chat" | "relax" | "game" | "browse" | "other" | "away" | "offline";
 
 export interface PresenceView {
   headline: string;
@@ -46,6 +46,8 @@ export interface MemberItem {
   pinned: boolean;
   /** 我屏蔽了该成员：双方互相看不到状态，对方不知道。 */
   blocked: boolean;
+  /** 该成员在这个房间公开了使用统计，显示「查看统计」。 */
+  shareStats: boolean;
 }
 
 /** 置顶小卡片的内容。detail 是应用名和详情合成的一行。 */
@@ -88,7 +90,14 @@ export interface PanelState {
   selectedRoomId: string | null;
   emptyHint: string | null;
   members: MemberItem[];
-  privacy: { rows: PrivacyRow[]; levels: Option<PrivacyLevel>[] } | null;
+  privacy: {
+    rows: PrivacyRow[];
+    levels: Option<PrivacyLevel>[];
+    /** 房间成员可以查看我的使用统计，细粒度按上面每个类别的级别。 */
+    shareStats: boolean;
+    statsDays: number;
+    dayOptions: { value: number; name: string }[];
+  } | null;
   correction: { target: string | null; current: string; options: Option<string>[]; personal: boolean };
   settings: {
     autoStart: boolean;
@@ -110,6 +119,47 @@ export interface PanelState {
   unclassified: UnclassifiedItem[];
   /** 更新后还没看过的更新内容；关闭对话框后为 null。 */
   whatsNew: { title: string; summary: string; sections: { version: string; items: string[] }[] } | null;
+  /** 我自己的使用统计设置。 */
+  usage: {
+    retentionDays: number;
+    retentionOptions: { value: number; name: string }[];
+    /** 不记录标题的应用和网站。 */
+    noTitleRules: { kind: NoTitleKind; pattern: string; label: string }[];
+    /** 最近 7 天查看过我的统计的人，最新的在前。 */
+    viewers: { name: string; room: string; when: string }[];
+  } | null;
+}
+
+export type NoTitleKind = "App" | "Process" | "Domain" | "Title";
+export type StatsScale = "Day" | "Week" | "Month";
+export type StatsGranularity = "State" | "Category" | "Title";
+
+/** 统计页的一页，由 stats.query 按需返回，不随 PanelState 推送。时间都是秒。 */
+export interface StatsView {
+  scale: StatsScale;
+  granularity: StatsGranularity;
+  /** yyyy-MM-dd，范围里的任意一天。 */
+  anchor: string;
+  /** 查看别人时是对方的名字；看自己时为 null。 */
+  owner: string | null;
+  title: string;
+  totalLabel: string;
+  total: string;
+  compare: string | null;
+  summary: string | null;
+  canPrev: boolean;
+  canNext: boolean;
+  legend: { key: string; name: string; tone: Tone; hidden: boolean }[];
+  /** 日视图 24 根（每小时），周、月视图每天一根。 */
+  bars: { label: string; tip: string; date: string | null; parts: { key: string; seconds: number }[] }[];
+  barMax: number;
+  barMaxLabel: string;
+  /** 只有日视图有：从零点起的秒数。 */
+  timeline: { start: number; end: number; tone: Tone; tip: string }[];
+  ranking: { name: string; sub: string | null; tone: Tone; time: string; share: number; hidden: boolean }[];
+  rankingTitle: string;
+  note: string | null;
+  empty: string | null;
 }
 
 export type DialogKind = "confirm" | "info" | "warning";
@@ -128,6 +178,14 @@ export type Command =
   | { type: "room.rename"; roomId: string; name: string }
   | { type: "room.invite"; roomId: string }
   | { type: "room.privacy"; roomId: string; levels: Record<string, PrivacyLevel> }
+  | { type: "room.shareStats"; roomId: string; enabled: boolean; days: number }
+  | { type: "stats.query"; scale: StatsScale; granularity: StatsGranularity; date: string | null; userId: string | null }
+  | { type: "stats.export" }
+  | { type: "stats.import" }
+  | { type: "stats.clear" }
+  | { type: "stats.retention"; days: number }
+  | { type: "stats.noTitle.add"; kind: NoTitleKind; pattern: string }
+  | { type: "stats.noTitle.remove"; kind: NoTitleKind; pattern: string }
   | { type: "room.transfer"; roomId: string; userId: string }
   | { type: "room.kick"; roomId: string; userId: string }
   | { type: "room.leave"; roomId: string }

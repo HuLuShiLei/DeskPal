@@ -141,7 +141,21 @@ public static class RoomEndpoints
         group.MapGet("/{roomId:guid}/privacy", async (Guid roomId, HttpContext ctx, RoomService rooms) =>
             (await rooms.GetPrivacyAsync(ctx.User.GetUserId(), roomId)).ToHttp());
 
-        group.MapPut("/{roomId:guid}/privacy", async (Guid roomId, PrivacyProfileDto dto, HttpContext ctx, RoomService rooms) =>
-            (await rooms.SetPrivacyAsync(ctx.User.GetUserId(), roomId, dto)).ToHttp());
+        group.MapPut("/{roomId:guid}/privacy", async (Guid roomId, PrivacyProfileDto dto, HttpContext ctx, RoomService rooms, RoomNotifier notifier) =>
+        {
+            var userId = ctx.User.GetUserId();
+            var result = await rooms.SetPrivacyAsync(userId, roomId, dto);
+            if (!result.IsSuccess)
+            {
+                return ServiceResult<PrivacyProfileDto>.Fail(result.Status, result.Error!).ToHttp();
+            }
+
+            if (result.Value!.SharingChanged)
+            {
+                await notifier.MemberSharingChangedAsync(roomId, userId);
+            }
+
+            return Results.Ok(result.Value.Profile);
+        });
     }
 }

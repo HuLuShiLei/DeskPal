@@ -34,6 +34,7 @@ builder.Services.AddScoped<RuleCandidateService>();
 builder.Services.AddSingleton<ConnectionRegistry>();
 builder.Services.AddSingleton<PresenceStore>();
 builder.Services.AddSingleton<RoomNotifier>();
+builder.Services.AddSingleton<StatsRateLimiter>();
 
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
@@ -73,7 +74,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 builder.Services.AddAuthorization();
-builder.Services.AddSignalR().AddJsonProtocol(o => o.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+// Usage stats responses are larger than presence updates; the default limit is 32 KB.
+builder.Services.AddSignalR(o => o.MaximumReceiveMessageSize = 128 * 1024).AddJsonProtocol(o => o.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 var app = builder.Build();
 

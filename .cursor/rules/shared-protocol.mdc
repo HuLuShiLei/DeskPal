@@ -11,6 +11,7 @@ Server 和当前客户端一起更新。已经按整数写入数据库的枚举�
 - **枚举按名称序列化**（`JsonStringEnumConverter`）。可以新增成员。不要改已有成员的名字。已经按整数写入数据库的枚举，不要删除中间成员；`ActivityCategory.Meeting` 因此保留。`PresenceState`、`ActivityCategory`、`PrivacyLevel`、`RuleKind` 都一样。
 - **新增消息类型**：在 `MessageTypes` 加常量。客户端可以发送的类型还要加进 `ClientPublishable`。不认识的 `Type` 直接忽略。完整步骤见 skill `deskpal-add-message-type`。
 - **Payload 结构发生变化时**，提高 `Envelope.V`，接收方按 `V` 分支处理，不要复用旧结构改语义。
-- `Envelope.Enc` 原型阶段固定为 `none`。以后做端到端加密时，`Payload` 改成密文，Server 不需要改动。
+- `Envelope.Enc` 默认 `none`。`stats.response` 用 `ecdh-p256-aesgcm`，`Payload` 是密文；Server 不需要改动。
+- 只发给一个人的消息（`MessageTypes.Direct`）用 `Envelope.To` 指定接收方，Hub 检查双方都是房间成员且没有互相屏蔽。其他消息的 `To` 由 Hub 清空。
 - DTO 新增字段放在最后并给默认值。
 - 规则的标准化写法统一走 `RulePattern.Normalize`，Server 写入和客户端匹配用同一套逻辑。

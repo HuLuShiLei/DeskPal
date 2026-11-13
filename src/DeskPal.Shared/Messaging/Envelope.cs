@@ -16,6 +16,9 @@ public sealed record Envelope
     public string Enc { get; init; } = EncodingKinds.None;
     public JsonElement Payload { get; init; }
 
+    /// <summary>Target user of a direct message (stats.request, stats.response); null for messages to the whole room.</summary>
+    public Guid? To { get; init; }
+
     public static Envelope Create<T>(string type, Guid roomId, T payload) => new()
     {
         Type = type,
@@ -32,4 +35,7 @@ public sealed record Envelope
 public static class EncodingKinds
 {
     public const string None = "none";
+
+    /// <summary>One-time ECDH P-256 keys on both sides, AES-GCM with a key derived by SHA-256.</summary>
+    public const string EcdhAesGcm = "ecdh-p256-aesgcm";
 }

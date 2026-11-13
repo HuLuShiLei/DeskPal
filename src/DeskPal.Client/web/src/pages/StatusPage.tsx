@@ -2,7 +2,7 @@ import type { MemberItem, PanelState, UnclassifiedItem } from "../bridge";
 import { PresenceDetail, StatusBadge, useCountdown, useHost } from "../host";
 import { Avatar, Hint, HoverTip, Icon, Section, Switch } from "../ui";
 
-export function StatusPage({ state }: { state: PanelState }) {
+export function StatusPage({ state, onViewStats }: { state: PanelState; onViewStats: (member: { userId: string; name: string }) => void }) {
   const room = state.rooms.find((r) => r.id === state.selectedRoomId);
   return (
     <>
@@ -17,7 +17,7 @@ export function StatusPage({ state }: { state: PanelState }) {
         {state.members.length > 0 && (
           <ul class="list">
             {state.members.map((m) => (
-              <MemberRow key={m.userId} member={m} />
+              <MemberRow key={m.userId} member={m} onViewStats={() => onViewStats({ userId: m.userId, name: m.name })} />
             ))}
           </ul>
         )}
@@ -27,7 +27,7 @@ export function StatusPage({ state }: { state: PanelState }) {
   );
 }
 
-function MemberRow({ member }: { member: MemberItem }) {
+function MemberRow({ member, onViewStats }: { member: MemberItem; onViewStats: () => void }) {
   const { run } = useHost();
   if (member.blocked) {
     return (
@@ -57,6 +57,11 @@ function MemberRow({ member }: { member: MemberItem }) {
         </div>
         <PresenceDetail view={member.view} />
       </div>
+      {member.shareStats && (
+        <button class="icon-button pin-button" title="查看统计" aria-label={`查看${member.name}的使用统计`} onClick={onViewStats}>
+          <Icon name="chart" />
+        </button>
+      )}
       <button
         class={member.pinned ? "icon-button pin-button active" : "icon-button pin-button"}
         title={member.pinned ? "取消置顶" : "置顶到桌面"}

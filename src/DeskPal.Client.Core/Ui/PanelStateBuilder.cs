@@ -1,5 +1,6 @@
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Presence;
+using DeskPal.Client.Core.Usage;
 using DeskPal.Shared.Api;
 using DeskPal.Shared.Presence;
 
@@ -39,6 +40,12 @@ public sealed record PanelInput
     public WhatsNewView? WhatsNew { get; init; }
     public IReadOnlyCollection<Guid> Pinned { get; init; } = [];
     public required DateTimeOffset Now { get; init; }
+
+    /// <summary>Days raw usage segments are kept; null hides the usage section.</summary>
+    public int? UsageRetentionDays { get; init; }
+    public IReadOnlyList<NoTitleRule> NoTitleRules { get; init; } = [];
+    public IReadOnlyList<StatsViewRecord> StatsViews { get; init; } = [];
+    public TimeZoneInfo Zone { get; init; } = TimeZoneInfo.Local;
 }
 
 public static class PanelStateBuilder
@@ -72,7 +79,34 @@ public static class PanelStateBuilder
             input.Unclassified
                 .Select(a => new UnclassifiedItem(a.Kind, a.Pattern, a.DisplayName, $"今天 {PresenceFormatter.Duration(input.Now - a.Today, input.Now)}"))
                 .ToList(),
-            input.WhatsNew);
+            input.WhatsNew,
+            input.UsageRetentionDays is { } retention ? Usage(input, retention) : null);
+    }
+
+    public static IReadOnlyList<int> RetentionOptions { get; } = [30, 90, 180, 365];
+
+    private static string NoTitleLabel(NoTitleRule rule) => rule.Kind switch
+    {
+        NoTitleKind.App => $"应用 · {rule.Pattern}",
+        NoTitleKind.Process => $"进程 · {rule.Pattern}.exe",
+        NoTitleKind.Domain => $"网址 · {rule.Pattern}",
+        _ => $"标题含 · {rule.Pattern}",
+    };
+
+    private static UsageView Usage(PanelInput input, int retention) => new(
+        retention,
+        RetentionOptions.Select(d => new Option<int>(d, $"{d} 天")).ToList(),
+        input.NoTitleRules.Select(r => new NoTitleItem(r.Kind, r.Pattern, NoTitleLabel(r))).ToList(),
+        input.StatsViews
+            .Select(v => new StatsViewerItem(v.ViewerName, v.RoomName, When(v.At, input.Now, input.Zone)))
+            .ToList());
+
+    private static string When(DateTimeOffset at, DateTimeOffset now, TimeZoneInfo zone)
+    {
+        var local = TimeZoneInfo.ConvertTime(at, zone);
+        var today = TimeZoneInfo.ConvertTime(now, zone).Date;
+        var day = local.Date == today ? "今天" : local.Date == today.AddDays(-1) ? "昨天" : $"{local.Month} 月 {local.Day} 日";
+        return $"{day} {local:HH:mm}";
     }
 
     private static string KindName(RuleKind kind) => kind switch
@@ -109,7 +143,8 @@ public static class PanelStateBuilder
                 snapshot is not null && snapshot.State != PresenceState.Offline,
                 view,
                 meta,
-                input.Pinned.Contains(m.UserId));
+                input.Pinned.Contains(m.UserId),
+                ShareStats: m.ShareStats);
         })
         .ToList();
 
@@ -207,5 +242,8 @@ public static class PanelStateBuilder
         PresenceFormatter.SelectableCategories
             .Select(c => new PrivacyRow(c, PresenceFormatter.CategoryName(c), profile.LevelFor(c)))
             .ToList(),
-        Enum.GetValues<PrivacyLevel>().Select(l => new Option<PrivacyLevel>(l, PresenceFormatter.PrivacyLevelName(l))).ToList());
+        Enum.GetValues<PrivacyLevel>().Select(l => new Option<PrivacyLevel>(l, PresenceFormatter.PrivacyLevelName(l))).ToList(),
+        profile.ShareStats,
+        profile.StatsDays,
+        PrivacyProfile.StatsDayOptions.Select(d => new Option<int>(d, $"{d} 天")).ToList());
 }

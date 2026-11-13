@@ -270,25 +270,40 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
             return ServiceResult<PrivacyProfileDto>.Fail(404, NotMember);
         }
 
-        var profile = member.PrivacyProfileJson is null
-            ? PrivacyProfile.CreateDefault()
-            : JsonSerializer.Deserialize<PrivacyProfile>(member.PrivacyProfileJson, DeskPalJson.Options) ?? PrivacyProfile.CreateDefault();
-        return ServiceResult<PrivacyProfileDto>.Ok(new PrivacyProfileDto(profile.Levels));
+        return ServiceResult<PrivacyProfileDto>.Ok(ToDto(ReadPrivacy(member.PrivacyProfileJson)));
     }
 
-    public async Task<ServiceResult<PrivacyProfileDto>> SetPrivacyAsync(Guid userId, Guid roomId, PrivacyProfileDto dto)
+    public async Task<ServiceResult<SavedPrivacy>> SetPrivacyAsync(Guid userId, Guid roomId, PrivacyProfileDto dto)
     {
         var member = await db.RoomMembers.FindAsync(roomId, userId);
         if (member is null)
         {
-            return ServiceResult<PrivacyProfileDto>.Fail(404, NotMember);
+            return ServiceResult<SavedPrivacy>.Fail(404, NotMember);
         }
 
-        var profile = new PrivacyProfile { Levels = dto.Levels ?? new() };
+        if (dto.StatsDays is { } days && !PrivacyProfile.StatsDayOptions.Contains(days))
+        {
+            return ServiceResult<SavedPrivacy>.Fail(400, "可查看天数只能是 1、3、7 或 30 天");
+        }
+
+        var old = ReadPrivacy(member.PrivacyProfileJson);
+        var profile = new PrivacyProfile
+        {
+            Levels = dto.Levels ?? old.Levels,
+            ShareStats = dto.ShareStats ?? old.ShareStats,
+            StatsDays = dto.StatsDays ?? old.StatsDays,
+        };
         member.PrivacyProfileJson = JsonSerializer.Serialize(profile, DeskPalJson.Options);
         await db.SaveChangesAsync();
-        return ServiceResult<PrivacyProfileDto>.Ok(new PrivacyProfileDto(profile.Levels));
+        var sharingChanged = profile.ShareStats != old.ShareStats || (profile.ShareStats && profile.StatsDays != old.StatsDays);
+        return ServiceResult<SavedPrivacy>.Ok(new SavedPrivacy(ToDto(profile), sharingChanged));
     }
+
+    private static PrivacyProfile ReadPrivacy(string? json) => json is null
+        ? PrivacyProfile.CreateDefault()
+        : JsonSerializer.Deserialize<PrivacyProfile>(json, DeskPalJson.Options) ?? PrivacyProfile.CreateDefault();
+
+    private static PrivacyProfileDto ToDto(PrivacyProfile profile) => new(profile.Levels, profile.ShareStats, profile.StatsDays);
 
     /// <returns>True when the block is new, so callers only notify on a real change.</returns>
     public async Task<ServiceResult<bool>> BlockAsync(Guid userId, Guid roomId, Guid targetUserId)
@@ -396,9 +411,16 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         room.CreatedAt,
         room.Members
             .OrderBy(m => m.JoinedAt)
-            .Select(m => new RoomMemberDto(m.UserId, m.User?.DisplayName ?? "", m.Role, m.JoinedAt))
+            .Select(m =>
+            {
+                var privacy = ReadPrivacy(m.PrivacyProfileJson);
+                return new RoomMemberDto(m.UserId, m.User?.DisplayName ?? "", m.Role, m.JoinedAt, privacy.ShareStats, privacy.ShareStats ? privacy.StatsDays : 0);
+            })
             .ToList(),
         blocked.Where(id => room.Members.Any(m => m.UserId == id)).ToList());
 }
 
 public sealed record RenamedRoom(RoomDto Room, bool Changed);
+
+/// <param name="SharingChanged">Stats sharing was turned on or off, or the shared days changed while on.</param>
+public sealed record SavedPrivacy(PrivacyProfileDto Profile, bool SharingChanged);

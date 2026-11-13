@@ -1,4 +1,5 @@
 using DeskPal.Client.Core.Presence;
+using DeskPal.Client.Core.Usage;
 using DeskPal.Shared.Api;
 using DeskPal.Shared.Presence;
 
@@ -20,7 +21,8 @@ public sealed record PanelState(
     SettingsView Settings,
     IReadOnlyList<MyRuleItem> MyRules,
     IReadOnlyList<UnclassifiedItem> Unclassified,
-    WhatsNewView? WhatsNew = null);
+    WhatsNewView? WhatsNew = null,
+    UsageView? Usage = null);
 
 public sealed record ConnectionView(bool Connected, string Text);
 
@@ -47,13 +49,30 @@ public sealed record RoomItem(Guid Id, string Name, bool IsOwner, int MemberCoun
 
 /// <param name="Pinned">Shown as a card on the desktop.</param>
 /// <param name="Blocked">I blocked this member: neither of us sees the other's presence. The member is not told.</param>
-public sealed record MemberItem(Guid UserId, string Name, bool IsOwner, bool Online, PresenceView View, string Meta, bool Pinned = false, bool Blocked = false);
+/// <param name="ShareStats">The member shares usage stats in this room and is not blocked, so "查看统计" is shown.</param>
+public sealed record MemberItem(Guid UserId, string Name, bool IsOwner, bool Online, PresenceView View, string Meta, bool Pinned = false, bool Blocked = false, bool ShareStats = false);
 
 public sealed record Option<T>(T Value, string Name);
 
 public sealed record PrivacyRow(ActivityCategory Category, string Name, PrivacyLevel Level);
 
-public sealed record PrivacyView(IReadOnlyList<PrivacyRow> Rows, IReadOnlyList<Option<PrivacyLevel>> Levels);
+/// <param name="ShareStats">Room members may view my usage stats, at the detail of the rows.</param>
+/// <param name="StatsDays">How many recent days they may view.</param>
+public sealed record PrivacyView(
+    IReadOnlyList<PrivacyRow> Rows,
+    IReadOnlyList<Option<PrivacyLevel>> Levels,
+    bool ShareStats = false,
+    int StatsDays = PrivacyProfile.DefaultStatsDays,
+    IReadOnlyList<Option<int>>? DayOptions = null);
+
+/// <summary>Settings of my own usage stats, shown on the stats page.</summary>
+/// <param name="NoTitleRules">Apps, processes, sites and title keywords whose titles are never recorded.</param>
+/// <param name="Viewers">Who viewed my stats in the last 7 days, latest first.</param>
+public sealed record UsageView(int RetentionDays, IReadOnlyList<Option<int>> RetentionOptions, IReadOnlyList<NoTitleItem> NoTitleRules, IReadOnlyList<StatsViewerItem> Viewers);
+
+public sealed record NoTitleItem(NoTitleKind Kind, string Pattern, string Label);
+
+public sealed record StatsViewerItem(string Name, string Room, string When);
 
 /// <param name="Target">App or site the correction applies to; null when nothing is recognized yet.</param>
 /// <param name="Personal">The current result comes from my own rule, so it can be reset to the default.</param>

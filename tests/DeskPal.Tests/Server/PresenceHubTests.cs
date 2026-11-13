@@ -4,10 +4,12 @@ using System.Text.Json.Serialization;
 using System.Threading.Channels;
 using DeskPal.Server.Data;
 using DeskPal.Server.Features.Auth;
+using DeskPal.Server.Features.Presence;
 using DeskPal.Shared;
 using DeskPal.Shared.Api;
 using DeskPal.Shared.Messaging;
 using DeskPal.Shared.Presence;
+using DeskPal.Shared.Stats;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -173,6 +175,69 @@ public sealed class PresenceHubTests : IClassFixture<PresenceHubTests.ServerFact
         using var stale = new HttpRequestMessage(HttpMethod.Get, "/api/me") { Headers = { Authorization = new("Bearer", legacyToken) } };
         Assert.Equal(HttpStatusCode.Unauthorized, (await http.SendAsync(stale)).StatusCode);
     }
+    [Fact]
+    public async Task Stats_messages_reach_only_the_target_member_and_respect_blocks_and_the_rate_limit()
+    {
+        var http = _factory.CreateClient();
+        var alice = await RegisterAsync(http, "alice");
+        var bob = await RegisterAsync(http, "bob");
+        var carol = await RegisterAsync(http, "carol");
+        var dave = await RegisterAsync(http, "dave");
+        var room = await PostAsync<RoomDto>(http, "/api/rooms", new CreateRoomRequest("Home"), alice.Token);
+        var invite = await PostAsync<InviteDto>(http, $"/api/rooms/{room.Id}/invites", new { }, alice.Token);
+        await PostAsync<RoomDto>(http, "/api/rooms/join", new JoinRoomRequest(invite.Code), bob.Token);
+        await PostAsync<RoomDto>(http, "/api/rooms/join", new JoinRoomRequest(invite.Code), carol.Token);
+        var (aliceHub, aliceInbox) = await ConnectAsync(alice.Token);
+        var (bobHub, bobInbox) = await ConnectAsync(bob.Token);
+        var (carolHub, carolInbox) = await ConnectAsync(carol.Token);
+        var (_, daveInbox) = await ConnectAsync(dave.Token);
+
+        var saved = await SendAsync<PrivacyProfileDto>(http, HttpMethod.Put, $"/api/rooms/{room.Id}/privacy", new PrivacyProfileDto(new(), ShareStats: true, StatsDays: 3), bob.Token);
+        Assert.Equal((true, 3), (saved.ShareStats, saved.StatsDays));
+        Assert.Equal(bob.UserId, (await NextAsync(aliceInbox, e => e.Type == MessageTypes.MemberSharingChanged)).ReadPayload<RoomEventPayload>()!.UserId);
+        var shared = (await GetAsync<List<RoomDto>>(http, "/api/rooms", alice.Token)).Single().Members.Single(m => m.UserId == bob.UserId);
+        Assert.Equal((true, 3), (shared.ShareStats, shared.StatsDays));
+        var levelsOnly = await SendAsync<PrivacyProfileDto>(http, HttpMethod.Put, $"/api/rooms/{room.Id}/privacy", new PrivacyProfileDto(new() { [ActivityCategory.Work] = PrivacyLevel.Detail }), bob.Token);
+        Assert.Equal((true, 3, PrivacyLevel.Detail), (levelsOnly.ShareStats, levelsOnly.StatsDays, levelsOnly.Levels[ActivityCategory.Work]));
+        using (var invalid = new HttpRequestMessage(HttpMethod.Put, $"/api/rooms/{room.Id}/privacy")
+        {
+            Content = JsonContent.Create(new PrivacyProfileDto(new(), true, 5), options: DeskPalJson.Options),
+            Headers = { Authorization = new("Bearer", bob.Token) },
+        })
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, (await http.SendAsync(invalid)).StatusCode);
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        Envelope Request(Guid to) => Envelope.Create(MessageTypes.StatsRequest, room.Id, new StatsRequestPayload(Guid.NewGuid(), today, today, "key")) with { To = to };
+        await aliceHub.InvokeAsync(HubContract.Publish, Request(bob.UserId));
+        var received = await NextAsync(bobInbox, e => e.Type == MessageTypes.StatsRequest);
+        Assert.Equal((alice.UserId, bob.UserId), (received.SenderId, received.To));
+        await aliceHub.InvokeAsync(HubContract.Publish, Request(dave.UserId));
+        await Task.Delay(500);
+        Assert.DoesNotContain(Drain(carolInbox), e => e.Type == MessageTypes.StatsRequest);
+        Assert.DoesNotContain(Drain(daveInbox), e => e.Type == MessageTypes.StatsRequest);
+
+        await SendNoContentAsync(http, HttpMethod.Post, $"/api/rooms/{room.Id}/blocks", new BlockMemberRequest(alice.UserId), bob.Token);
+        await aliceHub.InvokeAsync(HubContract.Publish, Request(bob.UserId));
+        await bobHub.InvokeAsync(HubContract.Publish, Envelope.Create(MessageTypes.StatsResponse, room.Id, new StatsResponsePayload(Guid.NewGuid(), Error: "x")) with { To = alice.UserId });
+        await Task.Delay(500);
+        Assert.DoesNotContain(Drain(bobInbox), e => e.Type == MessageTypes.StatsRequest);
+        Assert.DoesNotContain(Drain(aliceInbox), e => e.Type == MessageTypes.StatsResponse);
+
+        for (var i = 0; i < StatsRateLimiter.PerMinute + 2; i++)
+        {
+            await carolHub.InvokeAsync(HubContract.Publish, Request(bob.UserId));
+        }
+
+        await Task.Delay(800);
+        Assert.Equal(StatsRateLimiter.PerMinute, Drain(bobInbox).Count(e => e.Type == MessageTypes.StatsRequest && e.SenderId == carol.UserId));
+
+        await aliceHub.DisposeAsync();
+        await bobHub.DisposeAsync();
+        await carolHub.DisposeAsync();
+    }
+
     private static List<Envelope> Drain(ChannelReader<Envelope> inbox)
     {
         var items = new List<Envelope>();

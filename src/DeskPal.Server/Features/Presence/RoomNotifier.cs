@@ -49,6 +49,10 @@ public sealed class RoomNotifier(IHubContext<PresenceHub, IPresenceClient> hub, 
     public Task OwnerChangedAsync(Guid roomId, Guid newOwnerId) =>
         hub.Clients.Group(GroupName(roomId)).Receive(ServerEnvelope(MessageTypes.RoomOwnerChanged, roomId, newOwnerId));
 
+    /// <summary>The members reload the room to show or hide the button for viewing this member's stats.</summary>
+    public Task MemberSharingChangedAsync(Guid roomId, Guid userId) =>
+        hub.Clients.Group(GroupName(roomId)).Receive(ServerEnvelope(MessageTypes.MemberSharingChanged, roomId, userId));
+
     public Task RenamedAsync(Guid roomId) =>
         hub.Clients.Group(GroupName(roomId)).Receive(ServerEnvelope(MessageTypes.RoomRenamed, roomId, null));
 

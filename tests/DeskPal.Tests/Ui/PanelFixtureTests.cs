@@ -22,7 +22,15 @@ public class PanelFixtureTests
     [MemberData(nameof(Names))]
     public void Mock_fixture_matches_csharp_output(string name)
     {
-        var json = JsonSerializer.Serialize(PanelStateBuilder.Build(PanelSamples.All[name]()), Options).ReplaceLineEndings("\n") + "\n";
+        Check(name, PanelStateBuilder.Build(PanelSamples.All[name]()));
+    }
+
+    [Fact]
+    public void Stats_mock_fixture_matches_csharp_output() => Check("stats", StatsSamples.Views());
+
+    private static void Check(string name, object value)
+    {
+        var json = JsonSerializer.Serialize(value, Options).ReplaceLineEndings("\n") + "\n";
         var path = Path.Combine(RepoRoot(), "src", "DeskPal.Client", "web", "src", "mock", "fixtures", name + ".json");
 
         if (Environment.GetEnvironmentVariable("DESKPAL_UPDATE_FIXTURES") == "1")

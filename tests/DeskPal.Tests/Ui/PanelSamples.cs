@@ -2,6 +2,7 @@ using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Updates;
+using DeskPal.Client.Core.Usage;
 using DeskPal.Shared.Api;
 using DeskPal.Shared.Presence;
 
@@ -23,7 +24,7 @@ public static class PanelSamples
     public static readonly RoomDto OwnedRoom = new(MyRoom, "测试房间", Alice, 20, Now.AddDays(-3),
     [
         new RoomMemberDto(Alice, "Alice", RoomRole.Owner, Now.AddDays(-3)),
-        new RoomMemberDto(Bob, "Bob", RoomRole.Member, Now.AddDays(-2)),
+        new RoomMemberDto(Bob, "Bob", RoomRole.Member, Now.AddDays(-2), ShareStats: true, StatsDays: 7),
         new RoomMemberDto(Carol, "Carol", RoomRole.Member, Now.AddDays(-1)),
     ]);
 
@@ -68,7 +69,7 @@ public static class PanelSamples
             Rooms = [OwnedRoom, GuestRoom],
             SelectedRoom = OwnedRoom,
             PresenceOf = (room, user) => presence.GetValueOrDefault((room, user)),
-            PrivacyOf = _ => PrivacyProfile.CreateDefault(),
+            PrivacyOf = _ => new PrivacyProfile { ShareStats = true, StatsDays = 7 },
             Local = local,
             Classification = new ClassificationResult(ActivityCategory.Work, "Cursor", RuleLayer.Builtin),
             Committed = new CommittedPresence(earlier, Now.AddMinutes(-1)),
@@ -88,6 +89,14 @@ public static class PanelSamples
             Settings = Settings,
             Pinned = [Bob],
             Now = Now,
+            UsageRetentionDays = 90,
+            NoTitleRules = [new(NoTitleKind.App, "招商银行"), new(NoTitleKind.Domain, "cmbchina.com"), new(NoTitleKind.Title, "病历")],
+            StatsViews =
+            [
+                new StatsViewRecord(MyRoom, "测试房间", Bob, "Bob", Now.AddHours(-2)),
+                new StatsViewRecord(TeamRoom, "同事房间", Dave, "Dave", Now.AddDays(-1).AddHours(-3)),
+            ],
+            Zone = StatsSamples.Zone,
         };
     }
 

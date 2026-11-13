@@ -1,8 +1,10 @@
+using System.IO;
 using System.Text.Json;
 using System.Windows;
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Updates;
+using DeskPal.Client.Core.Usage;
 using DeskPal.Client.Services;
 using DeskPal.Client.Views;
 using DeskPal.Shared.Api;
@@ -25,6 +27,8 @@ public sealed class PanelBridge
     private readonly UnclassifiedUsage _unclassified;
     private readonly WhatsNewStore _whatsNew;
     private readonly PinnedMembers _pins;
+    private readonly UsageService _usage;
+    private readonly StatsExchange _stats;
 
     public PanelBridge(
         RoomState rooms,
@@ -37,8 +41,13 @@ public sealed class PanelBridge
         PersonalRules personalRules,
         UnclassifiedUsage unclassified,
         WhatsNewStore whatsNew,
-        PinnedMembers pins)
+        PinnedMembers pins,
+        UsageService usage,
+        StatsExchange stats)
     {
+        _usage = usage;
+        _stats = stats;
+        usage.Changed += RaiseChanged;
         _rooms = rooms;
         _presence = presence;
         _hub = hub;
@@ -110,6 +119,9 @@ public sealed class PanelBridge
         WhatsNew = _whatsNew.Pending,
         Pinned = _pins.Users,
         Now = DateTimeOffset.UtcNow,
+        UsageRetentionDays = _settings.UsageRetentionDays,
+        NoTitleRules = _settings.NoTitleRules,
+        StatsViews = _usage.RecentViews,
     });
 
     /// <summary>Runs on the UI thread.</summary>
@@ -208,6 +220,106 @@ public sealed class PanelBridge
                 }
 
                 await _rooms.SavePrivacyAsync(c.Guid("roomId"), profile);
+                return CommandResult.Success;
+            }
+
+            case "room.shareStats":
+            {
+                var days = c.Args.TryGetProperty("days", out var d) && d.ValueKind == JsonValueKind.Number ? d.GetInt32() : PrivacyProfile.DefaultStatsDays;
+                if (!PrivacyProfile.StatsDayOptions.Contains(days))
+                {
+                    return CommandResult.Fail("可查看天数只能是 1、3、7 或 30 天");
+                }
+
+                await _rooms.SaveStatsSharingAsync(c.Guid("roomId"), c.Bool("enabled"), days);
+                return CommandResult.Success;
+            }
+
+            case "stats.query":
+                return await QueryStatsAsync(c);
+
+            case "stats.export":
+            {
+                var dialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Title = "导出使用统计",
+                    FileName = $"DeskPal-使用统计-{DateTime.Now:yyyyMMdd}.json",
+                    Filter = "使用统计 (*.json)|*.json",
+                };
+                if (dialog.ShowDialog() != true)
+                {
+                    return CommandResult.Success;
+                }
+
+                await Task.Run(() => _usage.Export(dialog.FileName));
+                return new CommandResult(true, Data: new { message = $"已导出到 {dialog.FileName}" });
+            }
+
+            case "stats.import":
+            {
+                var dialog = new Microsoft.Win32.OpenFileDialog { Title = "导入使用统计", Filter = "使用统计 (*.json)|*.json" };
+                if (dialog.ShowDialog() != true)
+                {
+                    return CommandResult.Success;
+                }
+
+                try
+                {
+                    var result = await Task.Run(() => _usage.Import(dialog.FileName));
+                    var message = result.Segments + result.Rollups == 0
+                        ? "没有新的记录，这些数据已经导入过。"
+                        : $"已导入 {result.Segments} 段记录、{result.Rollups} 条按天汇总。";
+                    return new CommandResult(true, Data: new { message });
+                }
+                catch (InvalidDataException ex)
+                {
+                    return CommandResult.Fail(ex.Message);
+                }
+            }
+
+            case "stats.clear":
+                await Task.Run(_usage.Clear);
+                return CommandResult.Success;
+
+            case "stats.retention":
+            {
+                var days = c.Args.TryGetProperty("days", out var d) && d.ValueKind == JsonValueKind.Number ? d.GetInt32() : 0;
+                if (!PanelStateBuilder.RetentionOptions.Contains(days))
+                {
+                    return CommandResult.Fail("保留天数不正确");
+                }
+
+                await Task.Run(() => _usage.SetRetention(days));
+                return CommandResult.Success;
+            }
+
+            case "stats.noTitle.add":
+            {
+                if (!Enum.TryParse<NoTitleKind>(c.String("kind"), out var kind) || !Enum.IsDefined(kind))
+                {
+                    return CommandResult.Fail("类型不正确");
+                }
+
+                if (NoTitleRule.Create(kind, c.String("pattern")) is not { } rule)
+                {
+                    return CommandResult.Fail(kind == NoTitleKind.Domain ? "网址不正确，例如 zhihu.com" : $"请输入 1 到 {NoTitleRule.MaxLength} 个字符");
+                }
+
+                if (!_settings.NoTitleRules.Any(r => r.SameAs(rule)))
+                {
+                    _usage.SetNoTitleRules([.. _settings.NoTitleRules, rule]);
+                }
+
+                return CommandResult.Success;
+            }
+
+            case "stats.noTitle.remove":
+            {
+                if (Enum.TryParse<NoTitleKind>(c.String("kind"), out var kind))
+                {
+                    var rule = new NoTitleRule(kind, c.String("pattern"));
+                    _usage.SetNoTitleRules(_settings.NoTitleRules.Where(r => !r.SameAs(rule)).ToList());
+                }
                 return CommandResult.Success;
             }
 
@@ -407,6 +519,59 @@ public sealed class PanelBridge
 
             default:
                 return CommandResult.Fail($"不支持的操作：{c.Type}");
+        }
+    }
+
+    private async Task<CommandResult> QueryStatsAsync(WebCommand c)
+    {
+        if (!Enum.TryParse<StatsScale>(c.String("scale"), out var scale) || !Enum.TryParse<StatsGranularity>(c.String("granularity"), out var granularity))
+        {
+            return CommandResult.Fail("统计范围不正确");
+        }
+
+        var today = UsageService.Today;
+        var anchor = DateOnly.TryParseExact(c.String("date"), "yyyy-MM-dd", out var date) && date <= today ? date : today;
+        var range = StatsRange.Of(scale, anchor);
+        var previous = StatsRange.Previous(scale, anchor);
+        var to = range.To > today ? today : range.To;
+
+        if (c.OptionalString("userId") is null)
+        {
+            var mine = await Task.Run(() => _usage.Report(range.From, to, (previous.From, previous.To)));
+            return new CommandResult(true, Data: StatsViewBuilder.Build(mine, scale, granularity, anchor, today));
+        }
+
+        var userId = c.Guid("userId");
+        if (_rooms.SelectedRoom is not { } room || room.Members.FirstOrDefault(m => m.UserId == userId) is not { } member)
+        {
+            return CommandResult.Fail("该成员不在当前房间");
+        }
+
+        if (room.Blocked?.Contains(userId) == true)
+        {
+            return CommandResult.Fail("已屏蔽该成员，取消屏蔽后才能查看");
+        }
+
+        if (!member.ShareStats)
+        {
+            return CommandResult.Fail($"{member.DisplayName} 没有在这个房间公开使用统计");
+        }
+
+        var first = today.AddDays(1 - member.StatsDays);
+        var from = range.From < first ? first : range.From;
+        if (from > to)
+        {
+            return CommandResult.Fail($"{member.DisplayName} 只公开了最近 {member.StatsDays} 天的统计");
+        }
+
+        try
+        {
+            var report = await _stats.RequestAsync(room.Id, userId, from, to, (previous.From, previous.To));
+            return new CommandResult(true, Data: StatsViewBuilder.Build(report, scale, granularity, anchor, today, member.DisplayName));
+        }
+        catch (StatsUnavailableException ex)
+        {
+            return CommandResult.Fail(ex.Message);
         }
     }
 

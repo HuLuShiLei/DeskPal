@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.SignalR;
 namespace DeskPal.Server.Features.Presence;
 
 [Authorize]
-public sealed class PresenceHub(RoomService rooms, ConnectionRegistry connections, PresenceStore store, TimeProvider time)
+public sealed class PresenceHub(RoomService rooms, ConnectionRegistry connections, PresenceStore store, StatsRateLimiter statsLimiter, TimeProvider time)
     : Hub<IPresenceClient>
 {
     public override async Task OnConnectedAsync()
@@ -65,6 +65,13 @@ public sealed class PresenceHub(RoomService rooms, ConnectionRegistry connection
         }
 
         var stamped = envelope with { SenderId = userId, Ts = time.GetUtcNow() };
+        if (MessageTypes.Direct.Contains(stamped.Type))
+        {
+            await SendDirectAsync(stamped, userId);
+            return;
+        }
+
+        stamped = stamped with { To = null };
         if (stamped.Type == MessageTypes.PresenceUpdate)
         {
             store.Set(stamped);
@@ -72,5 +79,26 @@ public sealed class PresenceHub(RoomService rooms, ConnectionRegistry connection
 
         var peers = await rooms.GetBlockPeersAsync(stamped.RoomId, userId);
         await Clients.GroupExcept(RoomNotifier.GroupName(stamped.RoomId), [Context.ConnectionId, .. connections.Get(peers)]).Receive(stamped);
+    }
+
+    /// <summary>Delivered only when both are members of the room and neither blocked the other. Otherwise dropped without telling the sender why.</summary>
+    private async Task SendDirectAsync(Envelope envelope, Guid senderId)
+    {
+        if (envelope.To is not { } to || to == senderId || !await rooms.IsMemberAsync(to, envelope.RoomId))
+        {
+            return;
+        }
+
+        if ((await rooms.GetBlockPeersAsync(envelope.RoomId, senderId)).Contains(to))
+        {
+            return;
+        }
+
+        if (envelope.Type == MessageTypes.StatsRequest && !statsLimiter.TryAcquire(senderId))
+        {
+            return;
+        }
+
+        await Clients.Clients(connections.Get(to)).Receive(envelope);
     }
 }

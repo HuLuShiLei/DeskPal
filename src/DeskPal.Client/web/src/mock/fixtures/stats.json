@@ -1,0 +1,5714 @@
+{
+  "Day-State": {
+    "scale": "Day",
+    "granularity": "State",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "11 月 11 日 星期三（今天）",
+    "totalLabel": "使用时长",
+    "total": "5 小时",
+    "compare": "昨天全天 8 小时 20 分钟",
+    "summary": "暂离 40 分钟",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "work",
+        "name": "工作",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "chat",
+        "name": "聊天",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "relax",
+        "name": "放松",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 2700
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 1800
+          },
+          {
+            "key": "relax",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 小时",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 工作 · 1 小时 30 分钟"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 聊天 · 15 分钟"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 工作 · 1 小时 5 分钟"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 暂离 · 40 分钟"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 放松 · 40 分钟"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 工作 · 1 小时 30 分钟"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "工作",
+        "sub": null,
+        "tone": "work",
+        "time": "4 小时 5 分钟",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "放松",
+        "sub": null,
+        "tone": "relax",
+        "time": "40 分钟",
+        "share": 0.163,
+        "hidden": false
+      },
+      {
+        "name": "聊天",
+        "sub": null,
+        "tone": "chat",
+        "time": "15 分钟",
+        "share": 0.061,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "按状态",
+    "note": null,
+    "empty": null
+  },
+  "member-Day-State": {
+    "scale": "Day",
+    "granularity": "State",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "11 月 11 日 星期三（今天）",
+    "totalLabel": "使用时长",
+    "total": "5 小时",
+    "compare": "昨天全天 8 小时 20 分钟",
+    "summary": "暂离 40 分钟",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "work",
+        "name": "工作",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "chat",
+        "name": "聊天",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "relax",
+        "name": "放松",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 2700
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 1800
+          },
+          {
+            "key": "relax",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 小时",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 工作 · 1 小时 30 分钟"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 聊天 · 15 分钟"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 工作 · 1 小时 5 分钟"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 暂离 · 40 分钟"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 放松 · 40 分钟"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 工作 · 1 小时 30 分钟"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "工作",
+        "sub": null,
+        "tone": "work",
+        "time": "4 小时 5 分钟",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "放松",
+        "sub": null,
+        "tone": "relax",
+        "time": "40 分钟",
+        "share": 0.163,
+        "hidden": false
+      },
+      {
+        "name": "聊天",
+        "sub": null,
+        "tone": "chat",
+        "time": "15 分钟",
+        "share": 0.061,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "按状态",
+    "note": "Bob 公开了最近 7 天的统计。",
+    "empty": null
+  },
+  "Day-Category": {
+    "scale": "Day",
+    "granularity": "Category",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "11 月 11 日 星期三（今天）",
+    "totalLabel": "使用时长",
+    "total": "5 小时",
+    "compare": "昨天全天 8 小时 20 分钟",
+    "summary": "暂离 40 分钟",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "工作",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "聊天",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "视频",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 2700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 小时",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 工作 · 1 小时 30 分钟"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 聊天 · 15 分钟"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 工作 · 1 小时 5 分钟"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 暂离 · 40 分钟"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 放松 · 40 分钟"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 工作 · 1 小时 30 分钟"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "Cursor",
+        "sub": "工作",
+        "tone": "work",
+        "time": "2 小时 35 分钟",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "Visual Studio Code",
+        "sub": "工作",
+        "tone": "work",
+        "time": "1 小时 30 分钟",
+        "share": 0.581,
+        "hidden": false
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "视频",
+        "tone": "relax",
+        "time": "40 分钟",
+        "share": 0.258,
+        "hidden": false
+      },
+      {
+        "name": "微信",
+        "sub": "聊天",
+        "tone": "chat",
+        "time": "15 分钟",
+        "share": 0.097,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "使用最多的应用和网站",
+    "note": null,
+    "empty": null
+  },
+  "member-Day-Category": {
+    "scale": "Day",
+    "granularity": "Category",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "11 月 11 日 星期三（今天）",
+    "totalLabel": "使用时长",
+    "total": "5 小时",
+    "compare": "昨天全天 8 小时 20 分钟",
+    "summary": "暂离 40 分钟",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Video",
+        "name": "视频",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "hidden-work",
+        "name": "工作（未公开类别）",
+        "tone": "work",
+        "hidden": true
+      },
+      {
+        "key": "hidden-chat",
+        "name": "聊天（未公开类别）",
+        "tone": "chat",
+        "hidden": true
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 2700
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 小时",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 工作 · 1 小时 30 分钟"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 聊天 · 15 分钟"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 工作 · 1 小时 5 分钟"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 暂离 · 40 分钟"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 放松 · 40 分钟"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 工作 · 1 小时 30 分钟"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "工作（未公开类别）",
+        "sub": null,
+        "tone": "work",
+        "time": "4 小时 5 分钟",
+        "share": 1,
+        "hidden": true
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "视频",
+        "tone": "relax",
+        "time": "40 分钟",
+        "share": 0.163,
+        "hidden": false
+      },
+      {
+        "name": "聊天（未公开类别）",
+        "sub": null,
+        "tone": "chat",
+        "time": "15 分钟",
+        "share": 0.061,
+        "hidden": true
+      }
+    ],
+    "rankingTitle": "使用最多的应用和网站",
+    "note": "Bob 公开了最近 7 天的统计。部分类别对方只公开了状态。",
+    "empty": null
+  },
+  "Day-Title": {
+    "scale": "Day",
+    "granularity": "Title",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "11 月 11 日 星期三（今天）",
+    "totalLabel": "使用时长",
+    "total": "5 小时",
+    "compare": "昨天全天 8 小时 20 分钟",
+    "summary": "暂离 40 分钟",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "工作",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "聊天",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "视频",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 2700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 小时",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 工作 · 1 小时 30 分钟"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 聊天 · 15 分钟"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 工作 · 1 小时 5 分钟"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 暂离 · 40 分钟"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 放松 · 40 分钟"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 工作 · 1 小时 30 分钟"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "plan.md - idea1 - Cursor",
+        "sub": "Cursor · 工作",
+        "tone": "work",
+        "time": "1 小时 30 分钟",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "architecture.md - docs",
+        "sub": "Visual Studio Code · 工作",
+        "tone": "work",
+        "time": "1 小时 30 分钟",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "StatsPage.tsx - idea1 - Cursor",
+        "sub": "Cursor · 工作",
+        "tone": "work",
+        "time": "1 小时 5 分钟",
+        "share": 0.722,
+        "hidden": false
+      },
+      {
+        "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
+        "sub": "哔哩哔哩 · 视频",
+        "tone": "relax",
+        "time": "40 分钟",
+        "share": 0.444,
+        "hidden": false
+      },
+      {
+        "name": "项目群",
+        "sub": "微信 · 聊天",
+        "tone": "chat",
+        "time": "15 分钟",
+        "share": 0.167,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "使用最多的标题",
+    "note": null,
+    "empty": null
+  },
+  "member-Day-Title": {
+    "scale": "Day",
+    "granularity": "Title",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "11 月 11 日 星期三（今天）",
+    "totalLabel": "使用时长",
+    "total": "5 小时",
+    "compare": "昨天全天 8 小时 20 分钟",
+    "summary": "暂离 40 分钟",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Video",
+        "name": "视频",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "hidden-work",
+        "name": "工作（未公开类别）",
+        "tone": "work",
+        "hidden": true
+      },
+      {
+        "key": "hidden-chat",
+        "name": "聊天（未公开类别）",
+        "tone": "chat",
+        "hidden": true
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 2700
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 分钟",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 小时",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 分钟",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 小时",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 工作 · 1 小时 30 分钟"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 聊天 · 15 分钟"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 工作 · 1 小时 5 分钟"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 暂离 · 40 分钟"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 放松 · 40 分钟"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 工作 · 1 小时 30 分钟"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "工作（未公开类别）",
+        "sub": null,
+        "tone": "work",
+        "time": "4 小时 5 分钟",
+        "share": 1,
+        "hidden": true
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "视频",
+        "tone": "relax",
+        "time": "40 分钟",
+        "share": 0.163,
+        "hidden": false
+      },
+      {
+        "name": "聊天（未公开类别）",
+        "sub": null,
+        "tone": "chat",
+        "time": "15 分钟",
+        "share": 0.061,
+        "hidden": true
+      }
+    ],
+    "rankingTitle": "使用最多的标题",
+    "note": "Bob 公开了最近 7 天的统计。部分类别对方只公开了状态。部分类别对方没有公开标题，显示为应用名。",
+    "empty": null
+  },
+  "Week-State": {
+    "scale": "Week",
+    "granularity": "State",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "11 月 9 日 – 11 月 15 日（本周）",
+    "totalLabel": "日均使用时长",
+    "total": "7 小时 40 分钟",
+    "compare": "比上周日均少 28 分钟",
+    "summary": "共 23 小时 · 暂离 2 小时 · 锁屏 2 小时",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "work",
+        "name": "工作",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "chat",
+        "name": "聊天",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "relax",
+        "name": "放松",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "browse",
+        "name": "浏览网页",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "other",
+        "name": "其他",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "一",
+        "tip": "11 月 9 日 星期一 · 9 小时 40 分钟",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "二",
+        "tip": "11 月 10 日 星期二 · 8 小时 20 分钟",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 23100
+          },
+          {
+            "key": "chat",
+            "seconds": 1500
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "三",
+        "tip": "11 月 11 日 星期三 · 5 小时",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 14700
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "四",
+        "tip": "11 月 12 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "五",
+        "tip": "11 月 13 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "六",
+        "tip": "11 月 14 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "日",
+        "tip": "11 月 15 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 小时",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "工作",
+        "sub": null,
+        "tone": "work",
+        "time": "16 小时 35 分钟",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "放松",
+        "sub": null,
+        "tone": "relax",
+        "time": "3 小时 30 分钟",
+        "share": 0.211,
+        "hidden": false
+      },
+      {
+        "name": "聊天",
+        "sub": null,
+        "tone": "chat",
+        "time": "1 小时 15 分钟",
+        "share": 0.075,
+        "hidden": false
+      },
+      {
+        "name": "其他",
+        "sub": null,
+        "tone": "other",
+        "time": "1 小时",
+        "share": 0.06,
+        "hidden": false
+      },
+      {
+        "name": "浏览网页",
+        "sub": null,
+        "tone": "browse",
+        "time": "40 分钟",
+        "share": 0.04,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "按状态",
+    "note": null,
+    "empty": null
+  },
+  "member-Week-State": {
+    "scale": "Week",
+    "granularity": "State",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "11 月 9 日 – 11 月 15 日（本周）",
+    "totalLabel": "日均使用时长",
+    "total": "7 小时 40 分钟",
+    "compare": null,
+    "summary": "共 23 小时 · 暂离 2 小时 · 锁屏 2 小时",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "work",
+        "name": "工作",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "chat",
+        "name": "聊天",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "relax",
+        "name": "放松",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "browse",
+        "name": "浏览网页",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "other",
+        "name": "其他",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "一",
+        "tip": "11 月 9 日 星期一 · 9 小时 40 分钟",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "二",
+        "tip": "11 月 10 日 星期二 · 8 小时 20 分钟",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 23100
+          },
+          {
+            "key": "chat",
+            "seconds": 1500
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "三",
+        "tip": "11 月 11 日 星期三 · 5 小时",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 14700
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "四",
+        "tip": "11 月 12 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "五",
+        "tip": "11 月 13 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "六",
+        "tip": "11 月 14 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "日",
+        "tip": "11 月 15 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 小时",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "工作",
+        "sub": null,
+        "tone": "work",
+        "time": "16 小时 35 分钟",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "放松",
+        "sub": null,
+        "tone": "relax",
+        "time": "3 小时 30 分钟",
+        "share": 0.211,
+        "hidden": false
+      },
+      {
+        "name": "聊天",
+        "sub": null,
+        "tone": "chat",
+        "time": "1 小时 15 分钟",
+        "share": 0.075,
+        "hidden": false
+      },
+      {
+        "name": "其他",
+        "sub": null,
+        "tone": "other",
+        "time": "1 小时",
+        "share": 0.06,
+        "hidden": false
+      },
+      {
+        "name": "浏览网页",
+        "sub": null,
+        "tone": "browse",
+        "time": "40 分钟",
+        "share": 0.04,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "按状态",
+    "note": "Bob 公开了最近 7 天的统计。",
+    "empty": null
+  },
+  "Week-Category": {
+    "scale": "Week",
+    "granularity": "Category",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "11 月 9 日 – 11 月 15 日（本周）",
+    "totalLabel": "日均使用时长",
+    "total": "7 小时 40 分钟",
+    "compare": "比上周日均少 28 分钟",
+    "summary": "共 23 小时 · 暂离 2 小时 · 锁屏 2 小时",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "工作",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "聊天",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "视频",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "游戏",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "浏览网页",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "其他",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "一",
+        "tip": "11 月 9 日 星期一 · 9 小时 40 分钟",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "二",
+        "tip": "11 月 10 日 星期二 · 8 小时 20 分钟",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 23100
+          },
+          {
+            "key": "Communication",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "三",
+        "tip": "11 月 11 日 星期三 · 5 小时",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 14700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "四",
+        "tip": "11 月 12 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "五",
+        "tip": "11 月 13 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "六",
+        "tip": "11 月 14 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "日",
+        "tip": "11 月 15 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 小时",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "Cursor",
+        "sub": "工作",
+        "tone": "work",
+        "time": "11 小时 5 分钟",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "Visual Studio Code",
+        "sub": "工作",
+        "tone": "work",
+        "time": "5 小时 30 分钟",
+        "share": 0.496,
+        "hidden": false
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "视频",
+        "tone": "relax",
+        "time": "2 小时",
+        "share": 0.18,
+        "hidden": false
+      },
+      {
+        "name": "原神",
+        "sub": "游戏",
+        "tone": "game",
+        "time": "1 小时 30 分钟",
+        "share": 0.135,
+        "hidden": false
+      },
+      {
+        "name": "微信",
+        "sub": "聊天",
+        "tone": "chat",
+        "time": "1 小时 15 分钟",
+        "share": 0.113,
+        "hidden": false
+      },
+      {
+        "name": "XMind",
+        "sub": "其他",
+        "tone": "other",
+        "time": "1 小时",
+        "share": 0.09,
+        "hidden": false
+      },
+      {
+        "name": "知乎",
+        "sub": "浏览网页",
+        "tone": "browse",
+        "time": "40 分钟",
+        "share": 0.06,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "使用最多的应用和网站",
+    "note": null,
+    "empty": null
+  },
+  "member-Week-Category": {
+    "scale": "Week",
+    "granularity": "Category",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "11 月 9 日 – 11 月 15 日（本周）",
+    "totalLabel": "日均使用时长",
+    "total": "7 小时 40 分钟",
+    "compare": null,
+    "summary": "共 23 小时 · 暂离 2 小时 · 锁屏 2 小时",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Video",
+        "name": "视频",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "游戏",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "浏览网页",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "其他",
+        "tone": "other",
+        "hidden": false
+      },
+      {
+        "key": "hidden-work",
+        "name": "工作（未公开类别）",
+        "tone": "work",
+        "hidden": true
+      },
+      {
+        "key": "hidden-chat",
+        "name": "聊天（未公开类别）",
+        "tone": "chat",
+        "hidden": true
+      }
+    ],
+    "bars": [
+      {
+        "label": "一",
+        "tip": "11 月 9 日 星期一 · 9 小时 40 分钟",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 21900
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "二",
+        "tip": "11 月 10 日 星期二 · 8 小时 20 分钟",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 23100
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "三",
+        "tip": "11 月 11 日 星期三 · 5 小时",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 14700
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "四",
+        "tip": "11 月 12 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "五",
+        "tip": "11 月 13 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "六",
+        "tip": "11 月 14 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "日",
+        "tip": "11 月 15 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 小时",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "工作（未公开类别）",
+        "sub": null,
+        "tone": "work",
+        "time": "16 小时 35 分钟",
+        "share": 1,
+        "hidden": true
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "视频",
+        "tone": "relax",
+        "time": "2 小时",
+        "share": 0.121,
+        "hidden": false
+      },
+      {
+        "name": "原神",
+        "sub": "游戏",
+        "tone": "game",
+        "time": "1 小时 30 分钟",
+        "share": 0.09,
+        "hidden": false
+      },
+      {
+        "name": "聊天（未公开类别）",
+        "sub": null,
+        "tone": "chat",
+        "time": "1 小时 15 分钟",
+        "share": 0.075,
+        "hidden": true
+      },
+      {
+        "name": "XMind",
+        "sub": "其他",
+        "tone": "other",
+        "time": "1 小时",
+        "share": 0.06,
+        "hidden": false
+      },
+      {
+        "name": "知乎",
+        "sub": "浏览网页",
+        "tone": "browse",
+        "time": "40 分钟",
+        "share": 0.04,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "使用最多的应用和网站",
+    "note": "Bob 公开了最近 7 天的统计。部分类别对方只公开了状态。",
+    "empty": null
+  },
+  "Week-Title": {
+    "scale": "Week",
+    "granularity": "Title",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "11 月 9 日 – 11 月 15 日（本周）",
+    "totalLabel": "日均使用时长",
+    "total": "7 小时 40 分钟",
+    "compare": "比上周日均少 28 分钟",
+    "summary": "共 23 小时 · 暂离 2 小时 · 锁屏 2 小时",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "工作",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "聊天",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "视频",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "游戏",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "浏览网页",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "其他",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "一",
+        "tip": "11 月 9 日 星期一 · 9 小时 40 分钟",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "二",
+        "tip": "11 月 10 日 星期二 · 8 小时 20 分钟",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 23100
+          },
+          {
+            "key": "Communication",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "三",
+        "tip": "11 月 11 日 星期三 · 5 小时",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 14700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "四",
+        "tip": "11 月 12 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "五",
+        "tip": "11 月 13 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "六",
+        "tip": "11 月 14 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "日",
+        "tip": "11 月 15 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 小时",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "plan.md - idea1 - Cursor",
+        "sub": "Cursor · 工作",
+        "tone": "work",
+        "time": "8 小时 20 分钟",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "architecture.md - docs",
+        "sub": "Visual Studio Code · 工作",
+        "tone": "work",
+        "time": "5 小时 30 分钟",
+        "share": 0.66,
+        "hidden": false
+      },
+      {
+        "name": "StatsPage.tsx - idea1 - Cursor",
+        "sub": "Cursor · 工作",
+        "tone": "work",
+        "time": "2 小时 45 分钟",
+        "share": 0.33,
+        "hidden": false
+      },
+      {
+        "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
+        "sub": "哔哩哔哩 · 视频",
+        "tone": "relax",
+        "time": "2 小时",
+        "share": 0.24,
+        "hidden": false
+      },
+      {
+        "name": "深境螺旋",
+        "sub": "原神 · 游戏",
+        "tone": "game",
+        "time": "1 小时 30 分钟",
+        "share": 0.18,
+        "hidden": false
+      },
+      {
+        "name": "项目群",
+        "sub": "微信 · 聊天",
+        "tone": "chat",
+        "time": "1 小时 15 分钟",
+        "share": 0.15,
+        "hidden": false
+      },
+      {
+        "name": "使用统计方案",
+        "sub": "XMind · 其他",
+        "tone": "other",
+        "time": "1 小时",
+        "share": 0.12,
+        "hidden": false
+      },
+      {
+        "name": "如何评价手写 SVG 图表",
+        "sub": "知乎 · 浏览网页",
+        "tone": "browse",
+        "time": "40 分钟",
+        "share": 0.08,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "使用最多的标题",
+    "note": null,
+    "empty": null
+  },
+  "member-Week-Title": {
+    "scale": "Week",
+    "granularity": "Title",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "11 月 9 日 – 11 月 15 日（本周）",
+    "totalLabel": "日均使用时长",
+    "total": "7 小时 40 分钟",
+    "compare": null,
+    "summary": "共 23 小时 · 暂离 2 小时 · 锁屏 2 小时",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Video",
+        "name": "视频",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "游戏",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "浏览网页",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "其他",
+        "tone": "other",
+        "hidden": false
+      },
+      {
+        "key": "hidden-work",
+        "name": "工作（未公开类别）",
+        "tone": "work",
+        "hidden": true
+      },
+      {
+        "key": "hidden-chat",
+        "name": "聊天（未公开类别）",
+        "tone": "chat",
+        "hidden": true
+      }
+    ],
+    "bars": [
+      {
+        "label": "一",
+        "tip": "11 月 9 日 星期一 · 9 小时 40 分钟",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 21900
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "二",
+        "tip": "11 月 10 日 星期二 · 8 小时 20 分钟",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 23100
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "三",
+        "tip": "11 月 11 日 星期三 · 5 小时",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 14700
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "四",
+        "tip": "11 月 12 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "五",
+        "tip": "11 月 13 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "六",
+        "tip": "11 月 14 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "日",
+        "tip": "11 月 15 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 小时",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "工作（未公开类别）",
+        "sub": null,
+        "tone": "work",
+        "time": "16 小时 35 分钟",
+        "share": 1,
+        "hidden": true
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "视频",
+        "tone": "relax",
+        "time": "2 小时",
+        "share": 0.121,
+        "hidden": false
+      },
+      {
+        "name": "深境螺旋",
+        "sub": "原神 · 游戏",
+        "tone": "game",
+        "time": "1 小时 30 分钟",
+        "share": 0.09,
+        "hidden": false
+      },
+      {
+        "name": "聊天（未公开类别）",
+        "sub": null,
+        "tone": "chat",
+        "time": "1 小时 15 分钟",
+        "share": 0.075,
+        "hidden": true
+      },
+      {
+        "name": "XMind",
+        "sub": "其他",
+        "tone": "other",
+        "time": "1 小时",
+        "share": 0.06,
+        "hidden": false
+      },
+      {
+        "name": "知乎",
+        "sub": "浏览网页",
+        "tone": "browse",
+        "time": "40 分钟",
+        "share": 0.04,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "使用最多的标题",
+    "note": "Bob 公开了最近 7 天的统计。部分类别对方只公开了状态。部分类别对方没有公开标题，显示为应用名。",
+    "empty": null
+  },
+  "Month-State": {
+    "scale": "Month",
+    "granularity": "State",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "2026 年 11 月（本月）",
+    "totalLabel": "日均使用时长",
+    "total": "7 小时 50 分钟",
+    "compare": "比上月日均多 2 小时 24 分钟",
+    "summary": "共 86 小时 20 分钟 · 暂离 5 小时 20 分钟 · 锁屏 7 小时",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "work",
+        "name": "工作",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "chat",
+        "name": "聊天",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "relax",
+        "name": "放松",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "browse",
+        "name": "浏览网页",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "other",
+        "name": "其他",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "1",
+        "tip": "11 月 1 日 星期日 · 6 小时 20 分钟",
+        "date": "2026-11-01",
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 18600
+          },
+          {
+            "key": "browse",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 2 日 星期一 · 8 小时 30 分钟",
+        "date": "2026-11-02",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 24300
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 3 日 星期二 · 9 小时 40 分钟",
+        "date": "2026-11-03",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 4 日 星期三 · 8 小时 20 分钟",
+        "date": "2026-11-04",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 23100
+          },
+          {
+            "key": "chat",
+            "seconds": 1500
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "5",
+        "tip": "11 月 5 日 星期四 · 10 小时",
+        "date": "2026-11-05",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 24300
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 6 日 星期五 · 8 小时 10 分钟",
+        "date": "2026-11-06",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 7 日 星期六 · 6 小时 20 分钟",
+        "date": "2026-11-07",
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 18600
+          },
+          {
+            "key": "browse",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 8 日 星期日 · 6 小时",
+        "date": "2026-11-08",
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 18000
+          },
+          {
+            "key": "browse",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 9 日 星期一 · 9 小时 40 分钟",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "10",
+        "tip": "11 月 10 日 星期二 · 8 小时 20 分钟",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 23100
+          },
+          {
+            "key": "chat",
+            "seconds": 1500
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 11 日 星期三 · 5 小时",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 14700
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 12 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 13 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 14 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "15",
+        "tip": "11 月 15 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 16 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 17 日 星期二 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 18 日 星期三 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 19 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "20",
+        "tip": "11 月 20 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 21 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 22 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 23 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 24 日 星期二 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "25",
+        "tip": "11 月 25 日 星期三 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 26 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 27 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 28 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 29 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "30",
+        "tip": "11 月 30 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 小时",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "工作",
+        "sub": null,
+        "tone": "work",
+        "time": "48 小时 40 分钟",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "放松",
+        "sub": null,
+        "tone": "relax",
+        "time": "25 小时 10 分钟",
+        "share": 0.517,
+        "hidden": false
+      },
+      {
+        "name": "浏览网页",
+        "sub": null,
+        "tone": "browse",
+        "time": "5 小时 40 分钟",
+        "share": 0.116,
+        "hidden": false
+      },
+      {
+        "name": "其他",
+        "sub": null,
+        "tone": "other",
+        "time": "3 小时 30 分钟",
+        "share": 0.072,
+        "hidden": false
+      },
+      {
+        "name": "聊天",
+        "sub": null,
+        "tone": "chat",
+        "time": "3 小时 20 分钟",
+        "share": 0.068,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "按状态",
+    "note": null,
+    "empty": null
+  },
+  "member-Month-State": {
+    "scale": "Month",
+    "granularity": "State",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "2026 年 11 月（本月）",
+    "totalLabel": "日均使用时长",
+    "total": "7 小时 38 分钟",
+    "compare": null,
+    "summary": "共 53 小时 30 分钟 · 暂离 3 小时 20 分钟 · 锁屏 4 小时",
+    "canPrev": false,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "work",
+        "name": "工作",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "chat",
+        "name": "聊天",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "relax",
+        "name": "放松",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "browse",
+        "name": "浏览网页",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "other",
+        "name": "其他",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "1",
+        "tip": "11 月 1 日 星期日 · 0 分钟",
+        "date": "2026-11-01",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 2 日 星期一 · 0 分钟",
+        "date": "2026-11-02",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 3 日 星期二 · 0 分钟",
+        "date": "2026-11-03",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 4 日 星期三 · 0 分钟",
+        "date": "2026-11-04",
+        "parts": []
+      },
+      {
+        "label": "5",
+        "tip": "11 月 5 日 星期四 · 10 小时",
+        "date": "2026-11-05",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 24300
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 6 日 星期五 · 8 小时 10 分钟",
+        "date": "2026-11-06",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 7 日 星期六 · 6 小时 20 分钟",
+        "date": "2026-11-07",
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 18600
+          },
+          {
+            "key": "browse",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 8 日 星期日 · 6 小时",
+        "date": "2026-11-08",
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 18000
+          },
+          {
+            "key": "browse",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 9 日 星期一 · 9 小时 40 分钟",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "10",
+        "tip": "11 月 10 日 星期二 · 8 小时 20 分钟",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 23100
+          },
+          {
+            "key": "chat",
+            "seconds": 1500
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 11 日 星期三 · 5 小时",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 14700
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 12 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 13 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 14 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "15",
+        "tip": "11 月 15 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 16 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 17 日 星期二 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 18 日 星期三 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 19 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "20",
+        "tip": "11 月 20 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 21 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 22 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 23 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 24 日 星期二 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "25",
+        "tip": "11 月 25 日 星期三 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 26 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 27 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 28 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 29 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "30",
+        "tip": "11 月 30 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 小时",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "工作",
+        "sub": null,
+        "tone": "work",
+        "time": "29 小时 25 分钟",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "放松",
+        "sub": null,
+        "tone": "relax",
+        "time": "16 小时 30 分钟",
+        "share": 0.561,
+        "hidden": false
+      },
+      {
+        "name": "浏览网页",
+        "sub": null,
+        "tone": "browse",
+        "time": "3 小时 30 分钟",
+        "share": 0.119,
+        "hidden": false
+      },
+      {
+        "name": "聊天",
+        "sub": null,
+        "tone": "chat",
+        "time": "2 小时 5 分钟",
+        "share": 0.071,
+        "hidden": false
+      },
+      {
+        "name": "其他",
+        "sub": null,
+        "tone": "other",
+        "time": "2 小时",
+        "share": 0.068,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "按状态",
+    "note": "Bob 公开了最近 7 天的统计。",
+    "empty": null
+  },
+  "Month-Category": {
+    "scale": "Month",
+    "granularity": "Category",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "2026 年 11 月（本月）",
+    "totalLabel": "日均使用时长",
+    "total": "7 小时 50 分钟",
+    "compare": "比上月日均多 2 小时 24 分钟",
+    "summary": "共 86 小时 20 分钟 · 暂离 5 小时 20 分钟 · 锁屏 7 小时",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "工作",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "聊天",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "视频",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "游戏",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "浏览网页",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "其他",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "1",
+        "tip": "11 月 1 日 星期日 · 6 小时 20 分钟",
+        "date": "2026-11-01",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7800
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 2 日 星期一 · 8 小时 30 分钟",
+        "date": "2026-11-02",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 24300
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 3 日 星期二 · 9 小时 40 分钟",
+        "date": "2026-11-03",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 4 日 星期三 · 8 小时 20 分钟",
+        "date": "2026-11-04",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 23100
+          },
+          {
+            "key": "Communication",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "5",
+        "tip": "11 月 5 日 星期四 · 10 小时",
+        "date": "2026-11-05",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 24300
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 6 日 星期五 · 8 小时 10 分钟",
+        "date": "2026-11-06",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 7 日 星期六 · 6 小时 20 分钟",
+        "date": "2026-11-07",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7800
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 8 日 星期日 · 6 小时",
+        "date": "2026-11-08",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7200
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 9 日 星期一 · 9 小时 40 分钟",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "10",
+        "tip": "11 月 10 日 星期二 · 8 小时 20 分钟",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 23100
+          },
+          {
+            "key": "Communication",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 11 日 星期三 · 5 小时",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 14700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 12 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 13 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 14 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "15",
+        "tip": "11 月 15 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 16 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 17 日 星期二 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 18 日 星期三 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 19 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "20",
+        "tip": "11 月 20 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 21 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 22 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 23 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 24 日 星期二 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "25",
+        "tip": "11 月 25 日 星期三 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 26 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 27 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 28 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 29 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "30",
+        "tip": "11 月 30 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 小时",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "Cursor",
+        "sub": "工作",
+        "tone": "work",
+        "time": "33 小时 10 分钟",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "Visual Studio Code",
+        "sub": "工作",
+        "tone": "work",
+        "time": "15 小时 30 分钟",
+        "share": 0.467,
+        "hidden": false
+      },
+      {
+        "name": "原神",
+        "sub": "游戏",
+        "tone": "game",
+        "time": "13 小时 30 分钟",
+        "share": 0.407,
+        "hidden": false
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "视频",
+        "tone": "relax",
+        "time": "11 小时 40 分钟",
+        "share": 0.352,
+        "hidden": false
+      },
+      {
+        "name": "知乎",
+        "sub": "浏览网页",
+        "tone": "browse",
+        "time": "5 小时 40 分钟",
+        "share": 0.171,
+        "hidden": false
+      },
+      {
+        "name": "XMind",
+        "sub": "其他",
+        "tone": "other",
+        "time": "3 小时 30 分钟",
+        "share": 0.106,
+        "hidden": false
+      },
+      {
+        "name": "微信",
+        "sub": "聊天",
+        "tone": "chat",
+        "time": "3 小时 20 分钟",
+        "share": 0.101,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "使用最多的应用和网站",
+    "note": null,
+    "empty": null
+  },
+  "member-Month-Category": {
+    "scale": "Month",
+    "granularity": "Category",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "2026 年 11 月（本月）",
+    "totalLabel": "日均使用时长",
+    "total": "7 小时 38 分钟",
+    "compare": null,
+    "summary": "共 53 小时 30 分钟 · 暂离 3 小时 20 分钟 · 锁屏 4 小时",
+    "canPrev": false,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Video",
+        "name": "视频",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "游戏",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "浏览网页",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "其他",
+        "tone": "other",
+        "hidden": false
+      },
+      {
+        "key": "hidden-work",
+        "name": "工作（未公开类别）",
+        "tone": "work",
+        "hidden": true
+      },
+      {
+        "key": "hidden-chat",
+        "name": "聊天（未公开类别）",
+        "tone": "chat",
+        "hidden": true
+      }
+    ],
+    "bars": [
+      {
+        "label": "1",
+        "tip": "11 月 1 日 星期日 · 0 分钟",
+        "date": "2026-11-01",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 2 日 星期一 · 0 分钟",
+        "date": "2026-11-02",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 3 日 星期二 · 0 分钟",
+        "date": "2026-11-03",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 4 日 星期三 · 0 分钟",
+        "date": "2026-11-04",
+        "parts": []
+      },
+      {
+        "label": "5",
+        "tip": "11 月 5 日 星期四 · 10 小时",
+        "date": "2026-11-05",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 24300
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 6 日 星期五 · 8 小时 10 分钟",
+        "date": "2026-11-06",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 21900
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 7 日 星期六 · 6 小时 20 分钟",
+        "date": "2026-11-07",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7800
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 8 日 星期日 · 6 小时",
+        "date": "2026-11-08",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7200
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 9 日 星期一 · 9 小时 40 分钟",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 21900
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "10",
+        "tip": "11 月 10 日 星期二 · 8 小时 20 分钟",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 23100
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 11 日 星期三 · 5 小时",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 14700
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 12 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 13 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 14 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "15",
+        "tip": "11 月 15 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 16 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 17 日 星期二 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 18 日 星期三 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 19 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "20",
+        "tip": "11 月 20 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 21 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 22 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 23 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 24 日 星期二 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "25",
+        "tip": "11 月 25 日 星期三 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 26 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 27 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 28 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 29 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "30",
+        "tip": "11 月 30 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 小时",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "工作（未公开类别）",
+        "sub": null,
+        "tone": "work",
+        "time": "29 小时 25 分钟",
+        "share": 1,
+        "hidden": true
+      },
+      {
+        "name": "原神",
+        "sub": "游戏",
+        "tone": "game",
+        "time": "9 小时",
+        "share": 0.306,
+        "hidden": false
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "视频",
+        "tone": "relax",
+        "time": "7 小时 30 分钟",
+        "share": 0.255,
+        "hidden": false
+      },
+      {
+        "name": "知乎",
+        "sub": "浏览网页",
+        "tone": "browse",
+        "time": "3 小时 30 分钟",
+        "share": 0.119,
+        "hidden": false
+      },
+      {
+        "name": "聊天（未公开类别）",
+        "sub": null,
+        "tone": "chat",
+        "time": "2 小时 5 分钟",
+        "share": 0.071,
+        "hidden": true
+      },
+      {
+        "name": "XMind",
+        "sub": "其他",
+        "tone": "other",
+        "time": "2 小时",
+        "share": 0.068,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "使用最多的应用和网站",
+    "note": "Bob 公开了最近 7 天的统计。部分类别对方只公开了状态。",
+    "empty": null
+  },
+  "Month-Title": {
+    "scale": "Month",
+    "granularity": "Title",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "2026 年 11 月（本月）",
+    "totalLabel": "日均使用时长",
+    "total": "7 小时 50 分钟",
+    "compare": "比上月日均多 2 小时 24 分钟",
+    "summary": "共 86 小时 20 分钟 · 暂离 5 小时 20 分钟 · 锁屏 7 小时",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "工作",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "聊天",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "视频",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "游戏",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "浏览网页",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "其他",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "1",
+        "tip": "11 月 1 日 星期日 · 6 小时 20 分钟",
+        "date": "2026-11-01",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7800
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 2 日 星期一 · 8 小时 30 分钟",
+        "date": "2026-11-02",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 24300
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 3 日 星期二 · 9 小时 40 分钟",
+        "date": "2026-11-03",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 4 日 星期三 · 8 小时 20 分钟",
+        "date": "2026-11-04",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 23100
+          },
+          {
+            "key": "Communication",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "5",
+        "tip": "11 月 5 日 星期四 · 10 小时",
+        "date": "2026-11-05",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 24300
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 6 日 星期五 · 8 小时 10 分钟",
+        "date": "2026-11-06",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 7 日 星期六 · 6 小时 20 分钟",
+        "date": "2026-11-07",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7800
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 8 日 星期日 · 6 小时",
+        "date": "2026-11-08",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7200
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 9 日 星期一 · 9 小时 40 分钟",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "10",
+        "tip": "11 月 10 日 星期二 · 8 小时 20 分钟",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 23100
+          },
+          {
+            "key": "Communication",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 11 日 星期三 · 5 小时",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 14700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 12 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 13 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 14 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "15",
+        "tip": "11 月 15 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 16 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 17 日 星期二 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 18 日 星期三 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 19 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "20",
+        "tip": "11 月 20 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 21 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 22 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 23 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 24 日 星期二 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "25",
+        "tip": "11 月 25 日 星期三 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 26 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 27 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 28 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 29 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "30",
+        "tip": "11 月 30 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 小时",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "plan.md - idea1 - Cursor",
+        "sub": "Cursor · 工作",
+        "tone": "work",
+        "time": "25 小时 50 分钟",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "architecture.md - docs",
+        "sub": "Visual Studio Code · 工作",
+        "tone": "work",
+        "time": "15 小时 30 分钟",
+        "share": 0.6,
+        "hidden": false
+      },
+      {
+        "name": "深境螺旋",
+        "sub": "原神 · 游戏",
+        "tone": "game",
+        "time": "13 小时 30 分钟",
+        "share": 0.523,
+        "hidden": false
+      },
+      {
+        "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
+        "sub": "哔哩哔哩 · 视频",
+        "tone": "relax",
+        "time": "11 小时 40 分钟",
+        "share": 0.452,
+        "hidden": false
+      },
+      {
+        "name": "StatsPage.tsx - idea1 - Cursor",
+        "sub": "Cursor · 工作",
+        "tone": "work",
+        "time": "7 小时 20 分钟",
+        "share": 0.284,
+        "hidden": false
+      },
+      {
+        "name": "使用统计方案",
+        "sub": "XMind · 其他",
+        "tone": "other",
+        "time": "3 小时 30 分钟",
+        "share": 0.135,
+        "hidden": false
+      },
+      {
+        "name": "项目群",
+        "sub": "微信 · 聊天",
+        "tone": "chat",
+        "time": "3 小时 20 分钟",
+        "share": 0.129,
+        "hidden": false
+      },
+      {
+        "name": "如何评价这个周末",
+        "sub": "知乎 · 浏览网页",
+        "tone": "browse",
+        "time": "3 小时 20 分钟",
+        "share": 0.129,
+        "hidden": false
+      },
+      {
+        "name": "如何评价手写 SVG 图表",
+        "sub": "知乎 · 浏览网页",
+        "tone": "browse",
+        "time": "2 小时 20 分钟",
+        "share": 0.09,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "使用最多的标题",
+    "note": null,
+    "empty": null
+  },
+  "member-Month-Title": {
+    "scale": "Month",
+    "granularity": "Title",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "2026 年 11 月（本月）",
+    "totalLabel": "日均使用时长",
+    "total": "7 小时 38 分钟",
+    "compare": null,
+    "summary": "共 53 小时 30 分钟 · 暂离 3 小时 20 分钟 · 锁屏 4 小时",
+    "canPrev": false,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Video",
+        "name": "视频",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "游戏",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "浏览网页",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "其他",
+        "tone": "other",
+        "hidden": false
+      },
+      {
+        "key": "hidden-work",
+        "name": "工作（未公开类别）",
+        "tone": "work",
+        "hidden": true
+      },
+      {
+        "key": "hidden-chat",
+        "name": "聊天（未公开类别）",
+        "tone": "chat",
+        "hidden": true
+      }
+    ],
+    "bars": [
+      {
+        "label": "1",
+        "tip": "11 月 1 日 星期日 · 0 分钟",
+        "date": "2026-11-01",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 2 日 星期一 · 0 分钟",
+        "date": "2026-11-02",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 3 日 星期二 · 0 分钟",
+        "date": "2026-11-03",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 4 日 星期三 · 0 分钟",
+        "date": "2026-11-04",
+        "parts": []
+      },
+      {
+        "label": "5",
+        "tip": "11 月 5 日 星期四 · 10 小时",
+        "date": "2026-11-05",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 24300
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 6 日 星期五 · 8 小时 10 分钟",
+        "date": "2026-11-06",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 21900
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 7 日 星期六 · 6 小时 20 分钟",
+        "date": "2026-11-07",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7800
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 8 日 星期日 · 6 小时",
+        "date": "2026-11-08",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7200
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 9 日 星期一 · 9 小时 40 分钟",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 21900
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "10",
+        "tip": "11 月 10 日 星期二 · 8 小时 20 分钟",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 23100
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 11 日 星期三 · 5 小时",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 14700
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11 月 12 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 13 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 14 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "15",
+        "tip": "11 月 15 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 16 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 17 日 星期二 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 18 日 星期三 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 19 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "20",
+        "tip": "11 月 20 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 21 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 22 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 23 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 24 日 星期二 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "25",
+        "tip": "11 月 25 日 星期三 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 26 日 星期四 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 27 日 星期五 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 28 日 星期六 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "11 月 29 日 星期日 · 还没到",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "30",
+        "tip": "11 月 30 日 星期一 · 还没到",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 小时",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "工作（未公开类别）",
+        "sub": null,
+        "tone": "work",
+        "time": "29 小时 25 分钟",
+        "share": 1,
+        "hidden": true
+      },
+      {
+        "name": "深境螺旋",
+        "sub": "原神 · 游戏",
+        "tone": "game",
+        "time": "9 小时",
+        "share": 0.306,
+        "hidden": false
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "视频",
+        "tone": "relax",
+        "time": "7 小时 30 分钟",
+        "share": 0.255,
+        "hidden": false
+      },
+      {
+        "name": "知乎",
+        "sub": "浏览网页",
+        "tone": "browse",
+        "time": "3 小时 30 分钟",
+        "share": 0.119,
+        "hidden": false
+      },
+      {
+        "name": "聊天（未公开类别）",
+        "sub": null,
+        "tone": "chat",
+        "time": "2 小时 5 分钟",
+        "share": 0.071,
+        "hidden": true
+      },
+      {
+        "name": "XMind",
+        "sub": "其他",
+        "tone": "other",
+        "time": "2 小时",
+        "share": 0.068,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "使用最多的标题",
+    "note": "Bob 公开了最近 7 天的统计。部分类别对方只公开了状态。部分类别对方没有公开标题，显示为应用名。",
+    "empty": null
+  }
+}

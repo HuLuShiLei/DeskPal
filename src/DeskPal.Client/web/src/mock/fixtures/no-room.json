@@ -78,5 +78,55 @@
     }
   ],
   "unclassified": [],
-  "whatsNew": null
+  "whatsNew": null,
+  "usage": {
+    "retentionDays": 90,
+    "retentionOptions": [
+      {
+        "value": 30,
+        "name": "30 天"
+      },
+      {
+        "value": 90,
+        "name": "90 天"
+      },
+      {
+        "value": 180,
+        "name": "180 天"
+      },
+      {
+        "value": 365,
+        "name": "365 天"
+      }
+    ],
+    "noTitleRules": [
+      {
+        "kind": "App",
+        "pattern": "招商银行",
+        "label": "应用 · 招商银行"
+      },
+      {
+        "kind": "Domain",
+        "pattern": "cmbchina.com",
+        "label": "网址 · cmbchina.com"
+      },
+      {
+        "kind": "Title",
+        "pattern": "病历",
+        "label": "标题含 · 病历"
+      }
+    ],
+    "viewers": [
+      {
+        "name": "Bob",
+        "room": "测试房间",
+        "when": "今天 13:00"
+      },
+      {
+        "name": "Dave",
+        "room": "同事房间",
+        "when": "昨天 12:00"
+      }
+    ]
+  }
 }

@@ -4,6 +4,7 @@ import { HostContext, useHost, useHostServices } from "./host";
 import { RoomPage } from "./pages/RoomPage";
 import { RulesPage } from "./pages/RulesPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { StatsPage, type StatsTarget } from "./pages/StatsPage";
 import { StatusPage } from "./pages/StatusPage";
 import { askSharing } from "./sharing";
 import { applyTheme } from "./theme";
@@ -11,16 +12,18 @@ import { Flyout, Icon, TitleBar, type IconName } from "./ui";
 
 const tabs: { id: Tab; name: string; icon: IconName }[] = [
   { id: "status", name: "状态", icon: "people" },
+  { id: "stats", name: "统计", icon: "chart" },
   { id: "room", name: "房间", icon: "home" },
   { id: "rules", name: "分类", icon: "tag" },
   { id: "settings", name: "设置", icon: "settings" },
 ];
 
-type Tab = "status" | "room" | "rules" | "settings";
+type Tab = "status" | "stats" | "room" | "rules" | "settings";
 
 export function App({ bridge }: { bridge: Bridge }) {
   const [state, setState] = useState<PanelState | null>(null);
   const [tab, setTab] = useState<Tab>("status");
+  const [statsTarget, setStatsTarget] = useState<StatsTarget>(null);
   const [closeAction, setCloseAction] = useState<"ask" | "minimize" | "tray">("ask");
   const { host, overlay, dialogOpen } = useHostServices(bridge);
   const askedSharing = useRef(false);
@@ -116,7 +119,16 @@ export function App({ bridge }: { bridge: Bridge }) {
         <div class="body" inert={dialogOpen}>
           <nav class="rail" aria-label="页面">
             {tabs.map((t) => (
-              <button key={t.id} class="rail-item" aria-current={tab === t.id ? "page" : undefined} title={t.name} onClick={() => setTab(t.id)}>
+              <button
+                key={t.id}
+                class="rail-item"
+                aria-current={tab === t.id ? "page" : undefined}
+                title={t.name}
+                onClick={() => {
+                  if (t.id === "stats") setStatsTarget(null);
+                  setTab(t.id);
+                }}
+              >
                 <Icon name={t.icon} />
                 <span>{t.name}</span>
               </button>
@@ -137,7 +149,16 @@ export function App({ bridge }: { bridge: Bridge }) {
                   </p>
                 )}
                 <div class="page" key={tab}>
-                  {tab === "status" && <StatusPage state={state} />}
+                  {tab === "status" && (
+                    <StatusPage
+                      state={state}
+                      onViewStats={(m) => {
+                        setStatsTarget(m);
+                        setTab("stats");
+                      }}
+                    />
+                  )}
+                  {tab === "stats" && <StatsPage state={state} target={statsTarget} onTarget={setStatsTarget} />}
                   {tab === "room" && <RoomPage state={state} />}
                   {tab === "rules" && <RulesPage state={state} />}
                   {tab === "settings" && <SettingsPage state={state} />}

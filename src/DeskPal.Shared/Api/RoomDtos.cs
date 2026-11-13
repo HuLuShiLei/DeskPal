@@ -8,7 +8,9 @@ public enum RoomRole
     Owner = 1,
 }
 
-public sealed record RoomMemberDto(Guid UserId, string DisplayName, RoomRole Role, DateTimeOffset JoinedAt);
+/// <param name="ShareStats">The member shares usage stats in this room.</param>
+/// <param name="StatsDays">How many recent days of stats the member shares; 0 when not shared.</param>
+public sealed record RoomMemberDto(Guid UserId, string DisplayName, RoomRole Role, DateTimeOffset JoinedAt, bool ShareStats = false, int StatsDays = 0);
 
 /// <param name="Blocked">Members the requesting user has blocked in this room. Never includes other people's blocks.</param>
 public sealed record RoomDto(
@@ -34,4 +36,6 @@ public sealed record KickMemberRequest(Guid UserId);
 
 public sealed record BlockMemberRequest(Guid UserId);
 
-public sealed record PrivacyProfileDto(Dictionary<ActivityCategory, PrivacyLevel> Levels);
+/// <param name="ShareStats">null keeps the saved value, so older clients do not turn sharing off.</param>
+/// <param name="StatsDays">null keeps the saved value.</param>
+public sealed record PrivacyProfileDto(Dictionary<ActivityCategory, PrivacyLevel> Levels, bool? ShareStats = null, int? StatsDays = null);

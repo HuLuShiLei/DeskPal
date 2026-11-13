@@ -27,7 +27,7 @@ public sealed record ReactionPayload(string Emoji, Guid? TargetUserId);
 
 ## 2a. Server 转发
 
-加进 `ClientPublishable` 就够了。`PresenceHub.Publish` 会检查发送者是不是 Room 成员，覆盖 `SenderId` 和 `Ts`，然后转发给 Room 里的其他人。**不要在 Hub 里解析 Payload**，以后做端到端加密时 Payload 会变成密文。
+加进 `ClientPublishable` 就够了。`PresenceHub.Publish` 会检查发送者是不是 Room 成员，覆盖 `SenderId` 和 `Ts`，然后转发给 Room 里的其他人。**不要在 Hub 里解析 Payload**，以后做端到端加密时 Payload 会变成密文。只发给房间里某一个人时（例如 `stats.request`），再加进 `MessageTypes.Direct`，发送时设置 `To`。
 
 需要 Server 记住最后一条（像 `presence.update` 那样让新连上来的人能拿到），再参照 `PresenceStore` 处理，并且只存在内存里。
 

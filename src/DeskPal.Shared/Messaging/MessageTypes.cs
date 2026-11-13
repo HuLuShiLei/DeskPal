@@ -23,8 +23,20 @@ public static class MessageTypes
     /// <summary>The account signed in on another computer. Sent only to the old computer, whose connection is closed shortly after. RoomId is empty.</summary>
     public const string SessionReplaced = "auth.sessionReplaced";
 
+    /// <summary>A member turned usage stats sharing on or off, or changed the days. Sent to the room so the members reload it.</summary>
+    public const string MemberSharingChanged = "room.memberSharingChanged";
+
+    /// <summary>Asks a room member for usage stats. Sent only to <see cref="Envelope.To"/>.</summary>
+    public const string StatsRequest = "stats.request";
+
+    /// <summary>Answer to <see cref="StatsRequest"/>. Sent only to <see cref="Envelope.To"/>.</summary>
+    public const string StatsResponse = "stats.response";
+
     /// <summary>Types a client is allowed to publish through the hub. Everything else is server-originated.</summary>
-    public static readonly IReadOnlySet<string> ClientPublishable = new HashSet<string> { PresenceUpdate };
+    public static readonly IReadOnlySet<string> ClientPublishable = new HashSet<string> { PresenceUpdate, StatsRequest, StatsResponse };
+
+    /// <summary>Client types delivered to one member (<see cref="Envelope.To"/>) instead of the whole room.</summary>
+    public static readonly IReadOnlySet<string> Direct = new HashSet<string> { StatsRequest, StatsResponse };
 }
 
 public sealed record RoomEventPayload(Guid? UserId);

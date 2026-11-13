@@ -1,6 +1,7 @@
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Core.Presence;
+using DeskPal.Shared.Api;
 using DeskPal.Shared.Messaging;
 using DeskPal.Shared.Presence;
 using Microsoft.Extensions.Hosting;
@@ -20,6 +21,7 @@ public sealed class PresenceCoordinator : BackgroundService
     private readonly AppSettings _settings;
     private readonly SettingsStore _store;
     private readonly UnclassifiedUsage _unclassified;
+    private readonly UsageService _usage;
     private readonly ILogger<PresenceCoordinator> _logger;
     private readonly System.Threading.Channels.ChannelReader<ActivitySignal> _signals;
     private readonly PresenceDebouncer _debouncer;
@@ -38,6 +40,7 @@ public sealed class PresenceCoordinator : BackgroundService
         SettingsStore store,
         PersonalRules personalRules,
         UnclassifiedUsage unclassified,
+        UsageService usage,
         ILogger<PresenceCoordinator> logger)
     {
         _classifier = classifier;
@@ -47,6 +50,7 @@ public sealed class PresenceCoordinator : BackgroundService
         _logger = logger;
         _store = store;
         _unclassified = unclassified;
+        _usage = usage;
         _signals = bus.Subscribe();
         _debouncer = new PresenceDebouncer(TimeSpan.FromSeconds(settings.StableSeconds), TimeSpan.FromSeconds(settings.StableSeconds));
         _deadline = new Timer(_ => Evaluate());
@@ -132,6 +136,12 @@ public sealed class PresenceCoordinator : BackgroundService
                 ? CorrectionTarget.From(Snapshot, Classification.AppDisplayName)
                 : null;
             _unclassified.Record(unrecognized, now);
+
+            // Pausing only stops sharing; the stats keep what I was actually doing.
+            var actual = _settings.Paused ? PresenceResolver.Resolve(Snapshot, Classification, paused: false) : Local;
+            var foreground = Snapshot.Foreground;
+            var domain = foreground?.IsBrowser == true && Snapshot.BrowserDomain is { Length: > 0 } host ? RulePattern.NormalizeHost(host) : null;
+            _usage.Recorder.Record(ready ? actual : null, now, foreground?.ProcessName, domain);
         }
 
         if (deadline is { } due)

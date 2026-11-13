@@ -60,7 +60,8 @@
       },
       "meta": "已持续 12 分钟",
       "pinned": true,
-      "blocked": false
+      "blocked": false,
+      "shareStats": true
     },
     {
       "userId": "00000000-0000-0000-0000-0000000ca201",
@@ -75,7 +76,8 @@
       },
       "meta": "",
       "pinned": false,
-      "blocked": false
+      "blocked": false,
+      "shareStats": false
     }
   ],
   "privacy": {
@@ -123,6 +125,26 @@
       {
         "value": "Detail",
         "name": "显示详情（标题）"
+      }
+    ],
+    "shareStats": true,
+    "statsDays": 7,
+    "dayOptions": [
+      {
+        "value": 1,
+        "name": "1 天"
+      },
+      {
+        "value": 3,
+        "name": "3 天"
+      },
+      {
+        "value": 7,
+        "name": "7 天"
+      },
+      {
+        "value": 30,
+        "name": "30 天"
       }
     ]
   },
@@ -219,6 +241,56 @@
         "items": [
           "点关闭时可以选择最小化，或最小化到系统托盘"
         ]
+      }
+    ]
+  },
+  "usage": {
+    "retentionDays": 90,
+    "retentionOptions": [
+      {
+        "value": 30,
+        "name": "30 天"
+      },
+      {
+        "value": 90,
+        "name": "90 天"
+      },
+      {
+        "value": 180,
+        "name": "180 天"
+      },
+      {
+        "value": 365,
+        "name": "365 天"
+      }
+    ],
+    "noTitleRules": [
+      {
+        "kind": "App",
+        "pattern": "招商银行",
+        "label": "应用 · 招商银行"
+      },
+      {
+        "kind": "Domain",
+        "pattern": "cmbchina.com",
+        "label": "网址 · cmbchina.com"
+      },
+      {
+        "kind": "Title",
+        "pattern": "病历",
+        "label": "标题含 · 病历"
+      }
+    ],
+    "viewers": [
+      {
+        "name": "Bob",
+        "room": "测试房间",
+        "when": "今天 13:00"
+      },
+      {
+        "name": "Dave",
+        "room": "同事房间",
+        "when": "昨天 12:00"
       }
     ]
   }

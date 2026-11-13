@@ -78,6 +78,7 @@ public partial class App : Application
         rooms.Notify += (title, message) => Dispatcher.BeginInvoke(() => _tray.ShowNotification(title, message));
         hub.Received += rooms.Handle;
         hub.Received += personalRules.Handle;
+        hub.Received += services.GetRequiredService<StatsExchange>().Handle;
         hub.Connected += personalRules.RefreshAsync;
 
         LoadCachedBuiltinRules(services);
@@ -170,6 +171,8 @@ public partial class App : Application
         s.AddSingleton<LayeredClassifier>();
         s.AddSingleton(new PersonalRuleStore(Path.Combine(SettingsStore.Directory, "personal-rules.json")));
         s.AddSingleton<UnclassifiedUsage>();
+        s.AddSingleton<UsageService>();
+        s.AddSingleton<StatsExchange>();
         s.AddSingleton<PersonalRules>();
         s.AddSingleton<BuiltinRuleCache>();
         s.AddSingleton<ForegroundState>();

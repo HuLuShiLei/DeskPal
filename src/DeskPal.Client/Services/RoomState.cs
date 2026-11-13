@@ -119,8 +119,7 @@ public sealed class RoomState(
             var privacy = new Dictionary<Guid, PrivacyProfile>();
             foreach (var room in rooms)
             {
-                var dto = await api.GetPrivacyAsync(room.Id);
-                privacy[room.Id] = new PrivacyProfile { Levels = dto.Levels ?? new() };
+                privacy[room.Id] = ToProfile(await api.GetPrivacyAsync(room.Id));
             }
 
             lock (_lock)
@@ -154,18 +153,34 @@ public sealed class RoomState(
 
     public async Task SavePrivacyAsync(Guid roomId, PrivacyProfile profile)
     {
-        var saved = await api.SetPrivacyAsync(roomId, new PrivacyProfileDto(profile.Levels));
-        lock (_lock)
-        {
-            _privacy[roomId] = new PrivacyProfile { Levels = saved.Levels ?? new() };
-        }
-
-        Changed?.Invoke();
+        await SaveAsync(roomId, new PrivacyProfileDto(profile.Levels));
         if (RoomsReloaded is { } handler)
         {
             await handler();
         }
     }
+
+    /// <summary>Turns usage stats sharing on or off in a room. The live presence is not affected.</summary>
+    public Task SaveStatsSharingAsync(Guid roomId, bool share, int days) =>
+        SaveAsync(roomId, new PrivacyProfileDto(GetPrivacy(roomId).Levels, share, days));
+
+    private async Task SaveAsync(Guid roomId, PrivacyProfileDto dto)
+    {
+        var saved = await api.SetPrivacyAsync(roomId, dto);
+        lock (_lock)
+        {
+            _privacy[roomId] = ToProfile(saved);
+        }
+
+        Changed?.Invoke();
+    }
+
+    private static PrivacyProfile ToProfile(PrivacyProfileDto dto) => new()
+    {
+        Levels = dto.Levels ?? new(),
+        ShareStats = dto.ShareStats ?? false,
+        StatsDays = dto.StatsDays ?? PrivacyProfile.DefaultStatsDays,
+    };
 
     public void Handle(Envelope envelope)
     {
@@ -195,6 +210,7 @@ public sealed class RoomState(
                     break;
 
                 case MessageTypes.RoomBlocksChanged:
+                case MessageTypes.MemberSharingChanged:
                     _ = RefreshAsync().ContinueWith(t => logger.LogWarning(t.Exception, "Refreshing rooms failed"), TaskContinuationOptions.OnlyOnFaulted);
                     break;
 

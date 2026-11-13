@@ -23,6 +23,8 @@ const glyphs = {
   refresh: "\uE72C",
   timer: "\uE916",
   forward: "\uE72A",
+  back: "\uE72B",
+  chart: "\uE9D2",
   hide: "\uED1A",
   search: "\uE721",
   pin: "\uE718",

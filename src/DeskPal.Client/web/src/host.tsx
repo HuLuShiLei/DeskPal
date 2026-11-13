@@ -9,7 +9,8 @@ export interface DialogOptions {
   highlight?: string;
   /** 分组列表，内容多时在对话框里滚动，例如更新内容。 */
   sections?: { title: string; items: string[] }[];
-  input?: { initial?: string; placeholder?: string; maxLength?: number; required?: boolean };
+  /** 和 select 一起用时显示在选项下面；placeholders 按选中的值换提示文字。 */
+  input?: { initial?: string; placeholder?: string; placeholders?: Record<string, string>; maxLength?: number; required?: boolean };
   select?: { options: { value: string; name: string }[]; initial?: string; presentation?: "radio" };
   checkbox?: { label: string; initial: boolean; disabled?: boolean };
   okText?: string;
@@ -104,7 +105,9 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
 
   useEffect(() => {
     const fallback = options.danger ? "button[type=button]" : "button[type=submit]";
-    const first = form.current?.querySelector<HTMLElement>(`input:not([type=checkbox]), select, ${fallback}`);
+    const first =
+      form.current?.querySelector<HTMLElement>("input:not([type=checkbox]):not([type=radio])") ??
+      form.current?.querySelector<HTMLElement>(`input:not([type=checkbox]), select, ${fallback}`);
     first?.focus();
     if (first instanceof HTMLInputElement) first.select();
   }, []);
@@ -143,15 +146,6 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
             ))}
           </div>
         )}
-        {options.input && (
-          <input
-            aria-label={options.title}
-            value={text}
-            placeholder={options.input.placeholder}
-            maxLength={options.input.maxLength}
-            onInput={(e) => setText(e.currentTarget.value)}
-          />
-        )}
         {options.select?.presentation === "radio" ? (
           <div class="choices" role="radiogroup" aria-label={options.title}>
             {options.select.options.map((o) => (
@@ -171,6 +165,15 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
               ))}
             </select>
           )
+        )}
+        {options.input && (
+          <input
+            aria-label={options.title}
+            value={text}
+            placeholder={options.input.placeholders?.[selected] ?? options.input.placeholder}
+            maxLength={options.input.maxLength}
+            onInput={(e) => setText(e.currentTarget.value)}
+          />
         )}
         {options.checkbox && (
           <label class="check">

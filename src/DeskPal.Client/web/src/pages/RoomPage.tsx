@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import type { PanelState, PrivacyLevel, RoomItem } from "../bridge";
 import { useHost } from "../host";
-import { Avatar, Icon, Section } from "../ui";
+import { Avatar, Icon, Section, SettingRow, Switch } from "../ui";
 
 export function RoomPage({ state }: { state: PanelState }) {
   const { ask, run } = useHost();
@@ -207,7 +207,7 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
 }
 
 function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
-  const { run } = useHost();
+  const { ask, run } = useHost();
   const privacy = state.privacy!;
   const initial = Object.fromEntries(privacy.rows.map((r) => [r.category, r.level])) as Record<string, PrivacyLevel>;
   const [levels, setLevels] = useState(initial);
@@ -219,10 +219,25 @@ function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
     if (!result.ok) setLevels(initial);
   };
 
+  const share = async (enabled: boolean, days: number) => {
+    if (enabled && !privacy.shareStats) {
+      const detailed = privacy.rows.filter((r) => levels[r.category] === "Detail").map((r) => r.name);
+      const answer = await ask({
+        title: "公开使用统计",
+        message:
+          `房间「${room.name}」的成员可以查看你最近 ${days} 天的使用统计。每个类别显示到上面设置的级别。` +
+          (detailed.length > 0 ? `其中「${detailed.join("、")}」设为显示详情，成员能看到这些类别的窗口标题和页面标题。` : ""),
+        okText: "公开",
+      });
+      if (!answer.ok) return;
+    }
+    await run({ type: "room.shareStats", roomId: room.id, enabled, days }, enabled ? "已公开使用统计" : "已停止公开使用统计");
+  };
+
   return (
     <Section title="隐私设置" label="隐私设置">
       <div class="card flush">
-        <p class="card-note">房间「{room.name}」的成员能看到你多少信息。只影响这个房间，修改后立即生效。</p>
+        <p class="card-note">房间「{room.name}」的成员能看到你多少信息。只影响这个房间，修改后立即生效。公开使用统计时，统计也按这里的级别显示。</p>
         {privacy.rows.map((r) => (
           <div key={r.category} class="setting-row">
             <div class="setting-text">
@@ -243,6 +258,24 @@ function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
             </div>
           </div>
         ))}
+        <SettingRow
+          title="公开使用统计"
+          hint="房间成员可以在状态页查看你的使用统计。统计只在你在线并且正在这个房间时，由你的电脑整理后加密发送，服务器不保存。"
+          description={privacy.shareStats ? `成员可以查看最近 ${privacy.statsDays} 天` : undefined}
+        >
+          <Switch checked={privacy.shareStats} label="公开使用统计" onChange={(v) => void share(v, privacy.statsDays)} />
+        </SettingRow>
+        {privacy.shareStats && (
+          <SettingRow title="可查看最近">
+            <select aria-label="可查看最近几天" value={privacy.statsDays} onChange={(e) => void share(true, Number(e.currentTarget.value))}>
+              {privacy.dayOptions.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.name}
+                </option>
+              ))}
+            </select>
+          </SettingRow>
+        )}
       </div>
     </Section>
   );
