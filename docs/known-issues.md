@@ -46,4 +46,4 @@
 - 前端的模拟宿主（`mockHost`）也打进了发布包。它只在没有 `chrome.webview` 时动态加载，客户端里不会执行。加上使用统计的样例后约 80 KB。
 - 页面里的时间（“已持续 12 分钟”）由宿主每 30 秒重新推送一次，不是页面自己计时。只有「n 秒后变为」的倒计时由页面每 250 毫秒自己刷新，宿主每次推送时重新对时。
 - 标题栏拖动依赖 WebView2 的非客户区支持（`IsNonClientRegionSupportEnabled`）。WebView2 Runtime 太旧时标题栏拖不动，最小化和关闭按钮仍可用；Runtime 会随 Edge 自动更新，一般不会遇到。
-- 窗口在 Windows 10 上没有圆角（DWM 圆角只在 Windows 11 生效），仍有边框和阴影。
+- 窗口在 Windows 10 上没有圆角（DWM 圆角只在 Windows 11 生效），仍有边框和阴影。暂不处理：WebView2 是单独的子窗口，WPF 透明窗口裁不到它；`SetWindowRgn` 裁出的圆角有锯齿，还会去掉 DWM 阴影。
