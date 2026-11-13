@@ -118,7 +118,7 @@ export type HostMessage =
   | { type: "state"; state: PanelState }
   | { type: "result"; id: number; ok: boolean; error: string | null; data?: unknown }
   | { type: "dialog"; id: number; kind: DialogKind; message: string }
-  | { type: "login"; serverUrl: string; userName: string }
+  | { type: "login"; serverUrl: string; userName: string; notice?: string | null }
   | CardMessage;
 
 export type Command =

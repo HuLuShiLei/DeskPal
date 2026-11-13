@@ -17,7 +17,7 @@ public static partial class AuthEndpoints
     {
         var group = app.MapGroup("/api/auth");
 
-        group.MapPost("/register", async (RegisterRequest req, DeskPalDbContext db, TokenService tokens, TimeProvider time) =>
+        group.MapPost("/register", async (RegisterRequest req, DeskPalDbContext db, TokenService tokens, SessionCache sessions, TimeProvider time) =>
         {
             var userName = req.UserName?.Trim().ToLowerInvariant() ?? "";
             var displayName = req.DisplayName?.Trim() ?? "";
@@ -48,13 +48,15 @@ public static partial class AuthEndpoints
                 DisplayName = displayName,
                 PasswordHash = PasswordHasher.Hash(req.Password),
                 CreatedAt = time.GetUtcNow(),
+                SessionId = Guid.NewGuid(),
             };
             db.Users.Add(user);
             await db.SaveChangesAsync();
+            sessions.Set(user.Id, user.SessionId);
             return Results.Ok(new AuthResponse(tokens.Create(user), user.Id, user.UserName, user.DisplayName));
         });
 
-        group.MapPost("/login", async (LoginRequest req, DeskPalDbContext db, TokenService tokens) =>
+        group.MapPost("/login", async (LoginRequest req, DeskPalDbContext db, TokenService tokens, SessionCache sessions, RoomNotifier notifier) =>
         {
             var userName = req.UserName?.Trim().ToLowerInvariant() ?? "";
             var user = await db.Users.SingleOrDefaultAsync(u => u.UserName == userName);
@@ -63,6 +65,10 @@ public static partial class AuthEndpoints
                 return Fail(401, "用户名或密码错误");
             }
 
+            user.SessionId = Guid.NewGuid();
+            await db.SaveChangesAsync();
+            sessions.Set(user.Id, user.SessionId);
+            await notifier.SessionReplacedAsync(user.Id);
             return Results.Ok(new AuthResponse(tokens.Create(user), user.Id, user.UserName, user.DisplayName, user.ShareUsage));
         });
 

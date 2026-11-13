@@ -14,7 +14,7 @@ public sealed class PresenceHub(RoomService rooms, ConnectionRegistry connection
     public override async Task OnConnectedAsync()
     {
         var userId = Context.User!.GetUserId();
-        connections.Add(userId, Context.ConnectionId);
+        connections.Add(userId, Context);
 
         foreach (var roomId in await rooms.GetRoomIdsForUserAsync(userId))
         {

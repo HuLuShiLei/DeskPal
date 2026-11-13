@@ -9,6 +9,7 @@ export function LoginPage({ bridge }: { bridge: Bridge }) {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [showServer, setShowServer] = useState(false);
   const userNameInput = useRef<HTMLInputElement>(null);
@@ -19,6 +20,7 @@ export function LoginPage({ bridge }: { bridge: Bridge }) {
       if (m.type === "login") {
         setServerUrl(m.serverUrl);
         setUserName(m.userName);
+        setNotice(m.notice ?? null);
         (m.userName ? passwordInput : userNameInput).current?.focus();
       }
     });
@@ -82,6 +84,12 @@ export function LoginPage({ bridge }: { bridge: Bridge }) {
           <button type="button" class="link-button" onClick={() => setShowServer(true)}>
             服务器：{serverUrl || "未设置"}（修改）
           </button>
+        )}
+        {notice && !error && (
+          <p class="infobar" role="status">
+            <Icon name="info" />
+            {notice}
+          </p>
         )}
         {error && (
           <p class="infobar error" role="alert">

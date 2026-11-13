@@ -229,6 +229,9 @@ namespace DeskPal.Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("SessionId")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool?>("ShareUsage")
                         .HasColumnType("INTEGER");
 

@@ -13,9 +13,12 @@ public sealed class LoginWindow : Window
     private readonly SettingsStore _store;
     private readonly ApiClient _api;
     private readonly WebView2 _web;
+    private readonly string? _notice;
 
-    public LoginWindow(AppSettings settings, SettingsStore store, ApiClient api)
+    /// <param name="notice">Why the user is back at the login page, e.g. signed in on another computer.</param>
+    public LoginWindow(AppSettings settings, SettingsStore store, ApiClient api, string? notice = null)
     {
+        _notice = notice;
         _settings = settings;
         _store = store;
         _api = api;
@@ -52,7 +55,7 @@ public sealed class LoginWindow : Window
 
         if (command.Type == "ready")
         {
-            WebUi.Post(_web, new { type = "login", serverUrl = _settings.ServerUrl, userName = _settings.UserName ?? "" });
+            WebUi.Post(_web, new { type = "login", serverUrl = _settings.ServerUrl, userName = _settings.UserName ?? "", notice = _notice });
             return;
         }
 

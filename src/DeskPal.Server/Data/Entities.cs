@@ -13,6 +13,12 @@ public sealed class User
 
     /// <summary>null until the user has answered. Only users who agreed are counted when proposing builtin rules.</summary>
     public bool? ShareUsage { get; set; }
+
+    /// <summary>
+    /// Replaced on every sign-in, so the account is signed in on one computer at a time. null until the first sign-in after
+    /// this was added; tokens issued before that carry no session and stay valid until then.
+    /// </summary>
+    public Guid? SessionId { get; set; }
 }
 
 public sealed class Room

@@ -20,6 +20,9 @@ public static class MessageTypes
     /// <summary>I blocked or unblocked a member. Sent only to my own connections; the other member is never told.</summary>
     public const string RoomBlocksChanged = "room.blocksChanged";
 
+    /// <summary>The account signed in on another computer. Sent only to the old computer, whose connection is closed shortly after. RoomId is empty.</summary>
+    public const string SessionReplaced = "auth.sessionReplaced";
+
     /// <summary>Types a client is allowed to publish through the hub. Everything else is server-originated.</summary>
     public static readonly IReadOnlySet<string> ClientPublishable = new HashSet<string> { PresenceUpdate };
 }

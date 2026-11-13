@@ -1,6 +1,9 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Channels;
+using DeskPal.Server.Data;
+using DeskPal.Server.Features.Auth;
 using DeskPal.Shared;
 using DeskPal.Shared.Api;
 using DeskPal.Shared.Messaging;
@@ -10,6 +13,7 @@ using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DeskPal.Tests.Server;
@@ -118,6 +122,57 @@ public sealed class PresenceHubTests : IClassFixture<PresenceHubTests.ServerFact
         await bobHub.DisposeAsync();
     }
 
+    [Fact]
+    public async Task Signing_in_again_signs_out_the_other_computer()
+    {
+        var http = _factory.CreateClient();
+        var name = $"solo{Guid.NewGuid():N}"[..20];
+        var first = await PostAsync<AuthResponse>(http, "/api/auth/register", new RegisterRequest(name, "solo", "password123"), null);
+        var (firstHub, firstInbox) = await ConnectAsync(first.Token);
+        var closed = new TaskCompletionSource();
+        firstHub.Closed += _ =>
+        {
+            closed.TrySetResult();
+            return Task.CompletedTask;
+        };
+
+        var second = await PostAsync<AuthResponse>(http, "/api/auth/login", new LoginRequest(name, "password123"), null);
+
+        Assert.Equal(first.UserId, (await NextAsync(firstInbox, e => e.Type == MessageTypes.SessionReplaced)).ReadPayload<RoomEventPayload>()!.UserId);
+        await closed.Task.WaitAsync(Wait);
+        using var stale = new HttpRequestMessage(HttpMethod.Get, "/api/me") { Headers = { Authorization = new("Bearer", first.Token) } };
+        Assert.Equal(HttpStatusCode.Unauthorized, (await http.SendAsync(stale)).StatusCode);
+        var reconnect = await Assert.ThrowsAsync<HttpRequestException>(() => ConnectAsync(first.Token));
+        Assert.Equal(HttpStatusCode.Unauthorized, reconnect.StatusCode);
+
+        Assert.Equal(second.UserId, (await GetAsync<AuthResponse>(http, "/api/me", second.Token)).UserId);
+        var (secondHub, _) = await ConnectAsync(second.Token);
+        await secondHub.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task Tokens_issued_before_sessions_work_until_the_next_sign_in()
+    {
+        var http = _factory.CreateClient();
+        var name = $"old{Guid.NewGuid():N}"[..20];
+        var registered = await PostAsync<AuthResponse>(http, "/api/auth/register", new RegisterRequest(name, "old", "password123"), null);
+        string legacyToken;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DeskPalDbContext>();
+            var user = await db.Users.SingleAsync(u => u.Id == registered.UserId);
+            user.SessionId = null;
+            await db.SaveChangesAsync();
+            scope.ServiceProvider.GetRequiredService<SessionCache>().Set(user.Id, null);
+            legacyToken = scope.ServiceProvider.GetRequiredService<TokenService>().Create(user);
+        }
+
+        Assert.Equal(registered.UserId, (await GetAsync<AuthResponse>(http, "/api/me", legacyToken)).UserId);
+
+        await PostAsync<AuthResponse>(http, "/api/auth/login", new LoginRequest(name, "password123"), null);
+        using var stale = new HttpRequestMessage(HttpMethod.Get, "/api/me") { Headers = { Authorization = new("Bearer", legacyToken) } };
+        Assert.Equal(HttpStatusCode.Unauthorized, (await http.SendAsync(stale)).StatusCode);
+    }
     private static List<Envelope> Drain(ChannelReader<Envelope> inbox)
     {
         var items = new List<Envelope>();

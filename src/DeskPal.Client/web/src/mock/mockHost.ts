@@ -212,7 +212,13 @@ export function createMockTransport(params: URLSearchParams): Transport {
       window.__sent!.push(m);
       console.log("[mock] ->", m);
       if (m.type === "ready") {
-        if (login) emit({ type: "login", serverUrl: "https://deskpal.hafuhafu.cn:36443", userName: "alice" });
+        if (login)
+          emit({
+            type: "login",
+            serverUrl: "https://deskpal.hafuhafu.cn:36443",
+            userName: "alice",
+            notice: params.has("signedOut") ? "账号已在其他电脑登录，请重新登录。" : null,
+          });
         else if (card) {
           const member = state.members[0];
           if (member) {

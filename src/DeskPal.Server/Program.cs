@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using System.Text.Json.Serialization;
+using DeskPal.Server.Common;
 using DeskPal.Server.Data;
 using DeskPal.Server.Features.Auth;
 using DeskPal.Server.Features.Presence;
@@ -22,6 +24,7 @@ if (!string.IsNullOrEmpty(databaseDirectory)) Directory.CreateDirectory(database
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton(jwt);
 builder.Services.AddSingleton<TokenService>();
+builder.Services.AddSingleton<SessionCache>();
 builder.Services.Configure<RoomOptions>(builder.Configuration.GetSection("Rooms"));
 builder.Services.AddDbContext<DeskPalDbContext>(o => o.UseSqlite(connectionString));
 builder.Services.Configure<RuleOptions>(builder.Configuration.GetSection("Rules"));
@@ -56,6 +59,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 }
 
                 return Task.CompletedTask;
+            },
+            OnTokenValidated = async ctx =>
+            {
+                var services = ctx.HttpContext.RequestServices;
+                var principal = ctx.Principal!;
+                if (!await services.GetRequiredService<SessionCache>().IsCurrentAsync(
+                        principal.GetUserId(), principal.FindFirstValue(SessionCache.Claim), services.GetRequiredService<DeskPalDbContext>()))
+                {
+                    ctx.Fail("账号已在其他电脑登录");
+                }
             },
         };
     });

@@ -15,6 +15,9 @@ public sealed class ApiClient(AppSettings settings)
 {
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(15) };
 
+    /// <summary>A signed-in request was rejected: the account signed in on another computer, or the token expired.</summary>
+    public event Action? Unauthorized;
+
     public Task<AuthResponse> RegisterAsync(RegisterRequest req) => SendAsync<AuthResponse>(HttpMethod.Post, "/api/auth/register", req, auth: false);
 
     public Task<AuthResponse> LoginAsync(LoginRequest req) => SendAsync<AuthResponse>(HttpMethod.Post, "/api/auth/login", req, auth: false);
@@ -103,6 +106,11 @@ public sealed class ApiClient(AppSettings settings)
                 }
                 catch
                 {
+                }
+
+                if (auth && response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    Unauthorized?.Invoke();
                 }
 
                 throw new ApiException(error?.Error ?? $"请求失败（HTTP {(int)response.StatusCode}）", (int)response.StatusCode);

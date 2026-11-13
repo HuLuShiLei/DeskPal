@@ -29,6 +29,8 @@ public partial class App : Application
     private ClientLogFiles? _logs;
     private bool _exiting;
 
+    private const string SignedOutArg = "--signed-out";
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -50,7 +52,8 @@ public partial class App : Application
         var store = new SettingsStore();
         var settings = store.Load();
         var api = new ApiClient(settings);
-        if (!await EnsureLoggedInAsync(settings, store, api, _logs))
+        var notice = e.Args.Contains(SignedOutArg) ? "账号已在其他电脑登录，请重新登录。" : null;
+        if (!await EnsureLoggedInAsync(settings, store, api, _logs, notice))
         {
             _logs.Write("INF", "DeskPal", "Stopped before the panel opened");
             _logs.Dispose();
@@ -66,6 +69,8 @@ public partial class App : Application
         var updates = services.GetRequiredService<UpdateService>();
         updates.Exit = restart => ExitAsync(applyUpdate: true, restart: restart);
         services.GetRequiredService<PanelBridge>().Logout = LogoutAsync;
+        hub.SessionEnded += OnSessionEnded;
+        api.Unauthorized += OnSessionEnded;
 
         var personalRules = services.GetRequiredService<PersonalRules>();
 
@@ -96,7 +101,7 @@ public partial class App : Application
         }
     }
 
-    private static async Task<bool> EnsureLoggedInAsync(AppSettings settings, SettingsStore store, ApiClient api, ClientLogFiles logs)
+    private static async Task<bool> EnsureLoggedInAsync(AppSettings settings, SettingsStore store, ApiClient api, ClientLogFiles logs, string? notice)
     {
         if (settings.GetToken() is not null)
         {
@@ -117,6 +122,11 @@ public partial class App : Application
             catch (ApiException ex)
             {
                 logs.Write("WRN", "DeskPal", $"Saved session rejected ({ex.Status})");
+                if (ex.Status == 401)
+                {
+                    notice ??= "登录已失效，请重新登录。";
+                }
+
                 settings.SetToken(null);
                 store.Save(settings);
             }
@@ -128,7 +138,7 @@ public partial class App : Application
             return false;
         }
 
-        return new LoginWindow(settings, store, api).ShowDialog() == true;
+        return new LoginWindow(settings, store, api, notice).ShowDialog() == true;
     }
 
     private static void RegisterCrashHandlers(ClientLogFiles logs)
@@ -284,14 +294,27 @@ public partial class App : Application
         return tray;
     }
 
-    private async Task LogoutAsync()
+    private Task LogoutAsync() => RestartSignedOutAsync(null);
+
+    private void OnSessionEnded() => Dispatcher.BeginInvoke(async () =>
+    {
+        if (_exiting || _host is null)
+        {
+            return;
+        }
+
+        _logs?.Write("INF", "DeskPal", "Signed out because the account signed in elsewhere");
+        await RestartSignedOutAsync(SignedOutArg);
+    });
+
+    private async Task RestartSignedOutAsync(string? arg)
     {
         var services = _host!.Services;
         var settings = services.GetRequiredService<AppSettings>();
         settings.SetToken(null);
         services.GetRequiredService<SettingsStore>().Save(settings);
         await ExitAsync(applyUpdate: false);
-        Process.Start(Environment.ProcessPath!);
+        Process.Start(Environment.ProcessPath!, arg ?? "");
     }
 
     private async Task ExitAsync(bool applyUpdate = true, bool restart = false)

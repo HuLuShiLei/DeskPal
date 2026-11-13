@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Http;
 using System.Text.Json.Serialization;
 using DeskPal.Shared.Messaging;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -18,6 +20,9 @@ public sealed class HubService(AppSettings settings, ILogger<HubService> logger)
     /// <summary>Raised after the first connect and after every reconnect; the server forgets nothing but our own presence must be re-sent.</summary>
     public event Func<Task>? Connected;
 
+    /// <summary>The account signed in on another computer, or the token was rejected. The connection stops retrying.</summary>
+    public event Action? SessionEnded;
+
     public HubConnectionState State => _connection?.State ?? HubConnectionState.Disconnected;
 
     public void Start()
@@ -29,7 +34,16 @@ public sealed class HubService(AppSettings settings, ILogger<HubService> logger)
             .AddJsonProtocol(o => o.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
             .Build();
 
-        _connection.On<Envelope>(HubContract.Receive, envelope => Received?.Invoke(envelope));
+        _connection.On<Envelope>(HubContract.Receive, envelope =>
+        {
+            if (envelope.Type == MessageTypes.SessionReplaced)
+            {
+                EndSession();
+                return;
+            }
+
+            Received?.Invoke(envelope);
+        });
         _connection.Reconnecting += _ => Notify(HubConnectionState.Reconnecting);
         _connection.Reconnected += async _ =>
         {
@@ -86,6 +100,12 @@ public sealed class HubService(AppSettings settings, ILogger<HubService> logger)
                 await RaiseConnected();
                 return;
             }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                logger.LogInformation("Hub rejected the token");
+                EndSession();
+                return;
+            }
             catch (Exception ex) when (!token.IsCancellationRequested)
             {
                 logger.LogInformation("Connecting to hub failed ({Error}), retrying in {Delay}", ex.GetType().Name, delay);
@@ -94,6 +114,17 @@ public sealed class HubService(AppSettings settings, ILogger<HubService> logger)
                 delay = TimeSpan.FromSeconds(Math.Min(delay.TotalSeconds * 2, 60));
             }
         }
+    }
+
+    private void EndSession()
+    {
+        if (_cts is not { IsCancellationRequested: false } cts)
+        {
+            return;
+        }
+
+        cts.Cancel();
+        SessionEnded?.Invoke();
     }
 
     private Task Notify(HubConnectionState state)
@@ -114,6 +145,8 @@ public sealed class HubService(AppSettings settings, ILogger<HubService> logger)
     private sealed class ForeverRetryPolicy : IRetryPolicy
     {
         public TimeSpan? NextRetryDelay(RetryContext context) =>
-            TimeSpan.FromSeconds(Math.Min(60, Math.Pow(2, Math.Min(context.PreviousRetryCount, 6))));
+            context.RetryReason is HttpRequestException { StatusCode: HttpStatusCode.Unauthorized }
+                ? null
+                : TimeSpan.FromSeconds(Math.Min(60, Math.Pow(2, Math.Min(context.PreviousRetryCount, 6))));
     }
 }

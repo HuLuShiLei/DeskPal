@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 namespace DeskPal.Server.Features.Presence;
 
 /// <summary>Keeps SignalR group membership in sync with Room membership and broadcasts Room events.</summary>
-public sealed class RoomNotifier(IHubContext<PresenceHub, IPresenceClient> hub, ConnectionRegistry connections, PresenceStore store)
+public sealed class RoomNotifier(IHubContext<PresenceHub, IPresenceClient> hub, ConnectionRegistry connections, PresenceStore store, TimeProvider time)
 {
     public static string GroupName(Guid roomId) => $"room:{roomId}";
 
@@ -116,6 +116,28 @@ public sealed class RoomNotifier(IHubContext<PresenceHub, IPresenceClient> hub, 
         }
 
         store.RemoveRoom(roomId);
+    }
+
+    /// <summary>
+    /// The account signed in on another computer. The old computers are told why, then cut off a moment later so the
+    /// message gets through; reconnecting fails because their token is no longer current.
+    /// </summary>
+    public async Task SessionReplacedAsync(Guid userId)
+    {
+        var old = connections.Get(userId);
+        if (old.Count == 0)
+        {
+            return;
+        }
+
+        await hub.Clients.Clients(old).Receive(ServerEnvelope(MessageTypes.SessionReplaced, Guid.Empty, userId));
+        _ = AbortLaterAsync(old);
+    }
+
+    private async Task AbortLaterAsync(IReadOnlyList<string> connectionIds)
+    {
+        await Task.Delay(TimeSpan.FromSeconds(2), time);
+        connections.Abort(connectionIds);
     }
 
     private static Envelope ServerEnvelope(string type, Guid roomId, Guid? userId) =>

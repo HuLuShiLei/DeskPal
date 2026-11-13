@@ -141,7 +141,7 @@ flowchart LR
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | POST | `/api/auth/register` | 注册，返回 `AuthResponse`（含 token，有效期 30 天） |
-| POST | `/api/auth/login` | 登录 |
+| POST | `/api/auth/login` | 登录。同一账号同一时间只能在一台电脑上登录：每次登录（和注册）生成新的 `Users.SessionId` 并写进 token（`sid`），之前登录的电脑收到 `auth.sessionReplaced`，2 秒后断开，它的旧 token 之后一律返回 401。部署前发出、不带 `sid` 的 token 在该账号下次登录前仍然有效 |
 | GET | `/api/me` | 当前用户，含 `shareUsage`（空表示还没问过） |
 | PUT | `/api/me/displayName` | 修改名称（`UpdateDisplayNameRequest`，去掉首尾空格后 1 到 20 个字符，允许重名）；名称有变化时给该用户所在的每个 Room 广播 `room.memberRenamed`，没有 Room 时只发给自己的连接 |
 | GET | `/api/me/rules` | 我的个人分类，最近修改的在前 |
@@ -180,12 +180,13 @@ flowchart LR
 | `room.memberRenamed` | Server | `RoomEventPayload(userId)` | 成员改了显示名称。客户端重新拉取 Room 列表；是自己时（另一台电脑改的）先用 `/api/me` 更新本机保存的显示名称 |
 | `room.dissolved` | Server | `RoomEventPayload(null)` | 之后所有成员移出 Group |
 | `rules.personalChanged` | Server | `RoomEventPayload(本人)` | 只发给本人的所有连接，`RoomId` 为空 Guid。客户端重新拉取个人分类 |
+| `auth.sessionReplaced` | Server | `RoomEventPayload(本人)` | 账号在另一台电脑登录。只发给之前登录的电脑，`RoomId` 为空 Guid，2 秒后 Server 断开这些连接。客户端清除 token，重启到登录页，提示「账号已在其他电脑登录，请重新登录。」没收到这条消息的（当时离线），之后重连或调用接口得到 401 时同样处理 |
 
 ## 数据模型（SQLite，本地 `storage/deskpal.db`，容器内 `/data/deskpal.db`）
 
 | 表 | 主要字段 |
 |---|---|
-| `Users` | Id、UserName（唯一）、DisplayName、PasswordHash（PBKDF2）、CreatedAt、ShareUsage（空表示还没问过） |
+| `Users` | Id、UserName（唯一）、DisplayName、PasswordHash（PBKDF2）、CreatedAt、ShareUsage（空表示还没问过）、SessionId（当前登录的会话，空表示升级后还没登录过） |
 | `Rooms` | Id、Name、OwnerId、MaxMembers、CreatedAt |
 | `RoomMembers` | RoomId + UserId、Role、JoinedAt、PrivacyProfileJson（为空时用默认值） |
 | `RoomInvites` | Code、RoomId、CreatedBy、ExpiresAt |

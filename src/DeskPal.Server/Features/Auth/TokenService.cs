@@ -29,17 +29,23 @@ public sealed class TokenService(JwtOptions options, TimeProvider time)
 {
     public string Create(User user)
     {
+        List<Claim> claims =
+        [
+            new Claim(ClaimsPrincipalExtensions.UserIdClaim, user.Id.ToString()),
+            new Claim("name", user.DisplayName),
+            new Claim("preferred_username", user.UserName),
+        ];
+        if (user.SessionId is { } session)
+        {
+            claims.Add(new Claim(SessionCache.Claim, session.ToString()));
+        }
+
         var descriptor = new SecurityTokenDescriptor
         {
             Issuer = options.Issuer,
             Audience = options.Issuer,
             Expires = time.GetUtcNow().AddDays(options.LifetimeDays).UtcDateTime,
-            Subject = new ClaimsIdentity(
-            [
-                new Claim(ClaimsPrincipalExtensions.UserIdClaim, user.Id.ToString()),
-                new Claim("name", user.DisplayName),
-                new Claim("preferred_username", user.UserName),
-            ]),
+            Subject = new ClaimsIdentity(claims),
             SigningCredentials = new SigningCredentials(options.GetSigningKey(), SecurityAlgorithms.HmacSha256),
         };
 

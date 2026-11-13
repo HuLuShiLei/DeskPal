@@ -1,11 +1,14 @@
+using Microsoft.AspNetCore.SignalR;
+
 namespace DeskPal.Server.Features.Presence;
 
 public sealed class ConnectionRegistry
 {
     private readonly Dictionary<Guid, HashSet<string>> _connections = new();
+    private readonly Dictionary<string, HubCallerContext> _contexts = new();
     private readonly Lock _lock = new();
 
-    public void Add(Guid userId, string connectionId)
+    public void Add(Guid userId, HubCallerContext context)
     {
         lock (_lock)
         {
@@ -14,7 +17,22 @@ public sealed class ConnectionRegistry
                 _connections[userId] = set = new HashSet<string>();
             }
 
-            set.Add(connectionId);
+            set.Add(context.ConnectionId);
+            _contexts[context.ConnectionId] = context;
+        }
+    }
+
+    public void Abort(IEnumerable<string> connectionIds)
+    {
+        List<HubCallerContext> found;
+        lock (_lock)
+        {
+            found = connectionIds.Select(id => _contexts.GetValueOrDefault(id)).OfType<HubCallerContext>().ToList();
+        }
+
+        foreach (var context in found)
+        {
+            context.Abort();
         }
     }
 
@@ -23,6 +41,7 @@ public sealed class ConnectionRegistry
     {
         lock (_lock)
         {
+            _contexts.Remove(connectionId);
             if (!_connections.TryGetValue(userId, out var set))
             {
                 return true;
