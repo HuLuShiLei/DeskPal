@@ -16,7 +16,7 @@ alwaysApply: false
 - 改了页面，先 `npm run dev` 在 Cursor 自带浏览器里用 `?mock=` 各样例看一遍，再跑真实客户端。
 - WPF 项目的隐式 using 不包含 `System.IO` 和 `System.Net.Http`。`System.IO` 已经在 `GlobalUsings.cs` 里补了；用 `HttpClient` 的文件要自己写 `using System.Net.Http;`。
 - 界面文案用书面中文。页面上写「房间」，例如「房间成员」「创建房间」「该房间成员看到」，不要写 Room，也不要自造简称。代码和协议里的类型名仍用 Room。
-- 面板大小固定（`ResizeMode.NoResize`），登录窗口同样不能调整。
+- 面板可以拖动边框调整大小：默认 420×680，最小 400×480，不能最大化（去掉了 `WS_MAXIMIZEBOX`，没有系统边框时最大化会超出屏幕）。WebView2 会吃掉鼠标，四周留 `WindowFrame.ResizeBorder` 的空白给调整大小用，内容区下面垫一块 `--surface` 颜色，偏移量跟着 `.rail`（60px）和 `.titlebar`（36px），改了这两个尺寸要一起改 `PanelWindow.Host`。页面在最小宽度下不能横向溢出、设置名称不能折行；内容最宽 640px 居中。登录窗口仍不能调整。
 - 两个窗口都没有系统标题栏：构造时调用 `WindowFrame.Apply`，`OnMessage` 先交给 `WindowFrame.Handle` 处理 `window.minimize`、`window.close`。页面用 `ui.tsx` 的 `TitleBar`，`.titlebar` 是 `app-region: drag`，往里面放可点击的东西要包在 `app-region: no-drag` 的容器里（参考 `.caption-buttons`、`.flyout-root`），否则点不到。
 - 样式按 Windows 11 桌面程序写，不要做成网页：颜色用 `styles.css` 里的变量（浅色、深色两套），图标用 `Icon`（Segoe Fluent Icons），开关、设置行、菜单用 `ui.tsx` 里的组件。不加链接样式、手形光标、大段可选中文字；需要复制的文字加 `.selectable`。
 - 新增 WPF 窗口时背景用 `WebUi.BackgroundBrush`，和页面底色一致，避免加载时闪白。

@@ -27,6 +27,7 @@ public sealed class PanelWindow : Window, IUserPrompt
     private int _nextDialogId;
     private bool _placed;
     private WebView2? _web;
+    private Border? _surface;
     private TaskCompletionSource? _ready;
 
     public PanelWindow(PanelBridge bridge, AppSettings settings, UpdateService updates, ILogger<PanelWindow> logger)
@@ -37,7 +38,9 @@ public sealed class PanelWindow : Window, IUserPrompt
         Title = $"DeskPal {updates.VersionLabel} - {settings.DisplayName}";
         Width = 420;
         Height = 680;
-        ResizeMode = ResizeMode.NoResize;
+        MinWidth = 400;
+        MinHeight = 480;
+        ResizeMode = ResizeMode.CanResize;
         WindowStartupLocation = WindowStartupLocation.Manual;
         Topmost = settings.Topmost;
         Background = WebUi.BrushFor(settings.Theme);
@@ -140,10 +143,36 @@ public sealed class PanelWindow : Window, IUserPrompt
     private void ApplyChrome(string theme)
     {
         Background = WebUi.BrushFor(theme);
+        if (_surface is not null)
+        {
+            _surface.Background = WebUi.SurfaceBrushFor(theme);
+        }
+
         if (_web is not null)
         {
             _web.DefaultBackgroundColor = WebUi.ColorFor(theme);
         }
+    }
+
+    /// <summary>
+    /// Leaves the resize border around the page. Under the content area the border shows the content color, so the
+    /// strip continues the page instead of looking like a frame. The offsets follow .rail and .titlebar in styles.css.
+    /// </summary>
+    private Grid Host(WebView2 web)
+    {
+        const double railWidth = 60;
+        const double titleBarHeight = 36;
+        var edge = WindowFrame.ResizeBorder;
+        web.Margin = new Thickness(edge);
+        _surface = new Border
+        {
+            Background = WebUi.SurfaceBrushFor(_settings.Theme),
+            Margin = new Thickness(edge + railWidth, edge + titleBarHeight, 0, 0),
+        };
+        var grid = new Grid();
+        grid.Children.Add(_surface);
+        grid.Children.Add(web);
+        return grid;
     }
 
     private Task EnsureWebViewAsync()
@@ -164,7 +193,7 @@ public sealed class PanelWindow : Window, IUserPrompt
         ApplyChrome(_settings.Theme);
         var web = new WebView2 { DefaultBackgroundColor = WebUi.ColorFor(_settings.Theme) };
         _web = web;
-        Content = web;
+        Content = Host(web);
         _ = InitializeAsync(web, _ready);
         return _ready.Task;
     }
@@ -251,6 +280,7 @@ public sealed class PanelWindow : Window, IUserPrompt
         _dialogs.Clear();
         _web?.Dispose();
         _web = null;
+        _surface = null;
         _ready = null;
         Content = null;
     }

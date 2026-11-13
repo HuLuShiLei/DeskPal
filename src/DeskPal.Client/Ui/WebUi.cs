@@ -34,6 +34,11 @@ public static class WebUi
         return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(c.R, c.G, c.B));
     }
 
+    /// <summary>Matches --surface in styles.css, the background of the panel's content area.</summary>
+    public static System.Windows.Media.SolidColorBrush SurfaceBrushFor(string? theme) => ResolveDark(theme)
+        ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x2B, 0x2B, 0x2B))
+        : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFB, 0xFB, 0xFB));
+
     public static bool ResolveDark(string? theme) => theme switch
     {
         "dark" => true,
