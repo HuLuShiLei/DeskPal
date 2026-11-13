@@ -113,6 +113,19 @@ public class PanelStateBuilderTests
     }
 
     [Fact]
+    public void Outside_every_room_keeps_the_list_and_shows_my_unfiltered_status()
+    {
+        var state = PanelStateBuilder.Build(PanelSamples.Default() with { SelectedRoom = null });
+
+        Assert.NotEmpty(state.Rooms);
+        Assert.Null(state.SelectedRoomId);
+        Assert.Empty(state.Members);
+        Assert.Null(state.Privacy);
+        Assert.StartsWith("没有进入房间", state.EmptyHint);
+        Assert.Null(state.Me.Hidden);
+    }
+
+    [Fact]
     public void Lists_my_rules_and_todays_unrecognized_apps()
     {
         var state = PanelStateBuilder.Build(PanelSamples.Default());

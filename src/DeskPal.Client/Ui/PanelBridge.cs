@@ -126,7 +126,7 @@ public sealed class PanelBridge
         switch (c.Type)
         {
             case "room.select":
-                _rooms.Select(c.Guid("roomId"));
+                _rooms.Select(c.OptionalString("roomId") is null ? null : c.Guid("roomId"));
                 return CommandResult.Success;
 
             case "room.create":

@@ -13,6 +13,9 @@ public sealed class AppSettings
     public string? DisplayName { get; set; }
     public string? ProtectedToken { get; set; }
     public Guid? SelectedRoomId { get; set; }
+
+    /// <summary>The user chose not to enter any room. Selecting a room, creating one or joining one clears it.</summary>
+    public bool NoRoom { get; set; }
     public int IdleMinutes { get; set; } = 5;
     /// <summary>Not saved: older settings files carry 30, which must not override the current default.</summary>
     [System.Text.Json.Serialization.JsonIgnore]

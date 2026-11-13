@@ -107,7 +107,7 @@ export type HostMessage =
   | { type: "login"; serverUrl: string; userName: string };
 
 export type Command =
-  | { type: "room.select"; roomId: string }
+  | { type: "room.select"; roomId: string | null }
   | { type: "room.create"; name: string }
   | { type: "room.join"; code: string }
   | { type: "room.rename"; roomId: string; name: string }

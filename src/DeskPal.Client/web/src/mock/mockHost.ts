@@ -23,7 +23,8 @@ type Incoming = { id?: number; type: string; [key: string]: unknown };
 
 export function createMockTransport(params: URLSearchParams): Transport {
   const listeners: ((m: HostMessage) => void)[] = [];
-  const state: PanelState = structuredClone(fixtures[params.get("mock") ?? "default"] ?? fixtures.default);
+  const initial = fixtures[params.get("mock") ?? "default"] ?? fixtures.default;
+  const state: PanelState = structuredClone(initial);
   const fail = params.has("fail");
   const login = params.get("page") === "login";
   let dialogId = 0;
@@ -51,7 +52,13 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "auth.register":
         return { ok: true, error: null };
       case "room.select":
-        state.selectedRoomId = m.roomId as string;
+        state.selectedRoomId = (m.roomId as string | null) ?? null;
+        Object.assign(
+          state,
+          state.selectedRoomId
+            ? { members: initial.members, privacy: initial.privacy, emptyHint: initial.emptyHint }
+            : { members: [], privacy: null, emptyHint: "没有进入房间，所有房间的成员都看到你离线。在标题栏选择一个房间进入。" },
+        );
         break;
       case "room.create":
         state.rooms.push({ id: crypto.randomUUID(), name: m.name as string, isOwner: true, memberCount: 1, maxMembers: 20 });

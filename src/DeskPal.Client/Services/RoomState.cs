@@ -47,19 +47,33 @@ public sealed class RoomState(
         {
             lock (_lock)
             {
-                return _rooms.FirstOrDefault(r => r.Id == settings.SelectedRoomId) ?? _rooms.FirstOrDefault();
+                return settings.NoRoom ? null : _rooms.FirstOrDefault(r => r.Id == settings.SelectedRoomId) ?? _rooms.FirstOrDefault();
             }
         }
     }
 
-    public void Select(Guid roomId)
+    /// <param name="roomId">null leaves every room: they all see me offline until a room is selected again.</param>
+    public void Select(Guid? roomId)
     {
-        var changed = settings.SelectedRoomId != roomId;
-        settings.SelectedRoomId = roomId;
+        var changed = roomId is null ? !settings.NoRoom : settings.NoRoom || settings.SelectedRoomId != roomId;
+        settings.NoRoom = roomId is null;
+        if (roomId is not null)
+        {
+            settings.SelectedRoomId = roomId;
+        }
+
         store.Save(settings);
-        logger.LogInformation("Selected room {RoomId}", roomId);
+        if (roomId is null)
+        {
+            logger.LogInformation("Left all rooms");
+        }
+        else
+        {
+            logger.LogInformation("Selected room {RoomId}", roomId);
+        }
+
         Changed?.Invoke();
-        if (changed && Rooms.Any(r => r.Id == roomId))
+        if (changed && (roomId is null || Rooms.Any(r => r.Id == roomId)))
         {
             _ = ActivateSelectedAsync();
         }

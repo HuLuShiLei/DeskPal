@@ -66,7 +66,11 @@ export function RoomPage({ state }: { state: PanelState }) {
                 </li>
               ))}
             </ul>
-            <p class="section-note">同一时间只进入一个房间，在其他房间里显示为离线。切换不用重新输入邀请码。</p>
+            <p class="section-note">
+              {room
+                ? "同一时间只进入一个房间，在其他房间里显示为离线。切换不用重新输入邀请码。"
+                : "现在没有进入房间，在所有房间里都显示为离线。点一个房间即可进入。"}
+            </p>
           </>
         )}
       </Section>

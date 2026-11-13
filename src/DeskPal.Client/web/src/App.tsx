@@ -140,7 +140,7 @@ function RoomSwitcher({ state, onManage }: { state: PanelState; onManage: () => 
   const { run } = useHost();
   const current = state.rooms.find((r) => r.id === state.selectedRoomId);
   return (
-    <Flyout label="切换房间" button={<span class="flyout-label">{current?.name ?? "没有房间"}</span>}>
+    <Flyout label="切换房间" button={<span class="flyout-label">{current?.name ?? (state.rooms.length > 0 ? "未进入房间" : "没有房间")}</span>}>
       {(close) => (
         <>
           {state.rooms.map((r) => (
@@ -161,6 +161,20 @@ function RoomSwitcher({ state, onManage }: { state: PanelState; onManage: () => 
               </span>
             </button>
           ))}
+          {state.rooms.length > 0 && (
+            <button
+              role="menuitemradio"
+              aria-checked={!state.selectedRoomId}
+              class="menu-item"
+              onClick={() => {
+                close();
+                if (state.selectedRoomId) void run({ type: "room.select", roomId: null });
+              }}
+            >
+              <span class="menu-check">{!state.selectedRoomId && <Icon name="accept" />}</span>
+              <span class="menu-text">不进入房间</span>
+            </button>
+          )}
           {state.rooms.length > 0 && <hr class="menu-sep" />}
           <button
             role="menuitem"
