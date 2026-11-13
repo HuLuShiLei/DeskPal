@@ -1,8 +1,8 @@
 import { useRef, useState } from "preact/hooks";
-import type { MyRuleItem, PanelState } from "../bridge";
+import type { PanelState } from "../bridge";
 import { useHost } from "../host";
 import { sharingMessage } from "../sharing";
-import { Icon, Section, SettingRow, Switch } from "../ui";
+import { Section, SettingRow, Switch } from "../ui";
 
 const issuePageUrl = "https://github.com/HuLuShiLei/DeskPal/issues/new/choose";
 
@@ -105,7 +105,6 @@ export function SettingsPage({ state }: { state: PanelState }) {
             <Switch checked={s.shareUsage === true} label="帮助改进默认分类" onChange={sharing} />
           </SettingRow>
         </div>
-        <MyRules state={state} />
       </Section>
       <Section title="更新">
         <div class="card flush">
@@ -134,52 +133,5 @@ export function SettingsPage({ state }: { state: PanelState }) {
         </div>
       </Section>
     </>
-  );
-}
-
-function MyRules({ state }: { state: PanelState }) {
-  const { ask, run } = useHost();
-  const edit = async (rule: MyRuleItem) => {
-    const a = await ask({
-      title: `「${rule.name}」算什么？`,
-      select: { options: state.correction.options, initial: rule.category },
-      okText: "保存",
-    });
-    if (a.ok && a.selected !== rule.category) {
-      await run({ type: "rules.set", kind: rule.kind, pattern: rule.pattern, name: rule.name, category: a.selected }, "已保存");
-    }
-  };
-  const remove = async (rule: MyRuleItem) => {
-    const a = await ask({ title: "删除分类", message: `删除你对「${rule.name}」设置的分类，改用默认分类。`, okText: "删除", danger: true });
-    if (a.ok) await run({ type: "rules.delete", kind: rule.kind, pattern: rule.pattern }, "已删除");
-  };
-
-  return (
-    <div class="card flush">
-      <SettingRow title="我的分类" hint="在状态页「纠正分类」后出现在这里。所有房间和电脑通用，只影响你自己。" />
-      {state.myRules.length === 0 ? (
-        <p class="card-note">还没有设置过。</p>
-      ) : (
-        <ul class="list inset">
-          {state.myRules.map((r) => (
-            <li key={r.kind + r.pattern} class="list-row compact">
-              <div class="row-main">
-                <p class="row-title">{r.name}</p>
-                <p class="sub">
-                  {r.kindName} · {r.pattern}
-                </p>
-              </div>
-              <span class="pill">{r.categoryName}</span>
-              <button class="icon-button" title="修改" aria-label={`修改${r.name}的分类`} onClick={() => edit(r)}>
-                <Icon name="edit" />
-              </button>
-              <button class="icon-button" title="删除" aria-label={`删除${r.name}的分类`} onClick={() => remove(r)}>
-                <Icon name="delete" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
   );
 }

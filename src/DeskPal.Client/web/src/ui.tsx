@@ -23,6 +23,7 @@ const glyphs = {
   refresh: "\uE72C",
   timer: "\uE916",
   hide: "\uED1A",
+  search: "\uE721",
 } as const;
 
 export type IconName = keyof typeof glyphs;
@@ -151,9 +152,9 @@ export function SettingRow({ icon, title, description, hint, children }: { icon?
   );
 }
 
-export function Section({ title, aside, children, label }: { title?: string; aside?: ComponentChildren; children: ComponentChildren; label?: string }) {
+export function Section({ title, aside, children, label }: { title?: ComponentChildren; aside?: ComponentChildren; children: ComponentChildren; label?: string }) {
   return (
-    <section class="section" aria-label={label ?? title}>
+    <section class="section" aria-label={label ?? (typeof title === "string" ? title : undefined)}>
       {(title || aside) && (
         <div class="section-head">
           {title && <h2>{title}</h2>}

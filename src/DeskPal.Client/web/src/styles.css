@@ -190,7 +190,13 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 /* ---- 内容 ---- */
 .section { display: grid; gap: 8px; }
 .section-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; }
-.section-head h2 { font-size: 14px; font-weight: 600; }
+.section-head h2 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.search-bar {
+  position: sticky; top: -14px; z-index: 2; display: flex; align-items: center;
+  margin: 0 -2px; padding: 2px 2px 6px; background: var(--surface);
+}
+.search-bar input:not([type=checkbox]):not([type=radio]) { flex: 1; padding-left: 32px; }
+.search-icon { position: absolute; left: 13px; color: var(--muted); pointer-events: none; }
 .section-note { font-size: 12px; color: var(--faint); }
 .section-actions { display: flex; gap: 6px; }
 .card {

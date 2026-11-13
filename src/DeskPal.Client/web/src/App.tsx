@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import type { Bridge, PanelState } from "./bridge";
 import { HostContext, useHost, useHostServices } from "./host";
 import { RoomPage } from "./pages/RoomPage";
+import { RulesPage } from "./pages/RulesPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { StatusPage } from "./pages/StatusPage";
 import { askSharing } from "./sharing";
@@ -11,10 +12,11 @@ import { Flyout, Icon, TitleBar, type IconName } from "./ui";
 const tabs: { id: Tab; name: string; icon: IconName }[] = [
   { id: "status", name: "状态", icon: "people" },
   { id: "room", name: "房间", icon: "home" },
+  { id: "rules", name: "分类", icon: "tag" },
   { id: "settings", name: "设置", icon: "settings" },
 ];
 
-type Tab = "status" | "room" | "settings";
+type Tab = "status" | "room" | "rules" | "settings";
 
 export function App({ bridge }: { bridge: Bridge }) {
   const [state, setState] = useState<PanelState | null>(null);
@@ -121,6 +123,7 @@ export function App({ bridge }: { bridge: Bridge }) {
                 <div class="page" key={tab}>
                   {tab === "status" && <StatusPage state={state} />}
                   {tab === "room" && <RoomPage state={state} />}
+                  {tab === "rules" && <RulesPage state={state} />}
                   {tab === "settings" && <SettingsPage state={state} />}
                 </div>
               </>
