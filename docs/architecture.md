@@ -70,7 +70,7 @@ flowchart LR
   - 多人一致：至少 `Rules:MinUsers`（默认 5）个账号设置过同一个应用，占比最高的类别不低于 `Rules:MinAgreement`（默认 0.8），且和内置规则不同。
   - 未识别应用：至少 `MinUsers` 个账号上报过，内置规则和任何人的个人分类都没有覆盖。
 - 该接口要求请求头 `X-DeskPal-Maintainer` 等于 `Rules:MaintainerToken`，口令为空时返回 404。`.github/workflows/rule-candidates.yml` 每周请求一次，把多人一致的结果写进 `builtin-rules.json` 并开 PR，未识别应用列在 PR 说明里，人工审核后合并。
-- 内置规则保存在 `builtin-rules.json`（目前版本 3，190 条），Server 启动时写入数据库；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。里面的网站和标题规则不参与浏览器的默认分类。版本 3 起没有 `Music`、`Shopping`、`Social`、`News`、`Reading`。
+- 内置规则保存在 `builtin-rules.json`（目前版本 4，190 条，中文名称都带 `names.en`），Server 启动时写入数据库；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。里面的网站和标题规则不参与浏览器的默认分类。版本 3 起没有 `Music`、`Shopping`、`Social`、`News`、`Reading`。
 - 分类口径：桌面应用里，企业微信、飞书、钉钉、Slack、Teams、邮箱和会议软件归为 `Work`；QQ、微信、Telegram 等个人聊天归为 `Communication`。浏览器里的网页不再按网站种类细分。音乐播放器、Kindle、calibre、Discord 没有单独类别，显示为“正在使用 XX”。
 
 ## 状态判断和防抖
@@ -100,7 +100,8 @@ flowchart LR
 - Server 的错误只返回错误码和参数：`{ "code": "room.full", "args": { "limit": "20" } }`，错误码在 `DeskPal.Shared/Api/ApiErrorCodes.cs`。客户端 `ApiErrorText` 按 `ApiError_<码>` 查资源并代入参数；不认识的错误码显示「请求失败（HTTP 状态码）」。
 - 别人的客户端拒绝统计请求时，`stats.response` 带 `errorCode`（`not-shared`、`out-of-range`），请求方按自己的语言显示；旧客户端只带中文 `error`，照原样显示。
 - 安装向导（Inno Setup）按 Windows 显示语言选择简体中文或英文。
-- 只有中文的内容：内置规则库里的应用名、用户输入的名称。更新条目在 `CHANGELOG.md` 里中英各写一行，按界面语言显示。
+- 内置规则的应用名：`name` 是默认名称（中文），`names` 是其他语言的名称（目前只有 `en`）。分类、上报、房间成员收到的、本机统计里存的都是默认名称；显示时 `AppNames.Localize` 按本机界面语言和本机缓存的规则库翻译（状态、置顶卡片、悬停说明、纠正分类、统计排行）。旧客户端忽略 `names`，照旧显示中文。
+- 只有一种语言的内容：用户输入的名称（显示名称、房间名、个人分类的名称）、应用自己的产品名。更新条目在 `CHANGELOG.md` 里中英各写一行，按界面语言显示。
 
 
 ## 界面
@@ -225,7 +226,7 @@ flowchart LR
 | `RoomBlocks` | RoomId + BlockerId + BlockedId、CreatedAt。成员之间的屏蔽，退出房间后保留，解散房间时级联删除 |
 | `UserRules` | UserId + Kind + Pattern（唯一）、Category、Name、UpdatedAt。个人分类 |
 | `UnknownAppReports` | UserId + Kind + Pattern、DisplayName、Minutes（最近一次上报的当天分钟数）、ReportedAt |
-| `BuiltinRules` / `AppMeta` | 内置规则和规则库版本号 |
+| `BuiltinRules` / `AppMeta` | 内置规则（`Names` 列是其他语言名称的 JSON）和规则库版本号 |
 
 Server 启动时自动执行还没应用的迁移，部署不需要手动删除或重建数据库。
 
@@ -240,7 +241,7 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 | `settings.json` | Server 地址（默认 `https://deskpal.hafuhafu.cn:36443`）、当前用户、DPAPI 加密的 token、选中的 Room、是否为无房间（`noRoom`）、空闲和防抖参数、暂停分享、是否加入测试版（`includePrerelease`，空则沿用安装渠道）、是否分享使用数据（`shareUsage`，以 Server 为准）、关闭按钮（`closeAction`：`ask`、`minimize`、`tray`）、本机设备号（`deviceId`，写进统计片段）、统计保留天数（`usageRetentionDays`）、不记录标题的规则（`noTitleRules`，每条是 `kind` + `pattern`） |
 | `usage\<userId>.db` | 使用统计（SQLite），见「使用统计」。卸载不删除，可以在统计页清除 |
 | `personal-rules.json` | 个人分类的缓存（`userId` + `rules`），以 Server 为准 |
-| `builtin-rules.json` | 内置规则缓存 |
+| `builtin-rules.json` | 内置规则缓存（含其他语言的名称） |
 | `<安装目录>\logs\deskpal.log` | 客户端运行日志。超过 1 MB 后改名为 `deskpal-时间.log`，最多保留 5 个旧文件，超过 7 天的旧文件删除。不记录窗口标题、媒体标题、域名、页面标题、密码、token、邀请码 |
 | `<安装目录>\logs\setup.log` | 最近一次通过安装向导安装时 Velopack Setup.exe 的日志 |
 

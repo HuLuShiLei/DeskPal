@@ -23,10 +23,8 @@ public static class RuleEndpoints
                 return Results.Ok(new BuiltinRulesResponse(current, null));
             }
 
-            var rules = await db.BuiltinRules.OrderBy(r => r.Id)
-                .Select(r => new RuleDto(r.Kind, r.Pattern, r.Category, r.Name))
-                .ToListAsync();
-            return Results.Ok(new BuiltinRulesResponse(current, rules));
+            var rules = await db.BuiltinRules.OrderBy(r => r.Id).ToListAsync();
+            return Results.Ok(new BuiltinRulesResponse(current, rules.Select(BuiltinRuleSeeder.ToDto).ToList()));
         }).RequireAuthorization();
 
         app.MapGet("/api/rules/candidates", async (HttpContext ctx, RuleCandidateService candidates, IOptions<RuleOptions> options) =>

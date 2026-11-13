@@ -1,6 +1,9 @@
+using System.Globalization;
 using DeskPal.Client.Core.Classification;
+using DeskPal.Client.Core.Localization;
 using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Core.Presence;
+using DeskPal.Shared.Api;
 using DeskPal.Shared.Presence;
 
 namespace DeskPal.Tests.Presence;
@@ -233,5 +236,35 @@ public class PresenceFormatterTests
         Assert.Equal("刚刚", PresenceFormatter.Duration(t0, t0.AddSeconds(30)));
         Assert.Equal("12 分钟", PresenceFormatter.Duration(t0, t0.AddMinutes(12)));
         Assert.Equal("2 小时 5 分钟", PresenceFormatter.Duration(t0, t0.AddMinutes(125)));
+    }
+}
+
+/// <summary>AppNames is process-wide, so this runs alone.</summary>
+[CollectionDefinition(nameof(AppNamesTests), DisableParallelization = true)]
+public class AppNamesCollection;
+
+[Collection(nameof(AppNamesTests))]
+public class AppNamesTests
+{
+    [Fact]
+    public void Builtin_names_are_shown_in_the_viewers_language()
+    {
+        AppNames.SetBuiltin([new RuleDto(RuleKind.Process, "testapp", ActivityCategory.Communication, "测试应用", new Dictionary<string, string> { ["en"] = "Test App" })]);
+        var previous = CultureInfo.CurrentUICulture;
+        try
+        {
+            var snapshot = new PresenceSnapshot { State = PresenceState.Communicating, Category = ActivityCategory.Communication, AppDisplayName = "测试应用", Detail = "测试应用" };
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("zh-CN");
+            Assert.Equal(new PresenceView("在聊天", "测试应用", null, "chat"), PresenceFormatter.Format(snapshot));
+
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+            Assert.Equal(new PresenceView("Chatting", "Test App", null, "chat"), PresenceFormatter.Format(snapshot));
+            Assert.Equal("XMind", AppNames.Localize("XMind"));
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previous;
+            AppNames.SetBuiltin([]);
+        }
     }
 }

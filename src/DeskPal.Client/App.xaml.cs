@@ -218,6 +218,7 @@ public partial class App : Application
     {
         var cached = services.GetRequiredService<BuiltinRuleCache>().Load();
         services.GetRequiredService<LayeredClassifier>().SetBuiltin(new RuleSet(cached.Rules));
+        AppNames.SetBuiltin(cached.Rules);
     }
 
     private static async Task RefreshBuiltinRulesAsync(IServiceProvider services)
@@ -231,6 +232,7 @@ public partial class App : Application
             {
                 cache.Save(new DeskPal.Shared.Api.RuleSetDto(response.Version, response.Rules));
                 services.GetRequiredService<LayeredClassifier>().SetBuiltin(new RuleSet(response.Rules));
+                AppNames.SetBuiltin(response.Rules);
                 services.GetRequiredService<PresenceCoordinator>().Reevaluate();
             }
         }

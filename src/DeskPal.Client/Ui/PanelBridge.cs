@@ -106,7 +106,7 @@ public sealed class PanelBridge
         PendingDeadline = _presence.PendingDeadline,
         StableFor = _presence.StableFor,
         Paused = _presence.Paused,
-        CorrectionTarget = CorrectionTarget.From(_presence.Snapshot, _presence.Classification?.AppDisplayName)?.DisplayName,
+        CorrectionTarget = AppNames.LocalizeOrNull(CorrectionTarget.From(_presence.Snapshot, _presence.Classification?.AppDisplayName)?.DisplayName),
         MyRules = _personalRules.Rules,
         Unclassified = _unclassified.Top(TimeSpan.FromMinutes(5), 5),
         Settings = new SettingsView(

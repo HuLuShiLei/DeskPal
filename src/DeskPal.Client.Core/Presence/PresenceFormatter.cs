@@ -27,7 +27,8 @@ public static class PresenceFormatter
 
     public static PresenceView Format(PresenceSnapshot snapshot)
     {
-        var app = snapshot.AppDisplayName is { Length: > 0 } name ? name : null;
+        var sent = snapshot.AppDisplayName is { Length: > 0 } name ? name : null;
+        var app = AppNames.LocalizeOrNull(sent);
         var state = snapshot.State == PresenceState.Slacking && snapshot.Category.IsRetired()
             ? snapshot.Category == ActivityCategory.Music ? PresenceState.Other : PresenceState.Browsing
             : snapshot.State;
@@ -58,7 +59,8 @@ public static class PresenceFormatter
             _ => "offline",
         };
 
-        return new PresenceView(headline, state == PresenceState.Other ? null : app, OmitDuplicate(app, Shorten(snapshot.Detail)), tone);
+        var detail = OmitDuplicate(sent, OmitDuplicate(app, Shorten(snapshot.Detail)));
+        return new PresenceView(headline, state == PresenceState.Other ? null : app, detail, tone);
     }
 
     public static string OneLine(PresenceView view) =>

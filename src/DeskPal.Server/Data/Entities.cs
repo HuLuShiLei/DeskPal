@@ -89,6 +89,9 @@ public sealed class BuiltinRule
     public required string Pattern { get; set; }
     public ActivityCategory Category { get; set; }
     public string? Name { get; set; }
+
+    /// <summary>JSON object of names in other languages, e.g. {"en":"WeChat"}.</summary>
+    public string? Names { get; set; }
 }
 
 public sealed class UserRule

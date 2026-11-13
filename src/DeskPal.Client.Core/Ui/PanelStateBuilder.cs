@@ -218,7 +218,7 @@ public static class PanelStateBuilder
         var lines = new List<string> { UiLanguage.Format(Strings.Full_Category, PresenceFormatter.CategoryName(presence.Category)) };
         if (!string.IsNullOrWhiteSpace(presence.AppDisplayName))
         {
-            lines.Add(UiLanguage.Format(presence.Category == ActivityCategory.Browsing ? Strings.Full_Site : Strings.Full_App, presence.AppDisplayName));
+            lines.Add(UiLanguage.Format(presence.Category == ActivityCategory.Browsing ? Strings.Full_Site : Strings.Full_App, AppNames.Localize(presence.AppDisplayName)));
         }
 
         if (!string.IsNullOrWhiteSpace(presence.Detail)

@@ -46,6 +46,9 @@ namespace DeskPal.Server.Data.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Names")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Pattern")
                         .IsRequired()
                         .HasColumnType("TEXT");

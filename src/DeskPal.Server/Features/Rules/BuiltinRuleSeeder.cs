@@ -17,6 +17,13 @@ public static class BuiltinRuleSeeder
         return meta is null ? 0 : int.Parse(meta.Value);
     }
 
+    public static RuleDto ToDto(BuiltinRule rule) => new(
+        rule.Kind,
+        rule.Pattern,
+        rule.Category,
+        rule.Name,
+        rule.Names is null ? null : JsonSerializer.Deserialize<Dictionary<string, string>>(rule.Names, DeskPalJson.Options));
+
     public static async Task SeedAsync(DeskPalDbContext db, string jsonPath, ILogger logger)
     {
         await using var stream = File.OpenRead(jsonPath);
@@ -35,7 +42,14 @@ public static class BuiltinRuleSeeder
             var pattern = RulePattern.Normalize(rule.Kind, rule.Pattern);
             if (seen.Add((rule.Kind, pattern)))
             {
-                db.BuiltinRules.Add(new BuiltinRule { Kind = rule.Kind, Pattern = pattern, Category = rule.Category, Name = rule.Name });
+                db.BuiltinRules.Add(new BuiltinRule
+                {
+                    Kind = rule.Kind,
+                    Pattern = pattern,
+                    Category = rule.Category,
+                    Name = rule.Name,
+                    Names = rule.Names is { Count: > 0 } names ? JsonSerializer.Serialize(names, DeskPalJson.Options) : null,
+                });
             }
         }
 

@@ -72,6 +72,8 @@
   en: The update list follows the interface language
 - 统计页说明改为：数据仅保存至本地，传输时加密转发，不保存到服务器
   en: The stats note now says data is stored locally only, encrypted in transit, and not kept on the server
+- 英文界面里，默认分类识别出的应用和网站显示英文名称，例如微信显示为 WeChat；房间成员各自按自己的界面语言显示
+  en: In the English interface, apps and sites recognized by the default categories show English names, such as WeChat. Each member sees names in their own interface language
 
 ## 0.1.1
 

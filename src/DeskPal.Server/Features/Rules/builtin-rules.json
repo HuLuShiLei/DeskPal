@@ -1,5 +1,5 @@
 {
-    "version": 3,
+    "version": 4,
     "rules": [
         {
             "kind": "Process",
@@ -95,19 +95,28 @@
             "kind": "Process",
             "pattern": "notepad",
             "category": "Work",
-            "name": "记事本"
+            "name": "记事本",
+            "names": {
+                "en": "Notepad"
+            }
         },
         {
             "kind": "Process",
             "pattern": "windowsterminal",
             "category": "Work",
-            "name": "终端"
+            "name": "终端",
+            "names": {
+                "en": "Terminal"
+            }
         },
         {
             "kind": "Process",
             "pattern": "cmd",
             "category": "Work",
-            "name": "命令提示符"
+            "name": "命令提示符",
+            "names": {
+                "en": "Command Prompt"
+            }
         },
         {
             "kind": "Process",
@@ -185,13 +194,19 @@
             "kind": "Process",
             "pattern": "et",
             "category": "Work",
-            "name": "WPS 表格"
+            "name": "WPS 表格",
+            "names": {
+                "en": "WPS Spreadsheets"
+            }
         },
         {
             "kind": "Process",
             "pattern": "wpp",
             "category": "Work",
-            "name": "WPS 演示"
+            "name": "WPS 演示",
+            "names": {
+                "en": "WPS Presentation"
+            }
         },
         {
             "kind": "Process",
@@ -287,7 +302,10 @@
             "kind": "Process",
             "pattern": "mstsc",
             "category": "Work",
-            "name": "远程桌面"
+            "name": "远程桌面",
+            "names": {
+                "en": "Remote Desktop"
+            }
         },
         {
             "kind": "Process",
@@ -353,7 +371,10 @@
             "kind": "Process",
             "pattern": "explorer",
             "category": "Work",
-            "name": "文件资源管理器"
+            "name": "文件资源管理器",
+            "names": {
+                "en": "File Explorer"
+            }
         },
         {
             "kind": "Process",
@@ -365,31 +386,46 @@
             "kind": "Process",
             "pattern": "wechat",
             "category": "Communication",
-            "name": "微信"
+            "name": "微信",
+            "names": {
+                "en": "WeChat"
+            }
         },
         {
             "kind": "Process",
             "pattern": "weixin",
             "category": "Communication",
-            "name": "微信"
+            "name": "微信",
+            "names": {
+                "en": "WeChat"
+            }
         },
         {
             "kind": "Process",
             "pattern": "wxwork",
             "category": "Work",
-            "name": "企业微信"
+            "name": "企业微信",
+            "names": {
+                "en": "WeCom"
+            }
         },
         {
             "kind": "Process",
             "pattern": "dingtalk",
             "category": "Work",
-            "name": "钉钉"
+            "name": "钉钉",
+            "names": {
+                "en": "DingTalk"
+            }
         },
         {
             "kind": "Process",
             "pattern": "feishu",
             "category": "Work",
-            "name": "飞书"
+            "name": "飞书",
+            "names": {
+                "en": "Feishu"
+            }
         },
         {
             "kind": "Process",
@@ -479,7 +515,10 @@
             "kind": "Process",
             "pattern": "wemeetapp",
             "category": "Work",
-            "name": "腾讯会议"
+            "name": "腾讯会议",
+            "names": {
+                "en": "Tencent Meeting"
+            }
         },
         {
             "kind": "Process",
@@ -521,25 +560,37 @@
             "kind": "Process",
             "pattern": "qqlive",
             "category": "Video",
-            "name": "腾讯视频"
+            "name": "腾讯视频",
+            "names": {
+                "en": "Tencent Video"
+            }
         },
         {
             "kind": "Process",
             "pattern": "qyclient",
             "category": "Video",
-            "name": "爱奇艺"
+            "name": "爱奇艺",
+            "names": {
+                "en": "iQIYI"
+            }
         },
         {
             "kind": "Process",
             "pattern": "youkudesktop",
             "category": "Video",
-            "name": "优酷"
+            "name": "优酷",
+            "names": {
+                "en": "Youku"
+            }
         },
         {
             "kind": "Process",
             "pattern": "douyin",
             "category": "Video",
-            "name": "抖音"
+            "name": "抖音",
+            "names": {
+                "en": "Douyin"
+            }
         },
         {
             "kind": "Process",
@@ -569,31 +620,46 @@
             "kind": "Process",
             "pattern": "leagueclient",
             "category": "Game",
-            "name": "英雄联盟"
+            "name": "英雄联盟",
+            "names": {
+                "en": "League of Legends"
+            }
         },
         {
             "kind": "Process",
             "pattern": "league of legends",
             "category": "Game",
-            "name": "英雄联盟"
+            "name": "英雄联盟",
+            "names": {
+                "en": "League of Legends"
+            }
         },
         {
             "kind": "Process",
             "pattern": "yuanshen",
             "category": "Game",
-            "name": "原神"
+            "name": "原神",
+            "names": {
+                "en": "Genshin Impact"
+            }
         },
         {
             "kind": "Process",
             "pattern": "genshinimpact",
             "category": "Game",
-            "name": "原神"
+            "name": "原神",
+            "names": {
+                "en": "Genshin Impact"
+            }
         },
         {
             "kind": "Process",
             "pattern": "starrail",
             "category": "Game",
-            "name": "崩坏：星穹铁道"
+            "name": "崩坏：星穹铁道",
+            "names": {
+                "en": "Honkai: Star Rail"
+            }
         },
         {
             "kind": "Process",
@@ -617,79 +683,118 @@
             "kind": "Process",
             "pattern": "valorant",
             "category": "Game",
-            "name": "无畏契约"
+            "name": "无畏契约",
+            "names": {
+                "en": "VALORANT"
+            }
         },
         {
             "kind": "Process",
             "pattern": "hearthstone",
             "category": "Game",
-            "name": "炉石传说"
+            "name": "炉石传说",
+            "names": {
+                "en": "Hearthstone"
+            }
         },
         {
             "kind": "Process",
             "pattern": "wow",
             "category": "Game",
-            "name": "魔兽世界"
+            "name": "魔兽世界",
+            "names": {
+                "en": "World of Warcraft"
+            }
         },
         {
             "kind": "Process",
             "pattern": "overwatch",
             "category": "Game",
-            "name": "守望先锋"
+            "name": "守望先锋",
+            "names": {
+                "en": "Overwatch"
+            }
         },
         {
             "kind": "Process",
             "pattern": "tslgame",
             "category": "Game",
-            "name": "绝地求生"
+            "name": "绝地求生",
+            "names": {
+                "en": "PUBG: BATTLEGROUNDS"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "bilibili.com",
             "category": "Video",
-            "name": "哔哩哔哩"
+            "name": "哔哩哔哩",
+            "names": {
+                "en": "Bilibili"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "youku.com",
             "category": "Video",
-            "name": "优酷"
+            "name": "优酷",
+            "names": {
+                "en": "Youku"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "iqiyi.com",
             "category": "Video",
-            "name": "爱奇艺"
+            "name": "爱奇艺",
+            "names": {
+                "en": "iQIYI"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "v.qq.com",
             "category": "Video",
-            "name": "腾讯视频"
+            "name": "腾讯视频",
+            "names": {
+                "en": "Tencent Video"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "mgtv.com",
             "category": "Video",
-            "name": "芒果 TV"
+            "name": "芒果 TV",
+            "names": {
+                "en": "Mango TV"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "douyin.com",
             "category": "Video",
-            "name": "抖音"
+            "name": "抖音",
+            "names": {
+                "en": "Douyin"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "kuaishou.com",
             "category": "Video",
-            "name": "快手"
+            "name": "快手",
+            "names": {
+                "en": "Kuaishou"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "ixigua.com",
             "category": "Video",
-            "name": "西瓜视频"
+            "name": "西瓜视频",
+            "names": {
+                "en": "Xigua Video"
+            }
         },
         {
             "kind": "Domain",
@@ -713,13 +818,19 @@
             "kind": "Domain",
             "pattern": "huya.com",
             "category": "Video",
-            "name": "虎牙"
+            "name": "虎牙",
+            "names": {
+                "en": "Huya"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "douyu.com",
             "category": "Video",
-            "name": "斗鱼"
+            "name": "斗鱼",
+            "names": {
+                "en": "Douyu"
+            }
         },
         {
             "kind": "Domain",
@@ -743,7 +854,10 @@
             "kind": "Domain",
             "pattern": "steamcommunity.com",
             "category": "Game",
-            "name": "Steam 社区"
+            "name": "Steam 社区",
+            "names": {
+                "en": "Steam Community"
+            }
         },
         {
             "kind": "Domain",
@@ -779,7 +893,10 @@
             "kind": "Domain",
             "pattern": "gamersky.com",
             "category": "Game",
-            "name": "游民星空"
+            "name": "游民星空",
+            "names": {
+                "en": "Gamersky"
+            }
         },
         {
             "kind": "Domain",
@@ -821,7 +938,10 @@
             "kind": "Domain",
             "pattern": "feishu.cn",
             "category": "Work",
-            "name": "飞书文档"
+            "name": "飞书文档",
+            "names": {
+                "en": "Feishu Docs"
+            }
         },
         {
             "kind": "Domain",
@@ -833,7 +953,10 @@
             "kind": "Domain",
             "pattern": "yuque.com",
             "category": "Work",
-            "name": "语雀"
+            "name": "语雀",
+            "names": {
+                "en": "Yuque"
+            }
         },
         {
             "kind": "Domain",
@@ -875,7 +998,10 @@
             "kind": "Domain",
             "pattern": "doubao.com",
             "category": "Work",
-            "name": "豆包"
+            "name": "豆包",
+            "names": {
+                "en": "Doubao"
+            }
         },
         {
             "kind": "Domain",
@@ -887,7 +1013,10 @@
             "kind": "Domain",
             "pattern": "tongyi.aliyun.com",
             "category": "Work",
-            "name": "通义"
+            "name": "通义",
+            "names": {
+                "en": "Tongyi"
+            }
         },
         {
             "kind": "Domain",
@@ -911,19 +1040,28 @@
             "kind": "Domain",
             "pattern": "docs.qq.com",
             "category": "Work",
-            "name": "腾讯文档"
+            "name": "腾讯文档",
+            "names": {
+                "en": "Tencent Docs"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "shimo.im",
             "category": "Work",
-            "name": "石墨文档"
+            "name": "石墨文档",
+            "names": {
+                "en": "Shimo Docs"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "kdocs.cn",
             "category": "Work",
-            "name": "金山文档"
+            "name": "金山文档",
+            "names": {
+                "en": "Kingsoft Docs"
+            }
         },
         {
             "kind": "Domain",
@@ -935,13 +1073,19 @@
             "kind": "Domain",
             "pattern": "cnblogs.com",
             "category": "Work",
-            "name": "博客园"
+            "name": "博客园",
+            "names": {
+                "en": "Cnblogs"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "juejin.cn",
             "category": "Work",
-            "name": "掘金"
+            "name": "掘金",
+            "names": {
+                "en": "Juejin"
+            }
         },
         {
             "kind": "Domain",
@@ -965,13 +1109,19 @@
             "kind": "Domain",
             "pattern": "aliyun.com",
             "category": "Work",
-            "name": "阿里云"
+            "name": "阿里云",
+            "names": {
+                "en": "Alibaba Cloud"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "cloud.tencent.com",
             "category": "Work",
-            "name": "腾讯云"
+            "name": "腾讯云",
+            "names": {
+                "en": "Tencent Cloud"
+            }
         },
         {
             "kind": "Domain",
@@ -995,13 +1145,19 @@
             "kind": "Domain",
             "pattern": "translate.google.com",
             "category": "Work",
-            "name": "Google 翻译"
+            "name": "Google 翻译",
+            "names": {
+                "en": "Google Translate"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "fanyi.baidu.com",
             "category": "Work",
-            "name": "百度翻译"
+            "name": "百度翻译",
+            "names": {
+                "en": "Baidu Translate"
+            }
         },
         {
             "kind": "Domain",
@@ -1013,19 +1169,28 @@
             "kind": "Domain",
             "pattern": "localhost",
             "category": "Work",
-            "name": "本地开发"
+            "name": "本地开发",
+            "names": {
+                "en": "Local development"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "mail.qq.com",
             "category": "Work",
-            "name": "QQ 邮箱"
+            "name": "QQ 邮箱",
+            "names": {
+                "en": "QQ Mail"
+            }
         },
         {
             "kind": "Domain",
             "pattern": "mail.163.com",
             "category": "Work",
-            "name": "网易邮箱"
+            "name": "网易邮箱",
+            "names": {
+                "en": "NetEase Mail"
+            }
         },
         {
             "kind": "Domain",
@@ -1049,7 +1214,10 @@
             "kind": "Domain",
             "pattern": "wx.qq.com",
             "category": "Communication",
-            "name": "微信网页版"
+            "name": "微信网页版",
+            "names": {
+                "en": "WeChat Web"
+            }
         },
         {
             "kind": "Domain",
@@ -1073,7 +1241,10 @@
             "kind": "Domain",
             "pattern": "meeting.tencent.com",
             "category": "Work",
-            "name": "腾讯会议"
+            "name": "腾讯会议",
+            "names": {
+                "en": "Tencent Meeting"
+            }
         },
         {
             "kind": "Domain",
@@ -1091,13 +1262,19 @@
             "kind": "TitleKeyword",
             "pattern": "哔哩哔哩",
             "category": "Video",
-            "name": "哔哩哔哩"
+            "name": "哔哩哔哩",
+            "names": {
+                "en": "Bilibili"
+            }
         },
         {
             "kind": "TitleKeyword",
             "pattern": "bilibili",
             "category": "Video",
-            "name": "哔哩哔哩"
+            "name": "哔哩哔哩",
+            "names": {
+                "en": "Bilibili"
+            }
         },
         {
             "kind": "TitleKeyword",
@@ -1109,25 +1286,37 @@
             "kind": "TitleKeyword",
             "pattern": "抖音",
             "category": "Video",
-            "name": "抖音"
+            "name": "抖音",
+            "names": {
+                "en": "Douyin"
+            }
         },
         {
             "kind": "TitleKeyword",
             "pattern": "爱奇艺",
             "category": "Video",
-            "name": "爱奇艺"
+            "name": "爱奇艺",
+            "names": {
+                "en": "iQIYI"
+            }
         },
         {
             "kind": "TitleKeyword",
             "pattern": "腾讯视频",
             "category": "Video",
-            "name": "腾讯视频"
+            "name": "腾讯视频",
+            "names": {
+                "en": "Tencent Video"
+            }
         },
         {
             "kind": "TitleKeyword",
             "pattern": "优酷",
             "category": "Video",
-            "name": "优酷"
+            "name": "优酷",
+            "names": {
+                "en": "Youku"
+            }
         },
         {
             "kind": "TitleKeyword",

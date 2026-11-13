@@ -9,7 +9,9 @@ public enum RuleKind
     TitleKeyword = 2,
 }
 
-public sealed record RuleDto(RuleKind Kind, string Pattern, ActivityCategory Category, string? Name = null);
+/// <param name="Name">Default name, sent to room members as is.</param>
+/// <param name="Names">Name in other UI languages, keyed by language (en). Each client shows the default name in its own language.</param>
+public sealed record RuleDto(RuleKind Kind, string Pattern, ActivityCategory Category, string? Name = null, IReadOnlyDictionary<string, string>? Names = null);
 
 public sealed record RuleSetDto(int Version, IReadOnlyList<RuleDto> Rules);
 

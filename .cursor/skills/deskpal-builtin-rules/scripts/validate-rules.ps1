@@ -5,7 +5,9 @@ $json = [System.IO.File]::ReadAllText((Resolve-Path $Path), [System.Text.Encodin
 $categories = 'Work','Meeting','Communication','Video','Music','Shopping','Social','News','Game','Reading','Other'
 $kinds = 'Process','Domain','TitleKeyword'
 $browsers = 'chrome','msedge','firefox','brave','opera','vivaldi','360se','360chrome','qqbrowser','sogouexplorer','2345explorer'
+$languages = @('en')
 $problems = New-Object System.Collections.Generic.List[string]
+$warnings = New-Object System.Collections.Generic.List[string]
 $seen = @{}
 
 if (-not ($json.version -is [int] -or $json.version -is [long]) -or $json.version -lt 1) { $problems.Add("version must be a positive integer") }
@@ -25,9 +27,18 @@ foreach ($r in $json.rules) {
             if ($r.pattern -match '^(https?://|www\.)' -or $r.pattern -match '[/:]') { $problems.Add("${label}: host only, no scheme, www., path or port") }
         }
     }
+    if ($null -ne $r.names) {
+        foreach ($p in $r.names.PSObject.Properties) {
+            if ($languages -notcontains $p.Name) { $problems.Add("${label}: names.$($p.Name) is not a UI language ($($languages -join ', '))") }
+            if ([string]::IsNullOrWhiteSpace($p.Value)) { $problems.Add("${label}: names.$($p.Name) is empty") }
+        }
+    }
+    if ($r.name -match '\p{IsCJKUnifiedIdeographs}' -and [string]::IsNullOrWhiteSpace($r.names.en)) { $warnings.Add("${label}: Chinese name '$($r.name)' has no names.en, English UI shows it as is") }
     $key = "$($r.kind)|$($r.pattern.Trim().ToLowerInvariant())"
     if ($seen.ContainsKey($key)) { $problems.Add("${label}: duplicate") } else { $seen[$key] = $true }
 }
+
+$warnings | ForEach-Object { Write-Host "warning: $_" }
 
 if ($problems.Count -gt 0) {
     $problems | ForEach-Object { Write-Host $_ }

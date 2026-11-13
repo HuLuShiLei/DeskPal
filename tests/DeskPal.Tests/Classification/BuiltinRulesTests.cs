@@ -41,6 +41,18 @@ public class BuiltinRulesTests
     }
 
     [Fact]
+    public void Chinese_names_have_an_english_name()
+    {
+        var missing = File.Rules
+            .Where(r => r.Name is not null && r.Name.Any(c => c is >= '\u3400' and <= '\u9fff') && r.Names?.GetValueOrDefault("en") is not { Length: > 0 })
+            .Select(r => r.Name)
+            .ToList();
+
+        Assert.Empty(missing);
+        Assert.All(File.Rules.Where(r => r.Names is not null), r => Assert.All(r.Names!.Keys, k => Assert.Equal("en", k)));
+    }
+
+    [Fact]
     public void Meeting_and_retired_categories_are_not_in_the_builtin_rules()
     {
         Assert.True(File.Version >= 3);

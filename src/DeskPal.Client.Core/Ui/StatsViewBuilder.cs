@@ -184,7 +184,7 @@ public static class StatsViewBuilder
                 .Select(g => (Legend: stateLegend.First(s => s.Key == g.Key), Name: stateLegend.First(s => s.Key == g.Key).Name, Sub: (string?)null, Seconds: g.Sum(d => d.Seconds)))
                 .ToList(),
             StatsGranularity.Category => report.Apps
-                .GroupBy(a => (Key: keyOf(a.State, a.Category), a.App))
+                .GroupBy(a => (Key: keyOf(a.State, a.Category), App: AppNames.LocalizeOrNull(a.App)))
                 .Select(g =>
                 {
                     var l = Legend(g.Key.Key);
@@ -192,7 +192,7 @@ public static class StatsViewBuilder
                 })
                 .ToList(),
             _ => report.Titles
-                .GroupBy(t => (Key: keyOf(t.State, t.Category), t.App, t.Title))
+                .GroupBy(t => (Key: keyOf(t.State, t.Category), App: AppNames.LocalizeOrNull(t.App), t.Title))
                 .Select(g =>
                 {
                     var l = Legend(g.Key.Key);
