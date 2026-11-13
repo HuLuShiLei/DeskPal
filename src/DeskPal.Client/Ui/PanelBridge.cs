@@ -121,7 +121,8 @@ public sealed class PanelBridge
             _settings.ShareUsage,
             NormalizeTheme(_settings.Theme),
             NormalizeCloseAction(_settings.CloseAction),
-            UiLanguage.Normalize(_settings.Language)),
+            UiLanguage.Normalize(_settings.Language),
+            _settings.IsAdmin),
         WhatsNew = _whatsNew.Pending,
         Pinned = _pins.Users,
         Now = DateTimeOffset.UtcNow,
@@ -448,6 +449,29 @@ public sealed class PanelBridge
                 return CommandResult.Success;
             }
 
+            case "signupInvites.list":
+                return new CommandResult(true, Data: SignupInviteItems(await _api.GetSignupInvitesAsync()));
+
+            case "signupInvites.create":
+            {
+                var invite = await _api.CreateSignupInviteAsync();
+                Clipboard.SetText(invite.Code);
+                return new CommandResult(true, Data: new
+                {
+                    code = invite.Code,
+                    message = Strings.SignupInvite_Copied,
+                    items = SignupInviteItems(await _api.GetSignupInvitesAsync()),
+                });
+            }
+
+            case "signupInvites.copy":
+                Clipboard.SetText(c.String("code"));
+                return CommandResult.Success;
+
+            case "signupInvites.revoke":
+                await _api.RevokeSignupInviteAsync(c.String("code"));
+                return new CommandResult(true, Data: SignupInviteItems(await _api.GetSignupInvitesAsync()));
+
             case "settings.autoStart":
                 AutoStart.Set(c.Bool("enabled"));
                 return CommandResult.Success;
@@ -542,6 +566,17 @@ public sealed class PanelBridge
                 return CommandResult.Fail(UiLanguage.Format(Strings.Error_Unsupported, c.Type));
         }
     }
+
+    private static object[] SignupInviteItems(List<SignupInviteDto> invites) => invites
+        .Select(i => (object)new
+        {
+            code = i.Code,
+            used = i.UsedAt is not null,
+            text = i.UsedAt is { } usedAt
+                ? UiLanguage.Format(Strings.SignupInvite_UsedBy, i.UsedByDisplayName ?? "", i.UsedByUserName ?? "", UiLanguage.Format(Strings.Date_MonthDayTime, usedAt.LocalDateTime))
+                : UiLanguage.Format(Strings.SignupInvite_Created, UiLanguage.Format(Strings.Date_MonthDayTime, i.CreatedAt.LocalDateTime)),
+        })
+        .ToArray();
 
     private async Task<CommandResult> QueryStatsAsync(WebCommand c)
     {

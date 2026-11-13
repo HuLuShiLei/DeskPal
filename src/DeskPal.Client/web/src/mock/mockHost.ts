@@ -2,7 +2,7 @@
 // 地址参数：?mock=default|no-room|guest|updated 选样例；?lang=en 用英文样例；?fail 让所有命令失败；?page=login 打开登录页；?page=card 打开第一个成员的置顶小卡片。
 // 发出的命令记在 window.__sent，方便检查。
 
-import type { CommandResult, HostMessage, NoTitleKind, PanelState, PrivacyLevel, StatsView, Transport } from "../bridge";
+import type { CommandResult, HostMessage, NoTitleKind, PanelState, PrivacyLevel, SignupInviteItem, StatsView, Transport } from "../bridge";
 import defaultState from "./fixtures/default.json";
 import statsViews from "./fixtures/stats.json";
 import guestState from "./fixtures/guest.json";
@@ -62,6 +62,10 @@ export function createMockTransport(params: URLSearchParams): Transport {
     });
 
   const room = (id: unknown) => state.rooms.find((r) => r.id === id);
+  let signupInvites: SignupInviteItem[] = [
+    { code: "P4W8N2KD", used: false, text: L("11 月 13 日 17:40 生成", "Created Nov 13, 17:40") },
+    { code: "H3T9R6VB", used: true, text: L("Bob（bob）于 11 月 12 日 09:15 注册", "Used by Bob (bob) on Nov 12, 09:15") },
+  ];
 
   async function handle(m: Incoming): Promise<CommandResult> {
     if (fail) return { ok: false, error: L("服务器暂时不可用，请稍后再试", "The server is temporarily unavailable. Try again later.") };
@@ -71,7 +75,33 @@ export function createMockTransport(params: URLSearchParams): Transport {
           ? { ok: false, error: L("用户名或密码错误", "Incorrect user name or password") }
           : { ok: true, error: null };
       case "auth.register":
+        return m.signupCode === "00000000"
+          ? { ok: false, error: L("注册邀请码无效或已被使用", "This signup invite code is invalid or has already been used") }
+          : { ok: true, error: null };
+      case "signupInvites.list":
+        return { ok: true, error: null, data: signupInvites };
+      case "signupInvites.create": {
+        const code = Array.from({ length: 8 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
+        signupInvites = [{ code, used: false, text: L("刚刚生成", "Created just now") }, ...signupInvites];
+        return {
+          ok: true,
+          error: null,
+          data: {
+            code,
+            message: L(
+              "注册邀请码已复制。一个注册邀请码只能注册一个账号，不会过期，没用之前可以在设置里作废。",
+              "Signup invite code copied. Each code registers one account and does not expire. You can revoke it in Settings until it is used.",
+            ),
+            items: signupInvites,
+          },
+        };
+      }
+      case "signupInvites.copy":
+        void navigator.clipboard.writeText(String(m.code)).catch(() => {});
         return { ok: true, error: null };
+      case "signupInvites.revoke":
+        signupInvites = signupInvites.filter((i) => i.code !== m.code);
+        return { ok: true, error: null, data: signupInvites };
       case "room.select":
         state.selectedRoomId = (m.roomId as string | null) ?? null;
         Object.assign(

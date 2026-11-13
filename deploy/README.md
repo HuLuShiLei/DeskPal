@@ -41,6 +41,8 @@ SQLite 数据库在 Docker 卷 `deskpal-data` 里（容器内 `/data/deskpal.db`
 - `Rules__MinAgreement`：个人分类里占比最高的类别至少占多少，才算多人一致，默认 0.8。
 - `Rules__MinAccountAgeDays`：注册满几天的账号才计票，默认 3。
 - `Rules__MaintainerToken`：`GET /api/rules/candidates` 的口令（请求头 `X-DeskPal-Maintainer`）。由 Stack 变量 `DESKPAL_MAINTAINER_TOKEN` 传入，为空时该接口返回 404。
+- `Auth__AdminUserNames__0`：管理员的用户名，可以在客户端设置页生成和作废注册邀请码。由 Stack 变量 `DESKPAL_ADMIN_USER` 传入。要多个管理员时在 `stack.yml` 里加 `Auth__AdminUserNames__1` 等。
+- `Auth__RequireSignupInvite`：为 `true` 时注册必须填写注册邀请码，已有账号登录不受影响。由 Stack 变量 `DESKPAL_REQUIRE_SIGNUP_INVITE` 传入，默认 `false`。**先发布新版本、设好管理员、确认能在设置页生成注册邀请码，再打开这个开关**，否则新用户在你生成码之前无法注册。旧版本客户端没有注册邀请码输入框，开关打开后用旧版本注册会失败，登录不受影响。
 
 ## 4. 自动更新
 

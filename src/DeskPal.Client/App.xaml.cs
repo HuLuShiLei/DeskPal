@@ -113,6 +113,7 @@ public partial class App : Application
                 var me = await api.MeAsync();
                 settings.DisplayName = me.DisplayName;
                 settings.ShareUsage = me.ShareUsage;
+                settings.IsAdmin = me.IsAdmin;
                 store.Save(settings);
                 logs.Write("INF", "DeskPal", "Saved session restored");
                 return true;

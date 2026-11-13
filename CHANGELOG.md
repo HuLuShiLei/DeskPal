@@ -18,6 +18,10 @@
   en: You can change your display name. Duplicate names are allowed
 - 房间成员的「已持续」时间固定显示在右侧按钮下方，和状态标签同一行；头像右下角不再显示状态圆点
   en: How long a member has been in a status now stays on the right, below the buttons. Avatars no longer show a status dot
+- 注册时可以填写注册邀请码。服务器开启后，没有注册邀请码不能注册
+  en: You can enter a signup invite code when you register. When the server requires one, you cannot register without it
+- 管理员可以在设置里生成、作废注册邀请码，查看谁用哪个码注册
+  en: Admins can create and revoke signup invite codes in Settings, and see who used each one
 - 面板可以拖动边框调整大小
   en: The panel can be resized by dragging its edges
 - 「我的分类」移到左侧导航单独的「分类」页，可以搜索

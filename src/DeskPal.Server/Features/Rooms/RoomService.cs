@@ -12,7 +12,7 @@ namespace DeskPal.Server.Features.Rooms;
 
 public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions<RoomOptions> options)
 {
-    private const string InviteAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    internal const string InviteAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     private const string NotMember = ApiErrorCodes.RoomNotMember;
     private const string InvalidName = ApiErrorCodes.RoomNameInvalid;
 

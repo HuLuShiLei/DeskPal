@@ -70,6 +70,18 @@ public sealed class RoomInvite
     public DateTimeOffset ExpiresAt { get; set; }
 }
 
+/// <summary>Required to register when Auth:RequireSignupInvite is on. Registers one account, never expires, admins can revoke it while unused.</summary>
+public sealed class SignupInvite
+{
+    public Guid Id { get; set; }
+    public required string Code { get; set; }
+    public Guid CreatedBy { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public Guid? UsedBy { get; set; }
+    public DateTimeOffset? UsedAt { get; set; }
+    public DateTimeOffset? RevokedAt { get; set; }
+}
+
 public sealed class BuiltinRule
 {
     public int Id { get; set; }

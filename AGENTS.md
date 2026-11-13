@@ -58,7 +58,7 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 1. **不截图、不装键盘钩子、不注入、不提权。** 客户端以普通用户权限运行。后期游戏化如果要统计按键，只能用 Raw Input 计次数，不读按键内容。
 2. **原始窗口标题和媒体标题不离开本机**，除非该 Room 成员把对应类别的隐私级别设为“显示详情”。上报前必须经过 `PrivacyFilter.Apply`。
 3. **Server 只按 `Envelope.Type`、`RoomId` 和 `To` 路由，不解析 `Payload`。** 这是为端到端加密（`Enc` 字段）留的口子，使用统计的 `stats.response` 已经是密文。Server 自己生成的消息（离线、Room 事件）例外。
-4. **成员的最新状态只存在 Server 内存里**（`PresenceStore`），不写数据库。数据库只存账号、Room、成员关系、邀请码、踢出后的禁止再次加入记录、成员之间的屏蔽记录、隐私设置、内置规则、个人分类，以及用户同意分享后上报的未识别应用（进程名、产品名、当天分钟数）。
+4. **成员的最新状态只存在 Server 内存里**（`PresenceStore`），不写数据库。数据库只存账号、Room、成员关系、邀请码、注册邀请码、踢出后的禁止再次加入记录、成员之间的屏蔽记录、隐私设置、内置规则、个人分类，以及用户同意分享后上报的未识别应用（进程名、产品名、当天分钟数）。
 5. **数据模型按 Room 设计，不按“一对”设计。** 人数上限来自配置 `Rooms:MaxMembersPerRoom`，默认 20。已有房间在列出或有人加入时改成当前配置。
 6. **Room 成员关系变化后，必须调用 `RoomNotifier` 同步 SignalR Group。** 否则退出 Room 的人还会继续收到消息。
 7. Server 运行时目录叫 `storage/`，源码目录叫 `Data/`。Windows 路径不区分大小写，不要把数据库目录改回 `data`。容器内数据库是 `/data/deskpal.db`（Linux 区分大小写，没有冲突），路径由连接串决定。

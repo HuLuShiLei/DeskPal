@@ -9,6 +9,7 @@ export function LoginPage({ bridge }: { bridge: Bridge }) {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [signupCode, setSignupCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -34,7 +35,7 @@ export function LoginPage({ bridge }: { bridge: Bridge }) {
     setBusy(true);
     const result = await bridge.request(
       register
-        ? { type: "auth.register", serverUrl, userName, password, displayName }
+        ? { type: "auth.register", serverUrl, userName, password, displayName, signupCode }
         : { type: "auth.login", serverUrl, userName, password },
     );
     setBusy(false);
@@ -74,6 +75,12 @@ export function LoginPage({ bridge }: { bridge: Bridge }) {
           <label>
             {t("login.displayName")}
             <input value={displayName} maxLength={20} onInput={(e) => setDisplayName(e.currentTarget.value)} required />
+          </label>
+        )}
+        {register && (
+          <label>
+            {t("login.signupCode")}
+            <input value={signupCode} maxLength={16} placeholder={t("login.signupCodeHint")} onInput={(e) => setSignupCode(e.currentTarget.value)} />
           </label>
         )}
         {showServer ? (

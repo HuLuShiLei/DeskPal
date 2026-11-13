@@ -25,7 +25,7 @@ public sealed class LoginWindow : Window
         _web = new WebView2 { DefaultBackgroundColor = WebUi.ColorFor(settings.Theme) };
         Title = Strings.Login_WindowTitle;
         Width = 380;
-        Height = 560;
+        Height = 640;
         ResizeMode = ResizeMode.NoResize;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         Background = WebUi.BrushFor(settings.Theme);
@@ -91,12 +91,13 @@ public sealed class LoginWindow : Window
         try
         {
             var response = register
-                ? await _api.RegisterAsync(new RegisterRequest(c.String("userName"), displayName, c.String("password")))
+                ? await _api.RegisterAsync(new RegisterRequest(c.String("userName"), displayName, c.String("password"), c.OptionalString("signupCode")))
                 : await _api.LoginAsync(new LoginRequest(c.String("userName"), c.String("password")));
             _settings.UserId = response.UserId;
             _settings.UserName = response.UserName;
             _settings.DisplayName = response.DisplayName;
             _settings.ShareUsage = response.ShareUsage;
+            _settings.IsAdmin = response.IsAdmin;
             _settings.SetToken(response.Token);
             _store.Save(_settings);
             return CommandResult.Success;

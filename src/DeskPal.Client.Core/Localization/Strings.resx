@@ -541,6 +541,15 @@
   <data name="Room_InviteCopied" xml:space="preserve">
     <value>邀请码已复制，{0} 前有效。重新生成后旧邀请码失效，被踢出的成员可使用新邀请码加入。</value>
   </data>
+  <data name="SignupInvite_Copied" xml:space="preserve">
+    <value>注册邀请码已复制。一个注册邀请码只能注册一个账号，不会过期，没用之前可以在设置里作废。</value>
+  </data>
+  <data name="SignupInvite_Created" xml:space="preserve">
+    <value>{0} 生成</value>
+  </data>
+  <data name="SignupInvite_UsedBy" xml:space="preserve">
+    <value>{0}（{1}）于 {2} 注册</value>
+  </data>
   <data name="Stats_NotConnected" xml:space="preserve">
     <value>未连接服务器，稍后再试。</value>
   </data>
@@ -615,6 +624,18 @@
   </data>
   <data name="ApiError_auth_displayNameInvalid" xml:space="preserve">
     <value>显示名称需要 1 到 20 个字符</value>
+  </data>
+  <data name="ApiError_auth_signupCodeRequired" xml:space="preserve">
+    <value>请填写注册邀请码</value>
+  </data>
+  <data name="ApiError_auth_signupCodeInvalid" xml:space="preserve">
+    <value>注册邀请码无效或已被使用</value>
+  </data>
+  <data name="ApiError_auth_signupCodeUsed" xml:space="preserve">
+    <value>该注册邀请码已被使用，不能作废</value>
+  </data>
+  <data name="ApiError_auth_notAdmin" xml:space="preserve">
+    <value>只有管理员可以管理注册邀请码</value>
   </data>
   <data name="ApiError_room_notMember" xml:space="preserve">
     <value>房间不存在，或者你不是该房间的成员</value>

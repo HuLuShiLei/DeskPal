@@ -27,6 +27,13 @@ public sealed class ApiClient(AppSettings settings)
     public Task<AuthResponse> UpdateDisplayNameAsync(string displayName) =>
         SendAsync<AuthResponse>(HttpMethod.Put, "/api/me/displayName", new UpdateDisplayNameRequest(displayName));
 
+    public Task<List<SignupInviteDto>> GetSignupInvitesAsync() => SendAsync<List<SignupInviteDto>>(HttpMethod.Get, "/api/admin/signup-invites");
+
+    public Task<SignupInviteDto> CreateSignupInviteAsync() => SendAsync<SignupInviteDto>(HttpMethod.Post, "/api/admin/signup-invites", new { });
+
+    public Task RevokeSignupInviteAsync(string code) =>
+        SendAsync<object?>(HttpMethod.Delete, $"/api/admin/signup-invites/{Uri.EscapeDataString(code)}");
+
     public Task<List<RoomDto>> GetRoomsAsync() => SendAsync<List<RoomDto>>(HttpMethod.Get, "/api/rooms");
 
     public Task<RoomDto> CreateRoomAsync(string name) => SendAsync<RoomDto>(HttpMethod.Post, "/api/rooms", new CreateRoomRequest(name));

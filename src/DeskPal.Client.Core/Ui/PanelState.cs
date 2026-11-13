@@ -104,4 +104,5 @@ public sealed record SettingsView(
     bool? ShareUsage = null,
     string Theme = "system",
     string CloseAction = "ask",
-    string Language = UiLanguage.FollowSystem);
+    string Language = UiLanguage.FollowSystem,
+    bool IsAdmin = false);

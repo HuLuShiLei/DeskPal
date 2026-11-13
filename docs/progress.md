@@ -156,3 +156,4 @@
 | 2026-11-13 | 更新内容按界面语言显示：`CHANGELOG.md` 每条下面一行 `en:`，看过与否仍按中文比对。统计页说明改为：数据仅保存至本地，传输时加密转发，不保存到服务器 |
 | 2026-11-13 | 继续润色已定文案：无房间提示去掉斜杠，倒计时统一为「变为」，单点登录、踢出、只能进入一个房间、公开使用统计、保留时长的说明改写 |
 | 2026-11-13 | 状态页成员行：头像右下角不再显示状态圆点（和状态标签重复）；「已持续多久」从名字行最右侧移到右侧按钮下方、和状态标签同一行，位置不随状态文案长短和按钮数量变化 |
+| 2026-11-13 | 注册邀请码（见 `docs/plan-2026-11-13-registration-invites.md`）：表 `SignupInvites`（迁移 `AddSignupInvites`），配置 `Auth:RequireSignupInvite`、`Auth:AdminUserNames`。`RegisterRequest` 增加 `signupCode`，`AuthResponse` 增加 `isAdmin`，新增 `/api/admin/signup-invites` 的列出、生成、作废，错误码 `auth.signupCodeRequired`、`auth.signupCodeInvalid`、`auth.signupCodeUsed`、`auth.notAdmin`。登录页注册时一直显示「注册邀请码」输入框；设置页管理员多一块「注册邀请码」，页面命令 `signupInvites.list`、`signupInvites.create`、`signupInvites.revoke`，`SettingsView` 增加 `isAdmin`，`settings.json` 增加 `isAdmin`。登录窗口高度从 560 改为 640，表单超出时可以滚动 |

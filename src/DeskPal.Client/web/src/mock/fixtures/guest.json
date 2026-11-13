@@ -165,7 +165,8 @@
     "shareUsage": false,
     "theme": "system",
     "closeAction": "ask",
-    "language": "system"
+    "language": "system",
+    "isAdmin": false
   },
   "myRules": [],
   "unclassified": [],

@@ -66,7 +66,8 @@
     "shareUsage": null,
     "theme": "system",
     "closeAction": "ask",
-    "language": "system"
+    "language": "system",
+    "isAdmin": false
   },
   "myRules": [
     {

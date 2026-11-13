@@ -1,5 +1,5 @@
-import { useRef, useState } from "preact/hooks";
-import type { Language, PanelState } from "../bridge";
+import { useEffect, useRef, useState } from "preact/hooks";
+import type { Language, PanelState, SignupInviteItem } from "../bridge";
 import { useHost } from "../host";
 import { t } from "../i18n";
 import { Icon, Section, SettingRow, Switch } from "../ui";
@@ -152,6 +152,72 @@ export function SettingsPage({ state }: { state: PanelState }) {
           </SettingRow>
         </div>
       </Section>
+      {s.isAdmin && <SignupInvites />}
     </>
+  );
+}
+
+/** 只有管理员能看到。列表不在 PanelState 里，打开设置页时向宿主要一次，生成和作废后用返回的新列表。 */
+function SignupInvites() {
+  const { run, ask } = useHost();
+  const [items, setItems] = useState<SignupInviteItem[] | null>(null);
+
+  useEffect(() => {
+    void run({ type: "signupInvites.list" }).then((r) => r.ok && setItems(r.data as SignupInviteItem[]));
+  }, []);
+
+  const create = async () => {
+    const r = await run({ type: "signupInvites.create" });
+    const data = r.data as { code: string; message: string; items: SignupInviteItem[] } | undefined;
+    if (!r.ok || !data) return;
+    setItems(data.items);
+    await ask({ title: t("signup.createdTitle"), highlight: data.code, message: data.message, okText: t("common.gotIt"), cancelText: null });
+  };
+
+  const revoke = async (code: string) => {
+    const a = await ask({ title: t("signup.revokeTitle"), message: t("signup.revokeMessage", { code }), okText: t("signup.revoke"), danger: true });
+    if (!a.ok) return;
+    const r = await run({ type: "signupInvites.revoke", code }, t("signup.revoked"));
+    if (r.ok) setItems(r.data as SignupInviteItem[]);
+  };
+
+  return (
+    <Section
+      title={t("signup.title")}
+      aside={
+        <div class="section-actions">
+          <button onClick={create}>
+            <Icon name="add" />
+            {t("signup.create")}
+          </button>
+        </div>
+      }
+    >
+      {items && items.length === 0 && (
+        <p class="infobar">
+          <Icon name="info" />
+          {t("signup.empty")}
+        </p>
+      )}
+      {items && items.length > 0 && (
+        <ul class="list">
+          {items.map((i) => (
+            <li key={i.code} class="list-row compact">
+              <div class="row-main">
+                <p class="row-title">
+                  <button type="button" class="code-copy" title={t("signup.copy")} aria-label={t("signup.copyName", { code: i.code })} onClick={() => run({ type: "signupInvites.copy", code: i.code }, t("signup.copied"))}>{i.code}</button>
+                </p>
+                <p class="sub">{i.text}</p>
+              </div>
+              {!i.used && (
+                <button class="subtle danger" aria-label={t("signup.revokeName", { code: i.code })} onClick={() => revoke(i.code)}>
+                  {t("signup.revoke")}
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </Section>
   );
 }

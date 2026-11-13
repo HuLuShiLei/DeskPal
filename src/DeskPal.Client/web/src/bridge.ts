@@ -117,6 +117,8 @@ export interface PanelState {
     closeAction: "ask" | "minimize" | "tray";
     /** system 跟随 Windows 显示语言，zh-CN / en 固定。 */
     language: Language;
+    /** 服务器把这个账号列为管理员，设置页显示注册邀请码。 */
+    isAdmin: boolean;
   };
   myRules: MyRuleItem[];
   unclassified: UnclassifiedItem[];
@@ -218,8 +220,19 @@ export type Command =
   | { type: "update.restart" }
   | { type: "changelog.seen" }
   | { type: "auth.login"; serverUrl: string; userName: string; password: string }
-  | { type: "auth.register"; serverUrl: string; userName: string; password: string; displayName: string }
+  | { type: "signupInvites.list" }
+  | { type: "signupInvites.create" }
+  | { type: "signupInvites.copy"; code: string }
+  | { type: "signupInvites.revoke"; code: string }
+  | { type: "auth.register"; serverUrl: string; userName: string; password: string; displayName: string; signupCode: string }
   | { type: "auth.logout" };
+
+/** 注册邀请码列表的一行。text 是宿主按语言生成的「生成时间」或「谁在什么时候用它注册」。 */
+export interface SignupInviteItem {
+  code: string;
+  used: boolean;
+  text: string;
+}
 
 /** 不需要回复的消息。window.* 是自绘标题栏的按钮，由窗口直接处理。 */
 export type Notice =

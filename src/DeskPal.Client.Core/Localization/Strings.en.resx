@@ -541,6 +541,15 @@ Restart DeskPal after installing it.</value>
   <data name="Room_InviteCopied" xml:space="preserve">
     <value>Invite code copied. Valid until {0}. A new code replaces the old one. Removed members can rejoin with the new code.</value>
   </data>
+  <data name="SignupInvite_Copied" xml:space="preserve">
+    <value>Signup invite code copied. Each code registers one account and does not expire. You can revoke it in Settings until it is used.</value>
+  </data>
+  <data name="SignupInvite_Created" xml:space="preserve">
+    <value>Created {0}</value>
+  </data>
+  <data name="SignupInvite_UsedBy" xml:space="preserve">
+    <value>Used by {0} ({1}) on {2}</value>
+  </data>
   <data name="Stats_NotConnected" xml:space="preserve">
     <value>Not connected to the server. Try again later.</value>
   </data>
@@ -615,6 +624,18 @@ Restart DeskPal after installing it.</value>
   </data>
   <data name="ApiError_auth_displayNameInvalid" xml:space="preserve">
     <value>Display name must be 1 to 20 characters</value>
+  </data>
+  <data name="ApiError_auth_signupCodeRequired" xml:space="preserve">
+    <value>Enter a signup invite code</value>
+  </data>
+  <data name="ApiError_auth_signupCodeInvalid" xml:space="preserve">
+    <value>This signup invite code is invalid or has already been used</value>
+  </data>
+  <data name="ApiError_auth_signupCodeUsed" xml:space="preserve">
+    <value>This signup invite code has been used and cannot be revoked</value>
+  </data>
+  <data name="ApiError_auth_notAdmin" xml:space="preserve">
+    <value>Only admins can manage signup invite codes</value>
   </data>
   <data name="ApiError_room_notMember" xml:space="preserve">
     <value>The room does not exist, or you are not a member</value>

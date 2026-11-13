@@ -12,6 +12,12 @@ public static class ApiErrorCodes
     public const string WrongPassword = "auth.wrongPassword";
     public const string AccountMissing = "auth.accountMissing";
     public const string DisplayNameInvalid = "auth.displayNameInvalid";
+    public const string SignupCodeRequired = "auth.signupCodeRequired";
+
+    /// <summary>Unknown, already used or revoked; deliberately not told apart.</summary>
+    public const string SignupCodeInvalid = "auth.signupCodeInvalid";
+    public const string SignupCodeUsed = "auth.signupCodeUsed";
+    public const string NotAdmin = "auth.notAdmin";
 
     public const string RoomNotMember = "room.notMember";
     public const string RoomNameInvalid = "room.nameInvalid";

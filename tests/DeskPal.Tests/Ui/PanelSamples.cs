@@ -86,7 +86,7 @@ public static class PanelSamples
                 new UnclassifiedApp(RuleKind.Process, "xmind", "XMind", TimeSpan.FromMinutes(42)),
                 new UnclassifiedApp(RuleKind.Process, "snipaste", "Snipaste", TimeSpan.FromMinutes(7)),
             ],
-            Settings = Settings,
+            Settings = Settings with { IsAdmin = true },
             Pinned = [Bob],
             Now = Now,
             UsageRetentionDays = 90,
