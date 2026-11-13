@@ -2,7 +2,7 @@ import { useRef, useState } from "preact/hooks";
 import type { PanelState } from "../bridge";
 import { useHost } from "../host";
 import { sharingMessage } from "../sharing";
-import { Section, SettingRow, Switch } from "../ui";
+import { Icon, Section, SettingRow, Switch } from "../ui";
 
 const issuePageUrl = "https://github.com/HuLuShiLei/DeskPal/issues/new/choose";
 
@@ -32,6 +32,16 @@ export function SettingsPage({ state }: { state: PanelState }) {
       setPressed(false);
       seen.current = false;
     }
+  };
+
+  const rename = async () => {
+    const a = await ask({
+      title: "修改显示名称",
+      message: "房间成员看到的名称。可以和别人重名。",
+      input: { initial: state.me.displayName, placeholder: "1 到 20 个字符", maxLength: 20, required: true },
+      okText: "保存",
+    });
+    if (a.ok && a.text !== state.me.displayName) await run({ type: "me.rename", name: a.text }, "已修改");
   };
 
   const logout = async () => {
@@ -65,6 +75,9 @@ export function SettingsPage({ state }: { state: PanelState }) {
               </>
             }
           >
+            <button class="icon-button" title="修改显示名称" aria-label="修改显示名称" onClick={rename}>
+              <Icon name="edit" />
+            </button>
             <button class="subtle danger" onClick={logout}>
               退出登录
             </button>

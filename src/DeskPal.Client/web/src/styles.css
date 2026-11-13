@@ -201,7 +201,7 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 .section-actions { display: flex; gap: 6px; }
 .card {
   background: var(--surface-strong); border: 1px solid var(--line); border-radius: var(--radius-lg);
-  padding: 12px 14px; display: grid; gap: 8px;
+  padding: 12px 14px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px;
 }
 .card.flush { padding: 0; gap: 0; }
 .card.flush > * + * { border-top: 1px solid var(--line); }

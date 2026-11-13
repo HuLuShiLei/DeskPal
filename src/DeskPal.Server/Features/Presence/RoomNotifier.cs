@@ -50,6 +50,20 @@ public sealed class RoomNotifier(IHubContext<PresenceHub, IPresenceClient> hub, 
     public Task RenamedAsync(Guid roomId) =>
         hub.Clients.Group(GroupName(roomId)).Receive(ServerEnvelope(MessageTypes.RoomRenamed, roomId, null));
 
+    /// <summary>The user's own connections are in the same groups, so their other computers hear it too.</summary>
+    public async Task MemberRenamedAsync(Guid userId, IReadOnlyList<Guid> roomIds)
+    {
+        foreach (var roomId in roomIds)
+        {
+            await hub.Clients.Group(GroupName(roomId)).Receive(ServerEnvelope(MessageTypes.MemberRenamed, roomId, userId));
+        }
+
+        if (roomIds.Count == 0)
+        {
+            await hub.Clients.Clients(connections.Get(userId)).Receive(ServerEnvelope(MessageTypes.MemberRenamed, Guid.Empty, userId));
+        }
+    }
+
     /// <summary>Tells the user's other computers to reload. Other room members never see personal rules.</summary>
     public Task PersonalRulesChangedAsync(Guid userId) =>
         hub.Clients.Clients(connections.Get(userId)).Receive(ServerEnvelope(MessageTypes.PersonalRulesChanged, Guid.Empty, userId));

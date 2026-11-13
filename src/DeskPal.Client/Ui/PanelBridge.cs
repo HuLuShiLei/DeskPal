@@ -271,6 +271,25 @@ public sealed class PanelBridge
                 return CommandResult.Success;
             }
 
+            case "me.rename":
+            {
+                var name = c.String("name").Trim();
+                if (name.Length is < 1 or > 20)
+                {
+                    return CommandResult.Fail("显示名称需要 1 到 20 个字符");
+                }
+
+                if (name != _settings.DisplayName)
+                {
+                    var me = await _api.UpdateDisplayNameAsync(name);
+                    _settings.DisplayName = me.DisplayName;
+                    _store.Save(_settings);
+                    await _rooms.RefreshAsync();
+                }
+
+                return CommandResult.Success;
+            }
+
             case "settings.shareUsage":
             {
                 var enabled = c.Bool("enabled");

@@ -162,6 +162,9 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "rules.delete":
         state.myRules = state.myRules.filter((r) => !(r.kind === m.kind && r.pattern === m.pattern));
         break;
+      case "me.rename":
+        state.me.displayName = m.name as string;
+        break;
       case "settings.shareUsage":
         state.settings.shareUsage = m.enabled as boolean;
         break;

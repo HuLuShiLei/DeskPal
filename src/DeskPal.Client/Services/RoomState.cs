@@ -190,6 +190,10 @@ public sealed class RoomState(
                     OnKicked(envelope);
                     break;
 
+                case MessageTypes.MemberRenamed:
+                    _ = OnMemberRenamedAsync(envelope.ReadPayload<RoomEventPayload>()?.UserId);
+                    break;
+
                 case MessageTypes.RoomMemberJoined:
                 case MessageTypes.RoomMemberLeft:
                 case MessageTypes.RoomOwnerChanged:
@@ -220,6 +224,29 @@ public sealed class RoomState(
         }
 
         _ = RefreshAsync().ContinueWith(t => logger.LogWarning(t.Exception, "Refreshing rooms failed"), TaskContinuationOptions.OnlyOnFaulted);
+    }
+
+    /// <summary>Renamed on another computer: take the new name from the server, then reload the member lists.</summary>
+    private async Task OnMemberRenamedAsync(Guid? userId)
+    {
+        try
+        {
+            if (userId == MyUserId)
+            {
+                var me = await api.MeAsync();
+                if (settings.DisplayName != me.DisplayName)
+                {
+                    settings.DisplayName = me.DisplayName;
+                    store.Save(settings);
+                }
+            }
+
+            await RefreshAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Refreshing after a rename failed");
+        }
     }
 
     private string MemberName(Guid roomId, Guid userId) =>

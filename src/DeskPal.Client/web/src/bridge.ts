@@ -126,6 +126,7 @@ export type Command =
   | { type: "presence.resetCorrection" }
   | { type: "rules.set"; kind: RuleKind; pattern: string; name: string | null; category: string }
   | { type: "rules.delete"; kind: RuleKind; pattern: string }
+  | { type: "me.rename"; name: string }
   | { type: "settings.shareUsage"; enabled: boolean }
   | { type: "settings.autoStart"; enabled: boolean }
   | { type: "settings.topmost"; enabled: boolean }

@@ -141,6 +141,7 @@ flowchart LR
 | POST | `/api/auth/register` | 注册，返回 `AuthResponse`（含 token，有效期 30 天） |
 | POST | `/api/auth/login` | 登录 |
 | GET | `/api/me` | 当前用户，含 `shareUsage`（空表示还没问过） |
+| PUT | `/api/me/displayName` | 修改显示名称（`UpdateDisplayNameRequest`，去掉首尾空格后 1 到 20 个字符，允许重名）；名称有变化时给该用户所在的每个 Room 广播 `room.memberRenamed`，没有 Room 时只发给自己的连接 |
 | GET | `/api/me/rules` | 我的个人分类，最近修改的在前 |
 | PUT | `/api/me/rules` | 按（种类，标准化后的内容）新增或覆盖个人分类（`UpsertUserRuleRequest`），之后给自己的连接发 `rules.personalChanged` |
 | DELETE | `/api/me/rules?kind=&pattern=` | 删除一条个人分类，返回 204 |
@@ -172,6 +173,7 @@ flowchart LR
 | `room.kicked` | Server | `RoomEventPayload(被踢出的人)` | 只发给被踢出的人。客户端提示邀请码更新后才能再次加入，并重新拉取房间列表 |
 | `room.ownerChanged` | Server | `RoomEventPayload(新所有者)` | |
 | `room.renamed` | Server | `RoomEventPayload(null)` | 客户端重新拉取 Room 列表 |
+| `room.memberRenamed` | Server | `RoomEventPayload(userId)` | 成员改了显示名称。客户端重新拉取 Room 列表；是自己时（另一台电脑改的）先用 `/api/me` 更新本机保存的显示名称 |
 | `room.dissolved` | Server | `RoomEventPayload(null)` | 之后所有成员移出 Group |
 | `rules.personalChanged` | Server | `RoomEventPayload(本人)` | 只发给本人的所有连接，`RoomId` 为空 Guid。客户端重新拉取个人分类 |
 

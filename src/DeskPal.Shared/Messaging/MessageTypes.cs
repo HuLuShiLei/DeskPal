@@ -12,6 +12,9 @@ public static class MessageTypes
     public const string RoomDissolved = "room.dissolved";
     public const string RoomRenamed = "room.renamed";
 
+    /// <summary>A member changed the display name. Sent to every room of that member; RoomId is empty when the member has no room.</summary>
+    public const string MemberRenamed = "room.memberRenamed";
+
     /// <summary>Sent only to the user's own connections. RoomId is empty.</summary>
     public const string PersonalRulesChanged = "rules.personalChanged";
 

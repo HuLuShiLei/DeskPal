@@ -75,6 +75,37 @@ public sealed class PresenceHubTests : IClassFixture<PresenceHubTests.ServerFact
         await bobHub.DisposeAsync();
     }
 
+    [Fact]
+    public async Task Renaming_tells_room_members_and_allows_duplicate_names()
+    {
+        var http = _factory.CreateClient();
+        var alice = await RegisterAsync(http, "alice");
+        var bob = await RegisterAsync(http, "bob");
+        var room = await PostAsync<RoomDto>(http, "/api/rooms", new CreateRoomRequest("Home"), alice.Token);
+        var invite = await PostAsync<InviteDto>(http, $"/api/rooms/{room.Id}/invites", new { }, alice.Token);
+        await PostAsync<RoomDto>(http, "/api/rooms/join", new JoinRoomRequest(invite.Code), bob.Token);
+        var (_, aliceInbox) = await ConnectAsync(alice.Token);
+        var (bobHub, bobInbox) = await ConnectAsync(bob.Token);
+
+        var renamed = await SendAsync<AuthResponse>(http, HttpMethod.Put, "/api/me/displayName", new UpdateDisplayNameRequest(" bob "), alice.Token);
+
+        Assert.Equal("bob", renamed.DisplayName);
+        Assert.Equal(alice.UserId, (await NextAsync(bobInbox, e => e.Type == MessageTypes.MemberRenamed)).ReadPayload<RoomEventPayload>()!.UserId);
+        Assert.Equal(room.Id, (await NextAsync(aliceInbox, e => e.Type == MessageTypes.MemberRenamed)).RoomId);
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/rooms") { Headers = { Authorization = new("Bearer", bob.Token) } };
+        var rooms = await (await http.SendAsync(request)).Content.ReadFromJsonAsync<List<RoomDto>>(DeskPalJson.Options);
+        Assert.All(rooms!.Single().Members, m => Assert.Equal("bob", m.DisplayName));
+
+        using var invalid = new HttpRequestMessage(HttpMethod.Put, "/api/me/displayName")
+        {
+            Content = JsonContent.Create(new UpdateDisplayNameRequest(new string('名', 21)), options: DeskPalJson.Options),
+            Headers = { Authorization = new("Bearer", alice.Token) },
+        };
+        Assert.Equal(System.Net.HttpStatusCode.BadRequest, (await http.SendAsync(invalid)).StatusCode);
+
+        await bobHub.DisposeAsync();
+    }
+
     private async Task<(HubConnection Hub, ChannelReader<Envelope> Inbox)> ConnectAsync(string token)
     {
         var inbox = Channel.CreateUnbounded<Envelope>();

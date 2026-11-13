@@ -21,6 +21,9 @@ public sealed class ApiClient(AppSettings settings)
 
     public Task<AuthResponse> MeAsync() => SendAsync<AuthResponse>(HttpMethod.Get, "/api/me");
 
+    public Task<AuthResponse> UpdateDisplayNameAsync(string displayName) =>
+        SendAsync<AuthResponse>(HttpMethod.Put, "/api/me/displayName", new UpdateDisplayNameRequest(displayName));
+
     public Task<List<RoomDto>> GetRoomsAsync() => SendAsync<List<RoomDto>>(HttpMethod.Get, "/api/rooms");
 
     public Task<RoomDto> CreateRoomAsync(string name) => SendAsync<RoomDto>(HttpMethod.Post, "/api/rooms", new CreateRoomRequest(name));

@@ -1,6 +1,8 @@
 using System.Text.RegularExpressions;
 using DeskPal.Server.Common;
 using DeskPal.Server.Data;
+using DeskPal.Server.Features.Presence;
+using DeskPal.Server.Features.Rooms;
 using DeskPal.Shared.Api;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,9 +26,9 @@ public static partial class AuthEndpoints
                 return Fail(400, "用户名需要 3 到 32 位，只能包含字母、数字、下划线和短横线");
             }
 
-            if (displayName.Length is < 1 or > 20)
+            if (!IsValidDisplayName(displayName))
             {
-                return Fail(400, "显示名称需要 1 到 20 个字符");
+                return Fail(400, InvalidDisplayName);
             }
 
             if (req.Password is null || req.Password.Length < 8)
@@ -71,7 +73,35 @@ public static partial class AuthEndpoints
                 ? Fail(401, "账号不存在")
                 : Results.Ok(new AuthResponse("", user.Id, user.UserName, user.DisplayName, user.ShareUsage));
         }).RequireAuthorization();
+
+        app.MapPut("/api/me/displayName", async (UpdateDisplayNameRequest req, HttpContext ctx, DeskPalDbContext db, RoomService rooms, RoomNotifier notifier) =>
+        {
+            var displayName = req.DisplayName?.Trim() ?? "";
+            if (!IsValidDisplayName(displayName))
+            {
+                return Fail(400, InvalidDisplayName);
+            }
+
+            var user = await db.Users.FindAsync(ctx.User.GetUserId());
+            if (user is null)
+            {
+                return Fail(401, "账号不存在");
+            }
+
+            if (user.DisplayName != displayName)
+            {
+                user.DisplayName = displayName;
+                await db.SaveChangesAsync();
+                await notifier.MemberRenamedAsync(user.Id, await rooms.GetRoomIdsForUserAsync(user.Id));
+            }
+
+            return Results.Ok(new AuthResponse("", user.Id, user.UserName, user.DisplayName, user.ShareUsage));
+        }).RequireAuthorization();
     }
+
+    private const string InvalidDisplayName = "显示名称需要 1 到 20 个字符";
+
+    private static bool IsValidDisplayName(string name) => name.Length is >= 1 and <= 20;
 
     private static IResult Fail(int status, string error) => Results.Json(new ApiError(error), statusCode: status);
 }
