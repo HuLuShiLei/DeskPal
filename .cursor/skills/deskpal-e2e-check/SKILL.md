@@ -95,7 +95,7 @@ Start-Process src\DeskPal.Client\bin\Debug\net10.0-windows10.0.19041.0\DeskPal.e
 | 纠正分类 | 保存后只有 alice 自己的连接收到 `rules.personalChanged`（模拟成员收不到），`%APPDATA%\DeskPal\personal-rules.json` 更新，「分类」页的「我的分类」出现这一条；切换房间后仍然生效 |
 | 模拟成员收到 alice 的状态 | 首条状态不是空的 `Other`；10 秒左右收到稳定后的状态 |
 | 勾选“暂停分享” | 模拟成员立即收到 `Paused` |
-| 标题栏房间菜单选「不进入房间」 | 模拟成员立即收到 `Offline`，之后不再收到 alice 的状态；标题栏显示「未进入房间」；再选回该房间后收到当前状态 |
+| 标题栏房间菜单选「无房间」 | 模拟成员立即收到 `Offline`，之后不再收到 alice 的状态；标题栏显示「无房间」；再选回该房间后收到当前状态 |
 | 点关闭，选「最小化到系统托盘」并确定；5 分钟后 | 用户数据目录是 `DeskPal\WebView2` 的 `msedgewebview2` 进程全部退出（下面的命令计数为 0）；再从托盘打开能正常显示 |
 
 ```powershell

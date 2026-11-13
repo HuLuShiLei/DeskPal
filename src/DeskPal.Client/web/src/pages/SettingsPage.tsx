@@ -36,8 +36,8 @@ export function SettingsPage({ state }: { state: PanelState }) {
 
   const rename = async () => {
     const a = await ask({
-      title: "修改显示名称",
-      message: "房间成员看到的名称。可以和别人重名。",
+      title: "修改名称",
+      message: "其他人看到的名称。",
       input: { initial: state.me.displayName, placeholder: "1 到 20 个字符", maxLength: 20, required: true },
       okText: "保存",
     });
@@ -75,7 +75,7 @@ export function SettingsPage({ state }: { state: PanelState }) {
               </>
             }
           >
-            <button class="icon-button" title="修改显示名称" aria-label="修改显示名称" onClick={rename}>
+            <button class="icon-button" title="修改名称" aria-label="修改名称" onClick={rename}>
               <Icon name="edit" />
             </button>
             <button class="subtle danger" onClick={logout}>

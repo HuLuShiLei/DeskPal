@@ -47,9 +47,7 @@ public static class PanelStateBuilder
         var members = room is null ? [] : Members(input, room);
         string? emptyHint = room is not null
             ? members.Count == 0 ? "房间里还没有其他成员。到「房间」页生成邀请码，发给对方。" : null
-            : input.Rooms.Count == 0
-                ? "还没有房间。到「房间」页创建房间，或者用邀请码加入。"
-                : "没有进入房间，所有房间的成员都看到你离线。在标题栏选择一个房间进入。";
+            : "当前无房间。到「房间」页创建房间或用邀请码加入，或在标题栏选择一个房间进入。";
 
         return new PanelState(
             Connection(input.Connection),

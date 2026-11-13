@@ -33,7 +33,7 @@ flowchart LR
 
 1. 采集器把事实发布到 `ActivityBus`（基于 Channel 的一对多广播）。
 2. `PresenceCoordinator` 把信号合并进 `ActivitySnapshot`，分类后得到 `LocalPresence`，交给防抖器。
-3. 防抖器提交 `CommittedPresence` 以后，只按当前进入的房间做隐私过滤并发布。切换房间时，先给上一个房间发离线，再给当前房间发状态。已加入但没进入的房间留在列表里，再次进入不用邀请码。选「不进入房间」（`AppSettings.NoRoom`）时 `RoomState.SelectedRoom` 为 null，所有房间都收到离线，之后不发布状态；选择、创建或加入房间时清除。分类和房间无关，切换房间不改变分类结果。
+3. 防抖器提交 `CommittedPresence` 以后，只按当前进入的房间做隐私过滤并发布。切换房间时，先给上一个房间发离线，再给当前房间发状态。已加入但没进入的房间留在列表里，再次进入不用邀请码。选「无房间」（`AppSettings.NoRoom`，或一个房间都没有）时 `RoomState.SelectedRoom` 为 null，所有房间都收到离线，之后不发布状态；选择、创建或加入房间时清除。分类和房间无关，切换房间不改变分类结果。
 4. Server 只检查发送者是否为该房间的成员，然后转发给同一 Group 的其他连接，并把最新状态缓存在内存里。
 
 ## 采集信号
@@ -80,7 +80,7 @@ flowchart LR
 `PresenceDebouncer`：
 
 - 新状态要持续 `StableSeconds`（10 秒，不写入 `settings.json`）才提交，`Since` 记为开始出现的时刻。`PresenceCoordinator` 在到期时刻再判定一次，不等下一次 5 秒的定时判定。
-- 状态页「我的状态」大字显示已提交的状态，按当前房间的隐私设置过滤，和房间成员看到的一致；被隐私设置挡住的应用名或标题，在下方用一行灰字说明（`PanelState.me.hidden`）。没有进入房间时不过滤。有待提交的新状态时，下方显示「n 秒后变更为」和新状态（同样过滤），`PanelState.me.pending` 给出剩余毫秒，页面自己倒数。只有详情变了的，直接显示本机的新详情，不显示倒计时。
+- 状态页「我的状态」大字显示已提交的状态，按当前房间的隐私设置过滤，和房间成员看到的一致；被隐私设置挡住的应用名或标题，在下方用一行灰字说明（`PanelState.me.hidden`）。无房间时不过滤。有待提交的新状态时，下方显示「n 秒后变更为」和新状态（同样过滤），`PanelState.me.pending` 给出剩余毫秒，页面自己倒数。只有详情变了的，直接显示本机的新详情，不显示倒计时。
 - 暂停分享、锁屏，进入和退出都立即提交。
 - 状态不变、只是详情变了（例如切换到另一个视频），按同样的间隔限频。
 
@@ -141,7 +141,7 @@ flowchart LR
 | POST | `/api/auth/register` | 注册，返回 `AuthResponse`（含 token，有效期 30 天） |
 | POST | `/api/auth/login` | 登录 |
 | GET | `/api/me` | 当前用户，含 `shareUsage`（空表示还没问过） |
-| PUT | `/api/me/displayName` | 修改显示名称（`UpdateDisplayNameRequest`，去掉首尾空格后 1 到 20 个字符，允许重名）；名称有变化时给该用户所在的每个 Room 广播 `room.memberRenamed`，没有 Room 时只发给自己的连接 |
+| PUT | `/api/me/displayName` | 修改名称（`UpdateDisplayNameRequest`，去掉首尾空格后 1 到 20 个字符，允许重名）；名称有变化时给该用户所在的每个 Room 广播 `room.memberRenamed`，没有 Room 时只发给自己的连接 |
 | GET | `/api/me/rules` | 我的个人分类，最近修改的在前 |
 | PUT | `/api/me/rules` | 按（种类，标准化后的内容）新增或覆盖个人分类（`UpsertUserRuleRequest`），之后给自己的连接发 `rules.personalChanged` |
 | DELETE | `/api/me/rules?kind=&pattern=` | 删除一条个人分类，返回 204 |
@@ -199,7 +199,7 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 
 | 文件 | 内容 |
 |---|---|
-| `settings.json` | Server 地址（默认 `https://deskpal.hafuhafu.cn:36443`）、当前用户、DPAPI 加密的 token、选中的 Room、是否不进入房间（`noRoom`）、空闲和防抖参数、暂停分享、是否加入测试版（`includePrerelease`，空则沿用安装渠道）、是否分享使用数据（`shareUsage`，以 Server 为准）、关闭按钮（`closeAction`：`ask`、`minimize`、`tray`） |
+| `settings.json` | Server 地址（默认 `https://deskpal.hafuhafu.cn:36443`）、当前用户、DPAPI 加密的 token、选中的 Room、是否为无房间（`noRoom`）、空闲和防抖参数、暂停分享、是否加入测试版（`includePrerelease`，空则沿用安装渠道）、是否分享使用数据（`shareUsage`，以 Server 为准）、关闭按钮（`closeAction`：`ask`、`minimize`、`tray`） |
 | `personal-rules.json` | 个人分类的缓存（`userId` + `rules`），以 Server 为准 |
 | `builtin-rules.json` | 内置规则缓存 |
 | `<安装目录>\logs\deskpal.log` | 客户端运行日志。超过 1 MB 后改名为 `deskpal-时间.log`，最多保留 5 个旧文件，超过 7 天的旧文件删除。不记录窗口标题、媒体标题、域名、页面标题、密码、token、邀请码 |

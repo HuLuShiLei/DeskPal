@@ -40,7 +40,7 @@ export function RoomPage({ state }: { state: PanelState }) {
         {state.rooms.length === 0 ? (
           <p class="infobar">
             <Icon name="info" />
-            还没有房间。创建一个房间，或者用邀请码加入。
+            当前无房间。创建一个房间，或者用邀请码加入。
           </p>
         ) : (
           <>
@@ -69,7 +69,7 @@ export function RoomPage({ state }: { state: PanelState }) {
             <p class="section-note">
               {room
                 ? "同一时间只进入一个房间，在其他房间里显示为离线。切换不用重新输入邀请码。"
-                : "现在没有进入房间，在所有房间里都显示为离线。点一个房间即可进入。"}
+                : "当前无房间，在所有房间里都显示为离线。点一个房间即可进入。"}
             </p>
           </>
         )}
