@@ -19,7 +19,8 @@ public sealed record PanelState(
     CorrectionView Correction,
     SettingsView Settings,
     IReadOnlyList<MyRuleItem> MyRules,
-    IReadOnlyList<UnclassifiedItem> Unclassified);
+    IReadOnlyList<UnclassifiedItem> Unclassified,
+    WhatsNewView? WhatsNew = null);
 
 public sealed record ConnectionView(bool Connected, string Text);
 
@@ -61,6 +62,11 @@ public sealed record MyRuleItem(RuleKind Kind, string Pattern, string Name, stri
 
 /// <summary>An app used today that no rule recognized. Shown on the status page so the user can classify it.</summary>
 public sealed record UnclassifiedItem(RuleKind Kind, string Pattern, string Name, string Today);
+
+/// <summary>Shown once after an update: the changelog items this computer has not seen yet.</summary>
+public sealed record WhatsNewView(string Title, string Summary, IReadOnlyList<WhatsNewSection> Sections);
+
+public sealed record WhatsNewSection(string Version, IReadOnlyList<string> Items);
 
 public sealed record SettingsView(
     bool AutoStart,

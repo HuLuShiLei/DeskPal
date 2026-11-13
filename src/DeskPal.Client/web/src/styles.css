@@ -394,6 +394,9 @@ button.hint-button:active:not(:disabled) { background: var(--pressed); color: va
 .dialog-body { padding: 20px 20px 18px; display: grid; gap: 12px; }
 .dialog h2 { font-size: 17px; font-weight: 600; }
 .dialog-message { white-space: pre-wrap; color: var(--text); line-height: 1.55; }
+.dialog-list { max-height: max(120px, calc(100vh - 260px)); overflow-y: auto; display: grid; gap: 12px; margin-right: -8px; padding-right: 8px; }
+.dialog-list h3 { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+.dialog-list ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; line-height: 1.5; }
 .dialog-body select, .dialog-body input:not([type=checkbox]):not([type=radio]) { width: 100%; }
 .dialog-buttons { display: flex; gap: 8px; padding: 16px 20px; background: var(--bg); border-top: 1px solid var(--line); }
 .dialog-buttons button { flex: 1; }

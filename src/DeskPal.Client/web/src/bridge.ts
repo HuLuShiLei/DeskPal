@@ -96,6 +96,8 @@ export interface PanelState {
   };
   myRules: MyRuleItem[];
   unclassified: UnclassifiedItem[];
+  /** 更新后还没看过的更新内容；关闭对话框后为 null。 */
+  whatsNew: { title: string; summary: string; sections: { version: string; items: string[] }[] } | null;
 }
 
 export type DialogKind = "confirm" | "info" | "warning";
@@ -131,6 +133,7 @@ export type Command =
   | { type: "update.check" }
   | { type: "update.beta"; enabled: boolean }
   | { type: "update.restart" }
+  | { type: "changelog.seen" }
   | { type: "auth.login"; serverUrl: string; userName: string; password: string }
   | { type: "auth.register"; serverUrl: string; userName: string; password: string; displayName: string }
   | { type: "auth.logout" };

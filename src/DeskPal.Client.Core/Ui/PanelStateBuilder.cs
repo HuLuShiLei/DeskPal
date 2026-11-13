@@ -36,6 +36,7 @@ public sealed record PanelInput
     public IReadOnlyList<UserRuleDto> MyRules { get; init; } = [];
     public IReadOnlyList<UnclassifiedApp> Unclassified { get; init; } = [];
     public required SettingsView Settings { get; init; }
+    public WhatsNewView? WhatsNew { get; init; }
     public required DateTimeOffset Now { get; init; }
 }
 
@@ -69,7 +70,8 @@ public static class PanelStateBuilder
                 .ToList(),
             input.Unclassified
                 .Select(a => new UnclassifiedItem(a.Kind, a.Pattern, a.DisplayName, $"今天 {PresenceFormatter.Duration(input.Now - a.Today, input.Now)}"))
-                .ToList());
+                .ToList(),
+            input.WhatsNew);
     }
 
     private static string KindName(RuleKind kind) => kind switch

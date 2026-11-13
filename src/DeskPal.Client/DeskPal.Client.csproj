@@ -27,6 +27,11 @@
     <StartupObject>DeskPal.Client.Program</StartupObject>
   </PropertyGroup>
 
+  <!-- 更新后弹出的「更新内容」读程序目录下的 CHANGELOG.md。 -->
+  <ItemGroup>
+    <Content Include="..\..\CHANGELOG.md" Link="CHANGELOG.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <!-- 前端：web/ 下的 Vite 项目，构建结果复制到输出目录的 web/。没有 Node 时可传 -p:SkipWebBuild=true，用已有的 web/dist。 -->
   <ItemGroup>
     <WebSource Include="web\index.html;web\package.json;web\package-lock.json;web\vite.config.ts;web\tsconfig.json;web\src\**\*" />

@@ -6,6 +6,7 @@ using DeskPal.Client.Collectors;
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Diagnostics;
 using DeskPal.Client.Core.Pipeline;
+using DeskPal.Client.Core.Updates;
 using DeskPal.Client.Services;
 using DeskPal.Client.Ui;
 using DeskPal.Client.Views;
@@ -170,9 +171,26 @@ public partial class App : Application
         s.AddHostedService<MediaCollector>();
         s.AddHostedService<UsageReporter>();
         s.AddSingleton<UpdateService>();
+        s.AddSingleton(sp => new WhatsNewStore(
+            ReadChangelog(),
+            Path.Combine(SettingsStore.Directory, "changelog-seen.json"),
+            sp.GetRequiredService<UpdateService>().VersionLabel));
         s.AddSingleton<PanelBridge>();
         s.AddSingleton<PanelWindow>();
         return builder.Build();
+    }
+
+    private static string? ReadChangelog()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, Changelog.FileName);
+        try
+        {
+            return File.Exists(path) ? File.ReadAllText(path) : null;
+        }
+        catch (IOException)
+        {
+            return null;
+        }
     }
 
     private static void LoadCachedBuiltinRules(IServiceProvider services)

@@ -1,0 +1,220 @@
+{
+  "connection": {
+    "connected": true,
+    "text": "已连接"
+  },
+  "me": {
+    "displayName": "Alice",
+    "view": {
+      "headline": "正在使用 Cursor",
+      "app": null,
+      "detail": null,
+      "tone": "other"
+    },
+    "source": "「Cursor」按默认分类识别。",
+    "visible": "正在使用 Cursor",
+    "paused": false,
+    "pending": {
+      "view": {
+        "headline": "工作中",
+        "app": null,
+        "detail": null,
+        "tone": "work"
+      },
+      "remainingMs": 7000,
+      "totalSeconds": 10
+    },
+    "meta": "已持续 1 分钟",
+    "hidden": "按隐私设置，房间成员看不到标题"
+  },
+  "rooms": [
+    {
+      "id": "00000000-0000-0000-0000-0000000000a1",
+      "name": "测试房间",
+      "isOwner": true,
+      "memberCount": 3,
+      "maxMembers": 20
+    },
+    {
+      "id": "00000000-0000-0000-0000-0000000000a2",
+      "name": "同事房间",
+      "isOwner": false,
+      "memberCount": 2,
+      "maxMembers": 20
+    }
+  ],
+  "selectedRoomId": "00000000-0000-0000-0000-0000000000a1",
+  "emptyHint": null,
+  "members": [
+    {
+      "userId": "00000000-0000-0000-0000-000000000b0b",
+      "name": "Bob",
+      "isOwner": false,
+      "online": true,
+      "view": {
+        "headline": "在看视频",
+        "app": "哔哩哔哩",
+        "detail": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和…",
+        "tone": "relax"
+      },
+      "meta": "已持续 12 分钟"
+    },
+    {
+      "userId": "00000000-0000-0000-0000-0000000ca201",
+      "name": "Carol",
+      "isOwner": false,
+      "online": false,
+      "view": {
+        "headline": "离线",
+        "app": null,
+        "detail": null,
+        "tone": "offline"
+      },
+      "meta": "还没有收到状态"
+    }
+  ],
+  "privacy": {
+    "rows": [
+      {
+        "category": "Work",
+        "name": "工作",
+        "level": "StateOnly"
+      },
+      {
+        "category": "Communication",
+        "name": "聊天",
+        "level": "StateOnly"
+      },
+      {
+        "category": "Video",
+        "name": "视频",
+        "level": "Category"
+      },
+      {
+        "category": "Game",
+        "name": "游戏",
+        "level": "Category"
+      },
+      {
+        "category": "Browsing",
+        "name": "浏览网页",
+        "level": "Category"
+      },
+      {
+        "category": "Other",
+        "name": "其他",
+        "level": "Category"
+      }
+    ],
+    "levels": [
+      {
+        "value": "StateOnly",
+        "name": "只显示状态"
+      },
+      {
+        "value": "Category",
+        "name": "显示类别和应用"
+      },
+      {
+        "value": "Detail",
+        "name": "显示详情（标题）"
+      }
+    ]
+  },
+  "correction": {
+    "target": "Cursor",
+    "current": "Work",
+    "options": [
+      {
+        "value": "Work",
+        "name": "工作"
+      },
+      {
+        "value": "Communication",
+        "name": "聊天"
+      },
+      {
+        "value": "Video",
+        "name": "视频"
+      },
+      {
+        "value": "Game",
+        "name": "游戏"
+      },
+      {
+        "value": "Browsing",
+        "name": "浏览网页"
+      },
+      {
+        "value": "Other",
+        "name": "其他"
+      }
+    ],
+    "personal": false
+  },
+  "settings": {
+    "autoStart": true,
+    "topmost": false,
+    "receiveBeta": true,
+    "updateReady": false,
+    "version": "0.1.2-dev.18",
+    "serverUrl": "https://deskpal.hafuhafu.cn:36443",
+    "userName": "alice",
+    "updateActivity": null,
+    "shareUsage": true,
+    "theme": "system",
+    "closeAction": "ask"
+  },
+  "myRules": [
+    {
+      "kind": "Domain",
+      "pattern": "bilibili.com",
+      "name": "哔哩哔哩",
+      "kindName": "网站",
+      "category": "Video",
+      "categoryName": "视频"
+    },
+    {
+      "kind": "Process",
+      "pattern": "wechat",
+      "name": "微信",
+      "kindName": "应用",
+      "category": "Work",
+      "categoryName": "工作"
+    }
+  ],
+  "unclassified": [
+    {
+      "kind": "Process",
+      "pattern": "xmind",
+      "name": "XMind",
+      "today": "今天 42 分钟"
+    },
+    {
+      "kind": "Process",
+      "pattern": "snipaste",
+      "name": "Snipaste",
+      "today": "今天 7 分钟"
+    }
+  ],
+  "whatsNew": {
+    "title": "已更新到 0.1.2-dev.18",
+    "summary": "相较于 0.1.0，共 4 项更新",
+    "sections": [
+      {
+        "version": "0.1.2",
+        "items": [
+          "更新后第一次打开面板时显示更新内容",
+          "面板可以拖动边框调整大小",
+          "设置里可以修改显示名称，允许重名"
+        ]
+      },
+      {
+        "version": "0.1.1",
+        "items": [
+          "点关闭时可以选择最小化，或最小化到系统托盘"
+        ]
+      }
+    ]
+  }
+}

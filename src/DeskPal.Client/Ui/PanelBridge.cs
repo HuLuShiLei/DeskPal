@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Windows;
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Ui;
+using DeskPal.Client.Core.Updates;
 using DeskPal.Client.Services;
 using DeskPal.Client.Views;
 using DeskPal.Shared.Api;
@@ -22,6 +23,7 @@ public sealed class PanelBridge
     private readonly UpdateService _updates;
     private readonly PersonalRules _personalRules;
     private readonly UnclassifiedUsage _unclassified;
+    private readonly WhatsNewStore _whatsNew;
 
     public PanelBridge(
         RoomState rooms,
@@ -32,7 +34,8 @@ public sealed class PanelBridge
         SettingsStore store,
         UpdateService updates,
         PersonalRules personalRules,
-        UnclassifiedUsage unclassified)
+        UnclassifiedUsage unclassified,
+        WhatsNewStore whatsNew)
     {
         _rooms = rooms;
         _presence = presence;
@@ -43,6 +46,7 @@ public sealed class PanelBridge
         _updates = updates;
         _personalRules = personalRules;
         _unclassified = unclassified;
+        _whatsNew = whatsNew;
         personalRules.Changed += RaiseChanged;
         rooms.Changed += RaiseChanged;
         presence.LocalChanged += RaiseChanged;
@@ -99,6 +103,7 @@ public sealed class PanelBridge
             _settings.ShareUsage,
             NormalizeTheme(_settings.Theme),
             NormalizeCloseAction(_settings.CloseAction)),
+        WhatsNew = _whatsNew.Pending,
         Now = DateTimeOffset.UtcNow,
     });
 
@@ -342,6 +347,10 @@ public sealed class PanelBridge
 
                 return CommandResult.Success;
             }
+
+            case "changelog.seen":
+                _whatsNew.Acknowledge();
+                return CommandResult.Success;
 
             case "update.restart":
                 if (_updates.Exit is { } exit)

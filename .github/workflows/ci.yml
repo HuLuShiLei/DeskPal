@@ -65,6 +65,7 @@ jobs:
             'src/DeskPal.Client.Core/',
             'src/DeskPal.Shared/',
             'installer/',
+            'CHANGELOG.md',
             '.github/workflows/ci.yml'
           )
           $changed = $false
@@ -72,6 +73,9 @@ jobs:
             foreach ($prefix in $prefixes) {
               if ($file.StartsWith($prefix)) { $changed = $true }
             }
+          }
+          if ($changed -and $files -notcontains 'CHANGELOG.md') {
+            Write-Host "::warning::这次推送改了客户端，但没有更新 CHANGELOG.md。用户更新后看不到这次的改动。"
           }
           Set-Mode $(if ($changed) { 'beta' } else { 'skip' })
 
@@ -120,6 +124,15 @@ jobs:
             $pre = 'true'
           } else {
             $version = '0.0.0-ci'
+          }
+          if ($mode -eq 'stable' -or $mode -eq 'beta') {
+            # 正式版必须一致；测试版只要求不低于，方便先把下一节改成 0.2.0 这类跨版本号再打标签。
+            $base = [version](($version -split '-')[0])
+            $top = Select-String -Path CHANGELOG.md -Pattern '^##\s+v?(\d+\.\d+\.\d+)' | Select-Object -First 1
+            $topVersion = if ($top) { [version]$top.Matches[0].Groups[1].Value } else { $null }
+            if (-not $topVersion -or $topVersion -lt $base -or ($mode -eq 'stable' -and $topVersion -ne $base)) {
+              throw "CHANGELOG.md 最上面一节必须是「## $base」，这次发布的是 $version"
+            }
           }
           [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "version=$version`nchannel=$channel`nprerelease=$pre`n")
           "mode=$mode version=$version channel=$channel"

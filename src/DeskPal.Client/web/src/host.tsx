@@ -7,6 +7,8 @@ export interface DialogOptions {
   message?: string;
   /** 醒目显示的一段文字，例如邀请码。 */
   highlight?: string;
+  /** 分组列表，内容多时在对话框里滚动，例如更新内容。 */
+  sections?: { title: string; items: string[] }[];
   input?: { initial?: string; placeholder?: string; maxLength?: number; required?: boolean };
   select?: { options: { value: string; name: string }[]; initial?: string; presentation?: "radio" };
   checkbox?: { label: string; initial: boolean; disabled?: boolean };
@@ -127,6 +129,20 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
         <h2>{options.title}</h2>
         {options.message && <p class="dialog-message">{options.message}</p>}
         {options.highlight && <p class="highlight selectable">{options.highlight}</p>}
+        {options.sections && (
+          <div class="dialog-list">
+            {options.sections.map((s) => (
+              <section key={s.title}>
+                <h3>{s.title}</h3>
+                <ul>
+                  {s.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        )}
         {options.input && (
           <input
             aria-label={options.title}

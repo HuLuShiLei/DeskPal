@@ -24,6 +24,7 @@ export function App({ bridge }: { bridge: Bridge }) {
   const [closeAction, setCloseAction] = useState<"ask" | "minimize" | "tray">("ask");
   const { host, overlay, dialogOpen } = useHostServices(bridge);
   const askedSharing = useRef(false);
+  const shownWhatsNew = useRef(false);
   const closing = useRef(false);
 
   const closePanel = async () => {
@@ -81,6 +82,21 @@ export function App({ bridge }: { bridge: Bridge }) {
   useEffect(() => {
     if (state?.settings.closeAction) setCloseAction(state.settings.closeAction);
   }, [state?.settings.closeAction]);
+
+  useEffect(() => {
+    const news = state?.whatsNew;
+    if (!news || shownWhatsNew.current) return;
+    shownWhatsNew.current = true;
+    void host
+      .ask({
+        title: news.title,
+        message: news.summary,
+        sections: news.sections.map((s) => ({ title: s.version, items: s.items })),
+        okText: "知道了",
+        cancelText: null,
+      })
+      .then(() => host.run({ type: "changelog.seen" }));
+  }, [state]);
 
   useEffect(() => {
     if (state && state.settings.shareUsage === null && !askedSharing.current) {

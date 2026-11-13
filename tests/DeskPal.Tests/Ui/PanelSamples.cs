@@ -1,6 +1,7 @@
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Ui;
+using DeskPal.Client.Core.Updates;
 using DeskPal.Shared.Api;
 using DeskPal.Shared.Presence;
 
@@ -128,10 +129,25 @@ public static class PanelSamples
         };
     }
 
+    /// <summary>First start after updating from 0.1.0: the changelog dialog is waiting.</summary>
+    public static PanelInput Updated() => Default() with
+    {
+        Settings = Settings with { Version = "0.1.2-dev.18" },
+        WhatsNew = Changelog.WhatsNew(
+            [
+                new ChangelogSection("0.1.2", ["更新后第一次打开面板时显示更新内容", "面板可以拖动边框调整大小", "设置里可以修改显示名称，允许重名"]),
+                new ChangelogSection("0.1.1", ["点关闭时可以选择最小化，或最小化到系统托盘"]),
+            ],
+            new HashSet<string>(),
+            "0.1.0",
+            "0.1.2-dev.18"),
+    };
+
     public static IReadOnlyDictionary<string, Func<PanelInput>> All { get; } = new Dictionary<string, Func<PanelInput>>
     {
         ["default"] = Default,
         ["no-room"] = NoRoom,
         ["guest"] = Guest,
+        ["updated"] = Updated,
     };
 }

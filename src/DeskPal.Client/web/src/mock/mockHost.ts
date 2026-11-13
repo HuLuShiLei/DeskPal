@@ -1,11 +1,12 @@
 // 浏览器里开发用的模拟宿主。初始状态来自 C# 测试生成的 fixtures，命令的效果在这里粗略模拟。
-// 地址参数：?mock=default|no-room|guest 选样例；?fail 让所有命令失败；?page=login 打开登录页。
+// 地址参数：?mock=default|no-room|guest|updated 选样例；?fail 让所有命令失败；?page=login 打开登录页。
 // 发出的命令记在 window.__sent，方便检查。
 
 import type { CommandResult, HostMessage, PanelState, PrivacyLevel, Transport } from "../bridge";
 import defaultState from "./fixtures/default.json";
 import guestState from "./fixtures/guest.json";
 import noRoomState from "./fixtures/no-room.json";
+import updatedState from "./fixtures/updated.json";
 
 declare global {
   interface Window {
@@ -17,6 +18,7 @@ const fixtures: Record<string, PanelState> = {
   default: defaultState as PanelState,
   "no-room": noRoomState as PanelState,
   guest: guestState as PanelState,
+  updated: updatedState as PanelState,
 };
 
 type Incoming = { id?: number; type: string; [key: string]: unknown };
@@ -171,6 +173,9 @@ export function createMockTransport(params: URLSearchParams): Transport {
         break;
       case "settings.shareUsage":
         state.settings.shareUsage = m.enabled as boolean;
+        break;
+      case "changelog.seen":
+        state.whatsNew = null;
         break;
       case "update.restart":
       case "auth.logout":
