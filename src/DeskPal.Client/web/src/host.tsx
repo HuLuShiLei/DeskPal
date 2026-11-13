@@ -102,7 +102,9 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
 
   useEffect(() => {
     const fallback = options.danger ? "button[type=button]" : "button[type=submit]";
-    form.current?.querySelector<HTMLElement>(`input:not([type=checkbox]), select, ${fallback}`)?.focus();
+    const first = form.current?.querySelector<HTMLElement>(`input:not([type=checkbox]), select, ${fallback}`);
+    first?.focus();
+    if (first instanceof HTMLInputElement) first.select();
   }, []);
 
   return (

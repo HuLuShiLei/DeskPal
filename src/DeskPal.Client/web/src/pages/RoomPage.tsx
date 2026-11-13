@@ -8,7 +8,11 @@ export function RoomPage({ state }: { state: PanelState }) {
   const room = state.rooms.find((r) => r.id === state.selectedRoomId);
 
   const create = async () => {
-    const a = await ask({ title: "创建房间", input: { placeholder: "房间名称（1 到 30 个字符）", maxLength: 30, required: true }, okText: "创建" });
+    const a = await ask({
+      title: "创建房间",
+      input: { initial: `${state.me.displayName}的房间`.slice(0, 30), placeholder: "房间名称（1 到 30 个字符）", maxLength: 30, required: true },
+      okText: "创建",
+    });
     if (a.ok) await run({ type: "room.create", name: a.text }, "已创建");
   };
   const join = async () => {
