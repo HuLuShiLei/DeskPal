@@ -1,4 +1,5 @@
 using DeskPal.Shared.Messaging;
+using DeskPal.Shared.Presence;
 using Microsoft.AspNetCore.SignalR;
 
 namespace DeskPal.Server.Features.Presence;
@@ -8,7 +9,8 @@ public sealed class RoomNotifier(IHubContext<PresenceHub, IPresenceClient> hub, 
 {
     public static string GroupName(Guid roomId) => $"room:{roomId}";
 
-    public async Task MemberJoinedAsync(Guid roomId, Guid userId)
+    /// <param name="blockPeers">Members blocked by or blocking the new member; their cached presence is not replayed.</param>
+    public async Task MemberJoinedAsync(Guid roomId, Guid userId, IReadOnlySet<Guid>? blockPeers = null)
     {
         var group = GroupName(roomId);
         var userConnections = connections.Get(userId);
@@ -19,7 +21,7 @@ public sealed class RoomNotifier(IHubContext<PresenceHub, IPresenceClient> hub, 
 
         await hub.Clients.Group(group).Receive(ServerEnvelope(MessageTypes.RoomMemberJoined, roomId, userId));
 
-        var existing = store.GetRoom(roomId);
+        var existing = store.GetRoom(roomId).Where(e => blockPeers?.Contains(e.SenderId) != true);
         foreach (var envelope in existing)
         {
             await hub.Clients.Clients(userConnections).Receive(envelope);
@@ -67,6 +69,39 @@ public sealed class RoomNotifier(IHubContext<PresenceHub, IPresenceClient> hub, 
     /// <summary>Tells the user's other computers to reload. Other room members never see personal rules.</summary>
     public Task PersonalRulesChangedAsync(Guid userId) =>
         hub.Clients.Clients(connections.Get(userId)).Receive(ServerEnvelope(MessageTypes.PersonalRulesChanged, Guid.Empty, userId));
+
+    /// <summary>
+    /// The blocked member sees the blocker go offline, the same as when the blocker quits, and is never told about the
+    /// block. Only the blocker's own computers are told to reload.
+    /// </summary>
+    public async Task BlockedAsync(Guid roomId, Guid blockerId, Guid blockedId, DateTimeOffset now)
+    {
+        var offline = Envelope.Create(MessageTypes.PresenceUpdate, roomId, PresenceSnapshot.Offline(now)) with { SenderId = blockerId, Ts = now };
+        await hub.Clients.Clients(connections.Get(blockedId)).Receive(offline);
+        await hub.Clients.Clients(connections.Get(blockerId)).Receive(ServerEnvelope(MessageTypes.RoomBlocksChanged, roomId, blockedId));
+    }
+
+    /// <param name="stillBlocked">The other member has blocked me too, so nothing is exchanged yet.</param>
+    public async Task UnblockedAsync(Guid roomId, Guid blockerId, Guid blockedId, bool stillBlocked)
+    {
+        await hub.Clients.Clients(connections.Get(blockerId)).Receive(ServerEnvelope(MessageTypes.RoomBlocksChanged, roomId, blockedId));
+        if (stillBlocked)
+        {
+            return;
+        }
+
+        foreach (var envelope in store.GetRoom(roomId))
+        {
+            if (envelope.SenderId == blockerId)
+            {
+                await hub.Clients.Clients(connections.Get(blockedId)).Receive(envelope);
+            }
+            else if (envelope.SenderId == blockedId)
+            {
+                await hub.Clients.Clients(connections.Get(blockerId)).Receive(envelope);
+            }
+        }
+    }
 
     public async Task DissolvedAsync(Guid roomId, IReadOnlyList<Guid> memberIds)
     {

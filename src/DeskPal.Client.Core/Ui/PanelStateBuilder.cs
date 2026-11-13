@@ -94,6 +94,11 @@ public static class PanelStateBuilder
         .Where(m => m.UserId != input.MyUserId)
         .Select(m =>
         {
+            if (room.Blocked?.Contains(m.UserId) == true)
+            {
+                return new MemberItem(m.UserId, m.DisplayName, m.Role == RoomRole.Owner, false, new PresenceView("已屏蔽", null, null), "", Blocked: true);
+            }
+
             var snapshot = input.PresenceOf(room.Id, m.UserId);
             var view = snapshot is null ? new PresenceView("离线", null, null) : PresenceFormatter.Format(snapshot);
             var meta = snapshot is null || snapshot.State == PresenceState.Offline ? "" : Lasted(snapshot.Since, input.Now);

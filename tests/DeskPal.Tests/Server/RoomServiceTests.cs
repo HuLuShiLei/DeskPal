@@ -223,6 +223,46 @@ public sealed class RoomServiceTests : IDisposable
         Assert.Equal("该房间已满（上限 3 人）", rejected.Error);
     }
 
+    [Fact]
+    public async Task Blocks_are_listed_only_for_the_blocker_and_checked_both_ways()
+    {
+        var room = await CreateFullRoomAsync();
+        var invite = (await _rooms.CreateInviteAsync(_alice, room)).Value!;
+        await _rooms.JoinAsync(_carol, invite.Code);
+
+        Assert.Equal(400, (await _rooms.BlockAsync(_bob, room, _bob)).Status);
+        Assert.Equal(404, (await _rooms.BlockAsync(_bob, room, AddUser("dave"))).Status);
+        Assert.True((await _rooms.BlockAsync(_bob, room, _alice)).Value);
+        Assert.False((await _rooms.BlockAsync(_bob, room, _alice)).Value);
+
+        Assert.Equal([_alice], (await _rooms.ListForUserAsync(_bob)).Single().Blocked);
+        Assert.Empty((await _rooms.ListForUserAsync(_alice)).Single().Blocked!);
+        Assert.Equal([_alice], await _rooms.GetBlockPeersAsync(room, _bob));
+        Assert.Equal([_bob], await _rooms.GetBlockPeersAsync(room, _alice));
+        Assert.Empty(await _rooms.GetBlockPeersAsync(room, _carol));
+
+        Assert.True((await _rooms.UnblockAsync(_bob, room, _alice)).Value);
+        Assert.False((await _rooms.UnblockAsync(_bob, room, _alice)).Value);
+        Assert.Empty(await _rooms.GetBlockPeersAsync(room, _alice));
+        Assert.Equal(404, (await _rooms.UnblockAsync(AddUser("erin"), room, _alice)).Status);
+    }
+
+    [Fact]
+    public async Task Blocks_survive_leaving_and_are_removed_with_the_room()
+    {
+        var room = await CreateFullRoomAsync();
+        await _rooms.BlockAsync(_alice, room, _bob);
+        await _rooms.LeaveAsync(_bob, room);
+
+        Assert.Empty((await _rooms.ListForUserAsync(_alice)).Single().Blocked!);
+        var invite = (await _rooms.CreateInviteAsync(_alice, room)).Value!;
+        await _rooms.JoinAsync(_bob, invite.Code);
+        Assert.Equal([_bob], (await _rooms.ListForUserAsync(_alice)).Single().Blocked);
+
+        await _rooms.DissolveAsync(_alice, room);
+        Assert.Equal(0, await _db.RoomBlocks.CountAsync());
+    }
+
     private async Task<Guid> CreateFullRoomAsync()
     {
         var room = (await _rooms.CreateAsync(_alice, "Home")).Value!;

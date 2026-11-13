@@ -194,6 +194,10 @@ public sealed class RoomState(
                     _ = OnMemberRenamedAsync(envelope.ReadPayload<RoomEventPayload>()?.UserId);
                     break;
 
+                case MessageTypes.RoomBlocksChanged:
+                    _ = RefreshAsync().ContinueWith(t => logger.LogWarning(t.Exception, "Refreshing rooms failed"), TaskContinuationOptions.OnlyOnFaulted);
+                    break;
+
                 case MessageTypes.RoomMemberJoined:
                 case MessageTypes.RoomMemberLeft:
                 case MessageTypes.RoomOwnerChanged:

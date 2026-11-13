@@ -29,6 +29,19 @@ export function StatusPage({ state }: { state: PanelState }) {
 
 function MemberRow({ member }: { member: MemberItem }) {
   const { run } = useHost();
+  if (member.blocked) {
+    return (
+      <li class="list-row member offline" aria-label={member.name}>
+        <Avatar name={member.name} tone={member.view.tone} />
+        <div class="row-main">
+          <p class="row-title">{member.name}</p>
+          <div>
+            <StatusBadge view={member.view} />
+          </div>
+        </div>
+      </li>
+    );
+  }
   const label = member.pinned ? `取消置顶${member.name}` : `把${member.name}置顶到桌面`;
   return (
     <li class={member.online ? "list-row member" : "list-row member offline"} aria-label={member.name}>

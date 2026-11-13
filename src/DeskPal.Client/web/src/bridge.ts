@@ -44,6 +44,8 @@ export interface MemberItem {
   meta: string;
   /** 已置顶为桌面小卡片。 */
   pinned: boolean;
+  /** 我屏蔽了该成员：双方互相看不到状态，对方不知道。 */
+  blocked: boolean;
 }
 
 /** 置顶小卡片的内容。detail 是应用名和详情合成的一行。 */
@@ -132,6 +134,8 @@ export type Command =
   | { type: "room.dissolve"; roomId: string }
   | { type: "member.pin"; userId: string }
   | { type: "member.unpin"; userId: string }
+  | { type: "member.block"; roomId: string; userId: string }
+  | { type: "member.unblock"; roomId: string; userId: string }
   | { type: "presence.pause"; paused: boolean }
   | { type: "presence.correct"; category: string }
   | { type: "presence.resetCorrection" }

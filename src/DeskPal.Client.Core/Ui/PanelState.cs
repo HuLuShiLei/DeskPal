@@ -46,7 +46,8 @@ public sealed record PendingView(PresenceView View, int RemainingMs, int TotalSe
 public sealed record RoomItem(Guid Id, string Name, bool IsOwner, int MemberCount, int MaxMembers);
 
 /// <param name="Pinned">Shown as a card on the desktop.</param>
-public sealed record MemberItem(Guid UserId, string Name, bool IsOwner, bool Online, PresenceView View, string Meta, bool Pinned = false);
+/// <param name="Blocked">I blocked this member: neither of us sees the other's presence. The member is not told.</param>
+public sealed record MemberItem(Guid UserId, string Name, bool IsOwner, bool Online, PresenceView View, string Meta, bool Pinned = false, bool Blocked = false);
 
 public sealed record Option<T>(T Value, string Name);
 

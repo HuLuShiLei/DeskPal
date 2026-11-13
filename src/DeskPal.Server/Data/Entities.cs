@@ -46,6 +46,15 @@ public sealed class RoomBan
     public DateTimeOffset BannedAt { get; set; }
 }
 
+/// <summary>The blocker and the blocked member stop seeing each other's presence in this room. Only the blocker knows.</summary>
+public sealed class RoomBlock
+{
+    public Guid RoomId { get; set; }
+    public Guid BlockerId { get; set; }
+    public Guid BlockedId { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
 public sealed class RoomInvite
 {
     public Guid Id { get; set; }

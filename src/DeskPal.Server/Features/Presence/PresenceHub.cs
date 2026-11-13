@@ -19,7 +19,8 @@ public sealed class PresenceHub(RoomService rooms, ConnectionRegistry connection
         foreach (var roomId in await rooms.GetRoomIdsForUserAsync(userId))
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, RoomNotifier.GroupName(roomId));
-            foreach (var envelope in store.GetRoom(roomId).Where(e => e.SenderId != userId))
+            var peers = await rooms.GetBlockPeersAsync(roomId, userId);
+            foreach (var envelope in store.GetRoom(roomId).Where(e => e.SenderId != userId && !peers.Contains(e.SenderId)))
             {
                 await Clients.Caller.Receive(envelope);
             }
@@ -42,7 +43,8 @@ public sealed class PresenceHub(RoomService rooms, ConnectionRegistry connection
                     Ts = now,
                 };
                 store.Set(offline);
-                await Clients.Group(RoomNotifier.GroupName(roomId)).Receive(offline);
+                var peers = await rooms.GetBlockPeersAsync(roomId, userId);
+                await Clients.GroupExcept(RoomNotifier.GroupName(roomId), connections.Get(peers)).Receive(offline);
             }
         }
 
@@ -68,6 +70,7 @@ public sealed class PresenceHub(RoomService rooms, ConnectionRegistry connection
             store.Set(stamped);
         }
 
-        await Clients.OthersInGroup(RoomNotifier.GroupName(stamped.RoomId)).Receive(stamped);
+        var peers = await rooms.GetBlockPeersAsync(stamped.RoomId, userId);
+        await Clients.GroupExcept(RoomNotifier.GroupName(stamped.RoomId), [Context.ConnectionId, .. connections.Get(peers)]).Receive(stamped);
     }
 }

@@ -76,7 +76,7 @@ public sealed class MemberCards
         }
 
         var state = _bridge.BuildState();
-        _pins.Retain(state.SelectedRoomId, state.Members.Select(m => m.UserId));
+        _pins.Retain(state.SelectedRoomId, state.Members.Where(m => !m.Blocked).Select(m => m.UserId));
         foreach (var userId in _cards.Keys.Where(id => !_pins.Contains(id)).ToList())
         {
             if (_cards.Remove(userId, out var stale))

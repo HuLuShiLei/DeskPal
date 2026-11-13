@@ -106,6 +106,31 @@ namespace DeskPal.Server.Data.Migrations
                     b.ToTable("RoomBans");
                 });
 
+            modelBuilder.Entity("DeskPal.Server.Data.RoomBlock", b =>
+                {
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("BlockerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("BlockedId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("RoomId", "BlockerId", "BlockedId");
+
+                    b.HasIndex("BlockedId");
+
+                    b.HasIndex("BlockerId");
+
+                    b.HasIndex("RoomId", "BlockedId");
+
+                    b.ToTable("RoomBlocks");
+                });
+
             modelBuilder.Entity("DeskPal.Server.Data.RoomInvite", b =>
                 {
                     b.Property<Guid>("Id")
@@ -268,6 +293,27 @@ namespace DeskPal.Server.Data.Migrations
                     b.HasOne("DeskPal.Server.Data.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DeskPal.Server.Data.RoomBlock", b =>
+                {
+                    b.HasOne("DeskPal.Server.Data.User", null)
+                        .WithMany()
+                        .HasForeignKey("BlockedId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DeskPal.Server.Data.User", null)
+                        .WithMany()
+                        .HasForeignKey("BlockerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DeskPal.Server.Data.Room", null)
+                        .WithMany()
+                        .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

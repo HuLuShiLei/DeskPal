@@ -32,6 +32,21 @@ public class PanelStateBuilderTests
     }
 
     [Fact]
+    public void Blocked_member_shows_no_presence_and_cannot_stay_pinned()
+    {
+        var state = PanelStateBuilder.Build(PanelSamples.Default() with { SelectedRoom = PanelSamples.OwnedRoom with { Blocked = [PanelSamples.Bob] } });
+
+        var bob = state.Members.Single(m => m.Name == "Bob");
+        Assert.True(bob.Blocked);
+        Assert.False(bob.Online);
+        Assert.False(bob.Pinned);
+        Assert.Equal("已屏蔽", bob.View.Headline);
+        Assert.Null(bob.View.App);
+        Assert.Equal("", bob.Meta);
+        Assert.False(state.Members.Single(m => m.Name == "Carol").Blocked);
+    }
+
+    [Fact]
     public void My_status_shows_what_the_room_gets_with_a_countdown_to_the_pending_one()
     {
         var me = PanelStateBuilder.Build(PanelSamples.Default()).Me;

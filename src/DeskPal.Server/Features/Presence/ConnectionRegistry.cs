@@ -46,4 +46,12 @@ public sealed class ConnectionRegistry
             return _connections.TryGetValue(userId, out var set) ? set.ToList() : [];
         }
     }
+
+    public IReadOnlyList<string> Get(IEnumerable<Guid> userIds)
+    {
+        lock (_lock)
+        {
+            return userIds.SelectMany(id => _connections.TryGetValue(id, out var set) ? set : []).ToList();
+        }
+    }
 }

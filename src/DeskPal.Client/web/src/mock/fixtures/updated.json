@@ -59,7 +59,8 @@
         "tone": "relax"
       },
       "meta": "已持续 12 分钟",
-      "pinned": true
+      "pinned": true,
+      "blocked": false
     },
     {
       "userId": "00000000-0000-0000-0000-0000000ca201",
@@ -73,7 +74,8 @@
         "tone": "offline"
       },
       "meta": "",
-      "pinned": false
+      "pinned": false,
+      "blocked": false
     }
   ],
   "privacy": {

@@ -239,9 +239,24 @@ public sealed class PanelBridge
                     return CommandResult.Fail("该成员不在当前房间");
                 }
 
+                if (room.Blocked?.Contains(userId) == true)
+                {
+                    return CommandResult.Fail("已屏蔽该成员，取消屏蔽后才能置顶");
+                }
+
                 _pins.Pin(room.Id, userId);
                 return CommandResult.Success;
             }
+
+            case "member.block":
+                await _api.BlockMemberAsync(c.Guid("roomId"), c.Guid("userId"));
+                await _rooms.RefreshAsync();
+                return CommandResult.Success;
+
+            case "member.unblock":
+                await _api.UnblockMemberAsync(c.Guid("roomId"), c.Guid("userId"));
+                await _rooms.RefreshAsync();
+                return CommandResult.Success;
 
             case "member.unpin":
                 _pins.Unpin(c.Guid("userId"));

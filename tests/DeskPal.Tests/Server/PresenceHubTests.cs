@@ -74,6 +74,82 @@ public sealed class PresenceHubTests : IClassFixture<PresenceHubTests.ServerFact
     }
 
     [Fact]
+    public async Task Blocking_stops_presence_both_ways_without_telling_the_blocked_member()
+    {
+        var http = _factory.CreateClient();
+        var alice = await RegisterAsync(http, "alice");
+        var bob = await RegisterAsync(http, "bob");
+        var carol = await RegisterAsync(http, "carol");
+        var room = await PostAsync<RoomDto>(http, "/api/rooms", new CreateRoomRequest("Home"), alice.Token);
+        var invite = await PostAsync<InviteDto>(http, $"/api/rooms/{room.Id}/invites", new { }, alice.Token);
+        await PostAsync<RoomDto>(http, "/api/rooms/join", new JoinRoomRequest(invite.Code), bob.Token);
+        await PostAsync<RoomDto>(http, "/api/rooms/join", new JoinRoomRequest(invite.Code), carol.Token);
+        var (aliceHub, aliceInbox) = await ConnectAsync(alice.Token);
+        var (bobHub, bobInbox) = await ConnectAsync(bob.Token);
+        var (_, carolInbox) = await ConnectAsync(carol.Token);
+        var working = new PresenceSnapshot { State = PresenceState.Working, Category = ActivityCategory.Work, Since = DateTimeOffset.UtcNow };
+
+        await SendNoContentAsync(http, HttpMethod.Post, $"/api/rooms/{room.Id}/blocks", new BlockMemberRequest(bob.UserId), alice.Token);
+
+        var shownOffline = await NextAsync(bobInbox, e => e.Type == MessageTypes.PresenceUpdate);
+        Assert.Equal(alice.UserId, shownOffline.SenderId);
+        Assert.Equal(PresenceState.Offline, shownOffline.ReadPayload<PresenceSnapshot>()!.State);
+        Assert.Equal(bob.UserId, (await NextAsync(aliceInbox, e => e.Type == MessageTypes.RoomBlocksChanged)).ReadPayload<RoomEventPayload>()!.UserId);
+
+        await aliceHub.InvokeAsync(HubContract.Publish, Envelope.Create(MessageTypes.PresenceUpdate, room.Id, working));
+        await bobHub.InvokeAsync(HubContract.Publish, Envelope.Create(MessageTypes.PresenceUpdate, room.Id, working));
+        Assert.Equal(alice.UserId, (await NextAsync(carolInbox, e => e.Type == MessageTypes.PresenceUpdate)).SenderId);
+        Assert.Equal(bob.UserId, (await NextAsync(carolInbox, e => e.Type == MessageTypes.PresenceUpdate)).SenderId);
+        await Task.Delay(500);
+        Assert.DoesNotContain(Drain(bobInbox), e => e.Type is MessageTypes.PresenceUpdate or MessageTypes.RoomBlocksChanged);
+        Assert.DoesNotContain(Drain(aliceInbox), e => e.Type == MessageTypes.PresenceUpdate);
+
+        var (_, bobInbox2) = await ConnectAsync(bob.Token);
+        await Task.Delay(500);
+        Assert.DoesNotContain(Drain(bobInbox2), e => e.Type == MessageTypes.PresenceUpdate && e.SenderId == alice.UserId);
+        Assert.Empty((await GetAsync<List<RoomDto>>(http, "/api/rooms", bob.Token)).Single().Blocked!);
+        Assert.Equal([bob.UserId], (await GetAsync<List<RoomDto>>(http, "/api/rooms", alice.Token)).Single().Blocked);
+
+        await SendNoContentAsync(http, HttpMethod.Delete, $"/api/rooms/{room.Id}/blocks/{bob.UserId}", null, alice.Token);
+        Assert.Equal(PresenceState.Working, (await NextAsync(bobInbox, e => e.Type == MessageTypes.PresenceUpdate && e.SenderId == alice.UserId)).ReadPayload<PresenceSnapshot>()!.State);
+        Assert.Equal(PresenceState.Working, (await NextAsync(aliceInbox, e => e.Type == MessageTypes.PresenceUpdate && e.SenderId == bob.UserId)).ReadPayload<PresenceSnapshot>()!.State);
+
+        await aliceHub.DisposeAsync();
+        await bobHub.DisposeAsync();
+    }
+
+    private static List<Envelope> Drain(ChannelReader<Envelope> inbox)
+    {
+        var items = new List<Envelope>();
+        while (inbox.TryRead(out var envelope))
+        {
+            items.Add(envelope);
+        }
+
+        return items;
+    }
+
+    private static async Task<T> GetAsync<T>(HttpClient http, string path, string token)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, path) { Headers = { Authorization = new("Bearer", token) } };
+        using var response = await http.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<T>(DeskPalJson.Options))!;
+    }
+
+    private static async Task SendNoContentAsync(HttpClient http, HttpMethod method, string path, object? body, string token)
+    {
+        using var request = new HttpRequestMessage(method, path) { Headers = { Authorization = new("Bearer", token) } };
+        if (body is not null)
+        {
+            request.Content = JsonContent.Create(body, body.GetType(), options: DeskPalJson.Options);
+        }
+
+        using var response = await http.SendAsync(request);
+        Assert.Equal(System.Net.HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Renaming_tells_room_members_and_allows_duplicate_names()
     {
         var http = _factory.CreateClient();

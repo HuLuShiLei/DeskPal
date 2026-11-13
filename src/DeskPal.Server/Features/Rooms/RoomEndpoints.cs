@@ -50,7 +50,8 @@ public static class RoomEndpoints
             var result = await rooms.JoinAsync(userId, req.Code);
             if (result.IsSuccess)
             {
-                await notifier.MemberJoinedAsync(result.Value!.Id, userId);
+                var roomId = result.Value!.Id;
+                await notifier.MemberJoinedAsync(roomId, userId, await rooms.GetBlockPeersAsync(roomId, userId));
             }
 
             return result.ToHttp();
@@ -78,6 +79,41 @@ public static class RoomEndpoints
             }
 
             return result.ToHttp();
+        });
+
+        group.MapPost("/{roomId:guid}/blocks", async (Guid roomId, BlockMemberRequest req, HttpContext ctx, RoomService rooms, RoomNotifier notifier, TimeProvider time) =>
+        {
+            var userId = ctx.User.GetUserId();
+            var result = await rooms.BlockAsync(userId, roomId, req.UserId);
+            if (!result.IsSuccess)
+            {
+                return result.ToHttp();
+            }
+
+            if (result.Value)
+            {
+                await notifier.BlockedAsync(roomId, userId, req.UserId, time.GetUtcNow());
+            }
+
+            return Results.NoContent();
+        });
+
+        group.MapDelete("/{roomId:guid}/blocks/{userId:guid}", async (Guid roomId, Guid userId, HttpContext ctx, RoomService rooms, RoomNotifier notifier) =>
+        {
+            var me = ctx.User.GetUserId();
+            var result = await rooms.UnblockAsync(me, roomId, userId);
+            if (!result.IsSuccess)
+            {
+                return result.ToHttp();
+            }
+
+            if (result.Value)
+            {
+                var stillBlocked = (await rooms.GetBlockPeersAsync(roomId, me)).Contains(userId);
+                await notifier.UnblockedAsync(roomId, me, userId, stillBlocked);
+            }
+
+            return Results.NoContent();
         });
 
         group.MapPost("/{roomId:guid}/transfer", async (Guid roomId, TransferOwnerRequest req, HttpContext ctx, RoomService rooms, RoomNotifier notifier) =>

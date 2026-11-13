@@ -9,6 +9,7 @@ public sealed class DeskPalDbContext(DbContextOptions<DeskPalDbContext> options)
     public DbSet<RoomMember> RoomMembers => Set<RoomMember>();
     public DbSet<RoomInvite> RoomInvites => Set<RoomInvite>();
     public DbSet<RoomBan> RoomBans => Set<RoomBan>();
+    public DbSet<RoomBlock> RoomBlocks => Set<RoomBlock>();
     public DbSet<BuiltinRule> BuiltinRules => Set<BuiltinRule>();
     public DbSet<UserRule> UserRules => Set<UserRule>();
     public DbSet<UnknownAppReport> UnknownAppReports => Set<UnknownAppReport>();
@@ -49,6 +50,15 @@ public sealed class DeskPalDbContext(DbContextOptions<DeskPalDbContext> options)
             e.HasKey(x => new { x.RoomId, x.UserId });
             e.HasOne<Room>().WithMany().HasForeignKey(x => x.RoomId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<RoomBlock>(e =>
+        {
+            e.HasKey(x => new { x.RoomId, x.BlockerId, x.BlockedId });
+            e.HasIndex(x => new { x.RoomId, x.BlockedId });
+            e.HasOne<Room>().WithMany().HasForeignKey(x => x.RoomId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<User>().WithMany().HasForeignKey(x => x.BlockerId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<User>().WithMany().HasForeignKey(x => x.BlockedId).OnDelete(DeleteBehavior.Cascade);
         });
 
         b.Entity<BuiltinRule>(e => e.HasIndex(x => new { x.Kind, x.Pattern }).IsUnique());

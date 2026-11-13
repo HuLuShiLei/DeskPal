@@ -24,6 +24,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         var rooms = await db.Rooms.Where(r => roomIds.Contains(r.Id))
             .Include(r => r.Members).ThenInclude(m => m.User)
             .ToListAsync();
+        var blocks = await db.RoomBlocks.Where(b => b.BlockerId == userId).ToListAsync();
         var changed = false;
         foreach (var room in rooms)
         {
@@ -35,7 +36,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
             await db.SaveChangesAsync();
         }
 
-        return rooms.OrderBy(r => r.CreatedAt).Select(ToDto).ToList();
+        return rooms.OrderBy(r => r.CreatedAt).Select(r => ToDto(r, blocks.Where(b => b.RoomId == r.Id).Select(b => b.BlockedId))).ToList();
     }
 
     public async Task<ServiceResult<RoomDto>> CreateAsync(Guid userId, string? name)
@@ -64,7 +65,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         room.Members.Add(new RoomMember { RoomId = room.Id, UserId = userId, Role = RoomRole.Owner, JoinedAt = now, PrivacyProfileJson = StateOnlyPrivacy() });
         db.Rooms.Add(room);
         await db.SaveChangesAsync();
-        return ServiceResult<RoomDto>.Ok((await GetDtoAsync(room.Id))!);
+        return ServiceResult<RoomDto>.Ok((await GetDtoAsync(room.Id, userId))!);
     }
 
     public async Task<ServiceResult<InviteDto>> CreateInviteAsync(Guid userId, Guid roomId)
@@ -125,7 +126,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
 
         room.Members.Add(new RoomMember { RoomId = room.Id, UserId = userId, Role = RoomRole.Member, JoinedAt = time.GetUtcNow(), PrivacyProfileJson = StateOnlyPrivacy() });
         await db.SaveChangesAsync();
-        return ServiceResult<RoomDto>.Ok((await GetDtoAsync(room.Id))!);
+        return ServiceResult<RoomDto>.Ok((await GetDtoAsync(room.Id, userId))!);
     }
 
     public async Task<ServiceResult<Unit>> LeaveAsync(Guid userId, Guid roomId)
@@ -209,7 +210,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         target.Role = RoomRole.Owner;
         room.OwnerId = newOwnerId;
         await db.SaveChangesAsync();
-        return ServiceResult<RoomDto>.Ok((await GetDtoAsync(room.Id))!);
+        return ServiceResult<RoomDto>.Ok((await GetDtoAsync(room.Id, userId))!);
     }
 
     public async Task<ServiceResult<RenamedRoom>> RenameAsync(Guid userId, Guid roomId, string? name)
@@ -238,7 +239,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
             await db.SaveChangesAsync();
         }
 
-        return ServiceResult<RenamedRoom>.Ok(new RenamedRoom((await GetDtoAsync(room.Id))!, changed));
+        return ServiceResult<RenamedRoom>.Ok(new RenamedRoom((await GetDtoAsync(room.Id, userId))!, changed));
     }
 
     /// <returns>Member ids at the time of dissolving, so callers can notify them.</returns>
@@ -289,6 +290,67 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         return ServiceResult<PrivacyProfileDto>.Ok(new PrivacyProfileDto(profile.Levels));
     }
 
+    /// <returns>True when the block is new, so callers only notify on a real change.</returns>
+    public async Task<ServiceResult<bool>> BlockAsync(Guid userId, Guid roomId, Guid targetUserId)
+    {
+        if (await CheckBlockTargetAsync(userId, roomId, targetUserId) is { } error)
+        {
+            return ServiceResult<bool>.Fail(error.Status, error.Message);
+        }
+
+        if (await db.RoomBlocks.FindAsync(roomId, userId, targetUserId) is not null)
+        {
+            return ServiceResult<bool>.Ok(false);
+        }
+
+        db.RoomBlocks.Add(new RoomBlock { RoomId = roomId, BlockerId = userId, BlockedId = targetUserId, CreatedAt = time.GetUtcNow() });
+        await db.SaveChangesAsync();
+        return ServiceResult<bool>.Ok(true);
+    }
+
+    /// <returns>True when a block was removed.</returns>
+    public async Task<ServiceResult<bool>> UnblockAsync(Guid userId, Guid roomId, Guid targetUserId)
+    {
+        if (!await IsMemberAsync(userId, roomId))
+        {
+            return ServiceResult<bool>.Fail(404, NotMember);
+        }
+
+        var block = await db.RoomBlocks.FindAsync(roomId, userId, targetUserId);
+        if (block is null)
+        {
+            return ServiceResult<bool>.Ok(false);
+        }
+
+        db.RoomBlocks.Remove(block);
+        await db.SaveChangesAsync();
+        return ServiceResult<bool>.Ok(true);
+    }
+
+    /// <summary>Members who must not get my presence and whose presence I must not get, whichever side blocked.</summary>
+    public async Task<HashSet<Guid>> GetBlockPeersAsync(Guid roomId, Guid userId)
+    {
+        var blocks = await db.RoomBlocks
+            .Where(b => b.RoomId == roomId && (b.BlockerId == userId || b.BlockedId == userId))
+            .ToListAsync();
+        return blocks.Select(b => b.BlockerId == userId ? b.BlockedId : b.BlockerId).ToHashSet();
+    }
+
+    private async Task<(int Status, string Message)?> CheckBlockTargetAsync(Guid userId, Guid roomId, Guid targetUserId)
+    {
+        if (!await IsMemberAsync(userId, roomId))
+        {
+            return (404, NotMember);
+        }
+
+        if (targetUserId == userId)
+        {
+            return (400, "不能屏蔽自己");
+        }
+
+        return await IsMemberAsync(targetUserId, roomId) ? null : (404, "该成员不在房间中");
+    }
+
     public Task<bool> IsMemberAsync(Guid userId, Guid roomId) =>
         db.RoomMembers.AnyAsync(m => m.RoomId == roomId && m.UserId == userId);
 
@@ -313,13 +375,20 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         return true;
     }
 
-    private async Task<RoomDto?> GetDtoAsync(Guid roomId)
+    private async Task<RoomDto?> GetDtoAsync(Guid roomId, Guid userId)
     {
         var room = await db.Rooms.Include(r => r.Members).ThenInclude(m => m.User).SingleOrDefaultAsync(r => r.Id == roomId);
-        return room is null ? null : ToDto(room);
+        if (room is null)
+        {
+            return null;
+        }
+
+        var blocked = await db.RoomBlocks.Where(b => b.RoomId == roomId && b.BlockerId == userId).Select(b => b.BlockedId).ToListAsync();
+        return ToDto(room, blocked);
     }
 
-    private static RoomDto ToDto(Room room) => new(
+    /// <param name="blocked">My blocks in this room. Blocks of members who have left stay in the database but are not listed.</param>
+    private static RoomDto ToDto(Room room, IEnumerable<Guid> blocked) => new(
         room.Id,
         room.Name,
         room.OwnerId,
@@ -328,7 +397,8 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         room.Members
             .OrderBy(m => m.JoinedAt)
             .Select(m => new RoomMemberDto(m.UserId, m.User?.DisplayName ?? "", m.Role, m.JoinedAt))
-            .ToList());
+            .ToList(),
+        blocked.Where(id => room.Members.Any(m => m.UserId == id)).ToList());
 }
 
 public sealed record RenamedRoom(RoomDto Room, bool Changed);

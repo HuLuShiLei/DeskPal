@@ -110,6 +110,17 @@ export function createMockTransport(params: URLSearchParams): Transport {
           state.emptyHint = "当前无房间。请创建/选择一个房间，或用邀请码加入。";
         }
         break;
+      case "member.block":
+      case "member.unblock": {
+        const member = state.members.find((x) => x.userId === m.userId);
+        if (!member) return { ok: false, error: "该成员不在房间中" };
+        member.blocked = m.type === "member.block";
+        member.pinned = false;
+        member.online = false;
+        member.meta = "";
+        member.view = member.blocked ? { headline: "已屏蔽", app: null, detail: null, tone: "offline" } : { headline: "离线", app: null, detail: null, tone: "offline" };
+        break;
+      }
       case "member.pin":
       case "member.unpin": {
         const member = state.members.find((x) => x.userId === m.userId);

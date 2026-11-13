@@ -17,6 +17,9 @@ public static class MessageTypes
     /// <summary>Sent only to the user's own connections. RoomId is empty.</summary>
     public const string PersonalRulesChanged = "rules.personalChanged";
 
+    /// <summary>I blocked or unblocked a member. Sent only to my own connections; the other member is never told.</summary>
+    public const string RoomBlocksChanged = "room.blocksChanged";
+
     /// <summary>Types a client is allowed to publish through the hub. Everything else is server-originated.</summary>
     public static readonly IReadOnlySet<string> ClientPublishable = new HashSet<string> { PresenceUpdate };
 }

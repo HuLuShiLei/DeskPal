@@ -111,6 +111,15 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
     });
     if (a.ok) await run({ type: "room.kick", roomId: room.id, userId }, "已踢出");
   };
+  const block = async (userId: string, name: string) => {
+    const a = await ask({
+      title: "屏蔽成员",
+      message: `屏蔽「${name}」后，你们在这个房间里互相看不到对方的状态。对方不会收到通知，在对方那里你显示为离线。可以随时取消屏蔽。`,
+      okText: "屏蔽",
+      danger: true,
+    });
+    if (a.ok) await run({ type: "member.block", roomId: room.id, userId }, "已屏蔽");
+  };
   const leave = async () => {
     const a = await ask({
       title: "退出房间",
@@ -159,6 +168,15 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
                 {m.isOwner && <span class="badge">所有者</span>}
               </p>
             </div>
+            {m.blocked ? (
+              <button class="subtle" aria-label={`取消屏蔽${m.name}`} onClick={() => run({ type: "member.unblock", roomId: room.id, userId: m.userId }, "已取消屏蔽")}>
+                取消屏蔽
+              </button>
+            ) : (
+              <button class="subtle" aria-label={`屏蔽${m.name}`} onClick={() => block(m.userId, m.name)}>
+                屏蔽
+              </button>
+            )}
             {room.isOwner && (
               <button class="subtle danger" aria-label={`把${m.name}踢出房间`} onClick={() => kick(m.userId, m.name)}>
                 踢出
