@@ -46,6 +46,10 @@ public sealed record PanelInput
     public int? UsageRetentionDays { get; init; }
     public IReadOnlyList<NoTitleRule> NoTitleRules { get; init; } = [];
     public IReadOnlyList<StatsViewRecord> StatsViews { get; init; } = [];
+    public StatsSyncMode SyncMode { get; init; }
+    public string? SyncError { get; init; }
+    public FolderSyncMode FolderMode { get; init; }
+    public string? FolderPath { get; init; }
     public TimeZoneInfo Zone { get; init; } = TimeZoneInfo.Local;
 }
 
@@ -101,7 +105,9 @@ public static class PanelStateBuilder
         input.NoTitleRules.Select(r => new NoTitleItem(r.Kind, r.Pattern, NoTitleLabel(r))).ToList(),
         input.StatsViews
             .Select(v => new StatsViewerItem(v.ViewerName, v.RoomName, When(v.At, input.Now, input.Zone)))
-            .ToList());
+            .ToList(),
+        new UsageSyncView(input.SyncMode != StatsSyncMode.Off, input.SyncMode == StatsSyncMode.NeedsPin, input.SyncMode == StatsSyncMode.Off ? null : input.SyncError),
+        new UsageFolderView(input.FolderMode != FolderSyncMode.Off, input.FolderMode == FolderSyncMode.Off ? null : input.FolderPath, input.FolderMode == FolderSyncMode.Unavailable));
 
     private static string When(DateTimeOffset at, DateTimeOffset now, TimeZoneInfo zone)
     {

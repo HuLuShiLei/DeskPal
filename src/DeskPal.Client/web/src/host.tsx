@@ -11,7 +11,8 @@ export interface DialogOptions {
   /** 分组列表，内容多时在对话框里滚动，例如更新内容。 */
   sections?: { title: string; items: string[] }[];
   /** 和 select 一起用时显示在选项下面；placeholders 按选中的值换提示文字。 */
-  input?: { initial?: string; placeholder?: string; placeholders?: Record<string, string>; maxLength?: number; required?: boolean };
+  /** pin：掩码显示、只接受数字，满这么多位才能确认。 */
+  input?: { initial?: string; placeholder?: string; placeholders?: Record<string, string>; maxLength?: number; required?: boolean; pin?: number };
   select?: { options: { value: string; name: string }[]; initial?: string; presentation?: "radio" };
   checkbox?: { label: string; initial: boolean; disabled?: boolean };
   okText?: string;
@@ -101,7 +102,8 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
   const [selected, setSelected] = useState(options.select?.initial ?? options.select?.options[0]?.value ?? "");
   const [checked, setChecked] = useState(options.checkbox?.initial ?? false);
   const answer = (ok: boolean) => onClose({ ok, text: text.trim(), selected, checked });
-  const blocked = options.input?.required && text.trim().length === 0;
+  const pin = options.input?.pin;
+  const blocked = pin ? text.length !== pin : options.input?.required && text.trim().length === 0;
   const form = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -172,8 +174,15 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
             aria-label={options.title}
             value={text}
             placeholder={options.input.placeholders?.[selected] ?? options.input.placeholder}
-            maxLength={options.input.maxLength}
-            onInput={(e) => setText(e.currentTarget.value)}
+            maxLength={pin ?? options.input.maxLength}
+            type={pin ? "password" : "text"}
+            inputMode={pin ? "numeric" : undefined}
+            autoComplete={pin ? "off" : undefined}
+            onInput={(e) => {
+              const value = pin ? e.currentTarget.value.replace(/\D/g, "").slice(0, pin) : e.currentTarget.value;
+              e.currentTarget.value = value;
+              setText(value);
+            }}
           />
         )}
         {options.checkbox && (

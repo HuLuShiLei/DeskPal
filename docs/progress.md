@@ -47,6 +47,8 @@
 | 夜间模式 | 设置里可以选择跟随系统、浅色或深色。默认跟随系统，选择保存在本机设置 | 用户要求自己切换夜间模式 |
 | 标题与程序名相同 | 界面上的详情和程序名去掉空白后相同（不区分大小写）时，不再把详情接在程序名后面。发出去的原始标题不变 | 用户开启显示标题后，窗口标题和程序名都是 QQ 时出现“QQ · QQ” |
 | 使用统计 | 左侧导航「统计」页，像手机的屏幕使用时间：日、周、月三种范围，按状态、类别、标题三种细粒度看时间轴、每小时或每天的堆叠柱和排行。数据只存本机 SQLite（`%APPDATA%\DeskPal\usage\<userId>.db`），不加密；暂停分享时照常记录（按没有暂停时的判定）。详细记录默认保留 90 天（可选 30、90、180、365），过期的日期折成按天汇总，没有时间轴和标题。可以导出、导入 JSON（重复导入不翻倍）和清除。「不记录标题」可以按应用名（和状态页一致）、进程名（不带 `.exe`）、网址（按域名，子域名也算；浏览器只拿得到域名）或标题关键词（窗口标题、网页标题、播放标题包含即算）设置，命中时只记类别和名称，只影响之后的记录，不影响房间里的实时状态。今天的对比显示「昨天全天 x」，过去的日期才显示差值；上一周期没有记录时不显示对比 | 用户要求看历史、三种粒度、本地保存、可以导入导出，Server 不存 |
+| 同步到服务器 | 统计页「导入导出」下面一个开关，默认关，按账号开启。开启时设置 8 位数字 PIN 码（和登录密码无关，不能找回和修改），使用统计用 PIN 码派生的密钥（Argon2id）加密后每天一份上传，Server 只保存密文。其他电脑登录后看到「开」和「输入 PIN 码」按钮，输入后先下载合并（不翻倍），再上传本机有变化的日期；之后每 10 分钟同步一次，退出程序、退出登录时再同步一次。关闭时立即删除 Server 上的全部副本，本机数据保留；在另一台电脑上关闭后，这台电脑下次同步时删除本机密钥。同步开启时不能清除全部统计，要先关闭。合并时只替换其他电脑的记录（按电脑和日期整份替换），本机自己记录的不动。和「同步文件夹」只能开启一种。单日上限 2 MB，每个账号合计 100 MB。文案只写「用 PIN 码加密」，不写「服务器无法读取」。见 [plan-2026-11-13-stats-sync.md](plan-2026-11-13-stats-sync.md) | 用户要求：用户自选的隐私换便利入口，提示清楚，关闭时立即删除；PIN 码独立、8 位、不找回 |
+| 同步文件夹 | 统计页「同步到服务器」下面一行，按「账号 + 这台电脑」开启：选一个由网盘或同步工具在电脑之间同步的文件夹，第一台电脑设置 8 位 PIN 码，其他电脑选择同一文件夹并输入 PIN 码。每台电脑只写自己的文件（每天一个，用 PIN 码加密），读取其他电脑的文件后按电脑和日期整份替换，Server 不参与，`usage.note` 换成说明写入同步文件夹的另一句。停止只停止读写，不删除文件夹里的文件；退出登录时停止。和「同步到服务器」只能开启一种，开启时不能清除全部统计。见 [plan-2026-11-13-stats-folder-sync.md](plan-2026-11-13-stats-folder-sync.md) | 用户要求让用户自己负责同步、Server 不保存；停止时不删除文件；开启时先停止才能清除 |
 | 公开使用统计 | 按房间一个开关，默认关；可查看最近 1、3、7、30 天，默认 7。每个类别按该房间实时的隐私级别显示：只显示状态的类别合并成「工作（未公开类别）」这类条目，显示类别和应用的去掉标题。只有本人在线并且当前进入这个房间时才回复；离线、在其他房间、无房间时看不到。被屏蔽的成员看不到入口，请求也不回复。请求方生成临时 ECDH P-256 密钥，本人的客户端按隐私设置整理后用 AES-GCM 加密回复，Server 只按 `To` 转发给请求方，不解析内容。暂停分享不影响别人查看。本人在统计页看到最近 7 天谁查看过（同一人 10 分钟内只记一次） | 用户要求数据不经过或不留在服务器，按房间、按隐私设置公开，离线就看不到 |
 | 互动原则 | 不提供任何语言沟通的能力：不做聊天、留言、自定义状态文字、礼物附言，新功能不增加别人可见的自由文本。不被其他成员的主动操作引发的通知打扰：别人主动操作的结果只出现在自己打开面板后去看的地方，不弹通知、不发声音、不闪烁、不显示未读数，也不在置顶小卡片和桌宠上即时播放；由别人状态触发的提醒也不做。之后的方向是房间互动、游戏内容、上架 Steam，登录、邀请码、安装和更新是临时设施。见 [roadmap.md](roadmap.md) | 用户要求 |
 | 单点登录 | 同一账号同一时间只能在一台电脑上登录。新的登录（输入密码）会让之前登录的电脑退出，回到登录页并提示「账号已在另一台电脑登录，这台电脑已退出。请重新登录。」自动恢复保存的登录不算新登录。升级前发出的 token 在该账号下次登录前仍然有效，部署时不会把所有人踢下线 | 用户要求，避免多台电脑同时在线时使用统计重复计时 |
@@ -74,6 +76,7 @@
 - 更新内容弹窗只在浏览器模拟数据下检查过，还没在真实客户端上走一遍「安装旧版本 → 更新 → 打开面板」。CI 检查 `CHANGELOG.md` 版本号和缺少条目时的警告还没在 GitHub Actions 上跑过。
 - CI 下载 Inno Setup 6.7.3、编译安装向导、上传到 Release 这几步还没在 GitHub Actions 上跑过。本机已验证：全新安装、拒绝非空目录、运行中覆盖安装、Velopack 更新、换目录安装、卸载。
 - 使用统计：两台真实电脑之间互相查看还没验证，只有 Hub 集成测试和本机模拟数据。导入别人导出的大文件（接近 100 MB）的耗时没有测过。
+- 同步到服务器、同步文件夹：两台电脑之间的同步只在单元测试（两个本地库 + 模拟 Server，或两个本地库 + 同一个临时目录）和 Server 集成测试里覆盖；页面在浏览器模拟数据下检查过中英文、400px 宽度和各种状态。真实客户端还没走过「开启 → 退出登录 → 另一台电脑登录输入 PIN 码 → 关闭」，同步文件夹还没在真实的 OneDrive、坚果云目录里试过。
 - Server 已通过 Portainer webhook 部署。从带 `revision` 的版本起，CI 会等到 `/health` 返回本次提交号。两台真实电脑登录还没验证。
 
 ## 偏离方案
@@ -93,6 +96,15 @@
 | 导出选日期范围，导入后按设备筛选 | 导出全部数据，导入后直接合并，不按设备筛选 | 单点登录后同一时间只有一台电脑在记录，按设备筛选用处不大；按 `deviceId + 开始时间` 去重仍然保留 |
 | 成员开关公开后，其他人重新拉取房间列表才看到入口 | 新增 Server 消息 `room.memberSharingChanged`，其他成员立即重新拉取 | 方案没写怎么刷新「查看统计」按钮 |
 | 请求只带查看范围 | 请求里另带上一周期 `PreviousFrom`、`PreviousTo` | 对比上一周期时不用再请求一次；上一周期超出公开天数时不回复对比 |
+| 同步的密钥和每天的哈希存在 `settings.json` | 密钥存在 `usage\<userId>.sync-key`（密钥用 DPAPI 加密），每天的哈希和版本号存在使用统计库的 `SyncDays` 表 | 清除统计时一起清掉；不用每次上传都改写 `settings.json` |
+| 按哈希判断哪些日期要下载 | Server 给每次上传分配递增的版本号（`Users.StatsSyncRevision`），客户端下载版本号比本机已知的新的日期 | Server 不需要知道明文哈希，判断更简单 |
+| 关闭状态下不发任何同步请求 | 关闭时仍定时查询一次状态（`GET /api/me/stats-sync`），不上传也不下载 | 要知道是否已在其他电脑开启，才能显示「输入 PIN 码」 |
+| 退出登录时删除本机密钥 | 先同步一次（最多 5 秒）再删除 | 退出前最后几分钟的记录也能到 Server |
+| 「输入 PIN 码」是行内按钮，和开关并排 | 放在说明文字下面 | 和开关并排时 400px 宽度下标题会折行 |
+| 错误码只有方案里的四个 | 另加 `statsSync.invalid`（盐、校验值为空或超长，上传的不是 base64） | 请求格式错误时要有错误码 |
+| 下载后按现有导入逻辑合并（`deviceId + 开始时间` 去重） | 按电脑和日期整份替换其他电脑的记录（`MergeDay`），本机记录不动 | 导入逻辑只补缺少的：另一台电脑还在变长的片段不会更新，另一台电脑折叠过期片段后本机会同时有片段和汇总而翻倍 |
+| 同步开启时清除全部统计，同时清空 Server 上的副本 | 同步开启时不能清除，要先关闭；删除 `DELETE /api/me/stats-sync/days` | 2026-11-13 用户要求和同步文件夹统一 |
+| 同步文件夹退出登录时只删除密钥、保留路径 | 退出登录时整份删除（路径和密钥），重新登录后再次选择文件夹 | 少一种「有路径、没密钥」的状态，重新选择时会自动识别已有的同步数据 |
 
 ## 变更日志
 
@@ -159,6 +171,8 @@
 | 2026-11-13 | 继续润色已定文案：无房间提示去掉斜杠，倒计时统一为「变为」，单点登录、踢出、只能进入一个房间、公开使用统计、保留时长的说明改写 |
 | 2026-11-13 | 状态页成员行：头像右下角不再显示状态圆点（和状态标签重复）；「已持续多久」从名字行最右侧移到右侧按钮下方、和状态标签同一行，位置不随状态文案长短和按钮数量变化 |
 | 2026-11-13 | 注册邀请码（见 `docs/plan-2026-11-13-registration-invites.md`）：表 `SignupInvites`（迁移 `AddSignupInvites`），配置 `Auth:RequireSignupInvite`、`Auth:AdminUserNames`。`RegisterRequest` 增加 `signupCode`，`AuthResponse` 增加 `isAdmin`，新增 `/api/admin/signup-invites` 的列出、生成、作废，错误码 `auth.signupCodeRequired`、`auth.signupCodeInvalid`、`auth.signupCodeUsed`、`auth.notAdmin`。登录页注册时一直显示「注册邀请码」输入框；设置页管理员多一块「注册邀请码」，页面命令 `signupInvites.list`、`signupInvites.create`、`signupInvites.revoke`，`SettingsView` 增加 `isAdmin`，`settings.json` 增加 `isAdmin`。登录窗口高度从 560 改为 640，表单超出时可以滚动 |
+| 2026-11-13 | 使用统计同步到服务器（见 [plan-2026-11-13-stats-sync.md](plan-2026-11-13-stats-sync.md)）：`Users` 增加 `StatsSyncEnabled`、`StatsSyncSalt`、`StatsSyncKeyCheck`、`StatsSyncRevision`，新表 `StatsSyncDays`（迁移 `AddStatsSync`），接口 `/api/me/stats-sync`（状态、开启、关闭）和 `/api/me/stats-sync/days`（上传、下载、清空），配置 `StatsSync:MaxDayMegabytes`、`StatsSync:MaxTotalMegabytes`，错误码 `statsSync.notEnabled`、`statsSync.alreadyEnabled`、`statsSync.invalid`、`statsSync.dayTooLarge`、`statsSync.quotaExceeded`。Client.Core 新增 `StatsSyncCrypto`（Argon2id，NuGet `Konscious.Security.Cryptography.Argon2`）和 `StatsSync`，`SqliteUsageStore` 增加 `ExportDay` 和 `SyncDays` 表；客户端新增后台服务 `StatsSyncService`。`UsageView` 增加 `sync`，页面命令增加 `stats.sync.enable`、`stats.sync.unlock`、`stats.sync.disable`，对话框的 `input` 增加 `pin`。模拟宿主增加 `?sync=on|pin|error`。新增 skill `deskpal-ui-copy`，记录界面文案的口径 |
+| 2026-11-13 | 同步改动：服务器同步下载后改用 `SqliteUsageStore.MergeDay`（按电脑和日期整份替换其他电脑的记录）；删除 `DELETE /api/me/stats-sync/days` 和 `StatsSync.ClearServerCopyAsync`，任一种同步开启时 `stats.clear` 返回错误（`Usage_ClearSyncOn`、`Usage_ClearFolderOn`）。新增同步文件夹（见 [plan-2026-11-13-stats-folder-sync.md](plan-2026-11-13-stats-folder-sync.md)）：Client.Core `FolderSync`，`SqliteUsageStore` 增加 `ExportDay`/`Dates` 的按电脑筛选、`ReplaceDay`、表 `FolderWritten`、`FolderRead`；客户端后台服务 `FolderSyncService`，本机文件 `usage\<userId>.folder-sync`；`UsageView` 增加 `folder`，页面命令 `stats.folder.choose`、`stats.folder.enable`、`stats.folder.stop`；模拟宿主增加 `?sync=folder|unavailable`、`?existing`。同步相关中英文文案按 `deskpal-ui-copy` 重新润色 |
 | 2026-11-13 | 重写路线图：确定两条互动原则；不再计划 Refresh token、浏览器扩展、手机端；删除摸鱼同步提醒和对方空闲时提醒；新增房间互动、游戏核心、游戏里的房间互动、上架 Steam 四个阶段 |
 | 2026-11-13 | 内置规则库多语言：规则增加 `names`（目前只有 `en`），`builtin-rules.json` 升到版本 4，63 条中文名称都补了英文；表 `BuiltinRules` 增加 `Names` 列（迁移 `AddBuiltinRuleNames`），`RuleDto` 末尾增加 `Names`。客户端 `AppNames` 用本机缓存的规则库，在状态、置顶卡片、悬停说明、纠正分类、统计排行里按界面语言显示，发送和保存的仍是默认名称。`BuiltinRulesTests` 检查中文名称都有 `names.en`，校验脚本检查 `names` 的键 |
 | 2026-11-13 | 服务器地址不在界面上显示：登录页去掉地址和修改入口，`login` 消息和 `auth.login`、`auth.register` 不再带 `serverUrl`，`SettingsView` 去掉 `ServerUrl`。`Api_Unreachable` 不再带地址和异常信息（异常作为 `InnerException` 进日志），删除 `Login_InvalidServer`。联调只改 `settings.json` |

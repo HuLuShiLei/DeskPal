@@ -52,8 +52,23 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 ViewerId TEXT NOT NULL,
                 ViewerName TEXT NOT NULL,
                 At INTEGER NOT NULL);
+            CREATE TABLE IF NOT EXISTS SyncDays (
+                Date TEXT PRIMARY KEY,
+                Hash TEXT NULL,
+                Revision INTEGER NOT NULL);
+            CREATE TABLE IF NOT EXISTS FolderWritten (
+                Date TEXT PRIMARY KEY,
+                Hash TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS FolderRead (
+                DeviceId TEXT NOT NULL,
+                Date TEXT NOT NULL,
+                Stamp TEXT NOT NULL,
+                PRIMARY KEY (DeviceId, Date));
             """);
     }
+
+    /// <summary>This computer. Segments and totals recorded here carry it.</summary>
+    public Guid DeviceId => _deviceId;
 
     public long Add(UsageSegment segment)
     {
@@ -232,48 +247,234 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
     {
         lock (_lock)
         {
-            Execute("DELETE FROM Segments; DELETE FROM DailyRollups; DELETE FROM StatsViews;");
+            Execute("DELETE FROM Segments; DELETE FROM DailyRollups; DELETE FROM StatsViews; DELETE FROM SyncDays; DELETE FROM FolderWritten; DELETE FROM FolderRead;");
         }
     }
+
     public UsageExport Export(DateTimeOffset now)
     {
         lock (_lock)
         {
-            var segments = new List<ExportedSegment>();
-            using (var cmd = Command("SELECT DeviceId, StartAt, EndAt, State, Category, App, Title FROM Segments ORDER BY StartAt"))
-            using (var reader = cmd.ExecuteReader())
+            using var segments = Command("SELECT DeviceId, StartAt, EndAt, State, Category, App, Title FROM Segments ORDER BY StartAt");
+            using var rollups = Command("SELECT DeviceId, Date, State, Category, App, Title, Seconds FROM DailyRollups ORDER BY Date");
+            return new UsageExport(UsageExport.CurrentVersion, _deviceId, now, ReadSegments(segments), ReadRollups(rollups));
+        }
+    }
+
+    /// <summary>
+    /// Everything recorded on one local day, for sync. The same content always gives the same file: no export time,
+    /// fixed order.
+    /// </summary>
+    /// <param name="device">Only what this computer recorded; null for every computer.</param>
+    public UsageExport ExportDay(DateOnly date, Guid? device = null)
+    {
+        lock (_lock)
+        {
+            using var segments = Command("""
+                SELECT DeviceId, StartAt, EndAt, State, Category, App, Title FROM Segments
+                WHERE StartAt >= $from AND StartAt < $to AND ($device IS NULL OR DeviceId = $device) ORDER BY StartAt, DeviceId
+                """);
+            segments.Parameters.AddWithValue("$from", LocalMidnight(date).ToUnixTimeMilliseconds());
+            segments.Parameters.AddWithValue("$to", LocalMidnight(date.AddDays(1)).ToUnixTimeMilliseconds());
+            segments.Parameters.AddWithValue("$device", (object?)device?.ToString() ?? DBNull.Value);
+            using var rollups = Command("""
+                SELECT DeviceId, Date, State, Category, App, Title, Seconds FROM DailyRollups
+                WHERE Date = $date AND ($device IS NULL OR DeviceId = $device) ORDER BY DeviceId, State, Category, App, Title
+                """);
+            rollups.Parameters.AddWithValue("$date", DateText(date));
+            rollups.Parameters.AddWithValue("$device", (object?)device?.ToString() ?? DBNull.Value);
+            return new UsageExport(UsageExport.CurrentVersion, device ?? Guid.Empty, DateTimeOffset.UnixEpoch, ReadSegments(segments), ReadRollups(rollups));
+        }
+    }
+
+    /// <summary>Local days that have any segment or daily total.</summary>
+    /// <param name="device">Only days with something this computer recorded; null for every computer.</param>
+    public IReadOnlyList<DateOnly> Dates(Guid? device = null)
+    {
+        lock (_lock)
+        {
+            var dates = new HashSet<DateOnly>();
+            using (var cmd = Command("SELECT StartAt FROM Segments WHERE $device IS NULL OR DeviceId = $device"))
             {
+                cmd.Parameters.AddWithValue("$device", (object?)device?.ToString() ?? DBNull.Value);
+                using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    segments.Add(new ExportedSegment(
-                        Guid.Parse(reader.GetString(0)),
-                        DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(1)),
-                        DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(2)),
-                        Enum.Parse<PresenceState>(reader.GetString(3)),
-                        Enum.Parse<ActivityCategory>(reader.GetString(4)),
-                        reader.IsDBNull(5) ? null : reader.GetString(5),
-                        reader.IsDBNull(6) ? null : reader.GetString(6)));
+                    dates.Add(DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(0)), _zone).DateTime));
                 }
             }
 
-            var rollups = new List<ExportedRollup>();
-            using (var cmd = Command("SELECT DeviceId, Date, State, Category, App, Title, Seconds FROM DailyRollups ORDER BY Date"))
-            using (var reader = cmd.ExecuteReader())
+            using (var cmd = Command("SELECT DISTINCT Date FROM DailyRollups WHERE $device IS NULL OR DeviceId = $device"))
             {
+                cmd.Parameters.AddWithValue("$device", (object?)device?.ToString() ?? DBNull.Value);
+                using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    rollups.Add(new ExportedRollup(
-                        Guid.Parse(reader.GetString(0)),
-                        DateOnly.ParseExact(reader.GetString(1), "yyyy-MM-dd", CultureInfo.InvariantCulture),
-                        Enum.Parse<PresenceState>(reader.GetString(2)),
-                        Enum.Parse<ActivityCategory>(reader.GetString(3)),
-                        NullIfEmpty(reader.GetString(4)),
-                        NullIfEmpty(reader.GetString(5)),
-                        reader.GetInt64(6)));
+                    dates.Add(ParseDate(reader.GetString(0)));
                 }
             }
 
-            return new UsageExport(UsageExport.CurrentVersion, _deviceId, now, segments, rollups);
+            return dates.Order().ToList();
+        }
+    }
+
+    /// <summary>What was last uploaded or downloaded for each day.</summary>
+    public IReadOnlyDictionary<DateOnly, SyncMark> SyncMarks()
+    {
+        lock (_lock)
+        {
+            using var cmd = Command("SELECT Date, Hash, Revision FROM SyncDays");
+            using var reader = cmd.ExecuteReader();
+            var marks = new Dictionary<DateOnly, SyncMark>();
+            while (reader.Read())
+            {
+                marks[ParseDate(reader.GetString(0))] = new SyncMark(reader.IsDBNull(1) ? null : reader.GetString(1), reader.GetInt64(2));
+            }
+
+            return marks;
+        }
+    }
+
+    public void SetSyncMark(DateOnly date, SyncMark mark)
+    {
+        lock (_lock)
+        {
+            using var cmd = Command("""
+                INSERT INTO SyncDays (Date, Hash, Revision) VALUES ($date, $hash, $revision)
+                ON CONFLICT (Date) DO UPDATE SET Hash = excluded.Hash, Revision = excluded.Revision
+                """);
+            cmd.Parameters.AddWithValue("$date", DateText(date));
+            cmd.Parameters.AddWithValue("$hash", (object?)mark.Hash ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("$revision", mark.Revision);
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    /// <summary>Forgets what was synced with the server, after sync was turned off or on again.</summary>
+    public void ResetSync()
+    {
+        lock (_lock)
+        {
+            Execute("DELETE FROM SyncDays;");
+        }
+    }
+
+    /// <summary>Hash of what this computer last wrote to the sync folder, per day.</summary>
+    public IReadOnlyDictionary<DateOnly, string> FolderWritten()
+    {
+        lock (_lock)
+        {
+            using var cmd = Command("SELECT Date, Hash FROM FolderWritten");
+            using var reader = cmd.ExecuteReader();
+            var hashes = new Dictionary<DateOnly, string>();
+            while (reader.Read())
+            {
+                hashes[ParseDate(reader.GetString(0))] = reader.GetString(1);
+            }
+
+            return hashes;
+        }
+    }
+
+    public void SetFolderWritten(DateOnly date, string hash)
+    {
+        lock (_lock)
+        {
+            using var cmd = Command("INSERT INTO FolderWritten (Date, Hash) VALUES ($date, $hash) ON CONFLICT (Date) DO UPDATE SET Hash = excluded.Hash");
+            cmd.Parameters.AddWithValue("$date", DateText(date));
+            cmd.Parameters.AddWithValue("$hash", hash);
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    /// <summary>Size and modification time of the files of other computers last read from the sync folder.</summary>
+    public IReadOnlyDictionary<(Guid Device, DateOnly Date), string> FolderRead()
+    {
+        lock (_lock)
+        {
+            using var cmd = Command("SELECT DeviceId, Date, Stamp FROM FolderRead");
+            using var reader = cmd.ExecuteReader();
+            var stamps = new Dictionary<(Guid, DateOnly), string>();
+            while (reader.Read())
+            {
+                stamps[(Guid.Parse(reader.GetString(0)), ParseDate(reader.GetString(1)))] = reader.GetString(2);
+            }
+
+            return stamps;
+        }
+    }
+
+    public void SetFolderRead(Guid device, DateOnly date, string stamp)
+    {
+        lock (_lock)
+        {
+            using var cmd = Command("""
+                INSERT INTO FolderRead (DeviceId, Date, Stamp) VALUES ($device, $date, $stamp)
+                ON CONFLICT (DeviceId, Date) DO UPDATE SET Stamp = excluded.Stamp
+                """);
+            cmd.Parameters.AddWithValue("$device", device.ToString());
+            cmd.Parameters.AddWithValue("$date", DateText(date));
+            cmd.Parameters.AddWithValue("$stamp", stamp);
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    /// <summary>Forgets what was written to and read from the sync folder.</summary>
+    public void ResetFolderSync()
+    {
+        lock (_lock)
+        {
+            Execute("DELETE FROM FolderWritten; DELETE FROM FolderRead;");
+        }
+    }
+
+    /// <summary>
+    /// Takes a synced day that may hold several computers. For each other computer in it, what is here for that computer
+    /// and day is replaced, so a segment that grew there or a day folded into totals there is not counted twice. What
+    /// this computer recorded is never replaced.
+    /// </summary>
+    public void MergeDay(DateOnly date, UsageExport day)
+    {
+        var devices = day.Segments.Select(s => s.DeviceId).Concat(day.Rollups.Select(r => r.DeviceId)).Distinct().Where(d => d != _deviceId).ToList();
+        foreach (var device in devices)
+        {
+            ReplaceDay(date, device, day);
+        }
+    }
+
+    /// <summary>Replaces what is here for <paramref name="device"/> on <paramref name="date"/> with what <paramref name="day"/> has for it.</summary>
+    /// <exception cref="ArgumentException"><paramref name="device"/> is this computer.</exception>
+    public void ReplaceDay(DateOnly date, Guid device, UsageExport day)
+    {
+        if (device == _deviceId)
+        {
+            throw new ArgumentException("This computer's records are never replaced", nameof(device));
+        }
+
+        var from = LocalMidnight(date);
+        var to = LocalMidnight(date.AddDays(1));
+        lock (_lock)
+        {
+            using var tx = _db.BeginTransaction();
+            using (var delete = Command("DELETE FROM Segments WHERE DeviceId = $device AND StartAt >= $from AND StartAt < $to"))
+            {
+                delete.Parameters.AddWithValue("$device", device.ToString());
+                delete.Parameters.AddWithValue("$from", from.ToUnixTimeMilliseconds());
+                delete.Parameters.AddWithValue("$to", to.ToUnixTimeMilliseconds());
+                delete.ExecuteNonQuery();
+            }
+
+            using (var delete = Command("DELETE FROM DailyRollups WHERE DeviceId = $device AND Date = $date"))
+            {
+                delete.Parameters.AddWithValue("$device", device.ToString());
+                delete.Parameters.AddWithValue("$date", DateText(date));
+                delete.ExecuteNonQuery();
+            }
+
+            InsertAll(
+                day.Segments.Where(s => s.DeviceId == device && s.Start >= from && s.Start < to),
+                day.Rollups.Where(r => r.DeviceId == device && r.Date == date));
+            tx.Commit();
         }
     }
 
@@ -289,47 +490,54 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         lock (_lock)
         {
             using var tx = _db.BeginTransaction();
-            var segments = 0;
-            foreach (var s in data.Segments)
-            {
-                if (s.End <= s.Start || s.End - s.Start > TimeSpan.FromDays(1))
-                {
-                    continue;
-                }
-
-                using var cmd = Command("""
-                    INSERT OR IGNORE INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title)
-                    VALUES ($device, $start, $end, $state, $category, $app, $title)
-                    """);
-                BindSegment(cmd, s.DeviceId, s.Start, s.End, s.State, s.Category, s.App, s.Title);
-                segments += cmd.ExecuteNonQuery();
-            }
-
-            var rollups = 0;
-            foreach (var r in data.Rollups)
-            {
-                if (r.Seconds <= 0)
-                {
-                    continue;
-                }
-
-                using var cmd = Command("""
-                    INSERT OR IGNORE INTO DailyRollups (DeviceId, Date, State, Category, App, Title, Seconds)
-                    VALUES ($device, $date, $state, $category, $app, $title, $seconds)
-                    """);
-                cmd.Parameters.AddWithValue("$device", r.DeviceId.ToString());
-                cmd.Parameters.AddWithValue("$date", DateText(r.Date));
-                cmd.Parameters.AddWithValue("$state", r.State.ToString());
-                cmd.Parameters.AddWithValue("$category", r.Category.ToString());
-                cmd.Parameters.AddWithValue("$app", r.App ?? "");
-                cmd.Parameters.AddWithValue("$title", r.Title ?? "");
-                cmd.Parameters.AddWithValue("$seconds", r.Seconds);
-                rollups += cmd.ExecuteNonQuery();
-            }
-
+            var result = InsertAll(data.Segments, data.Rollups);
             tx.Commit();
-            return new ImportResult(segments, rollups);
+            return result;
         }
+    }
+
+    /// <summary>Adds what is not here yet, inside the caller's lock and transaction.</summary>
+    private ImportResult InsertAll(IEnumerable<ExportedSegment> segmentList, IEnumerable<ExportedRollup> rollupList)
+    {
+        var segments = 0;
+        foreach (var s in segmentList)
+        {
+            if (s.End <= s.Start || s.End - s.Start > TimeSpan.FromDays(1))
+            {
+                continue;
+            }
+
+            using var cmd = Command("""
+                INSERT OR IGNORE INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title)
+                VALUES ($device, $start, $end, $state, $category, $app, $title)
+                """);
+            BindSegment(cmd, s.DeviceId, s.Start, s.End, s.State, s.Category, s.App, s.Title);
+            segments += cmd.ExecuteNonQuery();
+        }
+
+        var rollups = 0;
+        foreach (var r in rollupList)
+        {
+            if (r.Seconds <= 0)
+            {
+                continue;
+            }
+
+            using var cmd = Command("""
+                INSERT OR IGNORE INTO DailyRollups (DeviceId, Date, State, Category, App, Title, Seconds)
+                VALUES ($device, $date, $state, $category, $app, $title, $seconds)
+                """);
+            cmd.Parameters.AddWithValue("$device", r.DeviceId.ToString());
+            cmd.Parameters.AddWithValue("$date", DateText(r.Date));
+            cmd.Parameters.AddWithValue("$state", r.State.ToString());
+            cmd.Parameters.AddWithValue("$category", r.Category.ToString());
+            cmd.Parameters.AddWithValue("$app", r.App ?? "");
+            cmd.Parameters.AddWithValue("$title", r.Title ?? "");
+            cmd.Parameters.AddWithValue("$seconds", r.Seconds);
+            rollups += cmd.ExecuteNonQuery();
+        }
+
+        return new ImportResult(segments, rollups);
     }
 
     public void Dispose()
@@ -369,6 +577,46 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         using var cmd = Command(sql);
         cmd.ExecuteNonQuery();
     }
+
+    private static List<ExportedSegment> ReadSegments(SqliteCommand cmd)
+    {
+        using var reader = cmd.ExecuteReader();
+        var segments = new List<ExportedSegment>();
+        while (reader.Read())
+        {
+            segments.Add(new ExportedSegment(
+                Guid.Parse(reader.GetString(0)),
+                DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(1)),
+                DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(2)),
+                Enum.Parse<PresenceState>(reader.GetString(3)),
+                Enum.Parse<ActivityCategory>(reader.GetString(4)),
+                reader.IsDBNull(5) ? null : reader.GetString(5),
+                reader.IsDBNull(6) ? null : reader.GetString(6)));
+        }
+
+        return segments;
+    }
+
+    private static List<ExportedRollup> ReadRollups(SqliteCommand cmd)
+    {
+        using var reader = cmd.ExecuteReader();
+        var rollups = new List<ExportedRollup>();
+        while (reader.Read())
+        {
+            rollups.Add(new ExportedRollup(
+                Guid.Parse(reader.GetString(0)),
+                ParseDate(reader.GetString(1)),
+                Enum.Parse<PresenceState>(reader.GetString(2)),
+                Enum.Parse<ActivityCategory>(reader.GetString(3)),
+                NullIfEmpty(reader.GetString(4)),
+                NullIfEmpty(reader.GetString(5)),
+                reader.GetInt64(6)));
+        }
+
+        return rollups;
+    }
+
+    private static DateOnly ParseDate(string text) => DateOnly.ParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture);
 
     private static string DateText(DateOnly date) => date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 

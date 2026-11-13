@@ -221,6 +221,29 @@ namespace DeskPal.Server.Data.Migrations
                     b.ToTable("SignupInvites");
                 });
 
+            modelBuilder.Entity("DeskPal.Server.Data.StatsSyncDay", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("TEXT");
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("BLOB");
+
+                    b.Property<long>("Revision")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId", "Date");
+
+                    b.ToTable("StatsSyncDays");
+                });
+
             modelBuilder.Entity("DeskPal.Server.Data.UnknownAppReport", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -271,6 +294,20 @@ namespace DeskPal.Server.Data.Migrations
 
                     b.Property<bool?>("ShareUsage")
                         .HasColumnType("INTEGER");
+
+                    b.Property<bool>("StatsSyncEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("StatsSyncKeyCheck")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("StatsSyncRevision")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("StatsSyncSalt")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -384,6 +421,15 @@ namespace DeskPal.Server.Data.Migrations
                     b.Navigation("Room");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DeskPal.Server.Data.StatsSyncDay", b =>
+                {
+                    b.HasOne("DeskPal.Server.Data.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DeskPal.Server.Data.UnknownAppReport", b =>

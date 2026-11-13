@@ -19,6 +19,24 @@ public sealed class User
     /// this was added; tokens issued before that carry no session and stay valid until then.
     /// </summary>
     public Guid? SessionId { get; set; }
+
+    /// <summary>The user turned on usage stats sync. Salt and key check are opaque to the server; see <see cref="StatsSyncDay"/>.</summary>
+    public bool StatsSyncEnabled { get; set; }
+    public string? StatsSyncSalt { get; set; }
+    public string? StatsSyncKeyCheck { get; set; }
+
+    /// <summary>Last revision given to an uploaded day. Never goes back, even when the days are deleted.</summary>
+    public long StatsSyncRevision { get; set; }
+}
+
+/// <summary>One day of a user's usage stats, encrypted on the user's computer. Only kept while the user has sync on.</summary>
+public sealed class StatsSyncDay
+{
+    public Guid UserId { get; set; }
+    public DateOnly Date { get; set; }
+    public long Revision { get; set; }
+    public required byte[] Data { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
 }
 
 public sealed class Room

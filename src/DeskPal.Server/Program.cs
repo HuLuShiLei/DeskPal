@@ -6,6 +6,7 @@ using DeskPal.Server.Features.Auth;
 using DeskPal.Server.Features.Presence;
 using DeskPal.Server.Features.Rooms;
 using DeskPal.Server.Features.Rules;
+using DeskPal.Server.Features.Stats;
 using DeskPal.Shared.Messaging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Data.Sqlite;
@@ -29,10 +30,12 @@ builder.Services.Configure<RoomOptions>(builder.Configuration.GetSection("Rooms"
 builder.Services.AddDbContext<DeskPalDbContext>(o => o.UseSqlite(connectionString));
 builder.Services.Configure<RuleOptions>(builder.Configuration.GetSection("Rules"));
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("Auth"));
+builder.Services.Configure<StatsSyncOptions>(builder.Configuration.GetSection("StatsSync"));
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<UserRuleService>();
 builder.Services.AddScoped<RuleCandidateService>();
 builder.Services.AddScoped<SignupInviteService>();
+builder.Services.AddScoped<StatsSyncService>();
 builder.Services.AddSingleton<ConnectionRegistry>();
 builder.Services.AddSingleton<PresenceStore>();
 builder.Services.AddSingleton<RoomNotifier>();
@@ -97,6 +100,7 @@ app.MapGet("/health", () => Results.Ok(new { status = "ok", revision }));
 app.MapAuthEndpoints();
 app.MapRoomEndpoints();
 app.MapRuleEndpoints();
+app.MapStatsSyncEndpoints();
 app.MapHub<PresenceHub>(HubContract.Path);
 
 app.Run();

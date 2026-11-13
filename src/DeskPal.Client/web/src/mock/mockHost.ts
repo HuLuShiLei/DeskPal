@@ -1,5 +1,5 @@
 // 浏览器里开发用的模拟宿主。初始状态来自 C# 测试生成的 fixtures，命令的效果在这里粗略模拟。
-// 地址参数：?mock=default|no-room|guest|updated 选样例；?lang=en 用英文样例；?fail 让所有命令失败；?page=login 打开登录页；?page=card 打开第一个成员的置顶小卡片。
+// 地址参数：?mock=default|no-room|guest|updated 选样例；?lang=en 用英文样例；?fail 让所有命令失败；?page=login 打开登录页；?page=card 打开第一个成员的置顶小卡片；?sync=on|pin|error|folder|unavailable 让统计页的同步处于已开启、待输入 PIN 码、上传失败、同步文件夹已开启、文件夹无法访问；?existing 让选择的文件夹里已有其他电脑的同步数据。
 // 发出的命令记在 window.__sent，方便检查。
 
 import type { CommandResult, HostMessage, NoTitleKind, PanelState, PrivacyLevel, SignupInviteItem, StatsView, Transport } from "../bridge";
@@ -45,6 +45,14 @@ export function createMockTransport(params: URLSearchParams): Transport {
   const views = (english ? enStatsViews : statsViews) as unknown as Record<string, StatsView>;
   const initial = samples[params.get("mock") ?? "default"] ?? samples.default;
   const state: PanelState = structuredClone(initial);
+  const syncSample = params.get("sync");
+  const folderPath = L("D:\\OneDrive\\文档\\DeskPal 同步", "D:\\OneDrive\\Documents\\DeskPal sync");
+  if (state.usage && (syncSample === "folder" || syncSample === "unavailable")) {
+    state.usage.folder = { enabled: true, path: folderPath, unavailable: syncSample === "unavailable" };
+  } else if (state.usage && syncSample) {
+    const error = syncSample === "error" ? L("服务器上的使用统计已达 100 MB 上限，新记录暂未同步。请缩短保留时长后重试。", "The server copy has reached the 100 MB limit. New records are not synced. Shorten the retention period and try again.") : null;
+    state.usage.sync = { enabled: true, needsPin: syncSample === "pin", error };
+  }
   const fail = params.has("fail");
   const login = params.get("page") === "login";
   const card = params.get("page") === "card";
@@ -160,6 +168,29 @@ export function createMockTransport(params: URLSearchParams): Transport {
         return { ok: true, error: null, data: { message: L("已导入 1280 段记录、0 条按天汇总。", "Imported 1280 records and 0 daily totals.") } };
       case "stats.clear":
         if (state.usage) state.usage.viewers = [];
+        break;
+      // 样例里 PIN 码固定为 12345678。
+      case "stats.sync.enable":
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        if (state.usage) state.usage.sync = { enabled: true, needsPin: false, error: null };
+        break;
+      case "stats.sync.unlock":
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        if (m.pin !== "12345678") return { ok: false, error: L("PIN 码不正确", "Incorrect PIN") };
+        if (state.usage) state.usage.sync = { enabled: true, needsPin: false, error: null };
+        break;
+      case "stats.sync.disable":
+        if (state.usage) state.usage.sync = { enabled: false, needsPin: false, error: null };
+        break;
+      case "stats.folder.choose":
+        return { ok: true, error: null, data: { path: folderPath, existing: params.has("existing") } };
+      case "stats.folder.enable":
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        if (params.has("existing") && m.pin !== "12345678") return { ok: false, error: L("PIN 码不正确", "Incorrect PIN") };
+        if (state.usage) state.usage.folder = { enabled: true, path: m.path as string, unavailable: false };
+        break;
+      case "stats.folder.stop":
+        if (state.usage) state.usage.folder = { enabled: false, path: null, unavailable: false };
         break;
       case "stats.retention":
         if (state.usage) state.usage.retentionDays = m.days as number;

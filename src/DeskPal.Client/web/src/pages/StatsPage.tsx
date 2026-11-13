@@ -3,7 +3,7 @@ import type { NoTitleKind, PanelState, StatsGranularity, StatsScale, StatsView }
 import { Bars, Legend, Ranking, Timeline } from "../components/charts";
 import { useHost } from "../host";
 import { t, type MessageKey } from "../i18n";
-import { Icon, Section, SettingRow } from "../ui";
+import { Icon, Section, SettingRow, Switch } from "../ui";
 
 /** 正在查看的房间成员；null 表示看自己。 */
 export type StatsTarget = { userId: string; name: string } | null;
@@ -173,6 +173,95 @@ function Report({ view, onPick, busy }: { view: StatsView; onPick: (date: string
 
 function UsageSettings({ usage }: { usage: NonNullable<PanelState["usage"]> }) {
   const { ask, run, toast } = useHost();
+  const sync = usage.sync;
+  const synced = sync?.enabled ?? false;
+  const folder = usage.folder;
+  const folderOn = folder?.enabled ?? false;
+  const [syncBusy, setSyncBusy] = useState(false);
+
+  const busy = async (action: () => Promise<unknown>) => {
+    setSyncBusy(true);
+    try {
+      await action();
+    } finally {
+      setSyncBusy(false);
+    }
+  };
+
+  /** 说明对话框里设置 PIN 码，再输入一次确认。取消或两次不一致时返回 null。 */
+  const askNewPin = async (title: string, message: string) => {
+    const first = await ask({
+      title,
+      message,
+      input: { pin: 8, placeholder: t("sync.pinPlaceholder") },
+      okText: t("sync.next"),
+    });
+    if (!first.ok) return null;
+    const second = await ask({
+      title: t("sync.confirmTitle"),
+      message: t("sync.confirmMessage"),
+      input: { pin: 8, placeholder: t("sync.unlockPlaceholder") },
+      okText: t("sync.turnOn"),
+    });
+    if (!second.ok) return null;
+    if (second.text !== first.text) {
+      toast(t("sync.mismatch"), true);
+      return null;
+    }
+    return first.text;
+  };
+
+  const enableSync = async () => {
+    const pin = await askNewPin(t("sync.title"), t("sync.enableMessage"));
+    if (pin) await busy(() => run({ type: "stats.sync.enable", pin }, t("sync.enabled")));
+  };
+
+  const unlockSync = async () => {
+    const answer = await ask({
+      title: t("sync.enterPin"),
+      message: t("sync.unlockMessage"),
+      input: { pin: 8, placeholder: t("sync.unlockPlaceholder") },
+    });
+    if (answer.ok) await busy(() => run({ type: "stats.sync.unlock", pin: answer.text }, t("sync.unlocked")));
+  };
+
+  const disableSync = async () => {
+    const answer = await ask({
+      title: t("sync.disableTitle"),
+      message: t("sync.disableMessage"),
+      okText: t("sync.disable"),
+      danger: true,
+    });
+    if (answer.ok) await busy(() => run({ type: "stats.sync.disable" }, t("sync.disabled")));
+  };
+
+  const chooseFolder = async () => {
+    const chosen = await run({ type: "stats.folder.choose" });
+    const target = chosen.data as { path: string; existing: boolean } | undefined;
+    if (!chosen.ok || !target) return;
+    let pin: string | null = null;
+    if (target.existing) {
+      const answer = await ask({
+        title: t("sync.enterPin"),
+        message: t("folder.joinMessage"),
+        input: { pin: 8, placeholder: t("sync.unlockPlaceholder") },
+        okText: t("sync.turnOn"),
+      });
+      if (answer.ok) pin = answer.text;
+    } else {
+      pin = await askNewPin(t("folder.title"), t("folder.enableMessage"));
+    }
+    if (pin) await busy(() => run({ type: "stats.folder.enable", path: target.path, pin }, t("folder.enabled")));
+  };
+
+  const stopFolder = async () => {
+    const answer = await ask({
+      title: t("folder.stopTitle"),
+      message: t("folder.stopMessage"),
+      okText: t("folder.stop"),
+    });
+    if (answer.ok) await busy(() => run({ type: "stats.folder.stop" }, t("folder.stopped")));
+  };
 
   const addNoTitle = async () => {
     const answer = await ask({
@@ -204,6 +293,10 @@ function UsageSettings({ usage }: { usage: NonNullable<PanelState["usage"]> }) {
   };
 
   const clear = async () => {
+    if (synced || folderOn) {
+      toast(t(synced ? "usage.clearSyncOn" : "usage.clearFolderOn"), true);
+      return;
+    }
     const answer = await ask({
       title: t("usage.clearTitle"),
       message: t("usage.clearMessage"),
@@ -216,7 +309,7 @@ function UsageSettings({ usage }: { usage: NonNullable<PanelState["usage"]> }) {
   return (
     <Section title={t("usage.title")}>
       <div class="card flush">
-        <p class="card-note">{t("usage.note")}</p>
+        <p class="card-note">{t(synced ? "usage.noteSynced" : folderOn ? "usage.noteFolder" : "usage.note")}</p>
         <SettingRow title={t("usage.viewers")} description={usage.viewers.length === 0 ? t("usage.noViewers") : undefined} />
         {usage.viewers.length > 0 && (
           <ul class="stats-viewers">
@@ -270,6 +363,63 @@ function UsageSettings({ usage }: { usage: NonNullable<PanelState["usage"]> }) {
           <button onClick={() => void transfer("stats.export")}>{t("usage.export")}</button>
           <button onClick={() => void transfer("stats.import")}>{t("usage.import")}</button>
         </SettingRow>
+        {sync && (
+          <SettingRow
+            title={t("sync.title")}
+            hint={t("sync.hint")}
+            description={
+              sync.needsPin ? (
+                <>
+                  {t("sync.needsPin")}
+                  <span class="sub setting-action">
+                    <button disabled={syncBusy} onClick={() => void unlockSync()}>
+                      {t("sync.enterPin")}
+                    </button>
+                  </span>
+                </>
+              ) : folderOn && !synced ? (
+                t("sync.folderOn")
+              ) : (
+                sync.error ?? undefined
+              )
+            }
+          >
+            <Switch
+              checked={synced}
+              label={t("sync.title")}
+              disabled={syncBusy || (folderOn && !synced)}
+              onChange={(on) => void (on ? enableSync() : disableSync())}
+            />
+          </SettingRow>
+        )}
+        {folder && (
+          <SettingRow
+            title={t("folder.title")}
+            hint={t("folder.hint")}
+            description={
+              folderOn ? (
+                <>
+                  {folder.unavailable && <span class="sub">{t("folder.unavailable")}</span>}
+                  <span class="sub folder-path" title={folder.path ?? undefined}>
+                    {folder.path}
+                  </span>
+                </>
+              ) : synced ? (
+                t("folder.serverOn")
+              ) : undefined
+            }
+          >
+            {folderOn ? (
+              <button disabled={syncBusy} onClick={() => void stopFolder()}>
+                {t("folder.stop")}
+              </button>
+            ) : (
+              <button disabled={syncBusy || synced} onClick={() => void chooseFolder()}>
+                {t("folder.choose")}
+              </button>
+            )}
+          </SettingRow>
+        )}
         <SettingRow title={t("usage.clearTitle")}>
           <button class="subtle danger" onClick={() => void clear()}>
             {t("usage.clear")}

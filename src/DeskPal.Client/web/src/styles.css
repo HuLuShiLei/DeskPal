@@ -373,6 +373,8 @@ button.hint-button:active:not(:disabled) { background: var(--pressed); color: va
   font-size: 12px; font-weight: 400; line-height: 1.45; pointer-events: none;
 }
 .setting-desc .sub { display: block; }
+.setting-desc .setting-action { margin-top: 6px; font-size: 13px; color: var(--text); }
+.setting-desc .folder-path { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .setting-control { flex: none; display: flex; align-items: center; gap: 6px; }
 .setting-control select { min-width: 136px; }
 

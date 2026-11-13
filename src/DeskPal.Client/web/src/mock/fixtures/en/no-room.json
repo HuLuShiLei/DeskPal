@@ -128,7 +128,17 @@
         "room": "同事房间",
         "when": "Yesterday 12:00"
       }
-    ]
+    ],
+    "sync": {
+      "enabled": false,
+      "needsPin": false,
+      "error": null
+    },
+    "folder": {
+      "enabled": false,
+      "path": null,
+      "unavailable": false
+    }
   },
   "locale": "en"
 }

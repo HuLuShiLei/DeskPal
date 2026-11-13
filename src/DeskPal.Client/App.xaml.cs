@@ -176,6 +176,8 @@ public partial class App : Application
         s.AddSingleton<UnclassifiedUsage>();
         s.AddSingleton<UsageService>();
         s.AddSingleton<StatsExchange>();
+        s.AddSingleton<StatsSyncService>();
+        s.AddSingleton<FolderSyncService>();
         s.AddSingleton<PersonalRules>();
         s.AddSingleton<BuiltinRuleCache>();
         s.AddSingleton<ForegroundState>();
@@ -190,6 +192,8 @@ public partial class App : Application
         s.AddHostedService<SessionCollector>();
         s.AddHostedService<MediaCollector>();
         s.AddHostedService<UsageReporter>();
+        s.AddHostedService(sp => sp.GetRequiredService<StatsSyncService>());
+        s.AddHostedService(sp => sp.GetRequiredService<FolderSyncService>());
         s.AddSingleton<UpdateService>();
         s.AddSingleton(sp => new WhatsNewStore(
             ReadChangelog(),
@@ -308,7 +312,16 @@ public partial class App : Application
         return tray;
     }
 
-    private Task LogoutAsync() => RestartSignedOutAsync(null);
+    private async Task LogoutAsync()
+    {
+        if (_host is not null)
+        {
+            await _host.Services.GetRequiredService<StatsSyncService>().SignOutAsync();
+            await _host.Services.GetRequiredService<FolderSyncService>().SignOutAsync();
+        }
+
+        await RestartSignedOutAsync(null);
+    }
 
     private void OnSessionEnded() => Dispatcher.BeginInvoke(async () =>
     {

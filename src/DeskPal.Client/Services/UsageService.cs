@@ -41,7 +41,12 @@ public sealed class UsageService : IDisposable
     /// <summary>Raised when the view records change.</summary>
     public event Action? Changed;
 
+    /// <summary>Raised when past days may have changed: import, folding old days, clearing.</summary>
+    public event Action? DaysChanged;
+
     public UsageRecorder Recorder { get; }
+
+    public SqliteUsageStore Store => _db;
 
     /// <summary>Who viewed my stats in the last 7 days, latest first.</summary>
     public IReadOnlyList<StatsViewRecord> RecentViews => _views;
@@ -98,6 +103,7 @@ public sealed class UsageService : IDisposable
 
         var result = _db.Import(data ?? throw new InvalidDataException(Strings.Import_Empty));
         Compact();
+        DaysChanged?.Invoke();
         return result;
     }
 
@@ -106,6 +112,7 @@ public sealed class UsageService : IDisposable
         Recorder.Flush();
         _db.Clear();
         LoadViews();
+        DaysChanged?.Invoke();
     }
 
     public void AddView(StatsViewRecord view)
@@ -140,6 +147,7 @@ public sealed class UsageService : IDisposable
             if (folded > 0)
             {
                 _logger.LogInformation("Folded {Count} usage segments into daily totals", folded);
+                DaysChanged?.Invoke();
             }
 
             LoadViews();

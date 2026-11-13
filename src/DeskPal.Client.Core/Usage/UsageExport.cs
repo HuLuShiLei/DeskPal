@@ -25,3 +25,6 @@ public sealed record ExportedRollup(Guid DeviceId, DateOnly Date, PresenceState 
 public sealed record StatsViewRecord(Guid RoomId, string RoomName, Guid ViewerId, string ViewerName, DateTimeOffset At);
 
 public sealed record ImportResult(int Segments, int Rollups);
+
+/// <summary>Sync state of one day: the hash of the content the server has, as far as this computer knows, and the server's revision.</summary>
+public sealed record SyncMark(string? Hash, long Revision);

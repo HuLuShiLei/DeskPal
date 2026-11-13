@@ -31,6 +31,8 @@ public sealed class PanelBridge
     private readonly PinnedMembers _pins;
     private readonly UsageService _usage;
     private readonly StatsExchange _stats;
+    private readonly StatsSyncService _sync;
+    private readonly FolderSyncService _folder;
 
     public PanelBridge(
         RoomState rooms,
@@ -45,10 +47,16 @@ public sealed class PanelBridge
         WhatsNewStore whatsNew,
         PinnedMembers pins,
         UsageService usage,
-        StatsExchange stats)
+        StatsExchange stats,
+        StatsSyncService sync,
+        FolderSyncService folder)
     {
         _usage = usage;
         _stats = stats;
+        _sync = sync;
+        _folder = folder;
+        sync.Changed += RaiseChanged;
+        folder.Changed += RaiseChanged;
         usage.Changed += RaiseChanged;
         _rooms = rooms;
         _presence = presence;
@@ -128,6 +136,10 @@ public sealed class PanelBridge
         UsageRetentionDays = _settings.UsageRetentionDays,
         NoTitleRules = _settings.NoTitleRules,
         StatsViews = _usage.RecentViews,
+        SyncMode = _sync.Mode,
+        SyncError = _sync.Error,
+        FolderMode = _folder.Mode,
+        FolderPath = _folder.Folder,
     });
 
     /// <summary>Runs on the UI thread.</summary>
@@ -284,7 +296,91 @@ public sealed class PanelBridge
             }
 
             case "stats.clear":
+                if (_sync.Mode != StatsSyncMode.Off)
+                {
+                    return CommandResult.Fail(Strings.Usage_ClearSyncOn);
+                }
+
+                if (_folder.Mode != FolderSyncMode.Off)
+                {
+                    return CommandResult.Fail(Strings.Usage_ClearFolderOn);
+                }
+
                 await Task.Run(_usage.Clear);
+                return CommandResult.Success;
+
+            case "stats.sync.enable":
+            {
+                var pin = c.String("pin");
+                if (!StatsSyncCrypto.IsValidPin(pin))
+                {
+                    return CommandResult.Fail(Strings.Sync_PinInvalid);
+                }
+
+                if (_folder.Mode != FolderSyncMode.Off)
+                {
+                    return CommandResult.Fail(Strings.Sync_FolderOn);
+                }
+
+                return await _sync.EnableAsync(pin) ? CommandResult.Success : CommandResult.Fail(Strings.Sync_EnabledElsewhere);
+            }
+
+            case "stats.sync.unlock":
+                return await _sync.UnlockAsync(c.String("pin")) switch
+                {
+                    StatsSyncUnlock.WrongPin => CommandResult.Fail(Strings.Sync_WrongPin),
+                    StatsSyncUnlock.NotEnabled => CommandResult.Fail(Strings.ApiError_statsSync_notEnabled),
+                    _ => CommandResult.Success,
+                };
+
+            case "stats.sync.disable":
+                await _sync.DisableAsync();
+                return CommandResult.Success;
+
+            case "stats.folder.choose":
+            {
+                if (_sync.Mode != StatsSyncMode.Off)
+                {
+                    return CommandResult.Fail(Strings.Folder_ServerOn);
+                }
+
+                var dialog = new Microsoft.Win32.OpenFolderDialog { Title = Strings.Folder_DialogTitle };
+                if (dialog.ShowDialog() != true)
+                {
+                    return CommandResult.Success;
+                }
+
+                var path = dialog.FolderName;
+                return await Task.Run(() => _folder.Check(path)) switch
+                {
+                    FolderCheck.NotWritable => CommandResult.Fail(Strings.Folder_NotWritable),
+                    var check => new CommandResult(true, Data: new { path, existing = check == FolderCheck.Existing }),
+                };
+            }
+
+            case "stats.folder.enable":
+            {
+                var pin = c.String("pin");
+                if (!StatsSyncCrypto.IsValidPin(pin))
+                {
+                    return CommandResult.Fail(Strings.Sync_PinInvalid);
+                }
+
+                if (_sync.Mode != StatsSyncMode.Off)
+                {
+                    return CommandResult.Fail(Strings.Folder_ServerOn);
+                }
+
+                return await _folder.EnableAsync(c.String("path"), pin) switch
+                {
+                    FolderSyncEnable.WrongPin => CommandResult.Fail(Strings.Sync_WrongPin),
+                    FolderSyncEnable.NotWritable => CommandResult.Fail(Strings.Folder_NotWritable),
+                    _ => CommandResult.Success,
+                };
+            }
+
+            case "stats.folder.stop":
+                await _folder.DisableAsync();
                 return CommandResult.Success;
 
             case "stats.retention":

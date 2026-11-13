@@ -703,4 +703,46 @@ Restart DeskPal after installing it.</value>
   <data name="ApiError_hub_notMember" xml:space="preserve">
     <value>You are not a member of this room</value>
   </data>
+  <data name="Sync_PinInvalid" xml:space="preserve">
+    <value>The PIN must be 8 digits</value>
+  </data>
+  <data name="Sync_WrongPin" xml:space="preserve">
+    <value>Incorrect PIN</value>
+  </data>
+  <data name="Sync_EnabledElsewhere" xml:space="preserve">
+    <value>Sync was already turned on from another computer. Enter the PIN set there.</value>
+  </data>
+  <data name="Sync_FolderOn" xml:space="preserve">
+    <value>The sync folder is on. Stop it first.</value>
+  </data>
+  <data name="Folder_DialogTitle" xml:space="preserve">
+    <value>Choose a sync folder</value>
+  </data>
+  <data name="Folder_NotWritable" xml:space="preserve">
+    <value>Can't write to this folder. Choose another one.</value>
+  </data>
+  <data name="Folder_ServerOn" xml:space="preserve">
+    <value>Server sync is on. Turn it off first.</value>
+  </data>
+  <data name="Usage_ClearSyncOn" xml:space="preserve">
+    <value>Turn off server sync before clearing usage stats.</value>
+  </data>
+  <data name="Usage_ClearFolderOn" xml:space="preserve">
+    <value>Stop the sync folder before clearing usage stats.</value>
+  </data>
+  <data name="ApiError_statsSync_notEnabled" xml:space="preserve">
+    <value>Sync is off</value>
+  </data>
+  <data name="ApiError_statsSync_alreadyEnabled" xml:space="preserve">
+    <value>Sync was already turned on from another computer</value>
+  </data>
+  <data name="ApiError_statsSync_invalid" xml:space="preserve">
+    <value>Invalid sync data</value>
+  </data>
+  <data name="ApiError_statsSync_dayTooLarge" xml:space="preserve">
+    <value>One day of usage stats exceeds {limit} MB and was not synced.</value>
+  </data>
+  <data name="ApiError_statsSync_quotaExceeded" xml:space="preserve">
+    <value>The server copy has reached the {limit} MB limit. New records are not synced. Shorten the retention period and try again.</value>
+  </data>
 </root>

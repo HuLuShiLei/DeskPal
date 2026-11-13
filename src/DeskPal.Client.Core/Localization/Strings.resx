@@ -703,4 +703,46 @@
   <data name="ApiError_hub_notMember" xml:space="preserve">
     <value>你不是该房间的成员</value>
   </data>
+  <data name="Sync_PinInvalid" xml:space="preserve">
+    <value>PIN 码须为 8 位数字</value>
+  </data>
+  <data name="Sync_WrongPin" xml:space="preserve">
+    <value>PIN 码不正确</value>
+  </data>
+  <data name="Sync_EnabledElsewhere" xml:space="preserve">
+    <value>同步已在其他电脑开启，请输入在那台电脑上设置的 PIN 码。</value>
+  </data>
+  <data name="Sync_FolderOn" xml:space="preserve">
+    <value>同步文件夹已开启，请先停止。</value>
+  </data>
+  <data name="Folder_DialogTitle" xml:space="preserve">
+    <value>选择同步文件夹</value>
+  </data>
+  <data name="Folder_NotWritable" xml:space="preserve">
+    <value>无法写入该文件夹，请选择其他文件夹。</value>
+  </data>
+  <data name="Folder_ServerOn" xml:space="preserve">
+    <value>同步到服务器已开启，请先关闭。</value>
+  </data>
+  <data name="Usage_ClearSyncOn" xml:space="preserve">
+    <value>同步到服务器开启时无法清除，请先关闭同步。</value>
+  </data>
+  <data name="Usage_ClearFolderOn" xml:space="preserve">
+    <value>同步文件夹开启时无法清除，请先停止同步。</value>
+  </data>
+  <data name="ApiError_statsSync_notEnabled" xml:space="preserve">
+    <value>同步未开启</value>
+  </data>
+  <data name="ApiError_statsSync_alreadyEnabled" xml:space="preserve">
+    <value>同步已在其他电脑开启</value>
+  </data>
+  <data name="ApiError_statsSync_invalid" xml:space="preserve">
+    <value>同步数据无效</value>
+  </data>
+  <data name="ApiError_statsSync_dayTooLarge" xml:space="preserve">
+    <value>某一天的使用统计超过 {limit} MB，该日未能同步。</value>
+  </data>
+  <data name="ApiError_statsSync_quotaExceeded" xml:space="preserve">
+    <value>服务器上的使用统计已达 {limit} MB 上限，新记录暂未同步。请缩短保留时长后重试。</value>
+  </data>
 </root>

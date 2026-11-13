@@ -48,6 +48,15 @@ public static class ApiErrorCodes
     public const string RuleLimit = "rule.limit";
     public const string SharingOff = "sharing.off";
 
+    public const string StatsSyncNotEnabled = "statsSync.notEnabled";
+    public const string StatsSyncInvalid = "statsSync.invalid";
+    public const string StatsSyncAlreadyEnabled = "statsSync.alreadyEnabled";
+
+    /// <summary>Args: limit (MB).</summary>
+    public const string StatsSyncDayTooLarge = "statsSync.dayTooLarge";
+
+    /// <summary>Args: limit (MB).</summary>
+    public const string StatsSyncQuotaExceeded = "statsSync.quotaExceeded";
     public const string HubUnsupportedType = "hub.unsupportedType";
     public const string HubNotMember = "hub.notMember";
 

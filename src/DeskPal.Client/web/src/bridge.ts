@@ -131,6 +131,10 @@ export interface PanelState {
     noTitleRules: { kind: NoTitleKind; pattern: string; label: string }[];
     /** 最近 7 天查看过我的统计的人，最新的在前。 */
     viewers: { name: string; room: string; when: string }[];
+    /** 同步到服务器。needsPin：其他电脑开启的，这台电脑还要输入 PIN 码；error：上次同步失败、用户可以处理的原因。 */
+    sync: { enabled: boolean; needsPin: boolean; error: string | null } | null;
+    /** 同步文件夹。和同步到服务器只能开启一种。unavailable：已开启，但文件夹暂时无法访问。 */
+    folder: { enabled: boolean; path: string | null; unavailable: boolean } | null;
   } | null;
   /** 文案实际使用的语言。宿主推送的文字已经是这个语言，页面自己的文字跟着切换。 */
   locale: "zh-CN" | "en";
@@ -191,6 +195,12 @@ export type Command =
   | { type: "stats.export" }
   | { type: "stats.import" }
   | { type: "stats.clear" }
+  | { type: "stats.sync.enable"; pin: string }
+  | { type: "stats.sync.unlock"; pin: string }
+  | { type: "stats.sync.disable" }
+  | { type: "stats.folder.choose" }
+  | { type: "stats.folder.enable"; path: string; pin: string }
+  | { type: "stats.folder.stop" }
   | { type: "stats.retention"; days: number }
   | { type: "stats.noTitle.add"; kind: NoTitleKind; pattern: string }
   | { type: "stats.noTitle.remove"; kind: NoTitleKind; pattern: string }

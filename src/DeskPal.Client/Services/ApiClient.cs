@@ -79,6 +79,20 @@ public sealed class ApiClient(AppSettings settings)
 
     public Task ReportUsageAsync(UsageReportRequest req) => SendAsync<object>(HttpMethod.Post, "/api/me/usage", req);
 
+    public Task<StatsSyncStatusDto> GetStatsSyncAsync() => SendAsync<StatsSyncStatusDto>(HttpMethod.Get, "/api/me/stats-sync");
+
+    public Task<StatsSyncStatusDto> EnableStatsSyncAsync(EnableStatsSyncRequest req) => SendAsync<StatsSyncStatusDto>(HttpMethod.Put, "/api/me/stats-sync", req);
+
+    public Task DisableStatsSyncAsync() => SendAsync<object?>(HttpMethod.Delete, "/api/me/stats-sync");
+
+    public Task<StatsSyncDayInfo> UploadStatsDayAsync(DateOnly date, byte[] data) =>
+        SendAsync<StatsSyncDayInfo>(HttpMethod.Put, $"/api/me/stats-sync/days/{DayPath(date)}", new UploadStatsDayRequest(Convert.ToBase64String(data)));
+
+    public Task<StatsSyncDayDto> DownloadStatsDayAsync(DateOnly date) => SendAsync<StatsSyncDayDto>(HttpMethod.Get, $"/api/me/stats-sync/days/{DayPath(date)}");
+
+
+    private static string DayPath(DateOnly date) => date.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+
     private async Task<T> SendAsync<T>(HttpMethod method, string path, object? body = null, bool auth = true)
     {
         using var request = new HttpRequestMessage(method, settings.ServerUrl.TrimEnd('/') + path);

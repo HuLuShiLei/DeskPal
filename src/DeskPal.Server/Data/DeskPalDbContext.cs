@@ -14,6 +14,7 @@ public sealed class DeskPalDbContext(DbContextOptions<DeskPalDbContext> options)
     public DbSet<BuiltinRule> BuiltinRules => Set<BuiltinRule>();
     public DbSet<UserRule> UserRules => Set<UserRule>();
     public DbSet<UnknownAppReport> UnknownAppReports => Set<UnknownAppReport>();
+    public DbSet<StatsSyncDay> StatsSyncDays => Set<StatsSyncDay>();
     public DbSet<AppMeta> AppMeta => Set<AppMeta>();
 
     protected override void OnModelCreating(ModelBuilder b)
@@ -23,6 +24,8 @@ public sealed class DeskPalDbContext(DbContextOptions<DeskPalDbContext> options)
             e.HasIndex(x => x.UserName).IsUnique();
             e.Property(x => x.UserName).HasMaxLength(32);
             e.Property(x => x.DisplayName).HasMaxLength(20);
+            e.Property(x => x.StatsSyncSalt).HasMaxLength(200);
+            e.Property(x => x.StatsSyncKeyCheck).HasMaxLength(200);
         });
 
         b.Entity<Room>(e =>
@@ -84,6 +87,12 @@ public sealed class DeskPalDbContext(DbContextOptions<DeskPalDbContext> options)
             e.HasKey(x => new { x.UserId, x.Kind, x.Pattern });
             e.Property(x => x.Pattern).HasMaxLength(200);
             e.Property(x => x.DisplayName).HasMaxLength(60);
+            e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<StatsSyncDay>(e =>
+        {
+            e.HasKey(x => new { x.UserId, x.Date });
             e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });
 

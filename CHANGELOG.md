@@ -8,6 +8,12 @@
 
 ## 0.1.2
 
+- 使用统计可以用 PIN 码加密后同步到服务器，在其他电脑上登录并输入 PIN 码后即可同步；关闭同步时立即删除服务器上的数据
+  en: Usage stats can be encrypted with a PIN and synced to the server. Sign in on another computer and enter the PIN to sync there. Turning sync off deletes the server copy immediately
+- 使用统计也可以通过网盘等同步工具在电脑之间同步：选择一个同步文件夹，文件用 PIN 码加密，服务器不保存这些数据
+  en: Usage stats can also be synced through a cloud drive or sync app. Choose a sync folder; the files are encrypted with a PIN and the server doesn't store them
+- 开启任一种同步时，需先关闭同步才能清除使用统计
+  en: Turn off sync before clearing usage stats
 - 更新后第一次打开面板时，显示这次更新了哪些内容
   en: The first time you open the panel after an update, it shows what changed
 - 标题栏的房间菜单可以选择「无房间」，暂时不向任何房间分享状态

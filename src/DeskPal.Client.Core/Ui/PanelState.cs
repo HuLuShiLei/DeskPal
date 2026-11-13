@@ -71,7 +71,18 @@ public sealed record PrivacyView(
 /// <summary>Settings of my own usage stats, shown on the stats page.</summary>
 /// <param name="NoTitleRules">Apps, processes, sites and title keywords whose titles are never recorded.</param>
 /// <param name="Viewers">Who viewed my stats in the last 7 days, latest first.</param>
-public sealed record UsageView(int RetentionDays, IReadOnlyList<Option<int>> RetentionOptions, IReadOnlyList<NoTitleItem> NoTitleRules, IReadOnlyList<StatsViewerItem> Viewers);
+/// <param name="Sync">Copy of the stats kept on the server.</param>
+/// <param name="Folder">Sync through a folder the user's cloud drive or sync app copies. Only one of the two can be on.</param>
+public sealed record UsageView(int RetentionDays, IReadOnlyList<Option<int>> RetentionOptions, IReadOnlyList<NoTitleItem> NoTitleRules, IReadOnlyList<StatsViewerItem> Viewers, UsageSyncView? Sync = null, UsageFolderView? Folder = null);
+
+/// <param name="Path">The chosen folder, when on.</param>
+/// <param name="Unavailable">On, but the folder cannot be reached right now.</param>
+public sealed record UsageFolderView(bool Enabled, string? Path, bool Unavailable);
+
+/// <param name="Enabled">Sync is on for the account.</param>
+/// <param name="NeedsPin">On, but this computer still needs the PIN.</param>
+/// <param name="Error">Why the last sync failed, when the user can do something about it (e.g. the server limit).</param>
+public sealed record UsageSyncView(bool Enabled, bool NeedsPin, string? Error = null);
 
 public sealed record NoTitleItem(NoTitleKind Kind, string Pattern, string Label);
 
