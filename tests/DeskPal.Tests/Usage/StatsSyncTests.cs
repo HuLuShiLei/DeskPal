@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace DeskPal.Tests.Usage;
 
-public sealed class StatsSyncTests(ITestOutputHelper output) : IDisposable
+public sealed class StatsSyncTests : IDisposable
 {
     private const string Pin = "20261113";
     private static readonly TimeZoneInfo Zone = TimeZoneInfo.CreateCustomTimeZone("UTC+8", TimeSpan.FromHours(8), "UTC+8", "UTC+8");
@@ -51,15 +51,6 @@ public sealed class StatsSyncTests(ITestOutputHelper output) : IDisposable
         Assert.Equal(plain, StatsSyncCrypto.Open(key, sealedDay));
         Assert.ThrowsAny<CryptographicException>(() => StatsSyncCrypto.Open(StatsSyncCrypto.DeriveKey("20261114", salt), sealedDay));
         Assert.Throws<FormatException>(() => StatsSyncCrypto.DeriveKey(Pin, "pbkdf2$x$y"));
-    }
-
-    [Fact]
-    public void Default_derivation_takes_a_noticeable_time()
-    {
-        var watch = Stopwatch.StartNew();
-        StatsSyncCrypto.DeriveKey(Pin, StatsSyncCrypto.NewSalt());
-        output.WriteLine($"Argon2id {StatsSyncCrypto.DefaultParameters}: {watch.ElapsedMilliseconds} ms");
-        Assert.InRange(watch.ElapsedMilliseconds, 50, 10_000);
     }
 
     [Fact]
@@ -326,3 +317,20 @@ public sealed class StatsSyncTests(ITestOutputHelper output) : IDisposable
         }
     }
 }
+
+/// <summary>Uses all cores for a moment, so it runs alone rather than slowing the SignalR tests running beside it.</summary>
+[Collection(nameof(StatsSyncKdfTests))]
+public sealed class StatsSyncKdfTests(ITestOutputHelper output)
+{
+    [Fact]
+    public void Default_derivation_takes_a_noticeable_time()
+    {
+        var watch = Stopwatch.StartNew();
+        StatsSyncCrypto.DeriveKey("20261113", StatsSyncCrypto.NewSalt());
+        output.WriteLine($"Argon2id {StatsSyncCrypto.DefaultParameters}: {watch.ElapsedMilliseconds} ms");
+        Assert.InRange(watch.ElapsedMilliseconds, 50, 10_000);
+    }
+}
+
+[CollectionDefinition(nameof(StatsSyncKdfTests), DisableParallelization = true)]
+public sealed class StatsSyncKdfCollection;
