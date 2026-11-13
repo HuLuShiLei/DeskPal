@@ -57,7 +57,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
           state,
           state.selectedRoomId
             ? { members: initial.members, privacy: initial.privacy, emptyHint: initial.emptyHint }
-            : { members: [], privacy: null, emptyHint: "当前无房间。到「房间」页创建房间或用邀请码加入，或在标题栏选择一个房间进入。" },
+            : { members: [], privacy: null, emptyHint: "当前无房间。请创建/选择一个房间，或用邀请码加入。" },
         );
         break;
       case "room.create":
@@ -104,7 +104,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
         if (!state.selectedRoomId) {
           state.members = [];
           state.privacy = null;
-          state.emptyHint = "当前无房间。到「房间」页创建房间或用邀请码加入，或在标题栏选择一个房间进入。";
+          state.emptyHint = "当前无房间。请创建/选择一个房间，或用邀请码加入。";
         }
         break;
       case "presence.pause":
