@@ -112,7 +112,7 @@
     <value>Category and app</value>
   </data>
   <data name="Privacy_Detail" xml:space="preserve">
-    <value>Full details (titles)</value>
+    <value>Include titles</value>
   </data>
   <data name="Duration_JustNow" xml:space="preserve">
     <value>Just now</value>
@@ -128,6 +128,9 @@
   </data>
   <data name="Duration_HoursMinutes" xml:space="preserve">
     <value>{0} h {1} min</value>
+  </data>
+  <data name="Duration_OneDay" xml:space="preserve">
+    <value>{0} day</value>
   </data>
   <data name="Duration_Days" xml:space="preserve">
     <value>{0} days</value>
@@ -169,7 +172,7 @@
     <value>, </value>
   </data>
   <data name="Panel_NoMembers" xml:space="preserve">
-    <value>No one else is in this room yet. Create an invite code on the Rooms page and send it to them.</value>
+    <value>No other members yet. Create an invite code on the Rooms page.</value>
   </data>
   <data name="Panel_NoRoom" xml:space="preserve">
     <value>You are not in a room. Create or select a room, or join one with an invite code.</value>
@@ -190,16 +193,16 @@
     <value>Not connected. Retrying shortly.</value>
   </data>
   <data name="Source_Personal" xml:space="preserve">
-    <value>classified by your rule</value>
+    <value>matched your category</value>
   </data>
   <data name="Source_Builtin" xml:space="preserve">
-    <value>classified by the default rules</value>
+    <value>matched a default category</value>
   </data>
   <data name="Source_Heuristic" xml:space="preserve">
-    <value>guessed from the window</value>
+    <value>inferred from the window</value>
   </data>
   <data name="Source_Unknown" xml:space="preserve">
-    <value>not recognized, shown as "Using"</value>
+    <value>not recognized, shown as Using</value>
   </data>
   <data name="Source_WithTarget" xml:space="preserve">
     <value>{0}: {1}.</value>
@@ -271,22 +274,22 @@
     <value>Locked {0}</value>
   </data>
   <data name="Stats_SharedDays" xml:space="preserve">
-    <value>{0} shares the last {1} days.</value>
+    <value>{0} shares the last {1}.</value>
   </data>
   <data name="Stats_HiddenCategories" xml:space="preserve">
-    <value>Some categories are shared as status only.</value>
+    <value>Some categories are status only.</value>
   </data>
   <data name="Stats_HiddenTitles" xml:space="preserve">
-    <value>Titles are hidden for some categories, so app names are shown.</value>
+    <value>Some categories omit titles and show the app name.</value>
   </data>
   <data name="Stats_NoTimeline" xml:space="preserve">
-    <value>This day is past the retention period. Only the daily total is kept, without a timeline.</value>
+    <value>Past the retention period. Only the daily total is kept.</value>
   </data>
   <data name="Stats_EmptyMine" xml:space="preserve">
-    <value>Nothing recorded for this period. Usage is recorded only while DeskPal is running.</value>
+    <value>Nothing recorded. DeskPal records usage only while it is running.</value>
   </data>
   <data name="Stats_EmptyOther" xml:space="preserve">
-    <value>Nothing recorded for this period.</value>
+    <value>Nothing was recorded for this period.</value>
   </data>
   <data name="Stats_UsageTime" xml:space="preserve">
     <value>Usage</value>
@@ -307,7 +310,7 @@
     <value>Yesterday: {0}</value>
   </data>
   <data name="Compare_DaySame" xml:space="preserve">
-    <value>About the same as the day before</value>
+    <value>Same as the day before</value>
   </data>
   <data name="Compare_DayMore" xml:space="preserve">
     <value>{0} more than the day before</value>
@@ -316,22 +319,22 @@
     <value>{0} less than the day before</value>
   </data>
   <data name="Compare_WeekSame" xml:space="preserve">
-    <value>About the same as last week</value>
+    <value>Same as last week's daily average</value>
   </data>
   <data name="Compare_WeekMore" xml:space="preserve">
-    <value>{0} more per day than last week</value>
+    <value>{0} more than last week's daily average</value>
   </data>
   <data name="Compare_WeekLess" xml:space="preserve">
-    <value>{0} less per day than last week</value>
+    <value>{0} less than last week's daily average</value>
   </data>
   <data name="Compare_MonthSame" xml:space="preserve">
-    <value>About the same as last month</value>
+    <value>Same as last month's daily average</value>
   </data>
   <data name="Compare_MonthMore" xml:space="preserve">
-    <value>{0} more per day than last month</value>
+    <value>{0} more than last month's daily average</value>
   </data>
   <data name="Compare_MonthLess" xml:space="preserve">
-    <value>{0} less per day than last month</value>
+    <value>{0} less than last month's daily average</value>
   </data>
   <data name="Stats_ThisWeek" xml:space="preserve">
     <value>{0} (this week)</value>
@@ -388,7 +391,7 @@
     <value>Exported to {0}</value>
   </data>
   <data name="App_AlreadyRunning" xml:space="preserve">
-    <value>DeskPal is already running. Open it from the icon in the notification area.</value>
+    <value>DeskPal is already running. Open it from the notification area.</value>
   </data>
   <data name="Tray_Open" xml:space="preserve">
     <value>Open DeskPal</value>
@@ -482,13 +485,13 @@ Restart DeskPal after installing it.</value>
     <value>{0} does not share usage stats in this room</value>
   </data>
   <data name="Error_MemberSharedDays" xml:space="preserve">
-    <value>{0} shares only the last {1} days</value>
+    <value>{0} shares only the last {1}</value>
   </data>
   <data name="Error_NothingRecognized" xml:space="preserve">
-    <value>No app has been detected yet.</value>
+    <value>No app detected yet.</value>
   </data>
   <data name="Error_NothingToCorrect" xml:space="preserve">
-    <value>No app has been detected yet. Switch to the app you want to reclassify, then open the panel again.</value>
+    <value>No app detected yet. Switch to the app you want to reclassify, then open the panel.</value>
   </data>
   <data name="Error_CategoryRequired" xml:space="preserve">
     <value>Choose a category</value>
@@ -536,13 +539,13 @@ Restart DeskPal after installing it.</value>
     <value>You were removed from this room. You can rejoin with a new invite code.</value>
   </data>
   <data name="Room_InviteCopied" xml:space="preserve">
-    <value>Invite code copied to the clipboard. Valid until {0}. Creating a new code invalidates the old one; removed members can rejoin with the new code.</value>
+    <value>Invite code copied. Valid until {0}. A new code replaces the old one. Removed members can rejoin with the new code.</value>
   </data>
   <data name="Stats_NotConnected" xml:space="preserve">
     <value>Not connected to the server. Try again later.</value>
   </data>
   <data name="Stats_NoResponse" xml:space="preserve">
-    <value>This member is offline, not in this room right now, or did not respond.</value>
+    <value>This member is offline, not in this room, or did not respond.</value>
   </data>
   <data name="Stats_DecryptFailed" xml:space="preserve">
     <value>The stats received could not be decrypted. Try again.</value>
@@ -551,10 +554,10 @@ Restart DeskPal after installing it.</value>
     <value>This member does not share usage stats in this room.</value>
   </data>
   <data name="Stats_PeerSharedDays" xml:space="preserve">
-    <value>This member shares only the last {0} days.</value>
+    <value>This member shares only the last {0}.</value>
   </data>
   <data name="Update_NotInstalled" xml:space="preserve">
-    <value>This copy is not installed, so it cannot update itself. Install DeskPal from the setup file on GitHub Releases (DeskPal-&lt;version&gt;-Setup.exe).</value>
+    <value>This copy was not installed and cannot update itself. Use DeskPal-&lt;version&gt;-Setup.exe from GitHub Releases.</value>
   </data>
   <data name="Update_Checking" xml:space="preserve">
     <value>Checking for updates…</value>
@@ -566,7 +569,7 @@ Restart DeskPal after installing it.</value>
     <value>You have the latest version ({0}).</value>
   </data>
   <data name="Update_Downgrade" xml:space="preserve">
-    <value>The stable release {0} is older than the beta you are using ({1}). Switch to the stable release and restart? Otherwise you will stay on this version until a newer stable release is out.</value>
+    <value>Stable {0} is older than beta {1}. Switch to stable and restart? If not, you stay on this version until a newer stable release.</value>
   </data>
   <data name="Update_DownloadFailed" xml:space="preserve">
     <value>Could not download the update: {0}</value>
@@ -635,7 +638,7 @@ Restart DeskPal after installing it.</value>
     <value>This room is full (limit: {limit} members)</value>
   </data>
   <data name="ApiError_room_ownerCannotLeave" xml:space="preserve">
-    <value>The owner cannot leave. Transfer ownership or delete the room first.</value>
+    <value>The owner cannot leave directly. Transfer ownership or delete the room first.</value>
   </data>
   <data name="ApiError_room_ownerOnlyKick" xml:space="preserve">
     <value>Only the owner can remove members</value>
@@ -671,7 +674,7 @@ Restart DeskPal after installing it.</value>
     <value>Choose a category</value>
   </data>
   <data name="ApiError_rule_limit" xml:space="preserve">
-    <value>You can have at most {limit} personal rules. Delete some you no longer need.</value>
+    <value>You can save at most {limit} categories. Delete some first.</value>
   </data>
   <data name="ApiError_sharing_off" xml:space="preserve">
     <value>Usage data sharing is turned off</value>

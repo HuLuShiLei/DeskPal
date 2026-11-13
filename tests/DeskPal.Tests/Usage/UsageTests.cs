@@ -280,7 +280,7 @@ public class UsageTests : IDisposable
 
         var view = StatsViewBuilder.Build(report, StatsScale.Day, StatsGranularity.Title, Day, Day, "Bob");
 
-        Assert.Equal("Bob 公开了最近 1 天的统计。部分类别对方只公开了状态。部分类别对方没有公开标题，显示为应用名。", view.Note);
+        Assert.Equal("Bob 公开了最近 1 天的统计。部分类别仅公开了状态。部分类别未公开标题，仅显示应用名。", view.Note);
         Assert.False(view.CanPrev);
         Assert.Contains(view.Ranking, r => r is { Name: "工作（未公开类别）", Hidden: true });
         Assert.Contains(view.Ranking, r => r.Name == "哔哩哔哩");

@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using DeskPal.Client.Core.Localization;
+using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Usage;
 using DeskPal.Shared.Messaging;
 using DeskPal.Shared.Stats;
@@ -119,7 +120,7 @@ public sealed class StatsExchange(HubService hub, RoomState rooms, UsageService 
     private string ErrorText(StatsResponsePayload response, Pending pending) => response.ErrorCode switch
     {
         StatsErrorCodes.NotShared => Strings.Stats_PeerNotSharing,
-        StatsErrorCodes.OutOfRange => UiLanguage.Format(Strings.Stats_PeerSharedDays, rooms.Rooms.FirstOrDefault(r => r.Id == pending.RoomId)?.Members.FirstOrDefault(m => m.UserId == pending.UserId)?.StatsDays ?? 0),
+        StatsErrorCodes.OutOfRange => UiLanguage.Format(Strings.Stats_PeerSharedDays, PresenceFormatter.Days(rooms.Rooms.FirstOrDefault(r => r.Id == pending.RoomId)?.Members.FirstOrDefault(m => m.UserId == pending.UserId)?.StatsDays ?? 0)),
         _ => response.Error ?? Strings.Stats_NoResponse,
     };
 
@@ -153,7 +154,7 @@ public sealed class StatsExchange(HubService hub, RoomState rooms, UsageService 
             var to = request.To > today ? today : request.To;
             if (from > to)
             {
-                await ReplyAsync(envelope, new StatsResponsePayload(request.RequestId, Error: UiLanguage.Format(Strings.Stats_PeerSharedDays, privacy.StatsDays), ErrorCode: StatsErrorCodes.OutOfRange));
+                await ReplyAsync(envelope, new StatsResponsePayload(request.RequestId, Error: UiLanguage.Format(Strings.Stats_PeerSharedDays, PresenceFormatter.Days(privacy.StatsDays)), ErrorCode: StatsErrorCodes.OutOfRange));
                 return;
             }
 

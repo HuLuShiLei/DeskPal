@@ -102,8 +102,8 @@ export function createMockTransport(params: URLSearchParams): Transport {
           data: {
             code: "K7Q2M9XA",
             message: L(
-              "邀请码已复制到剪贴板，11 月 12 日 15:00 前有效。重新生成后旧邀请码失效，被踢出的人可以用新邀请码加入。",
-              "Invite code copied to the clipboard. Valid until Nov 12, 15:00. Creating a new code invalidates the old one; removed members can rejoin with the new code.",
+              "邀请码已复制，11 月 12 日 15:00 前有效。重新生成后旧邀请码失效，被踢出的成员可使用新邀请码加入。",
+              "Invite code copied. Valid until Nov 12, 15:00. A new code replaces the old one. Removed members can rejoin with the new code.",
             ),
           },
         };
@@ -122,7 +122,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
         const view = views[key];
         return view
           ? { ok: true, error: null, data: view }
-          : { ok: false, error: L("对方不在线、现在不在这个房间，或者没有响应。", "This member is offline, not in this room right now, or did not respond.") };
+          : { ok: false, error: L("对方不在线、当前不在此房间，或没有响应。", "This member is offline, not in this room, or did not respond.") };
       }
       case "stats.export":
         return { ok: true, error: null, data: { message: L("已导出到 C:\\Users\\alice\\Documents\\DeskPal-使用统计-20261111.json", "Exported to C:\\Users\\alice\\Documents\\DeskPal-usage-20261111.json") } };
@@ -228,11 +228,11 @@ export function createMockTransport(params: URLSearchParams): Transport {
       }
       case "presence.correct":
         state.correction.personal = true;
-        state.me.source = L(`「${state.correction.target}」按你设置的分类识别。`, `"${state.correction.target}" is classified by your rule.`);
+        state.me.source = L(`「${state.correction.target}」按你的分类识别。`, `${state.correction.target}: matched your category.`);
         break;
       case "presence.resetCorrection":
         state.correction.personal = false;
-        state.me.source = L(`「${state.correction.target}」按默认分类识别。`, `"${state.correction.target}" is classified by the default rules.`);
+        state.me.source = L(`「${state.correction.target}」按默认分类识别。`, `${state.correction.target}: matched a default category.`);
         break;
       case "rules.set": {
         const name = (m.name as string | null) ?? (m.pattern as string);

@@ -98,7 +98,7 @@
       },
       {
         "value": "Detail",
-        "name": "Full details (titles)"
+        "name": "Include titles"
       }
     ],
     "shareStats": true,
@@ -106,7 +106,7 @@
     "dayOptions": [
       {
         "value": 1,
-        "name": "1 days"
+        "name": "1 day"
       },
       {
         "value": 3,

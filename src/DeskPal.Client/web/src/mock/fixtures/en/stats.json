@@ -1148,7 +1148,7 @@
       }
     ],
     "rankingTitle": "Top apps and sites",
-    "note": "Bob shares the last 7 days. Some categories are shared as status only.",
+    "note": "Bob shares the last 7 days. Some categories are status only.",
     "empty": null
   },
   "Day-Title": {
@@ -1736,7 +1736,7 @@
       }
     ],
     "rankingTitle": "Top titles",
-    "note": "Bob shares the last 7 days. Some categories are shared as status only. Titles are hidden for some categories, so app names are shown.",
+    "note": "Bob shares the last 7 days. Some categories are status only. Some categories omit titles and show the app name.",
     "empty": null
   },
   "Week-State": {
@@ -1747,7 +1747,7 @@
     "title": "Nov 9 – Nov 15 (this week)",
     "totalLabel": "Daily average",
     "total": "7 h 40 min",
-    "compare": "28 min less per day than last week",
+    "compare": "28 min less than last week's daily average",
     "summary": "Total 23 h · Away 2 h · Locked 2 h",
     "canPrev": true,
     "canNext": false,
@@ -2131,7 +2131,7 @@
     "title": "Nov 9 – Nov 15 (this week)",
     "totalLabel": "Daily average",
     "total": "7 h 40 min",
-    "compare": "28 min less per day than last week",
+    "compare": "28 min less than last week's daily average",
     "summary": "Total 23 h · Away 2 h · Locked 2 h",
     "canPrev": true,
     "canNext": false,
@@ -2548,7 +2548,7 @@
       }
     ],
     "rankingTitle": "Top apps and sites",
-    "note": "Bob shares the last 7 days. Some categories are shared as status only.",
+    "note": "Bob shares the last 7 days. Some categories are status only.",
     "empty": null
   },
   "Week-Title": {
@@ -2559,7 +2559,7 @@
     "title": "Nov 9 – Nov 15 (this week)",
     "totalLabel": "Daily average",
     "total": "7 h 40 min",
-    "compare": "28 min less per day than last week",
+    "compare": "28 min less than last week's daily average",
     "summary": "Total 23 h · Away 2 h · Locked 2 h",
     "canPrev": true,
     "canNext": false,
@@ -2984,7 +2984,7 @@
       }
     ],
     "rankingTitle": "Top titles",
-    "note": "Bob shares the last 7 days. Some categories are shared as status only. Titles are hidden for some categories, so app names are shown.",
+    "note": "Bob shares the last 7 days. Some categories are status only. Some categories omit titles and show the app name.",
     "empty": null
   },
   "Month-State": {
@@ -2995,7 +2995,7 @@
     "title": "November 2026 (this month)",
     "totalLabel": "Daily average",
     "total": "7 h 50 min",
-    "compare": "2 h 24 min more per day than last month",
+    "compare": "2 h 24 min more than last month's daily average",
     "summary": "Total 86 h 20 min · Away 5 h 20 min · Locked 7 h",
     "canPrev": true,
     "canNext": false,
@@ -3847,7 +3847,7 @@
     "title": "November 2026 (this month)",
     "totalLabel": "Daily average",
     "total": "7 h 50 min",
-    "compare": "2 h 24 min more per day than last month",
+    "compare": "2 h 24 min more than last month's daily average",
     "summary": "Total 86 h 20 min · Away 5 h 20 min · Locked 7 h",
     "canPrev": true,
     "canNext": false,
@@ -4764,7 +4764,7 @@
       }
     ],
     "rankingTitle": "Top apps and sites",
-    "note": "Bob shares the last 7 days. Some categories are shared as status only.",
+    "note": "Bob shares the last 7 days. Some categories are status only.",
     "empty": null
   },
   "Month-Title": {
@@ -4775,7 +4775,7 @@
     "title": "November 2026 (this month)",
     "totalLabel": "Daily average",
     "total": "7 h 50 min",
-    "compare": "2 h 24 min more per day than last month",
+    "compare": "2 h 24 min more than last month's daily average",
     "summary": "Total 86 h 20 min · Away 5 h 20 min · Locked 7 h",
     "canPrev": true,
     "canNext": false,
@@ -5708,7 +5708,7 @@
       }
     ],
     "rankingTitle": "Top titles",
-    "note": "Bob shares the last 7 days. Some categories are shared as status only. Titles are hidden for some categories, so app names are shown.",
+    "note": "Bob shares the last 7 days. Some categories are status only. Some categories omit titles and show the app name.",
     "empty": null
   }
 }

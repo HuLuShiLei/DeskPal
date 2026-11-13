@@ -134,7 +134,7 @@ public class PanelStateBuilderTests
         Assert.Null(state.Me.Visible);
         Assert.Equal("理工生陷入云吸猫 (64)", state.Me.View.Detail);
         Assert.Equal("类别：聊天\n应用：QQ\n标题：理工生陷入云吸猫 (64)", state.Me.Full);
-        Assert.Equal("「QQ」按你设置的分类识别。", state.Me.Source);
+        Assert.Equal("「QQ」按你的分类识别。", state.Me.Source);
         Assert.Null(state.Me.Pending);
         Assert.True(state.Correction.Personal);
     }

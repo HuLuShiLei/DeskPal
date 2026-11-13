@@ -226,7 +226,7 @@ function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
       const answer = await ask({
         title: t("privacy.share"),
         message:
-          t("privacy.shareMessage", { room: room.name, days }) +
+          t("privacy.shareMessage", { room: room.name, days: privacy.dayOptions.find((o) => o.value === days)?.name ?? days }) +
           (detailed.length > 0 ? t("privacy.shareDetail", { names: detailed.join(t("common.listSeparator")) }) : ""),
         okText: t("privacy.shareOk"),
       });
@@ -262,7 +262,7 @@ function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
         <SettingRow
           title={t("privacy.share")}
           hint={t("privacy.shareHint")}
-          description={privacy.shareStats ? t("privacy.shareDays", { days: privacy.statsDays }) : undefined}
+          description={privacy.shareStats ? t("privacy.shareDays", { days: privacy.dayOptions.find((o) => o.value === privacy.statsDays)?.name ?? privacy.statsDays }) : undefined}
         >
           <Switch checked={privacy.shareStats} label={t("privacy.share")} onChange={(v) => void share(v, privacy.statsDays)} />
         </SettingRow>

@@ -129,6 +129,9 @@
   <data name="Duration_HoursMinutes" xml:space="preserve">
     <value>{0} 小时 {1} 分钟</value>
   </data>
+  <data name="Duration_OneDay" xml:space="preserve">
+    <value>{0} 天</value>
+  </data>
   <data name="Duration_Days" xml:space="preserve">
     <value>{0} 天</value>
   </data>
@@ -169,7 +172,7 @@
     <value>、</value>
   </data>
   <data name="Panel_NoMembers" xml:space="preserve">
-    <value>房间里还没有其他成员。到「房间」页生成邀请码，发给对方。</value>
+    <value>房间里还没有其他成员。请在「房间」页生成邀请码。</value>
   </data>
   <data name="Panel_NoRoom" xml:space="preserve">
     <value>当前无房间。请创建/选择一个房间，或用邀请码加入。</value>
@@ -190,16 +193,16 @@
     <value>未连接服务器，稍后自动重试</value>
   </data>
   <data name="Source_Personal" xml:space="preserve">
-    <value>按你设置的分类识别</value>
+    <value>按你的分类识别</value>
   </data>
   <data name="Source_Builtin" xml:space="preserve">
     <value>按默认分类识别</value>
   </data>
   <data name="Source_Heuristic" xml:space="preserve">
-    <value>按窗口特征推测</value>
+    <value>根据窗口特征推测</value>
   </data>
   <data name="Source_Unknown" xml:space="preserve">
-    <value>没有识别出类别，显示为正在使用</value>
+    <value>未识别，显示为正在使用</value>
   </data>
   <data name="Source_WithTarget" xml:space="preserve">
     <value>「{0}」{1}。</value>
@@ -271,22 +274,22 @@
     <value>锁屏 {0}</value>
   </data>
   <data name="Stats_SharedDays" xml:space="preserve">
-    <value>{0} 公开了最近 {1} 天的统计。</value>
+    <value>{0} 公开了最近 {1}的统计。</value>
   </data>
   <data name="Stats_HiddenCategories" xml:space="preserve">
-    <value>部分类别对方只公开了状态。</value>
+    <value>部分类别仅公开了状态。</value>
   </data>
   <data name="Stats_HiddenTitles" xml:space="preserve">
-    <value>部分类别对方没有公开标题，显示为应用名。</value>
+    <value>部分类别未公开标题，仅显示应用名。</value>
   </data>
   <data name="Stats_NoTimeline" xml:space="preserve">
-    <value>这一天超过了保留天数，只有按天汇总的时长，没有时间轴。</value>
+    <value>已超过保留天数，仅保留当天总时长，没有时间轴。</value>
   </data>
   <data name="Stats_EmptyMine" xml:space="preserve">
-    <value>这段时间没有记录。DeskPal 运行时才会记录使用时间。</value>
+    <value>此时间段没有记录。仅在 DeskPal 运行时记录。</value>
   </data>
   <data name="Stats_EmptyOther" xml:space="preserve">
-    <value>对方这段时间没有记录。</value>
+    <value>对方在此时间段没有记录。</value>
   </data>
   <data name="Stats_UsageTime" xml:space="preserve">
     <value>使用时长</value>
@@ -388,7 +391,7 @@
     <value>已导出到 {0}</value>
   </data>
   <data name="App_AlreadyRunning" xml:space="preserve">
-    <value>DeskPal 已经在运行，请从任务栏右下角的托盘图标打开。</value>
+    <value>DeskPal 已在运行。请从系统托盘图标打开。</value>
   </data>
   <data name="Tray_Open" xml:space="preserve">
     <value>打开 DeskPal</value>
@@ -482,13 +485,13 @@
     <value>{0} 没有在这个房间公开使用统计</value>
   </data>
   <data name="Error_MemberSharedDays" xml:space="preserve">
-    <value>{0} 只公开了最近 {1} 天的统计</value>
+    <value>{0} 只公开了最近 {1}的统计</value>
   </data>
   <data name="Error_NothingRecognized" xml:space="preserve">
-    <value>还没有识别到当前使用的应用。</value>
+    <value>尚未识别当前应用。</value>
   </data>
   <data name="Error_NothingToCorrect" xml:space="preserve">
-    <value>还没有识别到当前使用的应用。切换到要纠正的应用，再打开面板。</value>
+    <value>尚未识别当前应用。请切换到要纠正的应用，再打开面板。</value>
   </data>
   <data name="Error_CategoryRequired" xml:space="preserve">
     <value>请选择类别</value>
@@ -536,13 +539,13 @@
     <value>你已被移出该房间。邀请码更新后才能再次加入</value>
   </data>
   <data name="Room_InviteCopied" xml:space="preserve">
-    <value>邀请码已复制到剪贴板，{0} 前有效。重新生成后旧邀请码失效，被踢出的人可以用新邀请码加入。</value>
+    <value>邀请码已复制，{0} 前有效。重新生成后旧邀请码失效，被踢出的成员可使用新邀请码加入。</value>
   </data>
   <data name="Stats_NotConnected" xml:space="preserve">
     <value>未连接服务器，稍后再试。</value>
   </data>
   <data name="Stats_NoResponse" xml:space="preserve">
-    <value>对方不在线、现在不在这个房间，或者没有响应。</value>
+    <value>对方不在线、当前不在此房间，或没有响应。</value>
   </data>
   <data name="Stats_DecryptFailed" xml:space="preserve">
     <value>收到的统计数据无法解密，请重试。</value>
@@ -551,10 +554,10 @@
     <value>对方没有在这个房间公开使用统计。</value>
   </data>
   <data name="Stats_PeerSharedDays" xml:space="preserve">
-    <value>对方只公开了最近 {0} 天的统计。</value>
+    <value>对方只公开了最近 {0}的统计。</value>
   </data>
   <data name="Update_NotInstalled" xml:space="preserve">
-    <value>当前是直接运行的程序，不能自动更新。请从 GitHub Release 安装带版本号的安装包（DeskPal-版本号-Setup.exe）。</value>
+    <value>当前为直接运行，无法自动更新。请安装 GitHub Releases 上的安装包（DeskPal-版本号-Setup.exe）。</value>
   </data>
   <data name="Update_Checking" xml:space="preserve">
     <value>正在检查更新…</value>
@@ -566,7 +569,7 @@
     <value>当前已是最新版本 {0}。</value>
   </data>
   <data name="Update_Downgrade" xml:space="preserve">
-    <value>正式版 {0} 低于当前测试版 {1}。要切换到正式版并重启吗？不切换会继续使用当前版本，直到下一个更高的正式版。</value>
+    <value>正式版 {0} 低于当前测试版 {1}。切换到正式版并重启？若不切换，将继续使用当前版本，直到有更高的正式版。</value>
   </data>
   <data name="Update_DownloadFailed" xml:space="preserve">
     <value>下载更新失败：{0}</value>
@@ -671,7 +674,7 @@
     <value>请选择类别</value>
   </data>
   <data name="ApiError_rule_limit" xml:space="preserve">
-    <value>个人分类最多 {limit} 条，请先删除不用的</value>
+    <value>个人分类最多 {limit} 条，请先删除不需要的</value>
   </data>
   <data name="ApiError_sharing_off" xml:space="preserve">
     <value>没有同意分享使用数据</value>

@@ -105,7 +105,7 @@ public static class StatsViewBuilder
         var notes = new List<string>();
         if (owner is not null && report.SharedDays is { } shared)
         {
-            notes.Add(UiLanguage.Format(Strings.Stats_SharedDays, owner, shared));
+            notes.Add(UiLanguage.Format(Strings.Stats_SharedDays, owner, PresenceFormatter.Days(shared)));
         }
 
         var hiddenShown = granularity switch

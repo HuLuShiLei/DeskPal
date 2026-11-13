@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.Json;
 using System.Windows;
 using DeskPal.Client.Core.Classification;
+using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Updates;
 using DeskPal.Client.Core.Usage;
@@ -581,7 +582,7 @@ public sealed class PanelBridge
         var from = range.From < first ? first : range.From;
         if (from > to)
         {
-            return CommandResult.Fail(UiLanguage.Format(Strings.Error_MemberSharedDays, member.DisplayName, member.StatsDays));
+            return CommandResult.Fail(UiLanguage.Format(Strings.Error_MemberSharedDays, member.DisplayName, PresenceFormatter.Days(member.StatsDays)));
         }
 
         try

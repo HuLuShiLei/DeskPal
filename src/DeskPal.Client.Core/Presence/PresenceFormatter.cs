@@ -117,7 +117,7 @@ public static class PresenceFormatter
             : UiLanguage.Format(Strings.Duration_HoursMinutes, seconds / 3600, seconds % 3600 / 60),
     };
 
-    public static string Days(int days) => UiLanguage.Format(Strings.Duration_Days, days);
+    public static string Days(int days) => UiLanguage.Format(days == 1 ? Strings.Duration_OneDay : Strings.Duration_Days, days);
 
     /// <summary>"11 月 13 日", with the year when it is not this year.</summary>
     public static string Date(DateOnly date, DateOnly today) =>
