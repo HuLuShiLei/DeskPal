@@ -205,7 +205,6 @@ export function Avatar({ name, tone }: { name: string; tone: PresenceView["tone"
   return (
     <span class={`avatar tv-${tone}`} aria-hidden="true">
       {initial}
-      <span class={`presence-dot tone-${tone}`} />
     </span>
   );
 }

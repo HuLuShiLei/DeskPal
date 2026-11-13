@@ -312,10 +312,13 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 .list-row.member .row-main { gap: 4px; }
 .list-row.member .presence-detail { margin-top: 0; }
 .list-row.member .avatar { margin-top: 2px; }
+.member-side { flex: none; display: flex; flex-direction: column; align-items: flex-end; margin: -2px -4px 0 0; }
+.member-actions { display: flex; }
+.member-meta { margin: -3px 4px 0 0; font-size: 11px; line-height: 22px; color: var(--faint); white-space: nowrap; }
 .list-row.offline .status-badge { color: var(--muted); background: var(--hover); }
 .list-row.offline .avatar { opacity: 0.6; }
 .list-row.offline .row-title { color: var(--muted); }
-.list-row.member .pin-button { height: 28px; width: 28px; min-height: 28px; margin: -2px -4px 0 -6px; }
+.list-row.member .pin-button { height: 28px; width: 28px; min-height: 28px; margin-left: -6px; }
 .pin-button.active { color: var(--accent); }
 
 /* ---- 置顶小卡片（page=card） ---- */
@@ -347,17 +350,6 @@ button.pin-card-close {
   background: var(--accent-soft); color: var(--accent);
 }
 .avatar[class*="tv-"] { background: color-mix(in srgb, var(--tv) 18%, transparent); color: color-mix(in srgb, var(--tv) 85%, var(--text)); }
-.presence-dot {
-  position: absolute; right: -1px; bottom: -1px; width: 11px; height: 11px; border-radius: 50%;
-  border: 2px solid var(--surface-strong); background: var(--tone-offline);
-}
-.tone-work { background: var(--tone-work); }
-.tone-chat { background: var(--tone-chat); }
-.tone-relax { background: var(--tone-relax); }
-.tone-browse { background: var(--tone-browse); }
-.tone-other { background: var(--tone-other); }
-.tone-away { background: var(--tone-away); }
-.tone-offline { background: var(--tone-offline); }
 
 .setting-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; min-height: 52px; }
 .setting-icon { font-size: 16px; color: var(--muted); }

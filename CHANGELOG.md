@@ -16,6 +16,8 @@
   en: Poke and custom status have been removed
 - 设置里可以修改显示名称，允许重名
   en: You can change your display name. Duplicate names are allowed
+- 房间成员的「已持续」时间固定显示在右侧按钮下方，和状态标签同一行；头像右下角不再显示状态圆点
+  en: How long a member has been in a status now stays on the right, below the buttons. Avatars no longer show a status dot
 - 面板可以拖动边框调整大小
   en: The panel can be resized by dragging its edges
 - 「我的分类」移到左侧导航单独的「分类」页，可以搜索

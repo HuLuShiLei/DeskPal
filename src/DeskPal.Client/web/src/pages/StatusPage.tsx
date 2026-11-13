@@ -51,27 +51,31 @@ function MemberRow({ member, onViewStats }: { member: MemberItem; onViewStats: (
         <p class="row-title">
           {member.name}
           {member.isOwner && <span class="badge">{t("common.owner")}</span>}
-          {member.meta && <span class="row-meta">{member.meta}</span>}
         </p>
         <div>
           <StatusBadge view={member.view} />
         </div>
         <PresenceDetail view={member.view} />
       </div>
-      {member.shareStats && (
-        <button class="icon-button pin-button" title={t("status.viewStats")} aria-label={t("status.viewStatsOf", { name: member.name })} onClick={onViewStats}>
-          <Icon name="chart" />
-        </button>
-      )}
-      <button
-        class={member.pinned ? "icon-button pin-button active" : "icon-button pin-button"}
-        title={member.pinned ? t("status.unpin") : t("status.pin")}
-        aria-label={label}
-        aria-pressed={member.pinned}
-        onClick={() => run({ type: member.pinned ? "member.unpin" : "member.pin", userId: member.userId })}
-      >
-        <Icon name={member.pinned ? "pinned" : "pin"} />
-      </button>
+      <div class="member-side">
+        <div class="member-actions">
+          {member.shareStats && (
+            <button class="icon-button pin-button" title={t("status.viewStats")} aria-label={t("status.viewStatsOf", { name: member.name })} onClick={onViewStats}>
+              <Icon name="chart" />
+            </button>
+          )}
+          <button
+            class={member.pinned ? "icon-button pin-button active" : "icon-button pin-button"}
+            title={member.pinned ? t("status.unpin") : t("status.pin")}
+            aria-label={label}
+            aria-pressed={member.pinned}
+            onClick={() => run({ type: member.pinned ? "member.unpin" : "member.pin", userId: member.userId })}
+          >
+            <Icon name={member.pinned ? "pinned" : "pin"} />
+          </button>
+        </div>
+        {member.meta && <span class="member-meta">{member.meta}</span>}
+      </div>
     </li>
   );
 }
