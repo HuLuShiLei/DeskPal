@@ -72,12 +72,12 @@
       },
       {
         "category": "Video",
-        "name": "放松 · 视频",
+        "name": "视频",
         "level": "Category"
       },
       {
         "category": "Game",
-        "name": "放松 · 游戏",
+        "name": "游戏",
         "level": "Category"
       },
       {
@@ -120,11 +120,11 @@
       },
       {
         "value": "Video",
-        "name": "放松 · 视频"
+        "name": "视频"
       },
       {
         "value": "Game",
-        "name": "放松 · 游戏"
+        "name": "游戏"
       },
       {
         "value": "Browsing",
