@@ -55,7 +55,7 @@ export function RulesPage({ state }: { state: PanelState }) {
               {rules.map((r) => (
                 <li key={r.kind + r.pattern} class="list-row compact">
                   <div class="row-main">
-                    <p class="row-title">{r.name}</p>
+                    <p class="row-title"><span class="row-name" title={r.name}>{r.name}</span></p>
                     <p class="sub">
                       {r.kindName} · {r.pattern}
                     </p>

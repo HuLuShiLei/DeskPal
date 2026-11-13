@@ -28,6 +28,8 @@ export function StatusPage({ state }: { state: PanelState }) {
 }
 
 function MemberRow({ member }: { member: MemberItem }) {
+  const { run } = useHost();
+  const label = member.pinned ? `取消置顶${member.name}` : `把${member.name}置顶到桌面`;
   return (
     <li class={member.online ? "list-row member" : "list-row member offline"} aria-label={member.name}>
       <Avatar name={member.name} tone={member.view.tone} />
@@ -42,6 +44,15 @@ function MemberRow({ member }: { member: MemberItem }) {
         </div>
         <PresenceDetail view={member.view} />
       </div>
+      <button
+        class={member.pinned ? "icon-button pin-button active" : "icon-button pin-button"}
+        title={member.pinned ? "取消置顶" : "置顶到桌面"}
+        aria-label={label}
+        aria-pressed={member.pinned}
+        onClick={() => run({ type: member.pinned ? "member.unpin" : "member.pin", userId: member.userId })}
+      >
+        <Icon name={member.pinned ? "pinned" : "pin"} />
+      </button>
     </li>
   );
 }
@@ -167,7 +178,7 @@ function Unclassified({ state }: { state: PanelState }) {
         {state.unclassified.map((item) => (
           <li key={item.pattern} class="list-row compact">
             <div class="row-main">
-              <p class="row-title">{item.name}</p>
+              <p class="row-title"><span class="row-name" title={item.name}>{item.name}</span></p>
               <p class="sub">{item.today}</p>
             </div>
             <button onClick={() => classify(item)}>归类</button>

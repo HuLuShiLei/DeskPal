@@ -37,7 +37,7 @@ public static class PresenceFormatter
             // Older clients may still send a manual status.
             PresenceState.Custom => snapshot.CustomText ?? "自定义状态",
             PresenceState.Locked => "已锁屏",
-            PresenceState.Away => "暂时离开",
+            PresenceState.Away => "暂离",
             PresenceState.Working or PresenceState.Meeting => "工作中",
             PresenceState.Communicating => "在聊天",
             PresenceState.Other => app is null ? "工作中" : $"正在使用 {app}",

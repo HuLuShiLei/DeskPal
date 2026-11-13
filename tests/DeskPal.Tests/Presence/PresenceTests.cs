@@ -192,7 +192,7 @@ public class PresenceFormatterTests
     [InlineData(PresenceState.Slacking, ActivityCategory.Music, "工作中")]
     [InlineData(PresenceState.Slacking, ActivityCategory.None, "在放松")]
     [InlineData(PresenceState.Other, ActivityCategory.Other, "工作中")]
-    [InlineData(PresenceState.Away, ActivityCategory.None, "暂时离开")]
+    [InlineData(PresenceState.Away, ActivityCategory.None, "暂离")]
     [InlineData(PresenceState.Locked, ActivityCategory.None, "已锁屏")]
     public void Headlines_use_written_chinese(PresenceState state, ActivityCategory category, string expected)
     {

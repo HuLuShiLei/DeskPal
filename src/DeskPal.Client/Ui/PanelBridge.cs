@@ -24,6 +24,7 @@ public sealed class PanelBridge
     private readonly PersonalRules _personalRules;
     private readonly UnclassifiedUsage _unclassified;
     private readonly WhatsNewStore _whatsNew;
+    private readonly PinnedMembers _pins;
 
     public PanelBridge(
         RoomState rooms,
@@ -35,7 +36,8 @@ public sealed class PanelBridge
         UpdateService updates,
         PersonalRules personalRules,
         UnclassifiedUsage unclassified,
-        WhatsNewStore whatsNew)
+        WhatsNewStore whatsNew,
+        PinnedMembers pins)
     {
         _rooms = rooms;
         _presence = presence;
@@ -47,6 +49,8 @@ public sealed class PanelBridge
         _personalRules = personalRules;
         _unclassified = unclassified;
         _whatsNew = whatsNew;
+        _pins = pins;
+        pins.Changed += RaiseChanged;
         personalRules.Changed += RaiseChanged;
         rooms.Changed += RaiseChanged;
         presence.LocalChanged += RaiseChanged;
@@ -104,6 +108,7 @@ public sealed class PanelBridge
             NormalizeTheme(_settings.Theme),
             NormalizeCloseAction(_settings.CloseAction)),
         WhatsNew = _whatsNew.Pending,
+        Pinned = _pins.Users,
         Now = DateTimeOffset.UtcNow,
     });
 
@@ -224,6 +229,22 @@ public sealed class PanelBridge
             case "room.dissolve":
                 await _api.DissolveRoomAsync(c.Guid("roomId"));
                 await _rooms.RefreshAsync();
+                return CommandResult.Success;
+
+            case "member.pin":
+            {
+                var userId = c.Guid("userId");
+                if (_rooms.SelectedRoom is not { } room || room.Members.All(m => m.UserId != userId))
+                {
+                    return CommandResult.Fail("该成员不在当前房间");
+                }
+
+                _pins.Pin(room.Id, userId);
+                return CommandResult.Success;
+            }
+
+            case "member.unpin":
+                _pins.Unpin(c.Guid("userId"));
                 return CommandResult.Success;
 
             case "presence.pause":

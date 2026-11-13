@@ -301,12 +301,30 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 .list-row.offline .status-badge { color: var(--muted); background: var(--hover); }
 .list-row.offline .avatar { opacity: 0.6; }
 .list-row.offline .row-title { color: var(--muted); }
+.list-row.member .pin-button { height: 28px; width: 28px; min-height: 28px; margin: -2px -4px 0 -6px; }
+.pin-button.active { color: var(--accent); }
+
+/* ---- 置顶小卡片（page=card） ---- */
+.pin-card {
+  height: 100%; display: flex; align-items: center; gap: 10px; padding: 0 6px 0 12px;
+  -webkit-app-region: drag; app-region: drag;
+}
+.pin-card .row-main { gap: 3px; }
+.pin-card-detail { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pin-card.offline .avatar { opacity: 0.6; }
+.pin-card.offline .row-title { color: var(--muted); }
+button.pin-card-close {
+  align-self: flex-start; margin-top: 6px; width: 24px; height: 24px; min-height: 24px;
+  -webkit-app-region: no-drag; app-region: no-drag;
+}
+.pin-card-close .icon { font-size: 10px; }
 .selectable-row[aria-selected=true] { background: var(--accent-soft); border-color: transparent; position: relative; }
 .selectable-row[aria-selected=true]::before {
   content: ""; position: absolute; left: 0; top: 50%; width: 3px; height: 16px; margin-top: -8px; border-radius: 2px; background: var(--accent);
 }
 .row-main { flex: 1; min-width: 0; display: grid; gap: 1px; }
 .row-title { display: flex; align-items: center; min-width: 0; font-weight: 500; }
+.row-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .row-meta { margin-left: auto; padding-left: 8px; font-size: 11px; font-weight: 400; color: var(--faint); white-space: nowrap; }
 
 .avatar {

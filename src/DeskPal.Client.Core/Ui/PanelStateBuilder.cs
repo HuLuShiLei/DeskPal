@@ -37,6 +37,7 @@ public sealed record PanelInput
     public IReadOnlyList<UnclassifiedApp> Unclassified { get; init; } = [];
     public required SettingsView Settings { get; init; }
     public WhatsNewView? WhatsNew { get; init; }
+    public IReadOnlyCollection<Guid> Pinned { get; init; } = [];
     public required DateTimeOffset Now { get; init; }
 }
 
@@ -104,7 +105,8 @@ public static class PanelStateBuilder
                 m.Role == RoomRole.Owner,
                 snapshot is not null && snapshot.State != PresenceState.Offline,
                 view,
-                meta);
+                meta,
+                input.Pinned.Contains(m.UserId));
         })
         .ToList();
 

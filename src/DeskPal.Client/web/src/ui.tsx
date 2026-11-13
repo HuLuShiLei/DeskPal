@@ -24,6 +24,8 @@ const glyphs = {
   timer: "\uE916",
   hide: "\uED1A",
   search: "\uE721",
+  pin: "\uE718",
+  pinned: "\uE841",
 } as const;
 
 export type IconName = keyof typeof glyphs;

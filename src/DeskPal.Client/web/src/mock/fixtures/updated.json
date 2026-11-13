@@ -57,7 +57,8 @@
         "detail": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和…",
         "tone": "relax"
       },
-      "meta": "已持续 12 分钟"
+      "meta": "已持续 12 分钟",
+      "pinned": true
     },
     {
       "userId": "00000000-0000-0000-0000-0000000ca201",
@@ -70,7 +71,8 @@
         "detail": null,
         "tone": "offline"
       },
-      "meta": "还没有收到状态"
+      "meta": "还没有收到状态",
+      "pinned": false
     }
   ],
   "privacy": {

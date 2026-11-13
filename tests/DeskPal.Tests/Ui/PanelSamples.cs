@@ -86,6 +86,7 @@ public static class PanelSamples
                 new UnclassifiedApp(RuleKind.Process, "snipaste", "Snipaste", TimeSpan.FromMinutes(7)),
             ],
             Settings = Settings,
+            Pinned = [Bob],
             Now = Now,
         };
     }

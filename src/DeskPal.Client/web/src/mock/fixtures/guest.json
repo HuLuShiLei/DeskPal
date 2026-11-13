@@ -48,7 +48,8 @@
         "detail": null,
         "tone": "offline"
       },
-      "meta": ""
+      "meta": "",
+      "pinned": false
     }
   ],
   "privacy": {

@@ -1,5 +1,5 @@
 // 浏览器里开发用的模拟宿主。初始状态来自 C# 测试生成的 fixtures，命令的效果在这里粗略模拟。
-// 地址参数：?mock=default|no-room|guest|updated 选样例；?fail 让所有命令失败；?page=login 打开登录页。
+// 地址参数：?mock=default|no-room|guest|updated 选样例；?fail 让所有命令失败；?page=login 打开登录页；?page=card 打开第一个成员的置顶小卡片。
 // 发出的命令记在 window.__sent，方便检查。
 
 import type { CommandResult, HostMessage, PanelState, PrivacyLevel, Transport } from "../bridge";
@@ -29,6 +29,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
   const state: PanelState = structuredClone(initial);
   const fail = params.has("fail");
   const login = params.get("page") === "login";
+  const card = params.get("page") === "card";
   let dialogId = 0;
   const dialogs = new Map<number, (ok: boolean) => void>();
   window.__sent = [];
@@ -109,6 +110,13 @@ export function createMockTransport(params: URLSearchParams): Transport {
           state.emptyHint = "当前无房间。请创建/选择一个房间，或用邀请码加入。";
         }
         break;
+      case "member.pin":
+      case "member.unpin": {
+        const member = state.members.find((x) => x.userId === m.userId);
+        if (!member) return { ok: false, error: "该成员不在当前房间" };
+        member.pinned = m.type === "member.pin";
+        break;
+      }
       case "presence.pause":
         state.me.paused = m.paused as boolean;
         break;
@@ -194,7 +202,14 @@ export function createMockTransport(params: URLSearchParams): Transport {
       console.log("[mock] ->", m);
       if (m.type === "ready") {
         if (login) emit({ type: "login", serverUrl: "https://deskpal.hafuhafu.cn:36443", userName: "alice" });
-        else pushState();
+        else if (card) {
+          const member = state.members[0];
+          if (member) {
+            const detail = [member.view.app, member.view.detail].filter(Boolean).join(" · ") || null;
+            emit({ type: "card", member, detail, theme: state.settings.theme });
+          }
+          return;
+        } else pushState();
         const pending = state.me.pending;
         if (pending) {
           setTimeout(() => {

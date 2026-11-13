@@ -20,6 +20,7 @@ alwaysApply: false
 - 两个窗口都没有系统标题栏：构造时调用 `WindowFrame.Apply`，`OnMessage` 先交给 `WindowFrame.Handle` 处理 `window.minimize`、`window.close`。页面用 `ui.tsx` 的 `TitleBar`，`.titlebar` 是 `app-region: drag`，往里面放可点击的东西要包在 `app-region: no-drag` 的容器里（参考 `.caption-buttons`、`.flyout-root`），否则点不到。
 - 样式按 Windows 11 桌面程序写，不要做成网页：颜色用 `styles.css` 里的变量（浅色、深色两套），图标用 `Icon`（Segoe Fluent Icons），开关、设置行、菜单用 `ui.tsx` 里的组件。不加链接样式、手形光标、大段可选中文字；需要复制的文字加 `.selectable`。
 - 新增 WPF 窗口时背景用 `WebUi.BackgroundBrush`，和页面底色一致，避免加载时闪白。
+- 置顶小卡片（`MemberCards`、`MemberCardWindow`，页面 `page=card`）整页是 `app-region: drag`，页面收不到悬停和双击；双击由窗口处理 `WM_NCLBUTTONDBLCLK`，只有 × 按钮是 `no-drag`。卡片文字同样在 C# 里算好。置顶只在内存里，切换房间或成员离开时移除。
 - 托盘菜单只有「打开 DeskPal」和「退出」。退出登录在设置的账号里。面板点关闭时按 `CloseAction`：每次询问、最小化到任务栏，或最小化到系统托盘（隐藏，`AllowClose` 为 false）。真正退出走托盘菜单的“退出”，它会先停止后台服务、断开 Hub、释放单实例 Mutex。
 - 通知用托盘气泡 `TaskbarIcon.ShowNotification`，由 `RoomState.Notify` 事件触发。
 - lambda 的参数不要命名成 `_` 又在函数体里写 `_ = ...`，那是给参数赋值，不是丢弃返回值。

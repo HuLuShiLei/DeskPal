@@ -21,11 +21,13 @@ public class PanelStateBuilderTests
         Assert.Equal("哔哩哔哩", bob.View.App);
         Assert.EndsWith("…", bob.View.Detail);
         Assert.Equal("已持续 12 分钟", bob.Meta);
+        Assert.True(bob.Pinned);
 
         var carol = state.Members[1];
         Assert.False(carol.Online);
         Assert.Equal("离线", carol.View.Headline);
         Assert.Equal("还没有收到状态", carol.Meta);
+        Assert.False(carol.Pinned);
         Assert.Null(state.EmptyHint);
     }
 

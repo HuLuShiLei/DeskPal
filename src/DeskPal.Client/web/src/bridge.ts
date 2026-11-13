@@ -42,6 +42,16 @@ export interface MemberItem {
   online: boolean;
   view: PresenceView;
   meta: string;
+  /** 已置顶为桌面小卡片。 */
+  pinned: boolean;
+}
+
+/** 置顶小卡片的内容。detail 是应用名和详情合成的一行。 */
+export interface CardMessage {
+  type: "card";
+  member: MemberItem;
+  detail: string | null;
+  theme: "system" | "light" | "dark";
 }
 
 export interface Option<T extends string> {
@@ -106,7 +116,8 @@ export type HostMessage =
   | { type: "state"; state: PanelState }
   | { type: "result"; id: number; ok: boolean; error: string | null; data?: unknown }
   | { type: "dialog"; id: number; kind: DialogKind; message: string }
-  | { type: "login"; serverUrl: string; userName: string };
+  | { type: "login"; serverUrl: string; userName: string }
+  | CardMessage;
 
 export type Command =
   | { type: "room.select"; roomId: string | null }
@@ -119,6 +130,8 @@ export type Command =
   | { type: "room.kick"; roomId: string; userId: string }
   | { type: "room.leave"; roomId: string }
   | { type: "room.dissolve"; roomId: string }
+  | { type: "member.pin"; userId: string }
+  | { type: "member.unpin"; userId: string }
   | { type: "presence.pause"; paused: boolean }
   | { type: "presence.correct"; category: string }
   | { type: "presence.resetCorrection" }

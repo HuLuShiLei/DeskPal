@@ -45,7 +45,8 @@ public sealed record PendingView(PresenceView View, int RemainingMs, int TotalSe
 
 public sealed record RoomItem(Guid Id, string Name, bool IsOwner, int MemberCount, int MaxMembers);
 
-public sealed record MemberItem(Guid UserId, string Name, bool IsOwner, bool Online, PresenceView View, string Meta);
+/// <param name="Pinned">Shown as a card on the desktop.</param>
+public sealed record MemberItem(Guid UserId, string Name, bool IsOwner, bool Online, PresenceView View, string Meta, bool Pinned = false);
 
 public sealed record Option<T>(T Value, string Name);
 

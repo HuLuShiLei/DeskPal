@@ -6,6 +6,7 @@ using DeskPal.Client.Collectors;
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Diagnostics;
 using DeskPal.Client.Core.Pipeline;
+using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Updates;
 using DeskPal.Client.Services;
 using DeskPal.Client.Ui;
@@ -23,6 +24,7 @@ public partial class App : Application
     private IHost? _host;
     private TaskbarIcon? _tray;
     private PanelWindow? _panel;
+    private MemberCards? _cards;
     private CancellationTokenSource? _updates;
     private ClientLogFiles? _logs;
     private bool _exiting;
@@ -83,6 +85,7 @@ public partial class App : Application
         _ = updates.RunPeriodicAsync(_updates.Token);
 
         _panel = services.GetRequiredService<PanelWindow>();
+        _cards = services.GetRequiredService<MemberCards>();
         if (!WebUi.RuntimeAvailable())
         {
             _ = Dispatcher.BeginInvoke(() => WebUi.ShowMissingRuntime("面板无法显示。状态同步不受影响。"));
@@ -175,8 +178,10 @@ public partial class App : Application
             ReadChangelog(),
             Path.Combine(SettingsStore.Directory, "changelog-seen.json"),
             sp.GetRequiredService<UpdateService>().VersionLabel));
+        s.AddSingleton<PinnedMembers>();
         s.AddSingleton<PanelBridge>();
         s.AddSingleton<PanelWindow>();
+        s.AddSingleton<MemberCards>();
         return builder.Build();
     }
 
@@ -300,6 +305,7 @@ public partial class App : Application
         _logs?.Write("INF", "DeskPal", restart ? "Restarting" : "Exiting");
         var updates = _host?.Services.GetService<UpdateService>();
 
+        _cards?.CloseAll();
         if (_panel is not null)
         {
             _panel.AllowClose = true;
