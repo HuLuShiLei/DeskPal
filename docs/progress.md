@@ -162,3 +162,4 @@
 | 2026-11-13 | 重写路线图：确定两条互动原则；不再计划 Refresh token、浏览器扩展、手机端；删除摸鱼同步提醒和对方空闲时提醒；新增房间互动、游戏核心、游戏里的房间互动、上架 Steam 四个阶段 |
 | 2026-11-13 | 内置规则库多语言：规则增加 `names`（目前只有 `en`），`builtin-rules.json` 升到版本 4，63 条中文名称都补了英文；表 `BuiltinRules` 增加 `Names` 列（迁移 `AddBuiltinRuleNames`），`RuleDto` 末尾增加 `Names`。客户端 `AppNames` 用本机缓存的规则库，在状态、置顶卡片、悬停说明、纠正分类、统计排行里按界面语言显示，发送和保存的仍是默认名称。`BuiltinRulesTests` 检查中文名称都有 `names.en`，校验脚本检查 `names` 的键 |
 | 2026-11-13 | 服务器地址不在界面上显示：登录页去掉地址和修改入口，`login` 消息和 `auth.login`、`auth.register` 不再带 `serverUrl`，`SettingsView` 去掉 `ServerUrl`。`Api_Unreachable` 不再带地址和异常信息（异常作为 `InnerException` 进日志），删除 `Login_InvalidServer`。联调只改 `settings.json` |
+| 2026-11-13 | 未识别应用的当天时长不再只放内存：`UnclassifiedUsageStore` 每分钟和退出时写入 `unclassified-<userId>.json`，启动时恢复当天的记录，重启后继续累计，上报的分钟数不会变小 |

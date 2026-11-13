@@ -5,7 +5,8 @@ namespace DeskPal.Client.Core.Classification;
 public sealed record UnclassifiedApp(RuleKind Kind, string Pattern, string DisplayName, TimeSpan Today);
 
 /// <summary>
-/// Today's foreground time of desktop apps that no rule recognized. Kept in memory only and cleared at local midnight.
+/// Today's foreground time of desktop apps that no rule recognized. Cleared at local midnight.
+/// The client saves it to a local file and restores it after a restart, so the reported minutes do not start over.
 /// The panel lists the busiest ones so the user can classify them; with consent the totals are also reported.
 /// </summary>
 public sealed class UnclassifiedUsage
@@ -53,6 +54,33 @@ public sealed class UnclassifiedUsage
             if (_current?.Pattern == pattern)
             {
                 _current = null;
+            }
+        }
+    }
+
+    /// <summary>The day being counted and everything counted so far. Day is null before the first record.</summary>
+    public (DateOnly? Day, IReadOnlyList<UnclassifiedApp> Apps) Export()
+    {
+        lock (_lock)
+        {
+            return (_day == default ? null : _day, _apps.Values.ToList());
+        }
+    }
+
+    /// <summary>Adds what was saved before a restart. Ignored when this instance is already counting another day.</summary>
+    public void Restore(DateOnly day, IEnumerable<UnclassifiedApp> apps)
+    {
+        lock (_lock)
+        {
+            if (_day != default && _day != day)
+            {
+                return;
+            }
+
+            _day = day;
+            foreach (var app in apps)
+            {
+                _apps[app.Pattern] = _apps.TryGetValue(app.Pattern, out var counted) ? counted with { Today = counted.Today + app.Today } : app;
             }
         }
     }

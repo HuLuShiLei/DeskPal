@@ -63,7 +63,7 @@ flowchart LR
 
 ### 未识别应用和规则库候选
 
-- `UnclassifiedUsage` 在内存里统计当天每个未识别桌面应用（落到 `Other` 层）的前台时长：两次记录间隔超过 30 秒的不计，本地零点清零。浏览器网页不统计。状态页的「待归类」列出今天用了 5 分钟以上的前 5 个。
+- `UnclassifiedUsage` 统计当天每个未识别桌面应用（落到 `Other` 层）的前台时长：两次记录间隔超过 30 秒的不计，本地零点清零。`UnclassifiedUsageStore` 每分钟和退出时写入 `unclassified-<userId>.json`，启动时只恢复当天的记录，重启后继续累计，上报的分钟数不会变小。浏览器网页不统计。状态页的「待归类」列出今天用了 5 分钟以上的前 5 个。
 - 第一次打开面板时询问是否分享使用数据（`Users.ShareUsage`，空表示还没问过），设置页可以随时改。关闭时删除已上报的数据。
 - 同意分享时，`UsageReporter` 每 2 小时上报今天用了 10 分钟以上的未识别应用（进程名、产品名、分钟数，`POST /api/me/usage`），不含窗口标题、网页和具体时间。
 - `GET /api/rules/candidates` 只统计同意分享、注册满 `Rules:MinAccountAgeDays`（默认 3）天的账号，一个账号一票：
@@ -242,6 +242,7 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 | `usage\<userId>.db` | 使用统计（SQLite），见「使用统计」。卸载不删除，可以在统计页清除 |
 | `personal-rules.json` | 个人分类的缓存（`userId` + `rules`），以 Server 为准 |
 | `builtin-rules.json` | 内置规则缓存（含其他语言的名称） |
+| `unclassified-<userId>.json` | 当天未识别应用的前台时长（`day` + `apps`），第二天启动时不再使用 |
 | `<安装目录>\logs\deskpal.log` | 客户端运行日志。超过 1 MB 后改名为 `deskpal-时间.log`，最多保留 5 个旧文件，超过 7 天的旧文件删除。不记录窗口标题、媒体标题、域名、页面标题、密码、token、邀请码 |
 | `<安装目录>\logs\setup.log` | 最近一次通过安装向导安装时 Velopack Setup.exe 的日志 |
 

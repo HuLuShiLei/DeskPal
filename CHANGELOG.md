@@ -76,6 +76,8 @@
   en: In the English interface, apps and sites recognized by the default categories show English names, such as WeChat. Each member sees names in their own interface language
 - 登录页和设置页不再显示服务器地址，连接失败时的提示也不再包含地址
   en: The sign-in page and Settings no longer show the server address, and connection errors no longer include it
+- 「待归类」里今天的使用时长在重启 DeskPal 后继续累计，不再从 0 开始
+  en: Today's time in Uncategorized keeps adding up after DeskPal restarts instead of starting from zero
 
 ## 0.1.1
 

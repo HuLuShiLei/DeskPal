@@ -61,6 +61,34 @@ public class PersonalRulesTests
     }
 
     [Fact]
+    public void Unclassified_usage_keeps_counting_after_a_restart()
+    {
+        var before = new UnclassifiedUsage();
+        before.Record(XMind, Start, TimeZoneInfo.Utc);
+        before.Record(null, Start.AddSeconds(20), TimeZoneInfo.Utc);
+        var (day, apps) = before.Export();
+
+        var after = new UnclassifiedUsage();
+        after.Restore(day!.Value, apps);
+        after.Record(XMind, Start.AddMinutes(5), TimeZoneInfo.Utc);
+        after.Record(null, Start.AddMinutes(5).AddSeconds(10), TimeZoneInfo.Utc);
+
+        Assert.Equal(TimeSpan.FromSeconds(30), Assert.Single(after.Top(TimeSpan.Zero, 5)).Today);
+    }
+
+    [Fact]
+    public void Unclassified_usage_ignores_a_saved_day_it_is_not_counting()
+    {
+        var usage = new UnclassifiedUsage();
+        Assert.Null(usage.Export().Day);
+        usage.Record(XMind, Start, TimeZoneInfo.Utc);
+
+        usage.Restore(DateOnly.FromDateTime(Start.Date).AddDays(-1), [new UnclassifiedApp(RuleKind.Process, "xmind", "XMind", TimeSpan.FromHours(1))]);
+
+        Assert.Empty(usage.Top(TimeSpan.Zero, 5));
+    }
+
+    [Fact]
     public void Browser_sites_are_not_counted()
     {
         var usage = new UnclassifiedUsage();

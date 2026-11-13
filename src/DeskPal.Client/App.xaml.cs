@@ -182,6 +182,7 @@ public partial class App : Application
         s.AddSingleton<HubService>();
         s.AddSingleton<RoomState>();
         s.AddSingleton<PresenceCoordinator>();
+        s.AddHostedService<UnclassifiedUsageStore>();
         s.AddHostedService(sp => sp.GetRequiredService<PresenceCoordinator>());
         s.AddHostedService<ForegroundCollector>();
         s.AddHostedService<BrowserDomainCollector>();
