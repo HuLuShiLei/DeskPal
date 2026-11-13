@@ -137,3 +137,4 @@
 | 2026-11-13 | 房间成员可以置顶为桌面小卡片：`MemberItem` 增加 `pinned`，页面命令增加 `member.pin`、`member.unpin`，宿主消息增加 `card`。状态「暂时离开」改为「暂离」。「分类」页和「待归类」的长名称改为单行省略，窗口较窄时不再盖住类别标签 |
 | 2026-11-13 | 「我的状态」去掉「按隐私设置，房间成员看不到标题」的灰字，`MeView.Hidden` 改为 `Full`：不经过滤的类别、应用和标题，悬停显示；`PendingView` 同样增加 `Full`。倒计时从卡片下方移到标题行右侧，进度条贴卡片底边。房间成员没有收到过状态时 `meta` 为空，不再显示「还没有收到状态」，置顶小卡片同样。悬停内容里标题和应用名相同时不再显示标题 |
 | 2026-11-13 | 新增屏蔽房间成员：表 `RoomBlocks`（迁移 `AddRoomBlocks`），接口 `POST /api/rooms/{id}/blocks`、`DELETE /api/rooms/{id}/blocks/{userId}`，`RoomDto` 增加只含本人屏蔽记录的 `blocked`，Server 消息 `room.blocksChanged` 只发给屏蔽者。`PresenceHub` 转发、补发和离线广播跳过互相屏蔽的成员；屏蔽时给被屏蔽的人发一条屏蔽者的 `Offline`。`MemberItem` 增加 `blocked`，页面命令增加 `member.block`、`member.unblock` |
+| 2026-11-13 | 「我的状态」标题行不足 300px 时，倒计时去掉计时图标和「后变为」，写成「n 秒 → 新状态」；名字先于新状态截断。卡片高度不变 |

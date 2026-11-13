@@ -141,7 +141,7 @@ function MyStatus({ state }: { state: PanelState }) {
   );
 }
 
-/** 新状态的倒计时放在标题行右侧，进度条贴在卡片底边，出现和消失都不改变卡片高度。 */
+/** 新状态的倒计时放在标题行右侧，进度条贴在卡片底边，出现和消失都不改变卡片高度。标题行窄时「秒后变为」缩成箭头，仍是一行。 */
 function Pending({ pending, source }: { pending: NonNullable<PanelState["me"]["pending"]>; source: string | null }) {
   const left = useCountdown(pending.remainingMs);
   const seconds = Math.ceil(left / 1000);
@@ -153,11 +153,14 @@ function Pending({ pending, source }: { pending: NonNullable<PanelState["me"]["p
         <Icon name="timer" class="pending-icon" />
         {seconds > 0 ? (
           <>
-            <b>{seconds}</b> 秒后变为
+            <b>{seconds}</b> 秒<span class="pending-verb">后变为</span>
           </>
         ) : (
-          "即将变为"
+          <>
+            即将<span class="pending-verb">变为</span>
+          </>
         )}
+        <Icon name="forward" class="pending-arrow" />
         <span class="status-dot" aria-hidden="true" />
         <span class="pending-state">{pending.view.headline}</span>
       </span>

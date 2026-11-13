@@ -22,6 +22,7 @@ const glyphs = {
   ring: "\uEA8F",
   refresh: "\uE72C",
   timer: "\uE916",
+  forward: "\uE72A",
   hide: "\uED1A",
   search: "\uE721",
   pin: "\uE718",

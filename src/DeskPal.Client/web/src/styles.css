@@ -228,7 +228,7 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 
 /* 倒计时在标题行右侧，进度条贴卡片底边；出现、消失不改变卡片高度。 */
 .pending {
-  margin-left: auto; padding-left: 10px; min-width: 0; flex: 0 10 auto;
+  margin-left: auto; padding-left: 10px; min-width: 0; flex: 0 1 auto;
   font-size: 12px; font-weight: 400; color: var(--muted); animation: fade-in 0.2s ease-out;
 }
 .pending-text { display: flex; align-items: center; gap: 4px; min-width: 0; white-space: nowrap; }
@@ -243,6 +243,13 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
   color: color-mix(in srgb, var(--tv) 85%, var(--text));
 }
 .pending.tv-other .pending-state { color: var(--text); }
+.pending-arrow { display: none; font-size: 11px; }
+.me .row-title { container-type: inline-size; }
+.me .row-title:has(.pending) .row-name { flex: 0 10 auto; min-width: 3em; }
+@container (max-width: 300px) {
+  .pending-verb, .pending-icon { display: none; }
+  .pending-arrow { display: inline; }
+}
 .progress {
   position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
   background: color-mix(in srgb, var(--tv) 16%, transparent); pointer-events: none;
