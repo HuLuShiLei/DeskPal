@@ -141,7 +141,7 @@ export function SettingsPage({ state }: { state: PanelState }) {
       <Section title="反馈">
         <div class="card flush">
           <SettingRow title="问题与建议" hint="在浏览器中提交问题反馈或功能建议">
-            <button onClick={openIssuePage}>打开</button>
+            <button onClick={openIssuePage}>跳转</button>
           </SettingRow>
         </div>
       </Section>
