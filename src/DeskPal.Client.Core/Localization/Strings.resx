@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="State_Offline" xml:space="preserve">
+    <value>离线</value>
+  </data>
+  <data name="State_Paused" xml:space="preserve">
+    <value>暂停分享</value>
+  </data>
+  <data name="State_Custom" xml:space="preserve">
+    <value>自定义状态</value>
+  </data>
+  <data name="State_Locked" xml:space="preserve">
+    <value>已锁屏</value>
+  </data>
+  <data name="State_Away" xml:space="preserve">
+    <value>暂离</value>
+  </data>
+  <data name="State_Working" xml:space="preserve">
+    <value>工作中</value>
+  </data>
+  <data name="State_Chatting" xml:space="preserve">
+    <value>在聊天</value>
+  </data>
+  <data name="State_UsingApp" xml:space="preserve">
+    <value>正在使用 {0}</value>
+  </data>
+  <data name="State_Browsing" xml:space="preserve">
+    <value>正在浏览网页</value>
+  </data>
+  <data name="State_Blocked" xml:space="preserve">
+    <value>已屏蔽</value>
+  </data>
+  <data name="State_Detecting" xml:space="preserve">
+    <value>正在识别…</value>
+  </data>
+  <data name="Relax_Video" xml:space="preserve">
+    <value>在看视频</value>
+  </data>
+  <data name="Relax_Music" xml:space="preserve">
+    <value>在听音乐</value>
+  </data>
+  <data name="Relax_Shopping" xml:space="preserve">
+    <value>在购物</value>
+  </data>
+  <data name="Relax_Social" xml:space="preserve">
+    <value>在看社交网站</value>
+  </data>
+  <data name="Relax_News" xml:space="preserve">
+    <value>在看新闻</value>
+  </data>
+  <data name="Relax_Game" xml:space="preserve">
+    <value>在玩游戏</value>
+  </data>
+  <data name="Relax_Reading" xml:space="preserve">
+    <value>在看小说</value>
+  </data>
+  <data name="Relax_Other" xml:space="preserve">
+    <value>在放松</value>
+  </data>
+  <data name="Category_Work" xml:space="preserve">
+    <value>工作</value>
+  </data>
+  <data name="Category_Communication" xml:space="preserve">
+    <value>聊天</value>
+  </data>
+  <data name="Category_Video" xml:space="preserve">
+    <value>视频</value>
+  </data>
+  <data name="Category_Music" xml:space="preserve">
+    <value>音乐</value>
+  </data>
+  <data name="Category_Shopping" xml:space="preserve">
+    <value>购物</value>
+  </data>
+  <data name="Category_Social" xml:space="preserve">
+    <value>社交网站</value>
+  </data>
+  <data name="Category_News" xml:space="preserve">
+    <value>新闻</value>
+  </data>
+  <data name="Category_Game" xml:space="preserve">
+    <value>游戏</value>
+  </data>
+  <data name="Category_Reading" xml:space="preserve">
+    <value>阅读</value>
+  </data>
+  <data name="Category_Other" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="Category_Browsing" xml:space="preserve">
+    <value>浏览网页</value>
+  </data>
+  <data name="Category_None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="Privacy_StateOnly" xml:space="preserve">
+    <value>只显示状态</value>
+  </data>
+  <data name="Privacy_Category" xml:space="preserve">
+    <value>显示类别和应用</value>
+  </data>
+  <data name="Privacy_Detail" xml:space="preserve">
+    <value>显示详情（标题）</value>
+  </data>
+  <data name="Duration_JustNow" xml:space="preserve">
+    <value>刚刚</value>
+  </data>
+  <data name="Duration_UnderMinute" xml:space="preserve">
+    <value>不到 1 分钟</value>
+  </data>
+  <data name="Duration_Minutes" xml:space="preserve">
+    <value>{0} 分钟</value>
+  </data>
+  <data name="Duration_Hours" xml:space="preserve">
+    <value>{0} 小时</value>
+  </data>
+  <data name="Duration_HoursMinutes" xml:space="preserve">
+    <value>{0} 小时 {1} 分钟</value>
+  </data>
+  <data name="Duration_Days" xml:space="preserve">
+    <value>{0} 天</value>
+  </data>
+  <data name="Lasted_JustStarted" xml:space="preserve">
+    <value>刚刚开始</value>
+  </data>
+  <data name="Lasted_For" xml:space="preserve">
+    <value>已持续 {0}</value>
+  </data>
+  <data name="Day_Today" xml:space="preserve">
+    <value>今天</value>
+  </data>
+  <data name="Day_Yesterday" xml:space="preserve">
+    <value>昨天</value>
+  </data>
+  <data name="Date_MonthDay" xml:space="preserve">
+    <value>{0:M 月 d 日}</value>
+  </data>
+  <data name="Date_YearMonthDay" xml:space="preserve">
+    <value>{0:yyyy 年 M 月 d 日}</value>
+  </data>
+  <data name="Date_YearMonth" xml:space="preserve">
+    <value>{0:yyyy 年 M 月}</value>
+  </data>
+  <data name="Date_MonthDayTime" xml:space="preserve">
+    <value>{0:M 月 d 日 HH:mm}</value>
+  </data>
+  <data name="Date_WithWeekday" xml:space="preserve">
+    <value>{0} 星期{1}</value>
+  </data>
+  <data name="Weekdays" xml:space="preserve">
+    <value>日,一,二,三,四,五,六</value>
+  </data>
+  <data name="SentenceSeparator" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="ListSeparator" xml:space="preserve">
+    <value>、</value>
+  </data>
+  <data name="Panel_NoMembers" xml:space="preserve">
+    <value>房间里还没有其他成员。到「房间」页生成邀请码，发给对方。</value>
+  </data>
+  <data name="Panel_NoRoom" xml:space="preserve">
+    <value>当前无房间。请创建/选择一个房间，或用邀请码加入。</value>
+  </data>
+  <data name="Panel_UsedToday" xml:space="preserve">
+    <value>今天 {0}</value>
+  </data>
+  <data name="Connection_Connected" xml:space="preserve">
+    <value>已连接</value>
+  </data>
+  <data name="Connection_Connecting" xml:space="preserve">
+    <value>正在连接服务器…</value>
+  </data>
+  <data name="Connection_Reconnecting" xml:space="preserve">
+    <value>连接中断，正在重连…</value>
+  </data>
+  <data name="Connection_Disconnected" xml:space="preserve">
+    <value>未连接服务器，稍后自动重试</value>
+  </data>
+  <data name="Source_Personal" xml:space="preserve">
+    <value>按你设置的分类识别</value>
+  </data>
+  <data name="Source_Builtin" xml:space="preserve">
+    <value>按默认分类识别</value>
+  </data>
+  <data name="Source_Heuristic" xml:space="preserve">
+    <value>按窗口特征推测</value>
+  </data>
+  <data name="Source_Unknown" xml:space="preserve">
+    <value>没有识别出类别，显示为正在使用</value>
+  </data>
+  <data name="Source_WithTarget" xml:space="preserve">
+    <value>「{0}」{1}。</value>
+  </data>
+  <data name="Source_Plain" xml:space="preserve">
+    <value>{0}。</value>
+  </data>
+  <data name="Full_Category" xml:space="preserve">
+    <value>类别：{0}</value>
+  </data>
+  <data name="Full_Site" xml:space="preserve">
+    <value>网站：{0}</value>
+  </data>
+  <data name="Full_App" xml:space="preserve">
+    <value>应用：{0}</value>
+  </data>
+  <data name="Full_Title" xml:space="preserve">
+    <value>标题：{0}</value>
+  </data>
+  <data name="RuleKind_Process" xml:space="preserve">
+    <value>应用</value>
+  </data>
+  <data name="RuleKind_Domain" xml:space="preserve">
+    <value>网站</value>
+  </data>
+  <data name="RuleKind_TitleKeyword" xml:space="preserve">
+    <value>标题关键词</value>
+  </data>
+  <data name="NoTitle_App" xml:space="preserve">
+    <value>应用 · {0}</value>
+  </data>
+  <data name="NoTitle_Process" xml:space="preserve">
+    <value>进程 · {0}.exe</value>
+  </data>
+  <data name="NoTitle_Domain" xml:space="preserve">
+    <value>网址 · {0}</value>
+  </data>
+  <data name="NoTitle_Title" xml:space="preserve">
+    <value>标题含 · {0}</value>
+  </data>
+  <data name="Legend_Work" xml:space="preserve">
+    <value>工作</value>
+  </data>
+  <data name="Legend_Chat" xml:space="preserve">
+    <value>聊天</value>
+  </data>
+  <data name="Legend_Relax" xml:space="preserve">
+    <value>放松</value>
+  </data>
+  <data name="Legend_Browse" xml:space="preserve">
+    <value>浏览网页</value>
+  </data>
+  <data name="Legend_Other" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="Legend_Hidden" xml:space="preserve">
+    <value>{0}（未公开类别）</value>
+  </data>
+  <data name="Stats_NotYet" xml:space="preserve">
+    <value>{0} · 还没到</value>
+  </data>
+  <data name="Stats_Total" xml:space="preserve">
+    <value>共 {0}</value>
+  </data>
+  <data name="Stats_Away" xml:space="preserve">
+    <value>暂离 {0}</value>
+  </data>
+  <data name="Stats_Locked" xml:space="preserve">
+    <value>锁屏 {0}</value>
+  </data>
+  <data name="Stats_SharedDays" xml:space="preserve">
+    <value>{0} 公开了最近 {1} 天的统计。</value>
+  </data>
+  <data name="Stats_HiddenCategories" xml:space="preserve">
+    <value>部分类别对方只公开了状态。</value>
+  </data>
+  <data name="Stats_HiddenTitles" xml:space="preserve">
+    <value>部分类别对方没有公开标题，显示为应用名。</value>
+  </data>
+  <data name="Stats_NoTimeline" xml:space="preserve">
+    <value>这一天超过了保留天数，只有按天汇总的时长，没有时间轴。</value>
+  </data>
+  <data name="Stats_EmptyMine" xml:space="preserve">
+    <value>这段时间没有记录。DeskPal 运行时才会记录使用时间。</value>
+  </data>
+  <data name="Stats_EmptyOther" xml:space="preserve">
+    <value>对方这段时间没有记录。</value>
+  </data>
+  <data name="Stats_UsageTime" xml:space="preserve">
+    <value>使用时长</value>
+  </data>
+  <data name="Stats_DailyAverage" xml:space="preserve">
+    <value>日均使用时长</value>
+  </data>
+  <data name="Stats_ByState" xml:space="preserve">
+    <value>按状态</value>
+  </data>
+  <data name="Stats_TopApps" xml:space="preserve">
+    <value>使用最多的应用和网站</value>
+  </data>
+  <data name="Stats_TopTitles" xml:space="preserve">
+    <value>使用最多的标题</value>
+  </data>
+  <data name="Stats_YesterdayTotal" xml:space="preserve">
+    <value>昨天全天 {0}</value>
+  </data>
+  <data name="Compare_DaySame" xml:space="preserve">
+    <value>和前一天差不多</value>
+  </data>
+  <data name="Compare_DayMore" xml:space="preserve">
+    <value>比前一天多 {0}</value>
+  </data>
+  <data name="Compare_DayLess" xml:space="preserve">
+    <value>比前一天少 {0}</value>
+  </data>
+  <data name="Compare_WeekSame" xml:space="preserve">
+    <value>和上周日均差不多</value>
+  </data>
+  <data name="Compare_WeekMore" xml:space="preserve">
+    <value>比上周日均多 {0}</value>
+  </data>
+  <data name="Compare_WeekLess" xml:space="preserve">
+    <value>比上周日均少 {0}</value>
+  </data>
+  <data name="Compare_MonthSame" xml:space="preserve">
+    <value>和上月日均差不多</value>
+  </data>
+  <data name="Compare_MonthMore" xml:space="preserve">
+    <value>比上月日均多 {0}</value>
+  </data>
+  <data name="Compare_MonthLess" xml:space="preserve">
+    <value>比上月日均少 {0}</value>
+  </data>
+  <data name="Stats_ThisWeek" xml:space="preserve">
+    <value>{0}（本周）</value>
+  </data>
+  <data name="Stats_ThisMonth" xml:space="preserve">
+    <value>{0}（本月）</value>
+  </data>
+  <data name="Stats_TodayTitle" xml:space="preserve">
+    <value>{0}（今天）</value>
+  </data>
+  <data name="Stats_YesterdayTitle" xml:space="preserve">
+    <value>{0}（昨天）</value>
+  </data>
+  <data name="WhatsNew_Title" xml:space="preserve">
+    <value>已更新到 {0}</value>
+  </data>
+  <data name="WhatsNew_Count" xml:space="preserve">
+    <value>共 {0} 项更新</value>
+  </data>
+  <data name="WhatsNew_CountSince" xml:space="preserve">
+    <value>相较于 {0}，共 {1} 项更新</value>
+  </data>
+  <data name="Import_TooLarge" xml:space="preserve">
+    <value>文件超过 100 MB，不能导入。</value>
+  </data>
+  <data name="Import_NotExport" xml:space="preserve">
+    <value>不是 DeskPal 导出的使用统计文件。</value>
+  </data>
+  <data name="Import_Unsupported" xml:space="preserve">
+    <value>不是 DeskPal 导出的使用统计文件，或者版本不支持。</value>
+  </data>
+  <data name="Import_Empty" xml:space="preserve">
+    <value>文件是空的。</value>
+  </data>
+  <data name="Import_Title" xml:space="preserve">
+    <value>导入使用统计</value>
+  </data>
+  <data name="Import_NothingNew" xml:space="preserve">
+    <value>没有新的记录，这些数据已经导入过。</value>
+  </data>
+  <data name="Import_Done" xml:space="preserve">
+    <value>已导入 {0} 段记录、{1} 条按天汇总。</value>
+  </data>
+  <data name="Export_Title" xml:space="preserve">
+    <value>导出使用统计</value>
+  </data>
+  <data name="Export_FileName" xml:space="preserve">
+    <value>DeskPal-使用统计-{0}.json</value>
+  </data>
+  <data name="Export_Filter" xml:space="preserve">
+    <value>使用统计 (*.json)|*.json</value>
+  </data>
+  <data name="Export_Done" xml:space="preserve">
+    <value>已导出到 {0}</value>
+  </data>
+  <data name="App_AlreadyRunning" xml:space="preserve">
+    <value>DeskPal 已经在运行，请从任务栏右下角的托盘图标打开。</value>
+  </data>
+  <data name="Tray_Open" xml:space="preserve">
+    <value>打开 DeskPal</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="Tray_LoadRoomsFailed" xml:space="preserve">
+    <value>加载房间失败：{0}</value>
+  </data>
+  <data name="Login_WindowTitle" xml:space="preserve">
+    <value>DeskPal 登录</value>
+  </data>
+  <data name="Login_LoadFailed" xml:space="preserve">
+    <value>登录页加载失败：{0}</value>
+  </data>
+  <data name="Login_SignedOutElsewhere" xml:space="preserve">
+    <value>账号已在其他电脑登录，请重新登录。</value>
+  </data>
+  <data name="Login_SessionExpired" xml:space="preserve">
+    <value>登录已失效，请重新登录。</value>
+  </data>
+  <data name="Login_InvalidServer" xml:space="preserve">
+    <value>服务器地址需要以 http:// 或 https:// 开头</value>
+  </data>
+  <data name="Login_DisplayNameRequired" xml:space="preserve">
+    <value>注册需要填写显示名称</value>
+  </data>
+  <data name="Runtime_Missing" xml:space="preserve">
+    <value>没有找到 Microsoft Edge WebView2 Runtime，{0}
+
+点击“确定”打开下载页面，安装后重新启动 DeskPal。</value>
+  </data>
+  <data name="Runtime_PanelUnavailable" xml:space="preserve">
+    <value>面板无法显示。状态同步不受影响。</value>
+  </data>
+  <data name="Runtime_LoginUnavailable" xml:space="preserve">
+    <value>无法显示登录页面。</value>
+  </data>
+  <data name="Panel_RuntimeMissing" xml:space="preserve">
+    <value>没有找到 Microsoft Edge WebView2 Runtime，面板无法显示。状态同步不受影响。
+
+安装后重新启动 DeskPal。</value>
+  </data>
+  <data name="Panel_LoadFailed" xml:space="preserve">
+    <value>面板加载失败：{0}</value>
+  </data>
+  <data name="Panel_OpenDownload" xml:space="preserve">
+    <value>打开下载页面</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Error_Unsupported" xml:space="preserve">
+    <value>不支持的操作：{0}</value>
+  </data>
+  <data name="Error_InvalidId" xml:space="preserve">
+    <value>{0} 不是有效的 ID</value>
+  </data>
+  <data name="Error_RoomNameRequired" xml:space="preserve">
+    <value>请输入房间名称</value>
+  </data>
+  <data name="Error_InviteCodeRequired" xml:space="preserve">
+    <value>请输入邀请码</value>
+  </data>
+  <data name="Error_StatsDays" xml:space="preserve">
+    <value>可查看天数只能是 1、3、7 或 30 天</value>
+  </data>
+  <data name="Error_Retention" xml:space="preserve">
+    <value>保留天数不正确</value>
+  </data>
+  <data name="Error_NoTitleKind" xml:space="preserve">
+    <value>类型不正确</value>
+  </data>
+  <data name="Error_NoTitleDomain" xml:space="preserve">
+    <value>网址不正确，例如 zhihu.com</value>
+  </data>
+  <data name="Error_NoTitleLength" xml:space="preserve">
+    <value>请输入 1 到 {0} 个字符</value>
+  </data>
+  <data name="Error_MemberNotInRoom" xml:space="preserve">
+    <value>该成员不在当前房间</value>
+  </data>
+  <data name="Error_BlockedCannotPin" xml:space="preserve">
+    <value>已屏蔽该成员，取消屏蔽后才能置顶</value>
+  </data>
+  <data name="Error_BlockedCannotView" xml:space="preserve">
+    <value>已屏蔽该成员，取消屏蔽后才能查看</value>
+  </data>
+  <data name="Error_MemberNotSharing" xml:space="preserve">
+    <value>{0} 没有在这个房间公开使用统计</value>
+  </data>
+  <data name="Error_MemberSharedDays" xml:space="preserve">
+    <value>{0} 只公开了最近 {1} 天的统计</value>
+  </data>
+  <data name="Error_NothingRecognized" xml:space="preserve">
+    <value>还没有识别到当前使用的应用。</value>
+  </data>
+  <data name="Error_NothingToCorrect" xml:space="preserve">
+    <value>还没有识别到当前使用的应用。切换到要纠正的应用，再打开面板。</value>
+  </data>
+  <data name="Error_CategoryRequired" xml:space="preserve">
+    <value>请选择类别</value>
+  </data>
+  <data name="Error_RuleKind" xml:space="preserve">
+    <value>规则类型不正确</value>
+  </data>
+  <data name="Error_DisplayName" xml:space="preserve">
+    <value>显示名称需要 1 到 20 个字符</value>
+  </data>
+  <data name="Error_CloseAction" xml:space="preserve">
+    <value>关闭选项不正确</value>
+  </data>
+  <data name="Error_Theme" xml:space="preserve">
+    <value>外观选项不正确</value>
+  </data>
+  <data name="Error_Language" xml:space="preserve">
+    <value>语言选项不正确</value>
+  </data>
+  <data name="Error_LogoutUnavailable" xml:space="preserve">
+    <value>现在不能退出登录。</value>
+  </data>
+  <data name="Error_StatsRange" xml:space="preserve">
+    <value>统计范围不正确</value>
+  </data>
+  <data name="Api_Unreachable" xml:space="preserve">
+    <value>无法连接服务器 {0}：{1}</value>
+  </data>
+  <data name="Api_Failed" xml:space="preserve">
+    <value>请求失败（HTTP {0}）</value>
+  </data>
+  <data name="Room_Fallback" xml:space="preserve">
+    <value>房间</value>
+  </data>
+  <data name="Member_Fallback" xml:space="preserve">
+    <value>房间成员</value>
+  </data>
+  <data name="Room_Dissolved" xml:space="preserve">
+    <value>该房间已被所有者解散</value>
+  </data>
+  <data name="Room_MemberJoined" xml:space="preserve">
+    <value>{0} 加入了房间</value>
+  </data>
+  <data name="Room_Kicked" xml:space="preserve">
+    <value>你已被移出该房间。邀请码更新后才能再次加入</value>
+  </data>
+  <data name="Room_InviteCopied" xml:space="preserve">
+    <value>邀请码已复制到剪贴板，{0} 前有效。重新生成后旧邀请码失效，被踢出的人可以用新邀请码加入。</value>
+  </data>
+  <data name="Stats_NotConnected" xml:space="preserve">
+    <value>未连接服务器，稍后再试。</value>
+  </data>
+  <data name="Stats_NoResponse" xml:space="preserve">
+    <value>对方不在线、现在不在这个房间，或者没有响应。</value>
+  </data>
+  <data name="Stats_DecryptFailed" xml:space="preserve">
+    <value>收到的统计数据无法解密，请重试。</value>
+  </data>
+  <data name="Stats_PeerNotSharing" xml:space="preserve">
+    <value>对方没有在这个房间公开使用统计。</value>
+  </data>
+  <data name="Stats_PeerSharedDays" xml:space="preserve">
+    <value>对方只公开了最近 {0} 天的统计。</value>
+  </data>
+  <data name="Update_NotInstalled" xml:space="preserve">
+    <value>当前是直接运行的程序，不能自动更新。请从 GitHub Release 安装带版本号的安装包（DeskPal-版本号-Setup.exe）。</value>
+  </data>
+  <data name="Update_Checking" xml:space="preserve">
+    <value>正在检查更新…</value>
+  </data>
+  <data name="Update_CheckFailed" xml:space="preserve">
+    <value>检查更新失败：{0}</value>
+  </data>
+  <data name="Update_UpToDate" xml:space="preserve">
+    <value>当前已是最新版本 {0}。</value>
+  </data>
+  <data name="Update_Downgrade" xml:space="preserve">
+    <value>正式版 {0} 低于当前测试版 {1}。要切换到正式版并重启吗？不切换会继续使用当前版本，直到下一个更高的正式版。</value>
+  </data>
+  <data name="Update_DownloadFailed" xml:space="preserve">
+    <value>下载更新失败：{0}</value>
+  </data>
+  <data name="Update_ChannelChanged" xml:space="preserve">
+    <value>更新通道已改变，这次下载已放弃。</value>
+  </data>
+  <data name="Update_Ready" xml:space="preserve">
+    <value>新版本 {0} 已下载，退出后自动安装。</value>
+  </data>
+  <data name="Update_RestartNow" xml:space="preserve">
+    <value>要立即重启并更新吗？</value>
+  </data>
+  <data name="Update_DownloadingStable" xml:space="preserve">
+    <value>正在下载正式版…</value>
+  </data>
+  <data name="Update_StableUnchanged" xml:space="preserve">
+    <value>正式版没有变化。</value>
+  </data>
+  <data name="Update_StableDownloadFailed" xml:space="preserve">
+    <value>下载正式版失败：{0}</value>
+  </data>
+  <data name="Update_Downloading" xml:space="preserve">
+    <value>正在下载新版本 {0}…</value>
+  </data>
+  <data name="Update_DownloadingPercent" xml:space="preserve">
+    <value>正在下载新版本 {0}（{1}%）</value>
+  </data>
+  <data name="ApiError_auth_userNameInvalid" xml:space="preserve">
+    <value>用户名需要 3 到 32 位，只能包含字母、数字、下划线和短横线</value>
+  </data>
+  <data name="ApiError_auth_passwordTooShort" xml:space="preserve">
+    <value>密码至少 8 位</value>
+  </data>
+  <data name="ApiError_auth_userNameTaken" xml:space="preserve">
+    <value>用户名已被占用</value>
+  </data>
+  <data name="ApiError_auth_wrongPassword" xml:space="preserve">
+    <value>用户名或密码错误</value>
+  </data>
+  <data name="ApiError_auth_accountMissing" xml:space="preserve">
+    <value>账号不存在</value>
+  </data>
+  <data name="ApiError_auth_displayNameInvalid" xml:space="preserve">
+    <value>显示名称需要 1 到 20 个字符</value>
+  </data>
+  <data name="ApiError_room_notMember" xml:space="preserve">
+    <value>房间不存在，或者你不是该房间的成员</value>
+  </data>
+  <data name="ApiError_room_nameInvalid" xml:space="preserve">
+    <value>房间名称需要 1 到 30 个字符</value>
+  </data>
+  <data name="ApiError_room_ownLimit" xml:space="preserve">
+    <value>每个用户最多创建 {limit} 个房间</value>
+  </data>
+  <data name="ApiError_room_inviteInvalid" xml:space="preserve">
+    <value>邀请码无效或已过期</value>
+  </data>
+  <data name="ApiError_room_alreadyMember" xml:space="preserve">
+    <value>你已经是该房间的成员</value>
+  </data>
+  <data name="ApiError_room_banned" xml:space="preserve">
+    <value>你已被移出该房间。邀请码更新后才能再次加入</value>
+  </data>
+  <data name="ApiError_room_full" xml:space="preserve">
+    <value>该房间已满（上限 {limit} 人）</value>
+  </data>
+  <data name="ApiError_room_ownerCannotLeave" xml:space="preserve">
+    <value>所有者不能直接退出，请先转让所有者或解散房间</value>
+  </data>
+  <data name="ApiError_room_ownerOnlyKick" xml:space="preserve">
+    <value>只有所有者可以踢出成员</value>
+  </data>
+  <data name="ApiError_room_cannotKickOwner" xml:space="preserve">
+    <value>不能踢出所有者</value>
+  </data>
+  <data name="ApiError_room_memberMissing" xml:space="preserve">
+    <value>该成员不在房间中</value>
+  </data>
+  <data name="ApiError_room_ownerOnlyTransfer" xml:space="preserve">
+    <value>只有所有者可以转让所有者身份</value>
+  </data>
+  <data name="ApiError_room_transferTarget" xml:space="preserve">
+    <value>只能转让给该房间的其他成员</value>
+  </data>
+  <data name="ApiError_room_ownerOnlyRename" xml:space="preserve">
+    <value>只有所有者可以修改房间名称</value>
+  </data>
+  <data name="ApiError_room_ownerOnlyDissolve" xml:space="preserve">
+    <value>只有所有者可以解散房间</value>
+  </data>
+  <data name="ApiError_room_statsDaysInvalid" xml:space="preserve">
+    <value>可查看天数只能是 1、3、7 或 30 天</value>
+  </data>
+  <data name="ApiError_room_cannotBlockSelf" xml:space="preserve">
+    <value>不能屏蔽自己</value>
+  </data>
+  <data name="ApiError_rule_patternInvalid" xml:space="preserve">
+    <value>规则内容不能为空，且不超过 200 个字符</value>
+  </data>
+  <data name="ApiError_rule_categoryRequired" xml:space="preserve">
+    <value>请选择类别</value>
+  </data>
+  <data name="ApiError_rule_limit" xml:space="preserve">
+    <value>个人分类最多 {limit} 条，请先删除不用的</value>
+  </data>
+  <data name="ApiError_sharing_off" xml:space="preserve">
+    <value>没有同意分享使用数据</value>
+  </data>
+  <data name="ApiError_hub_unsupportedType" xml:space="preserve">
+    <value>不支持的消息类型</value>
+  </data>
+  <data name="ApiError_hub_notMember" xml:space="preserve">
+    <value>你不是该房间的成员</value>
+  </data>
+</root>

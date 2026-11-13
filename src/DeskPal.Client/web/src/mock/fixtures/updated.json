@@ -190,7 +190,8 @@
     "updateActivity": null,
     "shareUsage": true,
     "theme": "system",
-    "closeAction": "ask"
+    "closeAction": "ask",
+    "language": "system"
   },
   "myRules": [
     {
@@ -293,5 +294,6 @@
         "when": "昨天 12:00"
       }
     ]
-  }
+  },
+  "locale": "zh-CN"
 }

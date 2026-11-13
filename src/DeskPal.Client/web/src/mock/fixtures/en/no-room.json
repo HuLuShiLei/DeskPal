@@ -1,0 +1,134 @@
+{
+  "connection": {
+    "connected": true,
+    "text": "Connected"
+  },
+  "me": {
+    "displayName": "Alice",
+    "view": {
+      "headline": "Chatting",
+      "app": "QQ",
+      "detail": "理工生陷入云吸猫 (64)",
+      "tone": "chat"
+    },
+    "source": "QQ: classified by your rule.",
+    "visible": null,
+    "paused": false,
+    "pending": null,
+    "meta": "For 3 min",
+    "full": "Category: Chat\nApp: QQ\nTitle: 理工生陷入云吸猫 (64)"
+  },
+  "rooms": [],
+  "selectedRoomId": null,
+  "emptyHint": "You are not in a room. Create or select a room, or join one with an invite code.",
+  "members": [],
+  "privacy": null,
+  "correction": {
+    "target": "QQ",
+    "current": "Communication",
+    "options": [
+      {
+        "value": "Work",
+        "name": "Work"
+      },
+      {
+        "value": "Communication",
+        "name": "Chat"
+      },
+      {
+        "value": "Video",
+        "name": "Video"
+      },
+      {
+        "value": "Game",
+        "name": "Games"
+      },
+      {
+        "value": "Browsing",
+        "name": "Web browsing"
+      },
+      {
+        "value": "Other",
+        "name": "Other"
+      }
+    ],
+    "personal": true
+  },
+  "settings": {
+    "autoStart": true,
+    "topmost": false,
+    "receiveBeta": true,
+    "updateReady": false,
+    "version": "0.1.1-dev.12",
+    "serverUrl": "https://deskpal.hafuhafu.cn:36443",
+    "userName": "alice",
+    "updateActivity": null,
+    "shareUsage": null,
+    "theme": "system",
+    "closeAction": "ask",
+    "language": "system"
+  },
+  "myRules": [
+    {
+      "kind": "Process",
+      "pattern": "qq",
+      "name": "QQ",
+      "kindName": "App",
+      "category": "Communication",
+      "categoryName": "Chat"
+    }
+  ],
+  "unclassified": [],
+  "whatsNew": null,
+  "usage": {
+    "retentionDays": 90,
+    "retentionOptions": [
+      {
+        "value": 30,
+        "name": "30 days"
+      },
+      {
+        "value": 90,
+        "name": "90 days"
+      },
+      {
+        "value": 180,
+        "name": "180 days"
+      },
+      {
+        "value": 365,
+        "name": "365 days"
+      }
+    ],
+    "noTitleRules": [
+      {
+        "kind": "App",
+        "pattern": "招商银行",
+        "label": "App · 招商银行"
+      },
+      {
+        "kind": "Domain",
+        "pattern": "cmbchina.com",
+        "label": "Site · cmbchina.com"
+      },
+      {
+        "kind": "Title",
+        "pattern": "病历",
+        "label": "Title contains · 病历"
+      }
+    ],
+    "viewers": [
+      {
+        "name": "Bob",
+        "room": "测试房间",
+        "when": "Today 13:00"
+      },
+      {
+        "name": "Dave",
+        "room": "同事房间",
+        "when": "Yesterday 12:00"
+      }
+    ]
+  },
+  "locale": "en"
+}

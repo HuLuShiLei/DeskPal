@@ -23,7 +23,7 @@ public sealed class LoginWindow : Window
         _store = store;
         _api = api;
         _web = new WebView2 { DefaultBackgroundColor = WebUi.ColorFor(settings.Theme) };
-        Title = "DeskPal 登录";
+        Title = Strings.Login_WindowTitle;
         Width = 380;
         Height = 560;
         ResizeMode = ResizeMode.NoResize;
@@ -39,7 +39,7 @@ public sealed class LoginWindow : Window
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, $"登录页加载失败：{ex.Message}", "DeskPal", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(this, UiLanguage.Format(Strings.Login_LoadFailed, ex.Message), "DeskPal", MessageBoxButton.OK, MessageBoxImage.Warning);
                 DialogResult = false;
             }
         };
@@ -61,7 +61,7 @@ public sealed class LoginWindow : Window
 
         var result = command.Type is "auth.login" or "auth.register"
             ? await SubmitAsync(command, register: command.Type == "auth.register")
-            : CommandResult.Fail($"不支持的操作：{command.Type}");
+            : CommandResult.Fail(UiLanguage.Format(Strings.Error_Unsupported, command.Type));
         if (command.Id is { } id)
         {
             WebUi.Post(_web, new { type = "result", id, ok = result.Ok, error = result.Error });
@@ -78,13 +78,13 @@ public sealed class LoginWindow : Window
         var server = c.String("serverUrl").Trim().TrimEnd('/');
         if (!Uri.TryCreate(server, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
         {
-            return CommandResult.Fail("服务器地址需要以 http:// 或 https:// 开头");
+            return CommandResult.Fail(Strings.Login_InvalidServer);
         }
 
         var displayName = c.String("displayName").Trim();
         if (register && displayName.Length == 0)
         {
-            return CommandResult.Fail("注册需要填写显示名称");
+            return CommandResult.Fail(Strings.Login_DisplayNameRequired);
         }
 
         _settings.ServerUrl = server;

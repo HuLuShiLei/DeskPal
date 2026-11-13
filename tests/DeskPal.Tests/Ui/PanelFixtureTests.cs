@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Shared;
@@ -5,7 +6,7 @@ using DeskPal.Shared;
 namespace DeskPal.Tests.Ui;
 
 /// <summary>
-/// The browser mock (web/src/mock/fixtures) must look exactly like what C# sends.
+/// The browser mock (web/src/mock/fixtures) must look exactly like what C# sends. English copies live in fixtures/en for ?lang=en.
 /// After changing PanelState or the panel text, run the tests once with DESKPAL_UPDATE_FIXTURES=1 to rewrite them.
 /// </summary>
 public class PanelFixtureTests
@@ -23,10 +24,29 @@ public class PanelFixtureTests
     public void Mock_fixture_matches_csharp_output(string name)
     {
         Check(name, PanelStateBuilder.Build(PanelSamples.All[name]()));
+        InEnglish(() => Check("en/" + name, PanelStateBuilder.Build(PanelSamples.All[name]())));
     }
 
     [Fact]
-    public void Stats_mock_fixture_matches_csharp_output() => Check("stats", StatsSamples.Views());
+    public void Stats_mock_fixture_matches_csharp_output()
+    {
+        Check("stats", StatsSamples.Views());
+        InEnglish(() => Check("en/stats", StatsSamples.Views()));
+    }
+
+    private static void InEnglish(Action action)
+    {
+        var previous = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+        try
+        {
+            action();
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previous;
+        }
+    }
 
     private static void Check(string name, object value)
     {
@@ -35,6 +55,7 @@ public class PanelFixtureTests
 
         if (Environment.GetEnvironmentVariable("DESKPAL_UPDATE_FIXTURES") == "1")
         {
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             File.WriteAllText(path, json);
             return;
         }

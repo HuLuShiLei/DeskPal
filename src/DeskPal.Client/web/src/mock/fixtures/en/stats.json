@@ -1,0 +1,5714 @@
+{
+  "Day-State": {
+    "scale": "Day",
+    "granularity": "State",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "Wed, Nov 11 (today)",
+    "totalLabel": "Usage",
+    "total": "5 h",
+    "compare": "Yesterday: 8 h 20 min",
+    "summary": "Away 40 min",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "chat",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "relax",
+        "name": "Break",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 2700
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 1800
+          },
+          {
+            "key": "relax",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 min",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 h",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 Work · 1 h 30 min"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 Chat · 15 min"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 Work · 1 h 5 min"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 Away · 40 min"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 Break · 40 min"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 Work · 1 h 30 min"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "Work",
+        "sub": null,
+        "tone": "work",
+        "time": "4 h 5 min",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "Break",
+        "sub": null,
+        "tone": "relax",
+        "time": "40 min",
+        "share": 0.163,
+        "hidden": false
+      },
+      {
+        "name": "Chat",
+        "sub": null,
+        "tone": "chat",
+        "time": "15 min",
+        "share": 0.061,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "By status",
+    "note": null,
+    "empty": null
+  },
+  "member-Day-State": {
+    "scale": "Day",
+    "granularity": "State",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "Wed, Nov 11 (today)",
+    "totalLabel": "Usage",
+    "total": "5 h",
+    "compare": "Yesterday: 8 h 20 min",
+    "summary": "Away 40 min",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "chat",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "relax",
+        "name": "Break",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 2700
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 1800
+          },
+          {
+            "key": "relax",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 min",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 h",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 Work · 1 h 30 min"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 Chat · 15 min"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 Work · 1 h 5 min"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 Away · 40 min"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 Break · 40 min"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 Work · 1 h 30 min"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "Work",
+        "sub": null,
+        "tone": "work",
+        "time": "4 h 5 min",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "Break",
+        "sub": null,
+        "tone": "relax",
+        "time": "40 min",
+        "share": 0.163,
+        "hidden": false
+      },
+      {
+        "name": "Chat",
+        "sub": null,
+        "tone": "chat",
+        "time": "15 min",
+        "share": 0.061,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "By status",
+    "note": "Bob shares the last 7 days.",
+    "empty": null
+  },
+  "Day-Category": {
+    "scale": "Day",
+    "granularity": "Category",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "Wed, Nov 11 (today)",
+    "totalLabel": "Usage",
+    "total": "5 h",
+    "compare": "Yesterday: 8 h 20 min",
+    "summary": "Away 40 min",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 2700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 min",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 h",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 Work · 1 h 30 min"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 Chat · 15 min"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 Work · 1 h 5 min"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 Away · 40 min"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 Break · 40 min"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 Work · 1 h 30 min"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "Cursor",
+        "sub": "Work",
+        "tone": "work",
+        "time": "2 h 35 min",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "Visual Studio Code",
+        "sub": "Work",
+        "tone": "work",
+        "time": "1 h 30 min",
+        "share": 0.581,
+        "hidden": false
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "Video",
+        "tone": "relax",
+        "time": "40 min",
+        "share": 0.258,
+        "hidden": false
+      },
+      {
+        "name": "微信",
+        "sub": "Chat",
+        "tone": "chat",
+        "time": "15 min",
+        "share": 0.097,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "Top apps and sites",
+    "note": null,
+    "empty": null
+  },
+  "member-Day-Category": {
+    "scale": "Day",
+    "granularity": "Category",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "Wed, Nov 11 (today)",
+    "totalLabel": "Usage",
+    "total": "5 h",
+    "compare": "Yesterday: 8 h 20 min",
+    "summary": "Away 40 min",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "hidden-work",
+        "name": "Work (category hidden)",
+        "tone": "work",
+        "hidden": true
+      },
+      {
+        "key": "hidden-chat",
+        "name": "Chat (category hidden)",
+        "tone": "chat",
+        "hidden": true
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 2700
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 min",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 h",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 Work · 1 h 30 min"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 Chat · 15 min"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 Work · 1 h 5 min"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 Away · 40 min"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 Break · 40 min"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 Work · 1 h 30 min"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "Work (category hidden)",
+        "sub": null,
+        "tone": "work",
+        "time": "4 h 5 min",
+        "share": 1,
+        "hidden": true
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "Video",
+        "tone": "relax",
+        "time": "40 min",
+        "share": 0.163,
+        "hidden": false
+      },
+      {
+        "name": "Chat (category hidden)",
+        "sub": null,
+        "tone": "chat",
+        "time": "15 min",
+        "share": 0.061,
+        "hidden": true
+      }
+    ],
+    "rankingTitle": "Top apps and sites",
+    "note": "Bob shares the last 7 days. Some categories are shared as status only.",
+    "empty": null
+  },
+  "Day-Title": {
+    "scale": "Day",
+    "granularity": "Title",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "Wed, Nov 11 (today)",
+    "totalLabel": "Usage",
+    "total": "5 h",
+    "compare": "Yesterday: 8 h 20 min",
+    "summary": "Away 40 min",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 2700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 min",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 h",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 Work · 1 h 30 min"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 Chat · 15 min"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 Work · 1 h 5 min"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 Away · 40 min"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 Break · 40 min"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 Work · 1 h 30 min"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "plan.md - idea1 - Cursor",
+        "sub": "Cursor · Work",
+        "tone": "work",
+        "time": "1 h 30 min",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "architecture.md - docs",
+        "sub": "Visual Studio Code · Work",
+        "tone": "work",
+        "time": "1 h 30 min",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "StatsPage.tsx - idea1 - Cursor",
+        "sub": "Cursor · Work",
+        "tone": "work",
+        "time": "1 h 5 min",
+        "share": 0.722,
+        "hidden": false
+      },
+      {
+        "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
+        "sub": "哔哩哔哩 · Video",
+        "tone": "relax",
+        "time": "40 min",
+        "share": 0.444,
+        "hidden": false
+      },
+      {
+        "name": "项目群",
+        "sub": "微信 · Chat",
+        "tone": "chat",
+        "time": "15 min",
+        "share": 0.167,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "Top titles",
+    "note": null,
+    "empty": null
+  },
+  "member-Day-Title": {
+    "scale": "Day",
+    "granularity": "Title",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "Wed, Nov 11 (today)",
+    "totalLabel": "Usage",
+    "total": "5 h",
+    "compare": "Yesterday: 8 h 20 min",
+    "summary": "Away 40 min",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "hidden-work",
+        "name": "Work (category hidden)",
+        "tone": "work",
+        "hidden": true
+      },
+      {
+        "key": "hidden-chat",
+        "name": "Chat (category hidden)",
+        "tone": "chat",
+        "hidden": true
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 2700
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 min",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 h",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 Work · 1 h 30 min"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 Chat · 15 min"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 Work · 1 h 5 min"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 Away · 40 min"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 Break · 40 min"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 Work · 1 h 30 min"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "Work (category hidden)",
+        "sub": null,
+        "tone": "work",
+        "time": "4 h 5 min",
+        "share": 1,
+        "hidden": true
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "Video",
+        "tone": "relax",
+        "time": "40 min",
+        "share": 0.163,
+        "hidden": false
+      },
+      {
+        "name": "Chat (category hidden)",
+        "sub": null,
+        "tone": "chat",
+        "time": "15 min",
+        "share": 0.061,
+        "hidden": true
+      }
+    ],
+    "rankingTitle": "Top titles",
+    "note": "Bob shares the last 7 days. Some categories are shared as status only. Titles are hidden for some categories, so app names are shown.",
+    "empty": null
+  },
+  "Week-State": {
+    "scale": "Week",
+    "granularity": "State",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "Nov 9 – Nov 15 (this week)",
+    "totalLabel": "Daily average",
+    "total": "7 h 40 min",
+    "compare": "28 min less per day than last week",
+    "summary": "Total 23 h · Away 2 h · Locked 2 h",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "chat",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "relax",
+        "name": "Break",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "browse",
+        "name": "Web",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "other",
+        "name": "Other",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "Mon",
+        "tip": "Mon, Nov 9 · 9 h 40 min",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "Tue",
+        "tip": "Tue, Nov 10 · 8 h 20 min",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 23100
+          },
+          {
+            "key": "chat",
+            "seconds": 1500
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "Wed",
+        "tip": "Wed, Nov 11 · 5 h",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 14700
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "Thu",
+        "tip": "Thu, Nov 12 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Fri",
+        "tip": "Fri, Nov 13 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sat",
+        "tip": "Sat, Nov 14 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sun",
+        "tip": "Sun, Nov 15 · Upcoming",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 h",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "Work",
+        "sub": null,
+        "tone": "work",
+        "time": "16 h 35 min",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "Break",
+        "sub": null,
+        "tone": "relax",
+        "time": "3 h 30 min",
+        "share": 0.211,
+        "hidden": false
+      },
+      {
+        "name": "Chat",
+        "sub": null,
+        "tone": "chat",
+        "time": "1 h 15 min",
+        "share": 0.075,
+        "hidden": false
+      },
+      {
+        "name": "Other",
+        "sub": null,
+        "tone": "other",
+        "time": "1 h",
+        "share": 0.06,
+        "hidden": false
+      },
+      {
+        "name": "Web",
+        "sub": null,
+        "tone": "browse",
+        "time": "40 min",
+        "share": 0.04,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "By status",
+    "note": null,
+    "empty": null
+  },
+  "member-Week-State": {
+    "scale": "Week",
+    "granularity": "State",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "Nov 9 – Nov 15 (this week)",
+    "totalLabel": "Daily average",
+    "total": "7 h 40 min",
+    "compare": null,
+    "summary": "Total 23 h · Away 2 h · Locked 2 h",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "chat",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "relax",
+        "name": "Break",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "browse",
+        "name": "Web",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "other",
+        "name": "Other",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "Mon",
+        "tip": "Mon, Nov 9 · 9 h 40 min",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "Tue",
+        "tip": "Tue, Nov 10 · 8 h 20 min",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 23100
+          },
+          {
+            "key": "chat",
+            "seconds": 1500
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "Wed",
+        "tip": "Wed, Nov 11 · 5 h",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 14700
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "Thu",
+        "tip": "Thu, Nov 12 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Fri",
+        "tip": "Fri, Nov 13 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sat",
+        "tip": "Sat, Nov 14 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sun",
+        "tip": "Sun, Nov 15 · Upcoming",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 h",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "Work",
+        "sub": null,
+        "tone": "work",
+        "time": "16 h 35 min",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "Break",
+        "sub": null,
+        "tone": "relax",
+        "time": "3 h 30 min",
+        "share": 0.211,
+        "hidden": false
+      },
+      {
+        "name": "Chat",
+        "sub": null,
+        "tone": "chat",
+        "time": "1 h 15 min",
+        "share": 0.075,
+        "hidden": false
+      },
+      {
+        "name": "Other",
+        "sub": null,
+        "tone": "other",
+        "time": "1 h",
+        "share": 0.06,
+        "hidden": false
+      },
+      {
+        "name": "Web",
+        "sub": null,
+        "tone": "browse",
+        "time": "40 min",
+        "share": 0.04,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "By status",
+    "note": "Bob shares the last 7 days.",
+    "empty": null
+  },
+  "Week-Category": {
+    "scale": "Week",
+    "granularity": "Category",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "Nov 9 – Nov 15 (this week)",
+    "totalLabel": "Daily average",
+    "total": "7 h 40 min",
+    "compare": "28 min less per day than last week",
+    "summary": "Total 23 h · Away 2 h · Locked 2 h",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "Games",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "Web browsing",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "Other",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "Mon",
+        "tip": "Mon, Nov 9 · 9 h 40 min",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "Tue",
+        "tip": "Tue, Nov 10 · 8 h 20 min",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 23100
+          },
+          {
+            "key": "Communication",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "Wed",
+        "tip": "Wed, Nov 11 · 5 h",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 14700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "Thu",
+        "tip": "Thu, Nov 12 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Fri",
+        "tip": "Fri, Nov 13 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sat",
+        "tip": "Sat, Nov 14 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sun",
+        "tip": "Sun, Nov 15 · Upcoming",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 h",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "Cursor",
+        "sub": "Work",
+        "tone": "work",
+        "time": "11 h 5 min",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "Visual Studio Code",
+        "sub": "Work",
+        "tone": "work",
+        "time": "5 h 30 min",
+        "share": 0.496,
+        "hidden": false
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "Video",
+        "tone": "relax",
+        "time": "2 h",
+        "share": 0.18,
+        "hidden": false
+      },
+      {
+        "name": "原神",
+        "sub": "Games",
+        "tone": "game",
+        "time": "1 h 30 min",
+        "share": 0.135,
+        "hidden": false
+      },
+      {
+        "name": "微信",
+        "sub": "Chat",
+        "tone": "chat",
+        "time": "1 h 15 min",
+        "share": 0.113,
+        "hidden": false
+      },
+      {
+        "name": "XMind",
+        "sub": "Other",
+        "tone": "other",
+        "time": "1 h",
+        "share": 0.09,
+        "hidden": false
+      },
+      {
+        "name": "知乎",
+        "sub": "Web browsing",
+        "tone": "browse",
+        "time": "40 min",
+        "share": 0.06,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "Top apps and sites",
+    "note": null,
+    "empty": null
+  },
+  "member-Week-Category": {
+    "scale": "Week",
+    "granularity": "Category",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "Nov 9 – Nov 15 (this week)",
+    "totalLabel": "Daily average",
+    "total": "7 h 40 min",
+    "compare": null,
+    "summary": "Total 23 h · Away 2 h · Locked 2 h",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "Games",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "Web browsing",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "Other",
+        "tone": "other",
+        "hidden": false
+      },
+      {
+        "key": "hidden-work",
+        "name": "Work (category hidden)",
+        "tone": "work",
+        "hidden": true
+      },
+      {
+        "key": "hidden-chat",
+        "name": "Chat (category hidden)",
+        "tone": "chat",
+        "hidden": true
+      }
+    ],
+    "bars": [
+      {
+        "label": "Mon",
+        "tip": "Mon, Nov 9 · 9 h 40 min",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 21900
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "Tue",
+        "tip": "Tue, Nov 10 · 8 h 20 min",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 23100
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "Wed",
+        "tip": "Wed, Nov 11 · 5 h",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 14700
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "Thu",
+        "tip": "Thu, Nov 12 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Fri",
+        "tip": "Fri, Nov 13 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sat",
+        "tip": "Sat, Nov 14 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sun",
+        "tip": "Sun, Nov 15 · Upcoming",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 h",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "Work (category hidden)",
+        "sub": null,
+        "tone": "work",
+        "time": "16 h 35 min",
+        "share": 1,
+        "hidden": true
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "Video",
+        "tone": "relax",
+        "time": "2 h",
+        "share": 0.121,
+        "hidden": false
+      },
+      {
+        "name": "原神",
+        "sub": "Games",
+        "tone": "game",
+        "time": "1 h 30 min",
+        "share": 0.09,
+        "hidden": false
+      },
+      {
+        "name": "Chat (category hidden)",
+        "sub": null,
+        "tone": "chat",
+        "time": "1 h 15 min",
+        "share": 0.075,
+        "hidden": true
+      },
+      {
+        "name": "XMind",
+        "sub": "Other",
+        "tone": "other",
+        "time": "1 h",
+        "share": 0.06,
+        "hidden": false
+      },
+      {
+        "name": "知乎",
+        "sub": "Web browsing",
+        "tone": "browse",
+        "time": "40 min",
+        "share": 0.04,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "Top apps and sites",
+    "note": "Bob shares the last 7 days. Some categories are shared as status only.",
+    "empty": null
+  },
+  "Week-Title": {
+    "scale": "Week",
+    "granularity": "Title",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "Nov 9 – Nov 15 (this week)",
+    "totalLabel": "Daily average",
+    "total": "7 h 40 min",
+    "compare": "28 min less per day than last week",
+    "summary": "Total 23 h · Away 2 h · Locked 2 h",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "Games",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "Web browsing",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "Other",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "Mon",
+        "tip": "Mon, Nov 9 · 9 h 40 min",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "Tue",
+        "tip": "Tue, Nov 10 · 8 h 20 min",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 23100
+          },
+          {
+            "key": "Communication",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "Wed",
+        "tip": "Wed, Nov 11 · 5 h",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 14700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "Thu",
+        "tip": "Thu, Nov 12 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Fri",
+        "tip": "Fri, Nov 13 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sat",
+        "tip": "Sat, Nov 14 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sun",
+        "tip": "Sun, Nov 15 · Upcoming",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 h",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "plan.md - idea1 - Cursor",
+        "sub": "Cursor · Work",
+        "tone": "work",
+        "time": "8 h 20 min",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "architecture.md - docs",
+        "sub": "Visual Studio Code · Work",
+        "tone": "work",
+        "time": "5 h 30 min",
+        "share": 0.66,
+        "hidden": false
+      },
+      {
+        "name": "StatsPage.tsx - idea1 - Cursor",
+        "sub": "Cursor · Work",
+        "tone": "work",
+        "time": "2 h 45 min",
+        "share": 0.33,
+        "hidden": false
+      },
+      {
+        "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
+        "sub": "哔哩哔哩 · Video",
+        "tone": "relax",
+        "time": "2 h",
+        "share": 0.24,
+        "hidden": false
+      },
+      {
+        "name": "深境螺旋",
+        "sub": "原神 · Games",
+        "tone": "game",
+        "time": "1 h 30 min",
+        "share": 0.18,
+        "hidden": false
+      },
+      {
+        "name": "项目群",
+        "sub": "微信 · Chat",
+        "tone": "chat",
+        "time": "1 h 15 min",
+        "share": 0.15,
+        "hidden": false
+      },
+      {
+        "name": "使用统计方案",
+        "sub": "XMind · Other",
+        "tone": "other",
+        "time": "1 h",
+        "share": 0.12,
+        "hidden": false
+      },
+      {
+        "name": "如何评价手写 SVG 图表",
+        "sub": "知乎 · Web browsing",
+        "tone": "browse",
+        "time": "40 min",
+        "share": 0.08,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "Top titles",
+    "note": null,
+    "empty": null
+  },
+  "member-Week-Title": {
+    "scale": "Week",
+    "granularity": "Title",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "Nov 9 – Nov 15 (this week)",
+    "totalLabel": "Daily average",
+    "total": "7 h 40 min",
+    "compare": null,
+    "summary": "Total 23 h · Away 2 h · Locked 2 h",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "Games",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "Web browsing",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "Other",
+        "tone": "other",
+        "hidden": false
+      },
+      {
+        "key": "hidden-work",
+        "name": "Work (category hidden)",
+        "tone": "work",
+        "hidden": true
+      },
+      {
+        "key": "hidden-chat",
+        "name": "Chat (category hidden)",
+        "tone": "chat",
+        "hidden": true
+      }
+    ],
+    "bars": [
+      {
+        "label": "Mon",
+        "tip": "Mon, Nov 9 · 9 h 40 min",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 21900
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "Tue",
+        "tip": "Tue, Nov 10 · 8 h 20 min",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 23100
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "Wed",
+        "tip": "Wed, Nov 11 · 5 h",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 14700
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "Thu",
+        "tip": "Thu, Nov 12 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Fri",
+        "tip": "Fri, Nov 13 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sat",
+        "tip": "Sat, Nov 14 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sun",
+        "tip": "Sun, Nov 15 · Upcoming",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 h",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "Work (category hidden)",
+        "sub": null,
+        "tone": "work",
+        "time": "16 h 35 min",
+        "share": 1,
+        "hidden": true
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "Video",
+        "tone": "relax",
+        "time": "2 h",
+        "share": 0.121,
+        "hidden": false
+      },
+      {
+        "name": "深境螺旋",
+        "sub": "原神 · Games",
+        "tone": "game",
+        "time": "1 h 30 min",
+        "share": 0.09,
+        "hidden": false
+      },
+      {
+        "name": "Chat (category hidden)",
+        "sub": null,
+        "tone": "chat",
+        "time": "1 h 15 min",
+        "share": 0.075,
+        "hidden": true
+      },
+      {
+        "name": "XMind",
+        "sub": "Other",
+        "tone": "other",
+        "time": "1 h",
+        "share": 0.06,
+        "hidden": false
+      },
+      {
+        "name": "知乎",
+        "sub": "Web browsing",
+        "tone": "browse",
+        "time": "40 min",
+        "share": 0.04,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "Top titles",
+    "note": "Bob shares the last 7 days. Some categories are shared as status only. Titles are hidden for some categories, so app names are shown.",
+    "empty": null
+  },
+  "Month-State": {
+    "scale": "Month",
+    "granularity": "State",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "November 2026 (this month)",
+    "totalLabel": "Daily average",
+    "total": "7 h 50 min",
+    "compare": "2 h 24 min more per day than last month",
+    "summary": "Total 86 h 20 min · Away 5 h 20 min · Locked 7 h",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "chat",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "relax",
+        "name": "Break",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "browse",
+        "name": "Web",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "other",
+        "name": "Other",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "1",
+        "tip": "Sun, Nov 1 · 6 h 20 min",
+        "date": "2026-11-01",
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 18600
+          },
+          {
+            "key": "browse",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 2 · 8 h 30 min",
+        "date": "2026-11-02",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 24300
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 3 · 9 h 40 min",
+        "date": "2026-11-03",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 4 · 8 h 20 min",
+        "date": "2026-11-04",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 23100
+          },
+          {
+            "key": "chat",
+            "seconds": 1500
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "5",
+        "tip": "Thu, Nov 5 · 10 h",
+        "date": "2026-11-05",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 24300
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 6 · 8 h 10 min",
+        "date": "2026-11-06",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 7 · 6 h 20 min",
+        "date": "2026-11-07",
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 18600
+          },
+          {
+            "key": "browse",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 8 · 6 h",
+        "date": "2026-11-08",
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 18000
+          },
+          {
+            "key": "browse",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 9 · 9 h 40 min",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "10",
+        "tip": "Tue, Nov 10 · 8 h 20 min",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 23100
+          },
+          {
+            "key": "chat",
+            "seconds": 1500
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 11 · 5 h",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 14700
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 12 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 13 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 14 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "15",
+        "tip": "Sun, Nov 15 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 16 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 17 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 18 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 19 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "20",
+        "tip": "Fri, Nov 20 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 21 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 22 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 23 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 24 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "25",
+        "tip": "Wed, Nov 25 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 26 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 27 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 28 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 29 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "30",
+        "tip": "Mon, Nov 30 · Upcoming",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 h",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "Work",
+        "sub": null,
+        "tone": "work",
+        "time": "48 h 40 min",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "Break",
+        "sub": null,
+        "tone": "relax",
+        "time": "25 h 10 min",
+        "share": 0.517,
+        "hidden": false
+      },
+      {
+        "name": "Web",
+        "sub": null,
+        "tone": "browse",
+        "time": "5 h 40 min",
+        "share": 0.116,
+        "hidden": false
+      },
+      {
+        "name": "Other",
+        "sub": null,
+        "tone": "other",
+        "time": "3 h 30 min",
+        "share": 0.072,
+        "hidden": false
+      },
+      {
+        "name": "Chat",
+        "sub": null,
+        "tone": "chat",
+        "time": "3 h 20 min",
+        "share": 0.068,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "By status",
+    "note": null,
+    "empty": null
+  },
+  "member-Month-State": {
+    "scale": "Month",
+    "granularity": "State",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "November 2026 (this month)",
+    "totalLabel": "Daily average",
+    "total": "7 h 38 min",
+    "compare": null,
+    "summary": "Total 53 h 30 min · Away 3 h 20 min · Locked 4 h",
+    "canPrev": false,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "chat",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "relax",
+        "name": "Break",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "browse",
+        "name": "Web",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "other",
+        "name": "Other",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "1",
+        "tip": "Sun, Nov 1 · 0 min",
+        "date": "2026-11-01",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 2 · 0 min",
+        "date": "2026-11-02",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 3 · 0 min",
+        "date": "2026-11-03",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 4 · 0 min",
+        "date": "2026-11-04",
+        "parts": []
+      },
+      {
+        "label": "5",
+        "tip": "Thu, Nov 5 · 10 h",
+        "date": "2026-11-05",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 24300
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 6 · 8 h 10 min",
+        "date": "2026-11-06",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 7 · 6 h 20 min",
+        "date": "2026-11-07",
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 18600
+          },
+          {
+            "key": "browse",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 8 · 6 h",
+        "date": "2026-11-08",
+        "parts": [
+          {
+            "key": "relax",
+            "seconds": 18000
+          },
+          {
+            "key": "browse",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 9 · 9 h 40 min",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 21900
+          },
+          {
+            "key": "chat",
+            "seconds": 2100
+          },
+          {
+            "key": "relax",
+            "seconds": 7800
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "10",
+        "tip": "Tue, Nov 10 · 8 h 20 min",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 23100
+          },
+          {
+            "key": "chat",
+            "seconds": 1500
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          },
+          {
+            "key": "other",
+            "seconds": 1800
+          },
+          {
+            "key": "browse",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 11 · 5 h",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "work",
+            "seconds": 14700
+          },
+          {
+            "key": "chat",
+            "seconds": 900
+          },
+          {
+            "key": "relax",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 12 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 13 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 14 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "15",
+        "tip": "Sun, Nov 15 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 16 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 17 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 18 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 19 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "20",
+        "tip": "Fri, Nov 20 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 21 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 22 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 23 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 24 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "25",
+        "tip": "Wed, Nov 25 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 26 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 27 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 28 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 29 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "30",
+        "tip": "Mon, Nov 30 · Upcoming",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 h",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "Work",
+        "sub": null,
+        "tone": "work",
+        "time": "29 h 25 min",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "Break",
+        "sub": null,
+        "tone": "relax",
+        "time": "16 h 30 min",
+        "share": 0.561,
+        "hidden": false
+      },
+      {
+        "name": "Web",
+        "sub": null,
+        "tone": "browse",
+        "time": "3 h 30 min",
+        "share": 0.119,
+        "hidden": false
+      },
+      {
+        "name": "Chat",
+        "sub": null,
+        "tone": "chat",
+        "time": "2 h 5 min",
+        "share": 0.071,
+        "hidden": false
+      },
+      {
+        "name": "Other",
+        "sub": null,
+        "tone": "other",
+        "time": "2 h",
+        "share": 0.068,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "By status",
+    "note": "Bob shares the last 7 days.",
+    "empty": null
+  },
+  "Month-Category": {
+    "scale": "Month",
+    "granularity": "Category",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "November 2026 (this month)",
+    "totalLabel": "Daily average",
+    "total": "7 h 50 min",
+    "compare": "2 h 24 min more per day than last month",
+    "summary": "Total 86 h 20 min · Away 5 h 20 min · Locked 7 h",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "Games",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "Web browsing",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "Other",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "1",
+        "tip": "Sun, Nov 1 · 6 h 20 min",
+        "date": "2026-11-01",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7800
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 2 · 8 h 30 min",
+        "date": "2026-11-02",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 24300
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 3 · 9 h 40 min",
+        "date": "2026-11-03",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 4 · 8 h 20 min",
+        "date": "2026-11-04",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 23100
+          },
+          {
+            "key": "Communication",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "5",
+        "tip": "Thu, Nov 5 · 10 h",
+        "date": "2026-11-05",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 24300
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 6 · 8 h 10 min",
+        "date": "2026-11-06",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 7 · 6 h 20 min",
+        "date": "2026-11-07",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7800
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 8 · 6 h",
+        "date": "2026-11-08",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7200
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 9 · 9 h 40 min",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "10",
+        "tip": "Tue, Nov 10 · 8 h 20 min",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 23100
+          },
+          {
+            "key": "Communication",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 11 · 5 h",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 14700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 12 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 13 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 14 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "15",
+        "tip": "Sun, Nov 15 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 16 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 17 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 18 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 19 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "20",
+        "tip": "Fri, Nov 20 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 21 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 22 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 23 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 24 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "25",
+        "tip": "Wed, Nov 25 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 26 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 27 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 28 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 29 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "30",
+        "tip": "Mon, Nov 30 · Upcoming",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 h",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "Cursor",
+        "sub": "Work",
+        "tone": "work",
+        "time": "33 h 10 min",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "Visual Studio Code",
+        "sub": "Work",
+        "tone": "work",
+        "time": "15 h 30 min",
+        "share": 0.467,
+        "hidden": false
+      },
+      {
+        "name": "原神",
+        "sub": "Games",
+        "tone": "game",
+        "time": "13 h 30 min",
+        "share": 0.407,
+        "hidden": false
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "Video",
+        "tone": "relax",
+        "time": "11 h 40 min",
+        "share": 0.352,
+        "hidden": false
+      },
+      {
+        "name": "知乎",
+        "sub": "Web browsing",
+        "tone": "browse",
+        "time": "5 h 40 min",
+        "share": 0.171,
+        "hidden": false
+      },
+      {
+        "name": "XMind",
+        "sub": "Other",
+        "tone": "other",
+        "time": "3 h 30 min",
+        "share": 0.106,
+        "hidden": false
+      },
+      {
+        "name": "微信",
+        "sub": "Chat",
+        "tone": "chat",
+        "time": "3 h 20 min",
+        "share": 0.101,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "Top apps and sites",
+    "note": null,
+    "empty": null
+  },
+  "member-Month-Category": {
+    "scale": "Month",
+    "granularity": "Category",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "November 2026 (this month)",
+    "totalLabel": "Daily average",
+    "total": "7 h 38 min",
+    "compare": null,
+    "summary": "Total 53 h 30 min · Away 3 h 20 min · Locked 4 h",
+    "canPrev": false,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "Games",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "Web browsing",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "Other",
+        "tone": "other",
+        "hidden": false
+      },
+      {
+        "key": "hidden-work",
+        "name": "Work (category hidden)",
+        "tone": "work",
+        "hidden": true
+      },
+      {
+        "key": "hidden-chat",
+        "name": "Chat (category hidden)",
+        "tone": "chat",
+        "hidden": true
+      }
+    ],
+    "bars": [
+      {
+        "label": "1",
+        "tip": "Sun, Nov 1 · 0 min",
+        "date": "2026-11-01",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 2 · 0 min",
+        "date": "2026-11-02",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 3 · 0 min",
+        "date": "2026-11-03",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 4 · 0 min",
+        "date": "2026-11-04",
+        "parts": []
+      },
+      {
+        "label": "5",
+        "tip": "Thu, Nov 5 · 10 h",
+        "date": "2026-11-05",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 24300
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 6 · 8 h 10 min",
+        "date": "2026-11-06",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 21900
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 7 · 6 h 20 min",
+        "date": "2026-11-07",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7800
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 8 · 6 h",
+        "date": "2026-11-08",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7200
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 9 · 9 h 40 min",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 21900
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "10",
+        "tip": "Tue, Nov 10 · 8 h 20 min",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 23100
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 11 · 5 h",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 14700
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 12 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 13 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 14 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "15",
+        "tip": "Sun, Nov 15 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 16 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 17 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 18 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 19 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "20",
+        "tip": "Fri, Nov 20 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 21 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 22 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 23 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 24 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "25",
+        "tip": "Wed, Nov 25 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 26 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 27 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 28 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 29 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "30",
+        "tip": "Mon, Nov 30 · Upcoming",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 h",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "Work (category hidden)",
+        "sub": null,
+        "tone": "work",
+        "time": "29 h 25 min",
+        "share": 1,
+        "hidden": true
+      },
+      {
+        "name": "原神",
+        "sub": "Games",
+        "tone": "game",
+        "time": "9 h",
+        "share": 0.306,
+        "hidden": false
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "Video",
+        "tone": "relax",
+        "time": "7 h 30 min",
+        "share": 0.255,
+        "hidden": false
+      },
+      {
+        "name": "知乎",
+        "sub": "Web browsing",
+        "tone": "browse",
+        "time": "3 h 30 min",
+        "share": 0.119,
+        "hidden": false
+      },
+      {
+        "name": "Chat (category hidden)",
+        "sub": null,
+        "tone": "chat",
+        "time": "2 h 5 min",
+        "share": 0.071,
+        "hidden": true
+      },
+      {
+        "name": "XMind",
+        "sub": "Other",
+        "tone": "other",
+        "time": "2 h",
+        "share": 0.068,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "Top apps and sites",
+    "note": "Bob shares the last 7 days. Some categories are shared as status only.",
+    "empty": null
+  },
+  "Month-Title": {
+    "scale": "Month",
+    "granularity": "Title",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "November 2026 (this month)",
+    "totalLabel": "Daily average",
+    "total": "7 h 50 min",
+    "compare": "2 h 24 min more per day than last month",
+    "summary": "Total 86 h 20 min · Away 5 h 20 min · Locked 7 h",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "Games",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "Web browsing",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "Other",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "1",
+        "tip": "Sun, Nov 1 · 6 h 20 min",
+        "date": "2026-11-01",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7800
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 2 · 8 h 30 min",
+        "date": "2026-11-02",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 24300
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 3 · 9 h 40 min",
+        "date": "2026-11-03",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 4 · 8 h 20 min",
+        "date": "2026-11-04",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 23100
+          },
+          {
+            "key": "Communication",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "5",
+        "tip": "Thu, Nov 5 · 10 h",
+        "date": "2026-11-05",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 24300
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 6 · 8 h 10 min",
+        "date": "2026-11-06",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 7 · 6 h 20 min",
+        "date": "2026-11-07",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7800
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 8 · 6 h",
+        "date": "2026-11-08",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7200
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 9 · 9 h 40 min",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 21900
+          },
+          {
+            "key": "Communication",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "10",
+        "tip": "Tue, Nov 10 · 8 h 20 min",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 23100
+          },
+          {
+            "key": "Communication",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 11 · 5 h",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 14700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 12 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 13 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 14 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "15",
+        "tip": "Sun, Nov 15 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 16 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 17 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 18 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 19 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "20",
+        "tip": "Fri, Nov 20 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 21 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 22 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 23 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 24 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "25",
+        "tip": "Wed, Nov 25 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 26 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 27 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 28 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 29 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "30",
+        "tip": "Mon, Nov 30 · Upcoming",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 h",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "plan.md - idea1 - Cursor",
+        "sub": "Cursor · Work",
+        "tone": "work",
+        "time": "25 h 50 min",
+        "share": 1,
+        "hidden": false
+      },
+      {
+        "name": "architecture.md - docs",
+        "sub": "Visual Studio Code · Work",
+        "tone": "work",
+        "time": "15 h 30 min",
+        "share": 0.6,
+        "hidden": false
+      },
+      {
+        "name": "深境螺旋",
+        "sub": "原神 · Games",
+        "tone": "game",
+        "time": "13 h 30 min",
+        "share": 0.523,
+        "hidden": false
+      },
+      {
+        "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
+        "sub": "哔哩哔哩 · Video",
+        "tone": "relax",
+        "time": "11 h 40 min",
+        "share": 0.452,
+        "hidden": false
+      },
+      {
+        "name": "StatsPage.tsx - idea1 - Cursor",
+        "sub": "Cursor · Work",
+        "tone": "work",
+        "time": "7 h 20 min",
+        "share": 0.284,
+        "hidden": false
+      },
+      {
+        "name": "使用统计方案",
+        "sub": "XMind · Other",
+        "tone": "other",
+        "time": "3 h 30 min",
+        "share": 0.135,
+        "hidden": false
+      },
+      {
+        "name": "项目群",
+        "sub": "微信 · Chat",
+        "tone": "chat",
+        "time": "3 h 20 min",
+        "share": 0.129,
+        "hidden": false
+      },
+      {
+        "name": "如何评价这个周末",
+        "sub": "知乎 · Web browsing",
+        "tone": "browse",
+        "time": "3 h 20 min",
+        "share": 0.129,
+        "hidden": false
+      },
+      {
+        "name": "如何评价手写 SVG 图表",
+        "sub": "知乎 · Web browsing",
+        "tone": "browse",
+        "time": "2 h 20 min",
+        "share": 0.09,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "Top titles",
+    "note": null,
+    "empty": null
+  },
+  "member-Month-Title": {
+    "scale": "Month",
+    "granularity": "Title",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "November 2026 (this month)",
+    "totalLabel": "Daily average",
+    "total": "7 h 38 min",
+    "compare": null,
+    "summary": "Total 53 h 30 min · Away 3 h 20 min · Locked 4 h",
+    "canPrev": false,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "Games",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "Web browsing",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "Other",
+        "tone": "other",
+        "hidden": false
+      },
+      {
+        "key": "hidden-work",
+        "name": "Work (category hidden)",
+        "tone": "work",
+        "hidden": true
+      },
+      {
+        "key": "hidden-chat",
+        "name": "Chat (category hidden)",
+        "tone": "chat",
+        "hidden": true
+      }
+    ],
+    "bars": [
+      {
+        "label": "1",
+        "tip": "Sun, Nov 1 · 0 min",
+        "date": "2026-11-01",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 2 · 0 min",
+        "date": "2026-11-02",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 3 · 0 min",
+        "date": "2026-11-03",
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 4 · 0 min",
+        "date": "2026-11-04",
+        "parts": []
+      },
+      {
+        "label": "5",
+        "tip": "Thu, Nov 5 · 10 h",
+        "date": "2026-11-05",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 24300
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 6 · 8 h 10 min",
+        "date": "2026-11-06",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 21900
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 7 · 6 h 20 min",
+        "date": "2026-11-07",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7800
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 4200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 8 · 6 h",
+        "date": "2026-11-08",
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 7200
+          },
+          {
+            "key": "Game",
+            "seconds": 10800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 9 · 9 h 40 min",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 21900
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 2100
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Game",
+            "seconds": 5400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "10",
+        "tip": "Tue, Nov 10 · 8 h 20 min",
+        "date": "2026-11-10",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 23100
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 1500
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          },
+          {
+            "key": "Other",
+            "seconds": 1800
+          },
+          {
+            "key": "Browsing",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 11 · 5 h",
+        "date": "2026-11-11",
+        "parts": [
+          {
+            "key": "hidden-work",
+            "seconds": 14700
+          },
+          {
+            "key": "hidden-chat",
+            "seconds": 900
+          },
+          {
+            "key": "Video",
+            "seconds": 2400
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 12 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 13 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 14 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "15",
+        "tip": "Sun, Nov 15 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 16 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 17 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Wed, Nov 18 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 19 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "20",
+        "tip": "Fri, Nov 20 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 21 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 22 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Mon, Nov 23 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Tue, Nov 24 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "25",
+        "tip": "Wed, Nov 25 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Thu, Nov 26 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Fri, Nov 27 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sat, Nov 28 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "Sun, Nov 29 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "30",
+        "tip": "Mon, Nov 30 · Upcoming",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 36000,
+    "barMaxLabel": "10 h",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "Work (category hidden)",
+        "sub": null,
+        "tone": "work",
+        "time": "29 h 25 min",
+        "share": 1,
+        "hidden": true
+      },
+      {
+        "name": "深境螺旋",
+        "sub": "原神 · Games",
+        "tone": "game",
+        "time": "9 h",
+        "share": 0.306,
+        "hidden": false
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "Video",
+        "tone": "relax",
+        "time": "7 h 30 min",
+        "share": 0.255,
+        "hidden": false
+      },
+      {
+        "name": "知乎",
+        "sub": "Web browsing",
+        "tone": "browse",
+        "time": "3 h 30 min",
+        "share": 0.119,
+        "hidden": false
+      },
+      {
+        "name": "Chat (category hidden)",
+        "sub": null,
+        "tone": "chat",
+        "time": "2 h 5 min",
+        "share": 0.071,
+        "hidden": true
+      },
+      {
+        "name": "XMind",
+        "sub": "Other",
+        "tone": "other",
+        "time": "2 h",
+        "share": 0.068,
+        "hidden": false
+      }
+    ],
+    "rankingTitle": "Top titles",
+    "note": "Bob shares the last 7 days. Some categories are shared as status only. Titles are hidden for some categories, so app names are shown.",
+    "empty": null
+  }
+}

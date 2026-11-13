@@ -1,4 +1,5 @@
 using DeskPal.Client.Core.Classification;
+using DeskPal.Client.Core.Localization;
 using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Usage;
 using DeskPal.Shared.Api;
@@ -55,8 +56,8 @@ public static class PanelStateBuilder
         var room = input.SelectedRoom;
         var members = room is null ? [] : Members(input, room);
         string? emptyHint = room is not null
-            ? members.Count == 0 ? "房间里还没有其他成员。到「房间」页生成邀请码，发给对方。" : null
-            : "当前无房间。请创建/选择一个房间，或用邀请码加入。";
+            ? members.Count == 0 ? Strings.Panel_NoMembers : null
+            : Strings.Panel_NoRoom;
 
         return new PanelState(
             Connection(input.Connection),
@@ -77,25 +78,26 @@ public static class PanelStateBuilder
                 .Select(r => new MyRuleItem(r.Kind, r.Pattern, r.Name ?? r.Pattern, KindName(r.Kind), r.Category, PresenceFormatter.CategoryName(r.Category)))
                 .ToList(),
             input.Unclassified
-                .Select(a => new UnclassifiedItem(a.Kind, a.Pattern, a.DisplayName, $"今天 {PresenceFormatter.Duration(input.Now - a.Today, input.Now)}"))
+                .Select(a => new UnclassifiedItem(a.Kind, a.Pattern, a.DisplayName, UiLanguage.Format(Strings.Panel_UsedToday, PresenceFormatter.Duration(input.Now - a.Today, input.Now))))
                 .ToList(),
             input.WhatsNew,
-            input.UsageRetentionDays is { } retention ? Usage(input, retention) : null);
+            input.UsageRetentionDays is { } retention ? Usage(input, retention) : null,
+            UiLanguage.Current);
     }
 
     public static IReadOnlyList<int> RetentionOptions { get; } = [30, 90, 180, 365];
 
-    private static string NoTitleLabel(NoTitleRule rule) => rule.Kind switch
+    private static string NoTitleLabel(NoTitleRule rule) => UiLanguage.Format(rule.Kind switch
     {
-        NoTitleKind.App => $"应用 · {rule.Pattern}",
-        NoTitleKind.Process => $"进程 · {rule.Pattern}.exe",
-        NoTitleKind.Domain => $"网址 · {rule.Pattern}",
-        _ => $"标题含 · {rule.Pattern}",
-    };
+        NoTitleKind.App => Strings.NoTitle_App,
+        NoTitleKind.Process => Strings.NoTitle_Process,
+        NoTitleKind.Domain => Strings.NoTitle_Domain,
+        _ => Strings.NoTitle_Title,
+    }, rule.Pattern);
 
     private static UsageView Usage(PanelInput input, int retention) => new(
         retention,
-        RetentionOptions.Select(d => new Option<int>(d, $"{d} 天")).ToList(),
+        RetentionOptions.Select(d => new Option<int>(d, PresenceFormatter.Days(d))).ToList(),
         input.NoTitleRules.Select(r => new NoTitleItem(r.Kind, r.Pattern, NoTitleLabel(r))).ToList(),
         input.StatsViews
             .Select(v => new StatsViewerItem(v.ViewerName, v.RoomName, When(v.At, input.Now, input.Zone)))
@@ -104,24 +106,25 @@ public static class PanelStateBuilder
     private static string When(DateTimeOffset at, DateTimeOffset now, TimeZoneInfo zone)
     {
         var local = TimeZoneInfo.ConvertTime(at, zone);
-        var today = TimeZoneInfo.ConvertTime(now, zone).Date;
-        var day = local.Date == today ? "今天" : local.Date == today.AddDays(-1) ? "昨天" : $"{local.Month} 月 {local.Day} 日";
+        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, zone).Date);
+        var date = DateOnly.FromDateTime(local.Date);
+        var day = date == today ? Strings.Day_Today : date == today.AddDays(-1) ? Strings.Day_Yesterday : UiLanguage.Format(Strings.Date_MonthDay, date);
         return $"{day} {local:HH:mm}";
     }
 
     private static string KindName(RuleKind kind) => kind switch
     {
-        RuleKind.Process => "应用",
-        RuleKind.Domain => "网站",
-        _ => "标题关键词",
+        RuleKind.Process => Strings.RuleKind_Process,
+        RuleKind.Domain => Strings.RuleKind_Domain,
+        _ => Strings.RuleKind_TitleKeyword,
     };
 
     private static ConnectionView Connection(ConnectionStatus status) => status switch
     {
-        ConnectionStatus.Connected => new(true, "已连接"),
-        ConnectionStatus.Connecting => new(false, "正在连接服务器…"),
-        ConnectionStatus.Reconnecting => new(false, "连接中断，正在重连…"),
-        _ => new(false, "未连接服务器，稍后自动重试"),
+        ConnectionStatus.Connected => new(true, Strings.Connection_Connected),
+        ConnectionStatus.Connecting => new(false, Strings.Connection_Connecting),
+        ConnectionStatus.Reconnecting => new(false, Strings.Connection_Reconnecting),
+        _ => new(false, Strings.Connection_Disconnected),
     };
 
     private static List<MemberItem> Members(PanelInput input, RoomDto room) => room.Members
@@ -130,11 +133,11 @@ public static class PanelStateBuilder
         {
             if (room.Blocked?.Contains(m.UserId) == true)
             {
-                return new MemberItem(m.UserId, m.DisplayName, m.Role == RoomRole.Owner, false, new PresenceView("已屏蔽", null, null), "", Blocked: true);
+                return new MemberItem(m.UserId, m.DisplayName, m.Role == RoomRole.Owner, false, new PresenceView(Strings.State_Blocked, null, null), "", Blocked: true);
             }
 
             var snapshot = input.PresenceOf(room.Id, m.UserId);
-            var view = snapshot is null ? new PresenceView("离线", null, null) : PresenceFormatter.Format(snapshot);
+            var view = snapshot is null ? new PresenceView(Strings.State_Offline, null, null) : PresenceFormatter.Format(snapshot);
             var meta = snapshot is null || snapshot.State == PresenceState.Offline ? "" : Lasted(snapshot.Since, input.Now);
             return new MemberItem(
                 m.UserId,
@@ -153,7 +156,7 @@ public static class PanelStateBuilder
         var local = input.Local;
         if (local is null)
         {
-            return new MeView(input.DisplayName, new PresenceView("正在识别…", null, null), null, null, input.Paused);
+            return new MeView(input.DisplayName, new PresenceView(Strings.State_Detecting, null, null), null, null, input.Paused);
         }
 
         var privacy = room is null ? null : input.PrivacyOf(room.Id);
@@ -176,15 +179,15 @@ public static class PanelStateBuilder
 
         var layer = input.Classification?.Layer switch
         {
-            RuleLayer.Personal => "按你设置的分类识别",
-            RuleLayer.Builtin => "按默认分类识别",
-            RuleLayer.Heuristic => "按窗口特征推测",
+            RuleLayer.Personal => Strings.Source_Personal,
+            RuleLayer.Builtin => Strings.Source_Builtin,
+            RuleLayer.Heuristic => Strings.Source_Heuristic,
             RuleLayer.Browser => null,
-            _ => "没有识别出类别，显示为正在使用",
+            _ => Strings.Source_Unknown,
         };
         string? source = local.Category == ActivityCategory.None || layer is null
             ? null
-            : input.CorrectionTarget is { } target ? $"「{target}」{layer}。" : $"{layer}。";
+            : input.CorrectionTarget is { } target ? UiLanguage.Format(Strings.Source_WithTarget, target, layer) : UiLanguage.Format(Strings.Source_Plain, layer);
 
         string? visible = null;
         if (room is not null && input.Committed is { } committed)
@@ -212,16 +215,16 @@ public static class PanelStateBuilder
             return null;
         }
 
-        var lines = new List<string> { $"类别：{PresenceFormatter.CategoryName(presence.Category)}" };
+        var lines = new List<string> { UiLanguage.Format(Strings.Full_Category, PresenceFormatter.CategoryName(presence.Category)) };
         if (!string.IsNullOrWhiteSpace(presence.AppDisplayName))
         {
-            lines.Add($"{(presence.Category == ActivityCategory.Browsing ? "网站" : "应用")}：{presence.AppDisplayName}");
+            lines.Add(UiLanguage.Format(presence.Category == ActivityCategory.Browsing ? Strings.Full_Site : Strings.Full_App, presence.AppDisplayName));
         }
 
         if (!string.IsNullOrWhiteSpace(presence.Detail)
             && !string.Equals(presence.Detail.Trim(), presence.AppDisplayName?.Trim(), StringComparison.OrdinalIgnoreCase))
         {
-            lines.Add($"标题：{presence.Detail}");
+            lines.Add(UiLanguage.Format(Strings.Full_Title, presence.Detail));
         }
 
         return string.Join("\n", lines);
@@ -236,7 +239,7 @@ public static class PanelStateBuilder
     };
 
     private static string Lasted(DateTimeOffset since, DateTimeOffset now) =>
-        now - since < TimeSpan.FromMinutes(1) ? "刚刚开始" : $"已持续 {PresenceFormatter.Duration(since, now)}";
+        now - since < TimeSpan.FromMinutes(1) ? Strings.Lasted_JustStarted : UiLanguage.Format(Strings.Lasted_For, PresenceFormatter.Duration(since, now));
 
     private static PrivacyView Privacy(PrivacyProfile profile) => new(
         PresenceFormatter.SelectableCategories
@@ -245,5 +248,5 @@ public static class PanelStateBuilder
         Enum.GetValues<PrivacyLevel>().Select(l => new Option<PrivacyLevel>(l, PresenceFormatter.PrivacyLevelName(l))).ToList(),
         profile.ShareStats,
         profile.StatsDays,
-        PrivacyProfile.StatsDayOptions.Select(d => new Option<int>(d, $"{d} 天")).ToList());
+        PrivacyProfile.StatsDayOptions.Select(d => new Option<int>(d, PresenceFormatter.Days(d))).ToList());
 }

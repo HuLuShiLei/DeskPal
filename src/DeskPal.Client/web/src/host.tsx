@@ -1,6 +1,7 @@
 import { createContext } from "preact";
 import { useContext, useEffect, useRef, useState } from "preact/hooks";
 import type { Bridge, Command, CommandResult, PresenceView } from "./bridge";
+import { t } from "./i18n";
 
 export interface DialogOptions {
   title: string;
@@ -56,7 +57,7 @@ export function useHostServices(bridge: Bridge) {
   const toast = (text: string, error = false) => {
     const id = Date.now() + Math.random();
     setToasts((list) => [...list, { id, text, error }]);
-    setTimeout(() => setToasts((list) => list.filter((t) => t.id !== id)), error ? 6000 : 3000);
+    setTimeout(() => setToasts((list) => list.filter((x) => x.id !== id)), error ? 6000 : 3000);
   };
 
   const ask = (options: DialogOptions) =>
@@ -64,7 +65,7 @@ export function useHostServices(bridge: Bridge) {
 
   const run = async (command: Command, success?: string) => {
     const result = await bridge.request(command);
-    if (!result.ok) toast(result.error ?? "操作失败", true);
+    if (!result.ok) toast(result.error ?? t("common.failed"), true);
     else if (success) toast(success);
     return result;
   };
@@ -81,12 +82,12 @@ export function useHostServices(bridge: Bridge) {
     <>
       {dialogs[0] && <Dialog key={dialogs[0].options.title + dialogs.length} options={dialogs[0].options} onClose={close} />}
       <div class="toasts" role="status">
-        {toasts.map((t) => (
-          <div key={t.id} class={t.error ? "toast error" : "toast"}>
+        {toasts.map((x) => (
+          <div key={x.id} class={x.error ? "toast error" : "toast"}>
             <span class="icon" aria-hidden="true">
-              {t.error ? "\uE7BA" : "\uE8FB"}
+              {x.error ? "\uE7BA" : "\uE8FB"}
             </span>
-            {t.text}
+            {x.text}
           </div>
         ))}
       </div>
@@ -190,11 +191,11 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
         <div class="dialog-buttons">
           {options.cancelText !== null && (
             <button type="button" onClick={() => answer(false)}>
-              {options.cancelText ?? "取消"}
+              {options.cancelText ?? t("common.cancel")}
             </button>
           )}
           <button type="submit" class={options.danger ? "primary danger" : "primary"} disabled={blocked}>
-            {options.okText ?? "确定"}
+            {options.okText ?? t("common.ok")}
           </button>
         </div>
       </form>

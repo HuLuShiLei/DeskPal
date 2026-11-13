@@ -1,5 +1,6 @@
 using DeskPal.Server.Common;
 using DeskPal.Server.Features.Rooms;
+using DeskPal.Shared.Api;
 using DeskPal.Shared.Messaging;
 using DeskPal.Shared.Presence;
 using Microsoft.AspNetCore.Authorization;
@@ -55,13 +56,13 @@ public sealed class PresenceHub(RoomService rooms, ConnectionRegistry connection
     {
         if (!MessageTypes.ClientPublishable.Contains(envelope.Type))
         {
-            throw new HubException($"不支持的消息类型：{envelope.Type}");
+            throw new HubException($"{ApiErrorCodes.HubUnsupportedType}: {envelope.Type}");
         }
 
         var userId = Context.User!.GetUserId();
         if (!await rooms.IsMemberAsync(userId, envelope.RoomId))
         {
-            throw new HubException("你不是该房间的成员");
+            throw new HubException(ApiErrorCodes.HubNotMember);
         }
 
         var stamped = envelope with { SenderId = userId, Ts = time.GetUtcNow() };

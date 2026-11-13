@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
+using DeskPal.Client.Core.Localization;
 using DeskPal.Client.Core.Usage;
 using DeskPal.Shared.Messaging;
 using DeskPal.Shared.Stats;
@@ -66,7 +67,7 @@ public sealed class StatsExchange(HubService hub, RoomState rooms, UsageService 
             var request = Envelope.Create(MessageTypes.StatsRequest, roomId, new StatsRequestPayload(requestId, from, to, key.PublicKey, previous?.From, previous?.To)) with { To = userId };
             if (!await hub.TryPublishAsync(request))
             {
-                throw new StatsUnavailableException("未连接服务器，稍后再试。");
+                throw new StatsUnavailableException(Strings.Stats_NotConnected);
             }
 
             UsageReport report;
@@ -76,7 +77,7 @@ public sealed class StatsExchange(HubService hub, RoomState rooms, UsageService 
             }
             catch (TimeoutException)
             {
-                throw new StatsUnavailableException("对方不在线、现在不在这个房间，或者没有响应。");
+                throw new StatsUnavailableException(Strings.Stats_NoResponse);
             }
 
             _received[cacheKey] = (DateTimeOffset.UtcNow, report);
@@ -97,9 +98,9 @@ public sealed class StatsExchange(HubService hub, RoomState rooms, UsageService 
             return;
         }
 
-        if (response.Error is { } error)
+        if (response.Error is not null || response.ErrorCode is not null)
         {
-            pending.Done.TrySetException(new StatsUnavailableException(error));
+            pending.Done.TrySetException(new StatsUnavailableException(ErrorText(response, pending)));
             return;
         }
 
@@ -110,9 +111,17 @@ public sealed class StatsExchange(HubService hub, RoomState rooms, UsageService 
         catch (Exception ex) when (ex is CryptographicException or FormatException or InvalidDataException or System.Text.Json.JsonException)
         {
             logger.LogWarning("Stats response could not be read ({Error})", ex.GetType().Name);
-            pending.Done.TrySetException(new StatsUnavailableException("收到的统计数据无法解密，请重试。"));
+            pending.Done.TrySetException(new StatsUnavailableException(Strings.Stats_DecryptFailed));
         }
     }
+
+    /// <summary>Older clients send only the text, in their own language.</summary>
+    private string ErrorText(StatsResponsePayload response, Pending pending) => response.ErrorCode switch
+    {
+        StatsErrorCodes.NotShared => Strings.Stats_PeerNotSharing,
+        StatsErrorCodes.OutOfRange => UiLanguage.Format(Strings.Stats_PeerSharedDays, rooms.Rooms.FirstOrDefault(r => r.Id == pending.RoomId)?.Members.FirstOrDefault(m => m.UserId == pending.UserId)?.StatsDays ?? 0),
+        _ => response.Error ?? Strings.Stats_NoResponse,
+    };
 
     /// <summary>
     /// Checked again here, whatever the server says: I am in this room right now, I share stats there, and the
@@ -134,7 +143,7 @@ public sealed class StatsExchange(HubService hub, RoomState rooms, UsageService 
             var privacy = rooms.GetPrivacy(room.Id);
             if (!privacy.ShareStats)
             {
-                await ReplyAsync(envelope, new StatsResponsePayload(request.RequestId, Error: "对方没有在这个房间公开使用统计。"));
+                await ReplyAsync(envelope, new StatsResponsePayload(request.RequestId, Error: Strings.Stats_PeerNotSharing, ErrorCode: StatsErrorCodes.NotShared));
                 return;
             }
 
@@ -144,7 +153,7 @@ public sealed class StatsExchange(HubService hub, RoomState rooms, UsageService 
             var to = request.To > today ? today : request.To;
             if (from > to)
             {
-                await ReplyAsync(envelope, new StatsResponsePayload(request.RequestId, Error: $"对方只公开了最近 {privacy.StatsDays} 天的统计。"));
+                await ReplyAsync(envelope, new StatsResponsePayload(request.RequestId, Error: UiLanguage.Format(Strings.Stats_PeerSharedDays, privacy.StatsDays), ErrorCode: StatsErrorCodes.OutOfRange));
                 return;
             }
 

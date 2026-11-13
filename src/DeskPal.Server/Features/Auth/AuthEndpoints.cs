@@ -23,7 +23,7 @@ public static partial class AuthEndpoints
             var displayName = req.DisplayName?.Trim() ?? "";
             if (!UserNamePattern().IsMatch(userName))
             {
-                return Fail(400, "用户名需要 3 到 32 位，只能包含字母、数字、下划线和短横线");
+                return Fail(400, ApiErrorCodes.UserNameInvalid);
             }
 
             if (!IsValidDisplayName(displayName))
@@ -33,12 +33,12 @@ public static partial class AuthEndpoints
 
             if (req.Password is null || req.Password.Length < 8)
             {
-                return Fail(400, "密码至少 8 位");
+                return Fail(400, ApiErrorCodes.PasswordTooShort);
             }
 
             if (await db.Users.AnyAsync(u => u.UserName == userName))
             {
-                return Fail(409, "用户名已被占用");
+                return Fail(409, ApiErrorCodes.UserNameTaken);
             }
 
             var user = new User
@@ -62,7 +62,7 @@ public static partial class AuthEndpoints
             var user = await db.Users.SingleOrDefaultAsync(u => u.UserName == userName);
             if (user is null || !PasswordHasher.Verify(req.Password ?? "", user.PasswordHash))
             {
-                return Fail(401, "用户名或密码错误");
+                return Fail(401, ApiErrorCodes.WrongPassword);
             }
 
             user.SessionId = Guid.NewGuid();
@@ -76,7 +76,7 @@ public static partial class AuthEndpoints
         {
             var user = await db.Users.FindAsync(ctx.User.GetUserId());
             return user is null
-                ? Fail(401, "账号不存在")
+                ? Fail(401, ApiErrorCodes.AccountMissing)
                 : Results.Ok(new AuthResponse("", user.Id, user.UserName, user.DisplayName, user.ShareUsage));
         }).RequireAuthorization();
 
@@ -91,7 +91,7 @@ public static partial class AuthEndpoints
             var user = await db.Users.FindAsync(ctx.User.GetUserId());
             if (user is null)
             {
-                return Fail(401, "账号不存在");
+                return Fail(401, ApiErrorCodes.AccountMissing);
             }
 
             if (user.DisplayName != displayName)
@@ -105,9 +105,9 @@ public static partial class AuthEndpoints
         }).RequireAuthorization();
     }
 
-    private const string InvalidDisplayName = "显示名称需要 1 到 20 个字符";
+    private const string InvalidDisplayName = ApiErrorCodes.DisplayNameInvalid;
 
     private static bool IsValidDisplayName(string name) => name.Length is >= 1 and <= 20;
 
-    private static IResult Fail(int status, string error) => Results.Json(new ApiError(error), statusCode: status);
+    private static IResult Fail(int status, string code) => Results.Json(new ApiError(code), statusCode: status);
 }

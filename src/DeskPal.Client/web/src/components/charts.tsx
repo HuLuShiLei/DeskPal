@@ -1,10 +1,11 @@
 import type { StatsView } from "../bridge";
+import { t } from "../i18n";
 
 /** 一天 24 小时的横向色带。悬停显示起止时间和时长。 */
 export function Timeline({ spans }: { spans: StatsView["timeline"] }) {
   return (
     <div class="stats-timeline">
-      <svg viewBox="0 0 86400 10" preserveAspectRatio="none" role="img" aria-label="一天的时间轴">
+      <svg viewBox="0 0 86400 10" preserveAspectRatio="none" role="img" aria-label={t("charts.timeline")}>
         <rect x="0" y="0" width="86400" height="10" class="stats-track" />
         {spans.map((s) => (
           <rect key={s.start} x={s.start} y="0" width={Math.max(s.end - s.start, 60)} height="10" style={{ fill: `var(--tone-${s.tone})` }}>
@@ -28,7 +29,7 @@ export function Bars({ view, onPick }: { view: StatsView; onPick: (date: string)
   return (
     <div class="stats-bars">
       <span class="stats-max">{view.barMaxLabel}</span>
-      <svg viewBox={`0 0 ${view.bars.length * width} 100`} preserveAspectRatio="none" role="img" aria-label="使用时长柱状图">
+      <svg viewBox={`0 0 ${view.bars.length * width} 100`} preserveAspectRatio="none" role="img" aria-label={t("charts.bars")}>
         <line x1="0" x2={view.bars.length * width} y1="0.5" y2="0.5" class="stats-grid" />
         <line x1="0" x2={view.bars.length * width} y1="50" y2="50" class="stats-grid" />
         {view.bars.map((bar, i) => {

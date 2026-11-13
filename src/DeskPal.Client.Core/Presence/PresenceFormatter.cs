@@ -1,4 +1,5 @@
 using System.Globalization;
+using DeskPal.Client.Core.Localization;
 using DeskPal.Shared.Presence;
 
 namespace DeskPal.Client.Core.Presence;
@@ -32,17 +33,17 @@ public static class PresenceFormatter
             : snapshot.State;
         var headline = state switch
         {
-            PresenceState.Offline => "离线",
-            PresenceState.Paused => "暂停分享",
+            PresenceState.Offline => Strings.State_Offline,
+            PresenceState.Paused => Strings.State_Paused,
             // Older clients may still send a manual status.
-            PresenceState.Custom => snapshot.CustomText ?? "自定义状态",
-            PresenceState.Locked => "已锁屏",
-            PresenceState.Away => "暂离",
-            PresenceState.Working or PresenceState.Meeting => "工作中",
-            PresenceState.Communicating => "在聊天",
-            PresenceState.Other => app is null ? "工作中" : $"正在使用 {app}",
+            PresenceState.Custom => snapshot.CustomText ?? Strings.State_Custom,
+            PresenceState.Locked => Strings.State_Locked,
+            PresenceState.Away => Strings.State_Away,
+            PresenceState.Working or PresenceState.Meeting => Strings.State_Working,
+            PresenceState.Communicating => Strings.State_Chatting,
+            PresenceState.Other => app is null ? Strings.State_Working : UiLanguage.Format(Strings.State_UsingApp, app),
             PresenceState.Slacking => SlackingLabel(snapshot.Category),
-            PresenceState.Browsing => "正在浏览网页",
+            PresenceState.Browsing => Strings.State_Browsing,
             _ => snapshot.State.ToString(),
         };
 
@@ -65,55 +66,69 @@ public static class PresenceFormatter
 
     public static string SlackingLabel(ActivityCategory category) => category switch
     {
-        ActivityCategory.Video => "在看视频",
-        ActivityCategory.Music => "在听音乐",
-        ActivityCategory.Shopping => "在购物",
-        ActivityCategory.Social => "在看社交网站",
-        ActivityCategory.News => "在看新闻",
-        ActivityCategory.Game => "在玩游戏",
-        ActivityCategory.Reading => "在看小说",
-        _ => "在放松",
+        ActivityCategory.Video => Strings.Relax_Video,
+        ActivityCategory.Music => Strings.Relax_Music,
+        ActivityCategory.Shopping => Strings.Relax_Shopping,
+        ActivityCategory.Social => Strings.Relax_Social,
+        ActivityCategory.News => Strings.Relax_News,
+        ActivityCategory.Game => Strings.Relax_Game,
+        ActivityCategory.Reading => Strings.Relax_Reading,
+        _ => Strings.Relax_Other,
     };
 
     public static string CategoryName(ActivityCategory category) => category switch
     {
-        ActivityCategory.Work or ActivityCategory.Meeting => "工作",
-        ActivityCategory.Communication => "聊天",
-        ActivityCategory.Video => "视频",
-        ActivityCategory.Music => "音乐",
-        ActivityCategory.Shopping => "购物",
-        ActivityCategory.Social => "社交网站",
-        ActivityCategory.News => "新闻",
-        ActivityCategory.Game => "游戏",
-        ActivityCategory.Reading => "阅读",
-        ActivityCategory.Other => "其他",
-        ActivityCategory.Browsing => "浏览网页",
-        _ => "无",
+        ActivityCategory.Work or ActivityCategory.Meeting => Strings.Category_Work,
+        ActivityCategory.Communication => Strings.Category_Communication,
+        ActivityCategory.Video => Strings.Category_Video,
+        ActivityCategory.Music => Strings.Category_Music,
+        ActivityCategory.Shopping => Strings.Category_Shopping,
+        ActivityCategory.Social => Strings.Category_Social,
+        ActivityCategory.News => Strings.Category_News,
+        ActivityCategory.Game => Strings.Category_Game,
+        ActivityCategory.Reading => Strings.Category_Reading,
+        ActivityCategory.Other => Strings.Category_Other,
+        ActivityCategory.Browsing => Strings.Category_Browsing,
+        _ => Strings.Category_None,
     };
 
     public static string PrivacyLevelName(PrivacyLevel level) => level switch
     {
-        PrivacyLevel.StateOnly => "只显示状态",
-        PrivacyLevel.Category => "显示类别和应用",
-        PrivacyLevel.Detail => "显示详情（标题）",
+        PrivacyLevel.StateOnly => Strings.Privacy_StateOnly,
+        PrivacyLevel.Category => Strings.Privacy_Category,
+        PrivacyLevel.Detail => Strings.Privacy_Detail,
         _ => level.ToString(),
     };
 
     public static string Duration(DateTimeOffset since, DateTimeOffset now)
     {
         var span = now - since;
-        if (span < TimeSpan.FromMinutes(1))
-        {
-            return "刚刚";
-        }
-
-        if (span < TimeSpan.FromHours(1))
-        {
-            return $"{(int)span.TotalMinutes} 分钟";
-        }
-
-        return span.Minutes == 0 ? $"{(int)span.TotalHours} 小时" : $"{(int)span.TotalHours} 小时 {span.Minutes} 分钟";
+        return span < TimeSpan.FromMinutes(1) ? Strings.Duration_JustNow : Duration((long)span.TotalSeconds);
     }
+
+    /// <summary>Whole minutes and hours, e.g. "2 小时 5 分钟". Below a minute it says so.</summary>
+    public static string Duration(long seconds) => seconds switch
+    {
+        <= 0 => UiLanguage.Format(Strings.Duration_Minutes, 0),
+        < 60 => Strings.Duration_UnderMinute,
+        < 3600 => UiLanguage.Format(Strings.Duration_Minutes, seconds / 60),
+        _ => seconds % 3600 / 60 == 0
+            ? UiLanguage.Format(Strings.Duration_Hours, seconds / 3600)
+            : UiLanguage.Format(Strings.Duration_HoursMinutes, seconds / 3600, seconds % 3600 / 60),
+    };
+
+    public static string Days(int days) => UiLanguage.Format(Strings.Duration_Days, days);
+
+    /// <summary>"11 月 13 日", with the year when it is not this year.</summary>
+    public static string Date(DateOnly date, DateOnly today) =>
+        UiLanguage.Format(date.Year == today.Year ? Strings.Date_MonthDay : Strings.Date_YearMonthDay, date);
+
+    /// <summary>"11 月 13 日 星期五".</summary>
+    public static string DateWithWeekday(DateOnly date, DateOnly today) =>
+        UiLanguage.Format(Strings.Date_WithWeekday, Date(date, today), Weekday(date.DayOfWeek));
+
+    /// <summary>Short weekday name: "五" or "Fri".</summary>
+    public static string Weekday(DayOfWeek day) => Strings.Weekdays.Split(',')[(int)day];
 
     /// <summary>The window title is not shown again when it is the same as the app name.</summary>
     private static string? OmitDuplicate(string? app, string? detail) =>

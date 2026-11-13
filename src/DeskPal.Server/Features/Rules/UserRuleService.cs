@@ -22,12 +22,12 @@ public sealed class UserRuleService(DeskPalDbContext db, TimeProvider time)
         var pattern = RulePattern.Normalize(req.Kind, req.Pattern);
         if (pattern.Length is < 1 or > 200)
         {
-            return ServiceResult<UserRuleDto>.Fail(400, "规则内容不能为空，且不超过 200 个字符");
+            return ServiceResult<UserRuleDto>.Fail(400, ApiErrorCodes.RulePatternInvalid);
         }
 
         if (!Enum.IsDefined(req.Category) || req.Category is ActivityCategory.None or ActivityCategory.Meeting || req.Category.IsRetired())
         {
-            return ServiceResult<UserRuleDto>.Fail(400, "请选择类别");
+            return ServiceResult<UserRuleDto>.Fail(400, ApiErrorCodes.RuleCategoryRequired);
         }
 
         var rule = await db.UserRules.SingleOrDefaultAsync(r => r.UserId == userId && r.Kind == req.Kind && r.Pattern == pattern);
@@ -35,7 +35,7 @@ public sealed class UserRuleService(DeskPalDbContext db, TimeProvider time)
         {
             if (await db.UserRules.CountAsync(r => r.UserId == userId) >= MaxRulesPerUser)
             {
-                return ServiceResult<UserRuleDto>.Fail(409, $"个人分类最多 {MaxRulesPerUser} 条，请先删除不用的");
+                return ServiceResult<UserRuleDto>.Fail(409, ApiErrorCodes.RuleLimit, MaxRulesPerUser);
             }
 
             rule = new UserRule { Id = Guid.NewGuid(), UserId = userId, Kind = req.Kind, Pattern = pattern };

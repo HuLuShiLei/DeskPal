@@ -68,7 +68,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 if (!await services.GetRequiredService<SessionCache>().IsCurrentAsync(
                         principal.GetUserId(), principal.FindFirstValue(SessionCache.Claim), services.GetRequiredService<DeskPalDbContext>()))
                 {
-                    ctx.Fail("账号已在其他电脑登录");
+                    ctx.Fail("Signed in on another computer");
                 }
             },
         };

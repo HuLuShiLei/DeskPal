@@ -12,6 +12,12 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <NeutralLanguage>zh-CN</NeutralLanguage>
   </PropertyGroup>
+
+  <!-- 界面文案：Strings.resx 是简体中文，Strings.en.resx 是英文。构建时生成 DeskPal.Client.Core.Localization.Strings。 -->
+  <ItemGroup>
+    <EmbeddedResource Update="Localization\Strings.resx" StronglyTypedFileName="$(IntermediateOutputPath)Strings.Designer.cs" StronglyTypedLanguage="CSharp" StronglyTypedNamespace="DeskPal.Client.Core.Localization" StronglyTypedClassName="Strings" PublicClass="true" />
+  </ItemGroup>
 
 </Project>

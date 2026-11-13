@@ -33,14 +33,36 @@ ShowLanguageDialog=no
 OutputDir=Output
 OutputBaseFilename=DeskPal-{#AppVersion}-Setup
 
+; 按 Windows 显示语言自动选择：中文系统用简体中文，其他语言用第一项英文。
 [Languages]
+Name: "en"; MessagesFile: "compiler:Default.isl"
 Name: "chs"; MessagesFile: "ChineseSimplified.isl"
+
+[CustomMessages]
+en.LaunchApp=Launch DeskPal
+chs.LaunchApp=启动 DeskPal
+en.RootDir=DeskPal cannot be installed in the root of a drive. Choose a folder, such as %1.
+chs.RootDir=不能直接安装到磁盘根目录，请选择一个文件夹，例如 %1。
+en.DirNotEmpty=The selected folder contains other files. Setup empties the installation folder, so choose an empty or new folder.
+chs.DirNotEmpty=所选文件夹里已有其他文件。安装时会清空安装文件夹，请选择一个空文件夹或新文件夹。
+en.DirNotWritable=Cannot write to the selected folder. Choose another location. DeskPal is installed for the current user only and cannot be installed in folders that require administrator rights, such as Program Files.
+chs.DirNotWritable=无法写入所选文件夹，请选择其他位置。DeskPal 只为当前用户安装，不能装到 Program Files 等需要管理员权限的文件夹。
+en.MoveInstall=DeskPal is already installed in:%n%1%n%nThe old folder is not deleted when you install to a new folder. You can delete it yourself after setup finishes. Your sign-in and settings are kept.%nIf DeskPal is running, exit it from the tray menu first.%n%nContinue?
+chs.MoveInstall=DeskPal 已经安装在：%n%1%n%n安装到新文件夹后，原来的文件夹不会自动删除，可以在安装完成后手动删除。登录状态和设置会保留。%n如果 DeskPal 正在运行，请先从托盘菜单退出。%n%n是否继续？
+en.KeepLogsFailed=Cannot keep the old log files. Exit DeskPal from the tray menu and run Setup again.
+chs.KeepLogsFailed=无法保留旧的日志文件。请从托盘菜单退出 DeskPal 后重新安装。
+en.Installing=Installing DeskPal…
+chs.Installing=正在安装 DeskPal，请稍候…
+en.StartFailed=Cannot start the installer: %1
+chs.StartFailed=无法启动安装程序：%1
+en.InstallFailed=Installation failed (exit code %1). Setup log: %2
+chs.InstallFailed=安装失败（退出码 %1）。安装日志：%2
 
 [Files]
 Source: "{#VelopackSetup}"; DestName: "VelopackSetup.exe"; Flags: dontcopy nocompression
 
 [Run]
-Filename: "{app}\DeskPal.exe"; Description: "启动 DeskPal"; Flags: postinstall nowait skipifsilent
+Filename: "{app}\DeskPal.exe"; Description: "{cm:LaunchApp}"; Flags: postinstall nowait skipifsilent
 
 [Code]
 const
@@ -118,14 +140,14 @@ var
 begin
   Result := '';
   if ExtractFileDir(Dir) = Dir then
-    Result := '不能直接安装到磁盘根目录，请选择一个文件夹，例如 ' + AddBackslash(Dir) + 'DeskPal。'
+    Result := FmtMessage(CustomMessage('RootDir'), [AddBackslash(Dir) + 'DeskPal'])
   else if DirExists(Dir) and not IsDeskPalInstall(Dir) and not IsEmptyDir(Dir) then
-    Result := '所选文件夹里已有其他文件。安装时会清空安装文件夹，请选择一个空文件夹或新文件夹。'
+    Result := CustomMessage('DirNotEmpty')
   else
   begin
     Existing := NearestExistingDir(Dir);
     if (Existing = '') or not CanWrite(Existing) then
-      Result := '无法写入所选文件夹，请选择其他位置。DeskPal 只为当前用户安装，不能装到 Program Files 等需要管理员权限的文件夹。';
+      Result := CustomMessage('DirNotWritable');
   end;
 end;
 
@@ -153,10 +175,7 @@ begin
 
   Previous := PreviousInstallDir();
   if (Previous <> '') and IsDeskPalInstall(Previous) and (CompareText(Previous, Dir) <> 0) then
-    Result := MsgBox('DeskPal 已经安装在：' + #13#10 + Previous + #13#10#13#10 +
-      '安装到新文件夹后，原来的文件夹不会自动删除，可以在安装完成后手动删除。登录状态和设置会保留。' + #13#10 +
-      '如果 DeskPal 正在运行，请先从托盘菜单退出。' + #13#10#13#10 + '是否继续？',
-      mbConfirmation, MB_YESNO) = IDYES;
+    Result := MsgBox(FmtMessage(CustomMessage('MoveInstall'), [Previous]), mbConfirmation, MB_YESNO) = IDYES;
 end;
 
 { DeskPal 每写一行日志就打开一次文件，复制时可能碰上一瞬间的共享冲突。 }
@@ -216,25 +235,25 @@ begin
   Previous := PreviousInstallDir();
   Backup := ExpandConstant('{tmp}\logs-backup');
   if IsDeskPalInstall(Dir) and not CopyFilesIn(AddBackslash(Dir) + 'logs', Backup) then
-    RaiseException('无法保留旧的日志文件。请从托盘菜单退出 DeskPal 后重新安装。');
+    RaiseException(CustomMessage('KeepLogsFailed'));
 
   ExtractTemporaryFile('VelopackSetup.exe');
   Setup := ExpandConstant('{tmp}\VelopackSetup.exe');
   Log := AddBackslash(GetTempDir()) + 'DeskPal-setup.log';
   DeleteFile(Log);
 
-  WizardForm.StatusLabel.Caption := '正在安装 DeskPal，请稍候…';
+  WizardForm.StatusLabel.Caption := CustomMessage('Installing');
   WizardForm.ProgressGauge.Style := npbstMarquee;
   try
     if not Exec(Setup, '--silent --installto "' + Dir + '" --log "' + Log + '"', '', SW_HIDE, ewWaitUntilTerminated, Code) then
     begin
       CopyFilesIn(Backup, AddBackslash(Dir) + 'logs');
-      RaiseException('无法启动安装程序：' + SysErrorMessage(Code));
+      RaiseException(FmtMessage(CustomMessage('StartFailed'), [SysErrorMessage(Code)]));
     end;
     if Code <> 0 then
     begin
       CopyFilesIn(Backup, AddBackslash(Dir) + 'logs');
-      RaiseException('安装失败（退出码 ' + IntToStr(Code) + '）。安装日志：' + Log);
+      RaiseException(FmtMessage(CustomMessage('InstallFailed'), [IntToStr(Code), Log]));
     end;
   finally
     WizardForm.ProgressGauge.Style := npbstNormal;

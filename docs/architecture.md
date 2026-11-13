@@ -90,6 +90,19 @@ flowchart LR
 
 `PresenceFormatter.Format` 把状态拆成三行：标题（工作中、在聊天、正在浏览网页、正在使用 XX、在看视频、在放松、暂离、已锁屏等）、应用名、详情。浏览器的应用名是域名，详情是页面标题；页面上标题一行，应用名和详情合成一行（“应用 · 详情”），只有其中一个就显示那一个。应用名和详情去掉首尾空白后相同（不区分大小写）时，详情不再显示，避免出现“QQ · QQ”。`Tone`（work、chat、relax、browse、other、away、offline）决定标题颜色和头像上的状态点。详情超过 36 个字时在界面上截断并加“…”，共享出去的 `Detail` 不截断。文案用书面用语，不用“忙”“摸鱼”。
 
+## 多语言
+
+客户端支持简体中文和英文，所有给用户看的文字都来自客户端，Server 不做多语言。
+
+- 语言设置在 `settings.json` 的 `language`：`system`（默认，跟随 Windows 显示语言，中文显示语言用简体中文，其他一律英文）、`zh-CN`、`en`。启动时（登录窗口之前）由 `UiLanguage.Apply` 设置 `Strings.Culture`；设置页改了之后发 `settings.language`，立即生效：托盘菜单重设文字，`PanelState` 按新语言重新生成并推送。
+- C# 生成的文字（`PanelState`、统计页、托盘、对话框、命令错误、更新提示、房间通知）在 `DeskPal.Client.Core/Localization/Strings.resx`（中文，中性资源）和 `Strings.en.resx`。日期、星期和时长的格式也在资源里，用 `UiLanguage.Format` 按当前语言格式化。
+- 页面自己的文字（按钮、标题、对话框）在 `web/src/i18n/zh-CN.ts` 和 `en.ts`，用 `t(key, vars)`。初始语言来自页面地址的 `lang` 参数（`WebUi.Page` 加上），之后跟随 `PanelState.locale`；置顶小卡片跟随 `card` 消息的 `locale`。
+- Server 的错误只返回错误码和参数：`{ "code": "room.full", "args": { "limit": "20" } }`，错误码在 `DeskPal.Shared/Api/ApiErrorCodes.cs`。客户端 `ApiErrorText` 按 `ApiError_<码>` 查资源并代入参数；不认识的错误码显示「请求失败（HTTP 状态码）」。
+- 别人的客户端拒绝统计请求时，`stats.response` 带 `errorCode`（`not-shared`、`out-of-range`），请求方按自己的语言显示；旧客户端只带中文 `error`，照原样显示。
+- 安装向导（Inno Setup）按 Windows 显示语言选择简体中文或英文。
+- 只有中文的内容：`CHANGELOG.md` 的更新条目、内置规则库里的应用名、用户输入的名称。
+
+
 ## 界面
 
 托盘图标和托盘菜单是 WPF 原生的。面板和登录页是 HTML，放在标准 `WebView2` 控件里：
@@ -120,12 +133,12 @@ flowchart LR
 | 方向 | 消息 |
 |---|---|
 | 宿主 → 页面 | `state`（完整的 `PanelState`，变化后最多每 200 毫秒推一次）、`result{id, ok, error, data}`、`dialog{id, kind, message}`、`login{serverUrl, userName}` |
-| 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`presence.pause / correct / resetCorrection`、`rules.set / delete`、`stats.query / export / import / clear / retention / noTitle.add / noTitle.remove`、`settings.autoStart / topmost / shareUsage`、`update.check / beta / restart`、`changelog.seen`、`auth.login / register / logout` |
+| 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`presence.pause / correct / resetCorrection`、`rules.set / delete`、`stats.query / export / import / clear / retention / noTitle.add / noTitle.remove`、`settings.autoStart / topmost / shareUsage / theme / closeAction / language`、`update.check / beta / restart`、`changelog.seen`、`auth.login / register / logout` |
 | 页面 → 宿主，不回复 | `ready`、`dialog.answer{dialogId, ok}`、`window.minimize`、`window.close` |
 
-`PanelState` 由 `PanelStateBuilder` 在 Client.Core 里生成，界面上的文字（连接状态、空提示、识别方式（悬停问号显示）、待提交状态、我的分类、待归类）都在 C# 里算好。状态页不显示「房间成员看到」，页面只负责显示。页面写「房间」，不写 Room。`PanelFixtureTests` 把几组样例序列化到 `web/src/mock/fixtures/`，不一致就失败，改了 `PanelState` 或文案后用 `DESKPAL_UPDATE_FIXTURES=1` 运行测试更新。
+`PanelState` 由 `PanelStateBuilder` 在 Client.Core 里生成，界面上的文字（连接状态、空提示、识别方式（悬停问号显示）、待提交状态、我的分类、待归类）都在 C# 里算好。状态页不显示「房间成员看到」，页面只负责显示。页面写「房间」，不写 Room。`PanelFixtureTests` 把几组样例按中文、英文各序列化一份到 `web/src/mock/fixtures/` 和 `fixtures/en/`，不一致就失败，改了 `PanelState` 或文案后用 `DESKPAL_UPDATE_FIXTURES=1` 运行测试更新。
 
-在浏览器里调试：`cd src/DeskPal.Client/web; npm run dev`，打开 `http://localhost:5190/`。没有 `chrome.webview` 时页面用模拟宿主，参数 `?mock=default|no-room|guest` 切换样例，`stats.query` 返回 `fixtures/stats.json` 里的样例（只有「今天」所在的日、周、月），`?fail` 让所有命令失败，`?page=login` 打开登录页，发出的命令记录在 `window.__sent`。Debug 版客户端设置环境变量 `DESKPAL_UI_URL=http://localhost:5190/` 可以直接加载开发服务器。
+在浏览器里调试：`cd src/DeskPal.Client/web; npm run dev`，打开 `http://localhost:5190/`。没有 `chrome.webview` 时页面用模拟宿主，参数 `?mock=default|no-room|guest` 切换样例，`?lang=en` 用英文样例，`stats.query` 返回 `fixtures/stats.json` 里的样例（只有「今天」所在的日、周、月），`?fail` 让所有命令失败，`?page=login` 打开登录页，发出的命令记录在 `window.__sent`。Debug 版客户端设置环境变量 `DESKPAL_UI_URL=http://localhost:5190/` 可以直接加载开发服务器。
 
 ## 使用统计
 
@@ -147,7 +160,7 @@ flowchart LR
 
 ## REST 接口
 
-除注册、登录、`/health`、内置规则和规则库候选外都要求 `Authorization: Bearer <token>`。错误返回 `{ "error": "中文说明" }`。
+除注册、登录、`/health`、内置规则和规则库候选外都要求 `Authorization: Bearer <token>`。错误返回 `{ "code": "错误码", "args": { ... } }`，不带给用户看的文字，见「多语言」。
 
 | 方法 | 路径 | 说明 |
 |---|---|---|

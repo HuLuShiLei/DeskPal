@@ -45,7 +45,7 @@ public static class StatsCrypto
     public static UsageReport Unpack(byte[] packed)
     {
         using var brotli = new BrotliStream(new MemoryStream(packed), CompressionMode.Decompress);
-        return JsonSerializer.Deserialize<UsageReport>(brotli, DeskPalJson.Options) ?? throw new InvalidDataException("统计数据为空");
+        return JsonSerializer.Deserialize<UsageReport>(brotli, DeskPalJson.Options) ?? throw new InvalidDataException("The stats payload is empty");
     }
 
     /// <summary>The requester's one-time key. Disposed after the response arrives or the request times out.</summary>
@@ -60,7 +60,7 @@ public static class StatsCrypto
         {
             if (response.PublicKey is null || response.Nonce is null || response.Cipher is null)
             {
-                throw new CryptographicException("响应缺少密文");
+                throw new CryptographicException("The response has no cipher text");
             }
 
             using var peer = ECDiffieHellman.Create();
@@ -70,7 +70,7 @@ public static class StatsCrypto
             var tagSize = AesGcm.TagByteSizes.MaxSize;
             if (sealedData.Length < tagSize)
             {
-                throw new CryptographicException("密文长度不正确");
+                throw new CryptographicException("The cipher text has the wrong length");
             }
 
             var plain = new byte[sealedData.Length - tagSize];

@@ -1,3 +1,4 @@
+using DeskPal.Client.Core.Localization;
 using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Usage;
 using DeskPal.Shared.Presence;
@@ -8,26 +9,24 @@ namespace DeskPal.Client.Core.Ui;
 /// <summary>Turns a usage report into chart data and text for the stats page.</summary>
 public static class StatsViewBuilder
 {
-    private static readonly StatsLegend[] StateLegend =
+    private static StatsLegend[] StateLegend =>
     [
-        new("work", "工作", "work"),
-        new("chat", "聊天", "chat"),
-        new("relax", "放松", "relax"),
-        new("browse", "浏览网页", "browse"),
-        new("other", "其他", "other"),
+        new("work", Strings.Legend_Work, "work"),
+        new("chat", Strings.Legend_Chat, "chat"),
+        new("relax", Strings.Legend_Relax, "relax"),
+        new("browse", Strings.Legend_Browse, "browse"),
+        new("other", Strings.Legend_Other, "other"),
     ];
 
-    private static readonly StatsLegend[] CategoryLegend =
+    private static StatsLegend[] CategoryLegend =>
     [
-        new("Work", "工作", "work"),
-        new("Communication", "聊天", "chat"),
-        new("Video", "视频", "relax"),
-        new("Game", "游戏", "game"),
-        new("Browsing", "浏览网页", "browse"),
-        new("Other", "其他", "other"),
+        new("Work", Strings.Category_Work, "work"),
+        new("Communication", Strings.Category_Communication, "chat"),
+        new("Video", Strings.Category_Video, "relax"),
+        new("Game", Strings.Category_Game, "game"),
+        new("Browsing", Strings.Category_Browsing, "browse"),
+        new("Other", Strings.Category_Other, "other"),
     ];
-
-    private static readonly string[] Weekdays = ["日", "一", "二", "三", "四", "五", "六"];
 
     /// <param name="anchor">Any day in the range being shown.</param>
     /// <param name="today">Today on this computer; later days cannot be opened.</param>
@@ -35,8 +34,9 @@ public static class StatsViewBuilder
     public static StatsView Build(UsageReport report, StatsScale scale, StatsGranularity granularity, DateOnly anchor, DateOnly today, string? owner = null)
     {
         var range = StatsRange.Of(scale, anchor);
-        var legend = (granularity == StatsGranularity.State ? StateLegend : CategoryLegend)
-            .Concat(StateLegend.Select(s => new StatsLegend("hidden-" + s.Key, $"{s.Name}（未公开类别）", s.Tone, Hidden: true)))
+        var stateLegend = StateLegend;
+        var legend = (granularity == StatsGranularity.State ? stateLegend : CategoryLegend)
+            .Concat(stateLegend.Select(s => new StatsLegend("hidden-" + s.Key, UiLanguage.Format(Strings.Legend_Hidden, s.Name), s.Tone, Hidden: true)))
             .ToList();
         string KeyOf(PresenceState state, ActivityCategory category) =>
             granularity == StatsGranularity.State ? StateKey(state, category) : CategoryKey(category) ?? "hidden-" + StateKey(state, category);
@@ -56,8 +56,9 @@ public static class StatsViewBuilder
             {
                 var date = range.From.AddDays(i);
                 var parts = Parts(counted.Where(d => d.Date == date), KeyOf);
-                var label = scale == StatsScale.Week ? Weekdays[(int)date.DayOfWeek] : date.Day == 1 || date.Day % 5 == 0 ? date.Day.ToString() : "";
-                var tip = date > today ? $"{DayName(date)} · 还没到" : $"{DayName(date)} · {Duration(parts.Sum(p => p.Seconds))}";
+                var label = scale == StatsScale.Week ? PresenceFormatter.Weekday(date.DayOfWeek) : date.Day == 1 || date.Day % 5 == 0 ? date.Day.ToString() : "";
+                var day = PresenceFormatter.DateWithWeekday(date, today);
+                var tip = date > today ? UiLanguage.Format(Strings.Stats_NotYet, day) : $"{day} · {Duration(parts.Sum(p => p.Seconds))}";
                 return new StatsBar(label, tip, date <= today ? date : null, parts);
             }).ToList();
 
@@ -71,13 +72,13 @@ public static class StatsViewBuilder
         if (scale == StatsScale.Day)
         {
             barMax = 3600;
-            barMaxLabel = "1 小时";
+            barMaxLabel = Duration(barMax);
         }
         else
         {
             var hours = Math.Max(1, (long)Math.Ceiling(bars.Select(b => b.Parts.Sum(p => p.Seconds)).DefaultIfEmpty(0).Max() / 3600.0));
             barMax = hours * 3600;
-            barMaxLabel = $"{hours} 小时";
+            barMaxLabel = Duration(barMax);
         }
 
         var shownFrom = report.SharedDays is null ? range.From : Max(range.From, report.From);
@@ -88,23 +89,23 @@ public static class StatsViewBuilder
         var summary = new List<string>();
         if (scale != StatsScale.Day && total > 0)
         {
-            summary.Add($"共 {Duration(total)}");
+            summary.Add(UiLanguage.Format(Strings.Stats_Total, Duration(total)));
         }
 
         if (away >= 60)
         {
-            summary.Add($"暂离 {Duration(away)}");
+            summary.Add(UiLanguage.Format(Strings.Stats_Away, Duration(away)));
         }
 
         if (locked >= 60)
         {
-            summary.Add($"锁屏 {Duration(locked)}");
+            summary.Add(UiLanguage.Format(Strings.Stats_Locked, Duration(locked)));
         }
 
         var notes = new List<string>();
         if (owner is not null && report.SharedDays is { } shared)
         {
-            notes.Add($"{owner} 公开了最近 {shared} 天的统计");
+            notes.Add(UiLanguage.Format(Strings.Stats_SharedDays, owner, shared));
         }
 
         var hiddenShown = granularity switch
@@ -115,23 +116,23 @@ public static class StatsViewBuilder
         } || bars.Any(b => b.Parts.Any(p => p.Key.StartsWith("hidden-", StringComparison.Ordinal)));
         if (owner is not null && hiddenShown)
         {
-            notes.Add("部分类别对方只公开了状态");
+            notes.Add(Strings.Stats_HiddenCategories);
         }
 
         if (owner is not null && granularity == StatsGranularity.Title && report.Titles.Any(t => t.Category != ActivityCategory.None && t.Title is null))
         {
-            notes.Add("部分类别对方没有公开标题，显示为应用名");
+            notes.Add(Strings.Stats_HiddenTitles);
         }
 
         if (scale == StatsScale.Day && total > 0 && report.Timeline.Count == 0)
         {
-            notes.Add("这一天超过了保留天数，只有按天汇总的时长，没有时间轴");
+            notes.Add(Strings.Stats_NoTimeline);
         }
 
         string? empty = null;
         if (total == 0 && away == 0 && locked == 0)
         {
-            empty = owner is null ? "这段时间没有记录。DeskPal 运行时才会记录使用时间。" : "对方这段时间没有记录。";
+            empty = owner is null ? Strings.Stats_EmptyMine : Strings.Stats_EmptyOther;
         }
 
         return new StatsView(
@@ -140,7 +141,7 @@ public static class StatsViewBuilder
             anchor,
             owner,
             Title(scale, range, today),
-            scale == StatsScale.Day ? "使用时长" : "日均使用时长",
+            scale == StatsScale.Day ? Strings.Stats_UsageTime : Strings.Stats_DailyAverage,
             Duration(scale == StatsScale.Day ? total : average),
             Compare(report.PreviousSeconds, scale, total, average, Previous(scale, anchor), scale == StatsScale.Day && range.From == today),
             summary.Count == 0 ? null : string.Join(" · ", summary),
@@ -151,24 +152,18 @@ public static class StatsViewBuilder
             barMax,
             barMaxLabel,
             scale == StatsScale.Day ? report.Timeline.Select(Span).ToList() : [],
-            Ranking(report, granularity, legend, KeyOf),
+            Ranking(report, granularity, legend, stateLegend, KeyOf),
             granularity switch
             {
-                StatsGranularity.State => "按状态",
-                StatsGranularity.Category => "使用最多的应用和网站",
-                _ => "使用最多的标题",
+                StatsGranularity.State => Strings.Stats_ByState,
+                StatsGranularity.Category => Strings.Stats_TopApps,
+                _ => Strings.Stats_TopTitles,
             },
-            notes.Count == 0 ? null : string.Join("。", notes) + "。",
+            notes.Count == 0 ? null : string.Join(Strings.SentenceSeparator, notes),
             empty);
     }
 
-    public static string Duration(long seconds) => seconds switch
-    {
-        <= 0 => "0 分钟",
-        < 60 => "不到 1 分钟",
-        < 3600 => $"{seconds / 60} 分钟",
-        _ => seconds % 3600 / 60 == 0 ? $"{seconds / 3600} 小时" : $"{seconds / 3600} 小时 {seconds % 3600 / 60} 分钟",
-    };
+    public static string Duration(long seconds) => PresenceFormatter.Duration(seconds);
 
     private static List<StatsPart> Parts(IEnumerable<UsageTotal> totals, Func<PresenceState, ActivityCategory, string> keyOf) => totals
         .Where(t => UsageStates.Counts(t.State))
@@ -177,16 +172,16 @@ public static class StatsViewBuilder
         .Where(p => p.Seconds > 0)
         .ToList();
 
-    private static List<StatsRankItem> Ranking(UsageReport report, StatsGranularity granularity, IReadOnlyList<StatsLegend> legend, Func<PresenceState, ActivityCategory, string> keyOf)
+    private static List<StatsRankItem> Ranking(UsageReport report, StatsGranularity granularity, IReadOnlyList<StatsLegend> legend, StatsLegend[] stateLegend, Func<PresenceState, ActivityCategory, string> keyOf)
     {
-        StatsLegend Legend(string key) => legend.FirstOrDefault(l => l.Key == key) ?? StateLegend[^1];
+        StatsLegend Legend(string key) => legend.FirstOrDefault(l => l.Key == key) ?? stateLegend[^1];
 
         var rows = granularity switch
         {
             StatsGranularity.State => report.Days
                 .Where(d => UsageStates.Counts(d.State))
                 .GroupBy(d => StateKey(d.State, d.Category))
-                .Select(g => (Legend: StateLegend.First(s => s.Key == g.Key), Name: StateLegend.First(s => s.Key == g.Key).Name, Sub: (string?)null, Seconds: g.Sum(d => d.Seconds)))
+                .Select(g => (Legend: stateLegend.First(s => s.Key == g.Key), Name: stateLegend.First(s => s.Key == g.Key).Name, Sub: (string?)null, Seconds: g.Sum(d => d.Seconds)))
                 .ToList(),
             StatsGranularity.Category => report.Apps
                 .GroupBy(a => (Key: keyOf(a.State, a.Category), a.App))
@@ -218,8 +213,8 @@ public static class StatsViewBuilder
         var state = StateLegend.First(s => s.Key == StateKey(span.State, ActivityCategory.None));
         var (name, tone) = span.State switch
         {
-            PresenceState.Away => ("暂离", "away"),
-            PresenceState.Locked => ("已锁屏", "offline"),
+            PresenceState.Away => (Strings.State_Away, "away"),
+            PresenceState.Locked => (Strings.State_Locked, "offline"),
             _ => (state.Name, state.Tone),
         };
         return new StatsSpanView(span.Start, span.End, tone, $"{Clock(span.Start)}–{Clock(span.End)} {name} · {Duration(span.End - span.Start)}");
@@ -236,16 +231,16 @@ public static class StatsViewBuilder
 
         if (today)
         {
-            return $"昨天全天 {Duration(before)}";
+            return UiLanguage.Format(Strings.Stats_YesterdayTotal, Duration(before));
         }
 
-        var (label, diff) = scale switch
+        var (same, more, less, diff) = scale switch
         {
-            StatsScale.Day => ("前一天", total - before),
-            StatsScale.Week => ("上周日均", average - before / previousRange.Days),
-            _ => ("上月日均", average - before / previousRange.Days),
+            StatsScale.Day => (Strings.Compare_DaySame, Strings.Compare_DayMore, Strings.Compare_DayLess, total - before),
+            StatsScale.Week => (Strings.Compare_WeekSame, Strings.Compare_WeekMore, Strings.Compare_WeekLess, average - before / previousRange.Days),
+            _ => (Strings.Compare_MonthSame, Strings.Compare_MonthMore, Strings.Compare_MonthLess, average - before / previousRange.Days),
         };
-        return Math.Abs(diff) < 60 ? $"和{label}差不多" : $"比{label}{(diff > 0 ? "多" : "少")} {Duration(Math.Abs(diff))}";
+        return Math.Abs(diff) < 60 ? same : UiLanguage.Format(diff > 0 ? more : less, Duration(Math.Abs(diff)));
     }
 
     private static StatsRange Previous(StatsScale scale, DateOnly anchor) => StatsRange.Previous(scale, anchor);
@@ -253,25 +248,26 @@ public static class StatsViewBuilder
     private static string Title(StatsScale scale, StatsRange range, DateOnly today)
     {
         var current = range.From <= today && today <= range.To;
-        return scale switch
+        switch (scale)
         {
-            StatsScale.Week => $"{DayName(range.From, today, weekday: false)} – {DayName(range.To, today, weekday: false)}{(current ? "（本周）" : "")}",
-            StatsScale.Month => $"{range.From.Year} 年 {range.From.Month} 月{(current ? "（本月）" : "")}",
-            _ => DayName(range.From, today) + (range.From == today ? "（今天）" : range.From == today.AddDays(-1) ? "（昨天）" : ""),
-        };
-    }
-
-    private static string DayName(DateOnly date) => $"{date.Month} 月 {date.Day} 日 星期{Weekdays[(int)date.DayOfWeek]}";
-
-    private static string DayName(DateOnly date, DateOnly today, bool weekday = true)
-    {
-        var text = $"{date.Month} 月 {date.Day} 日";
-        if (date.Year != today.Year)
-        {
-            text = $"{date.Year} 年 " + text;
+            case StatsScale.Week:
+            {
+                var text = $"{PresenceFormatter.Date(range.From, today)} – {PresenceFormatter.Date(range.To, today)}";
+                return current ? UiLanguage.Format(Strings.Stats_ThisWeek, text) : text;
+            }
+            case StatsScale.Month:
+            {
+                var text = UiLanguage.Format(Strings.Date_YearMonth, range.From);
+                return current ? UiLanguage.Format(Strings.Stats_ThisMonth, text) : text;
+            }
+            default:
+            {
+                var text = PresenceFormatter.DateWithWeekday(range.From, today);
+                return range.From == today ? UiLanguage.Format(Strings.Stats_TodayTitle, text)
+                    : range.From == today.AddDays(-1) ? UiLanguage.Format(Strings.Stats_YesterdayTitle, text)
+                    : text;
+            }
         }
-
-        return weekday ? $"{text} 星期{Weekdays[(int)date.DayOfWeek]}" : text;
     }
 
     private static string Clock(int seconds) => $"{seconds / 3600}:{seconds % 3600 / 60:00}";

@@ -283,7 +283,7 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
     {
         if (data.SchemaVersion != UsageExport.CurrentVersion || data.Segments is null || data.Rollups is null)
         {
-            throw new InvalidDataException("不是 DeskPal 导出的使用统计文件，或者版本不支持。");
+            throw new InvalidDataException(Localization.Strings.Import_Unsupported);
         }
 
         lock (_lock)

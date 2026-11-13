@@ -185,7 +185,7 @@ public sealed class PanelWindow : Window, IUserPrompt
         _ready = new TaskCompletionSource();
         if (!WebUi.RuntimeAvailable())
         {
-            Content = Notice("没有找到 Microsoft Edge WebView2 Runtime，面板无法显示。状态同步不受影响。\n\n安装后重新启动 DeskPal。", WebUi.DownloadUrl);
+            Content = Notice(Strings.Panel_RuntimeMissing, WebUi.DownloadUrl);
             _ready.SetResult();
             return _ready.Task;
         }
@@ -210,7 +210,7 @@ public sealed class PanelWindow : Window, IUserPrompt
             if (_web == web)
             {
                 ReleaseWebView();
-                Content = Notice($"面板加载失败：{ex.Message}", null);
+                Content = Notice(UiLanguage.Format(Strings.Panel_LoadFailed, ex.Message), null);
             }
 
             ready.TrySetResult();
@@ -294,12 +294,12 @@ public sealed class PanelWindow : Window, IUserPrompt
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 16, 0, 0) };
         if (link is not null)
         {
-            var download = new Button { Content = "打开下载页面", Padding = new Thickness(12, 4, 12, 4), Margin = new Thickness(0, 0, 8, 0) };
+            var download = new Button { Content = Strings.Panel_OpenDownload, Padding = new Thickness(12, 4, 12, 4), Margin = new Thickness(0, 0, 8, 0) };
             download.Click += (_, _) => WebUi.OpenExternal(link);
             buttons.Children.Add(download);
         }
 
-        var close = new Button { Content = "关闭", Padding = new Thickness(12, 4, 12, 4) };
+        var close = new Button { Content = Strings.Common_Close, Padding = new Thickness(12, 4, 12, 4) };
         close.Click += (_, _) => Close();
         buttons.Children.Add(close);
         panel.Children.Add(buttons);

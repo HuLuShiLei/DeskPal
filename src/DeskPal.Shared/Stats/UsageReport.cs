@@ -41,9 +41,21 @@ public sealed record StatsRequestPayload(Guid RequestId, DateOnly From, DateOnly
 
 /// <summary>Payload of stats.response. Either Error, or the owner's one-time public key with the encrypted report.</summary>
 /// <param name="Cipher">AES-GCM ciphertext followed by the 16-byte tag, Base64. The plain text is a Brotli-compressed <see cref="UsageReport"/> in JSON.</param>
+/// <param name="Error">Text in the owner's language, for requesters that do not know <paramref name="ErrorCode"/>.</param>
+/// <param name="ErrorCode">One of <see cref="StatsErrorCodes"/>; the requester shows it in its own language.</param>
 public sealed record StatsResponsePayload(
     Guid RequestId,
     string? PublicKey = null,
     string? Nonce = null,
     string? Cipher = null,
-    string? Error = null);
+    string? Error = null,
+    string? ErrorCode = null);
+
+public static class StatsErrorCodes
+{
+    /// <summary>The owner does not share stats in this room.</summary>
+    public const string NotShared = "not-shared";
+
+    /// <summary>The requested days are older than the owner shares.</summary>
+    public const string OutOfRange = "out-of-range";
+}

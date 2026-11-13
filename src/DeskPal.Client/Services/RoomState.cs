@@ -231,15 +231,15 @@ public sealed class RoomState(
 
     private void OnRoomEvent(Envelope envelope)
     {
-        var roomName = Rooms.FirstOrDefault(r => r.Id == envelope.RoomId)?.Name ?? "房间";
+        var roomName = Rooms.FirstOrDefault(r => r.Id == envelope.RoomId)?.Name ?? Strings.Room_Fallback;
         var userId = envelope.ReadPayload<RoomEventPayload>()?.UserId;
         if (envelope.Type == MessageTypes.RoomDissolved)
         {
-            Notify?.Invoke(roomName, "该房间已被所有者解散");
+            Notify?.Invoke(roomName, Strings.Room_Dissolved);
         }
         else if (envelope.Type == MessageTypes.RoomMemberJoined && userId is { } joined && joined != MyUserId)
         {
-            _ = RefreshAsync().ContinueWith(_ => Notify?.Invoke(roomName, $"{MemberName(envelope.RoomId, joined)} 加入了房间"), TaskScheduler.Default);
+            _ = RefreshAsync().ContinueWith(_ => Notify?.Invoke(roomName, UiLanguage.Format(Strings.Room_MemberJoined, MemberName(envelope.RoomId, joined))), TaskScheduler.Default);
             return;
         }
 
@@ -270,7 +270,7 @@ public sealed class RoomState(
     }
 
     private string MemberName(Guid roomId, Guid userId) =>
-        Rooms.FirstOrDefault(r => r.Id == roomId)?.Members.FirstOrDefault(m => m.UserId == userId)?.DisplayName ?? "房间成员";
+        Rooms.FirstOrDefault(r => r.Id == roomId)?.Members.FirstOrDefault(m => m.UserId == userId)?.DisplayName ?? Strings.Member_Fallback;
 
     private void OnKicked(Envelope envelope)
     {
@@ -280,8 +280,8 @@ public sealed class RoomState(
             return;
         }
 
-        var roomName = Rooms.FirstOrDefault(r => r.Id == envelope.RoomId)?.Name ?? "房间";
-        Notify?.Invoke(roomName, "你已被移出该房间。邀请码更新后才能再次加入");
+        var roomName = Rooms.FirstOrDefault(r => r.Id == envelope.RoomId)?.Name ?? Strings.Room_Fallback;
+        Notify?.Invoke(roomName, Strings.Room_Kicked);
         _ = RefreshAsync().ContinueWith(t => logger.LogWarning(t.Exception, "Refreshing rooms failed"), TaskContinuationOptions.OnlyOnFaulted);
     }
 }

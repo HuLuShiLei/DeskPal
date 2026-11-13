@@ -13,8 +13,8 @@ namespace DeskPal.Server.Features.Rooms;
 public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions<RoomOptions> options)
 {
     private const string InviteAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    private const string NotMember = "房间不存在，或者你不是该房间的成员";
-    private const string InvalidName = "房间名称需要 1 到 30 个字符";
+    private const string NotMember = ApiErrorCodes.RoomNotMember;
+    private const string InvalidName = ApiErrorCodes.RoomNameInvalid;
 
     private readonly RoomOptions _options = options.Value;
 
@@ -50,7 +50,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         var owned = await db.Rooms.CountAsync(r => r.OwnerId == userId);
         if (owned >= _options.MaxOwnedRoomsPerUser)
         {
-            return ServiceResult<RoomDto>.Fail(409, $"每个用户最多创建 {_options.MaxOwnedRoomsPerUser} 个房间");
+            return ServiceResult<RoomDto>.Fail(409, ApiErrorCodes.RoomOwnLimit, _options.MaxOwnedRoomsPerUser);
         }
 
         var now = time.GetUtcNow();
@@ -104,24 +104,24 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         var invite = await db.RoomInvites.SingleOrDefaultAsync(i => i.Code == code);
         if (invite is null || invite.ExpiresAt <= time.GetUtcNow())
         {
-            return ServiceResult<RoomDto>.Fail(404, "邀请码无效或已过期");
+            return ServiceResult<RoomDto>.Fail(404, ApiErrorCodes.RoomInviteInvalid);
         }
 
         var room = await db.Rooms.Include(r => r.Members).SingleAsync(r => r.Id == invite.RoomId);
         if (room.Members.Any(m => m.UserId == userId))
         {
-            return ServiceResult<RoomDto>.Fail(409, "你已经是该房间的成员");
+            return ServiceResult<RoomDto>.Fail(409, ApiErrorCodes.RoomAlreadyMember);
         }
 
         if (await db.RoomBans.AnyAsync(b => b.RoomId == room.Id && b.UserId == userId))
         {
-            return ServiceResult<RoomDto>.Fail(403, "你已被移出该房间。邀请码更新后才能再次加入");
+            return ServiceResult<RoomDto>.Fail(403, ApiErrorCodes.RoomBanned);
         }
 
         ApplyMemberCap(room);
         if (room.Members.Count >= room.MaxMembers)
         {
-            return ServiceResult<RoomDto>.Fail(409, $"该房间已满（上限 {room.MaxMembers} 人）");
+            return ServiceResult<RoomDto>.Fail(409, ApiErrorCodes.RoomFull, room.MaxMembers);
         }
 
         room.Members.Add(new RoomMember { RoomId = room.Id, UserId = userId, Role = RoomRole.Member, JoinedAt = time.GetUtcNow(), PrivacyProfileJson = StateOnlyPrivacy() });
@@ -139,7 +139,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
 
         if (member.Role == RoomRole.Owner)
         {
-            return ServiceResult<Unit>.Fail(409, "所有者不能直接退出，请先转让所有者或解散房间");
+            return ServiceResult<Unit>.Fail(409, ApiErrorCodes.RoomOwnerCannotLeave);
         }
 
         db.RoomMembers.Remove(member);
@@ -157,18 +157,18 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
 
         if (room.OwnerId != userId)
         {
-            return ServiceResult<Unit>.Fail(403, "只有所有者可以踢出成员");
+            return ServiceResult<Unit>.Fail(403, ApiErrorCodes.RoomOwnerOnlyKick);
         }
 
         if (targetUserId == room.OwnerId)
         {
-            return ServiceResult<Unit>.Fail(400, "不能踢出所有者");
+            return ServiceResult<Unit>.Fail(400, ApiErrorCodes.RoomCannotKickOwner);
         }
 
         var target = room.Members.SingleOrDefault(m => m.UserId == targetUserId);
         if (target is null)
         {
-            return ServiceResult<Unit>.Fail(404, "该成员不在房间中");
+            return ServiceResult<Unit>.Fail(404, ApiErrorCodes.RoomMemberMissing);
         }
 
         room.Members.Remove(target);
@@ -197,13 +197,13 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
 
         if (room.OwnerId != userId)
         {
-            return ServiceResult<RoomDto>.Fail(403, "只有所有者可以转让所有者身份");
+            return ServiceResult<RoomDto>.Fail(403, ApiErrorCodes.RoomOwnerOnlyTransfer);
         }
 
         var target = room.Members.SingleOrDefault(m => m.UserId == newOwnerId);
         if (target is null || newOwnerId == userId)
         {
-            return ServiceResult<RoomDto>.Fail(400, "只能转让给该房间的其他成员");
+            return ServiceResult<RoomDto>.Fail(400, ApiErrorCodes.RoomTransferTarget);
         }
 
         room.Members.Single(m => m.UserId == userId).Role = RoomRole.Member;
@@ -223,7 +223,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
 
         if (room.OwnerId != userId)
         {
-            return ServiceResult<RenamedRoom>.Fail(403, "只有所有者可以修改房间名称");
+            return ServiceResult<RenamedRoom>.Fail(403, ApiErrorCodes.RoomOwnerOnlyRename);
         }
 
         name = name?.Trim() ?? "";
@@ -253,7 +253,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
 
         if (room.OwnerId != userId)
         {
-            return ServiceResult<IReadOnlyList<Guid>>.Fail(403, "只有所有者可以解散房间");
+            return ServiceResult<IReadOnlyList<Guid>>.Fail(403, ApiErrorCodes.RoomOwnerOnlyDissolve);
         }
 
         var memberIds = room.Members.Select(m => m.UserId).ToList();
@@ -283,7 +283,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
 
         if (dto.StatsDays is { } days && !PrivacyProfile.StatsDayOptions.Contains(days))
         {
-            return ServiceResult<SavedPrivacy>.Fail(400, "可查看天数只能是 1、3、7 或 30 天");
+            return ServiceResult<SavedPrivacy>.Fail(400, ApiErrorCodes.RoomStatsDaysInvalid);
         }
 
         var old = ReadPrivacy(member.PrivacyProfileJson);
@@ -360,10 +360,10 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
 
         if (targetUserId == userId)
         {
-            return (400, "不能屏蔽自己");
+            return (400, ApiErrorCodes.RoomCannotBlockSelf);
         }
 
-        return await IsMemberAsync(targetUserId, roomId) ? null : (404, "该成员不在房间中");
+        return await IsMemberAsync(targetUserId, roomId) ? null : (404, ApiErrorCodes.RoomMemberMissing);
     }
 
     public Task<bool> IsMemberAsync(Guid userId, Guid roomId) =>

@@ -92,7 +92,7 @@ public sealed class MemberCards
                 card = Open(member.UserId);
             }
 
-            card.Update(new { type = "card", member, detail = Detail(member.View), theme = state.Settings.Theme });
+            card.Update(new { type = "card", member, detail = Detail(member.View), theme = state.Settings.Theme, locale = state.Locale });
         }
 
         if (_cards.Count == 0)

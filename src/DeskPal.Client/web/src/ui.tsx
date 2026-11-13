@@ -1,6 +1,7 @@
 import type { ComponentChildren, RefObject } from "preact";
 import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import type { Bridge, PresenceView } from "./bridge";
+import { t } from "./i18n";
 
 // Segoe Fluent Icons（Windows 11）/ Segoe MDL2 Assets（Windows 10）里的字形。
 const glyphs = {
@@ -51,10 +52,10 @@ export function TitleBar({ bridge, title, children, onClose }: { bridge: Bridge;
       <span class="app-title">{title}</span>
       <div class="titlebar-content">{children}</div>
       <div class="caption-buttons">
-        <button class="caption" aria-label="最小化" title="最小化" onClick={() => bridge.notify({ type: "window.minimize" })}>
+        <button class="caption" aria-label={t("common.minimize")} title={t("common.minimize")} onClick={() => bridge.notify({ type: "window.minimize" })}>
           <Icon name="minimize" />
         </button>
-        <button class="caption close" aria-label="关闭" title="关闭" onClick={() => (onClose ? onClose() : bridge.notify({ type: "window.close" }))}>
+        <button class="caption close" aria-label={t("common.close")} title={t("common.close")} onClick={() => (onClose ? onClose() : bridge.notify({ type: "window.close" }))}>
           <Icon name="close" />
         </button>
       </div>
@@ -73,7 +74,7 @@ export function Switch({ checked, label, disabled, onChange }: { checked: boolea
       disabled={disabled}
       onClick={() => onChange(!checked)}
     >
-      <span class="switch-text">{checked ? "开" : "关"}</span>
+      <span class="switch-text">{checked ? t("common.on") : t("common.off")}</span>
       <span class="switch-track">
         <span class="switch-thumb" />
       </span>
@@ -129,7 +130,7 @@ export function Hint({ text }: { text: string }) {
         type="button"
         class="hint-button"
         ref={anchorRef as RefObject<HTMLButtonElement>}
-        aria-label={`说明。${text}`}
+        aria-label={t("common.hintLabel", { text })}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
         onFocus={() => setOpen(true)}

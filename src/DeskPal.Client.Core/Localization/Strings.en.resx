@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="State_Offline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="State_Paused" xml:space="preserve">
+    <value>Sharing paused</value>
+  </data>
+  <data name="State_Custom" xml:space="preserve">
+    <value>Custom status</value>
+  </data>
+  <data name="State_Locked" xml:space="preserve">
+    <value>Locked</value>
+  </data>
+  <data name="State_Away" xml:space="preserve">
+    <value>Away</value>
+  </data>
+  <data name="State_Working" xml:space="preserve">
+    <value>Working</value>
+  </data>
+  <data name="State_Chatting" xml:space="preserve">
+    <value>Chatting</value>
+  </data>
+  <data name="State_UsingApp" xml:space="preserve">
+    <value>Using {0}</value>
+  </data>
+  <data name="State_Browsing" xml:space="preserve">
+    <value>Browsing the web</value>
+  </data>
+  <data name="State_Blocked" xml:space="preserve">
+    <value>Blocked</value>
+  </data>
+  <data name="State_Detecting" xml:space="preserve">
+    <value>Detecting…</value>
+  </data>
+  <data name="Relax_Video" xml:space="preserve">
+    <value>Watching videos</value>
+  </data>
+  <data name="Relax_Music" xml:space="preserve">
+    <value>Listening to music</value>
+  </data>
+  <data name="Relax_Shopping" xml:space="preserve">
+    <value>Shopping</value>
+  </data>
+  <data name="Relax_Social" xml:space="preserve">
+    <value>On social media</value>
+  </data>
+  <data name="Relax_News" xml:space="preserve">
+    <value>Reading news</value>
+  </data>
+  <data name="Relax_Game" xml:space="preserve">
+    <value>Playing games</value>
+  </data>
+  <data name="Relax_Reading" xml:space="preserve">
+    <value>Reading</value>
+  </data>
+  <data name="Relax_Other" xml:space="preserve">
+    <value>Taking a break</value>
+  </data>
+  <data name="Category_Work" xml:space="preserve">
+    <value>Work</value>
+  </data>
+  <data name="Category_Communication" xml:space="preserve">
+    <value>Chat</value>
+  </data>
+  <data name="Category_Video" xml:space="preserve">
+    <value>Video</value>
+  </data>
+  <data name="Category_Music" xml:space="preserve">
+    <value>Music</value>
+  </data>
+  <data name="Category_Shopping" xml:space="preserve">
+    <value>Shopping</value>
+  </data>
+  <data name="Category_Social" xml:space="preserve">
+    <value>Social media</value>
+  </data>
+  <data name="Category_News" xml:space="preserve">
+    <value>News</value>
+  </data>
+  <data name="Category_Game" xml:space="preserve">
+    <value>Games</value>
+  </data>
+  <data name="Category_Reading" xml:space="preserve">
+    <value>Reading</value>
+  </data>
+  <data name="Category_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="Category_Browsing" xml:space="preserve">
+    <value>Web browsing</value>
+  </data>
+  <data name="Category_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Privacy_StateOnly" xml:space="preserve">
+    <value>Status only</value>
+  </data>
+  <data name="Privacy_Category" xml:space="preserve">
+    <value>Category and app</value>
+  </data>
+  <data name="Privacy_Detail" xml:space="preserve">
+    <value>Full details (titles)</value>
+  </data>
+  <data name="Duration_JustNow" xml:space="preserve">
+    <value>Just now</value>
+  </data>
+  <data name="Duration_UnderMinute" xml:space="preserve">
+    <value>&lt; 1 min</value>
+  </data>
+  <data name="Duration_Minutes" xml:space="preserve">
+    <value>{0} min</value>
+  </data>
+  <data name="Duration_Hours" xml:space="preserve">
+    <value>{0} h</value>
+  </data>
+  <data name="Duration_HoursMinutes" xml:space="preserve">
+    <value>{0} h {1} min</value>
+  </data>
+  <data name="Duration_Days" xml:space="preserve">
+    <value>{0} days</value>
+  </data>
+  <data name="Lasted_JustStarted" xml:space="preserve">
+    <value>Just started</value>
+  </data>
+  <data name="Lasted_For" xml:space="preserve">
+    <value>For {0}</value>
+  </data>
+  <data name="Day_Today" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="Day_Yesterday" xml:space="preserve">
+    <value>Yesterday</value>
+  </data>
+  <data name="Date_MonthDay" xml:space="preserve">
+    <value>{0:MMM d}</value>
+  </data>
+  <data name="Date_YearMonthDay" xml:space="preserve">
+    <value>{0:MMM d, yyyy}</value>
+  </data>
+  <data name="Date_YearMonth" xml:space="preserve">
+    <value>{0:MMMM yyyy}</value>
+  </data>
+  <data name="Date_MonthDayTime" xml:space="preserve">
+    <value>{0:MMM d, HH:mm}</value>
+  </data>
+  <data name="Date_WithWeekday" xml:space="preserve">
+    <value>{1}, {0}</value>
+  </data>
+  <data name="Weekdays" xml:space="preserve">
+    <value>Sun,Mon,Tue,Wed,Thu,Fri,Sat</value>
+  </data>
+  <data name="SentenceSeparator" xml:space="preserve">
+    <value> </value>
+  </data>
+  <data name="ListSeparator" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="Panel_NoMembers" xml:space="preserve">
+    <value>No one else is in this room yet. Create an invite code on the Rooms page and send it to them.</value>
+  </data>
+  <data name="Panel_NoRoom" xml:space="preserve">
+    <value>You are not in a room. Create or select a room, or join one with an invite code.</value>
+  </data>
+  <data name="Panel_UsedToday" xml:space="preserve">
+    <value>Today: {0}</value>
+  </data>
+  <data name="Connection_Connected" xml:space="preserve">
+    <value>Connected</value>
+  </data>
+  <data name="Connection_Connecting" xml:space="preserve">
+    <value>Connecting to the server…</value>
+  </data>
+  <data name="Connection_Reconnecting" xml:space="preserve">
+    <value>Connection lost. Reconnecting…</value>
+  </data>
+  <data name="Connection_Disconnected" xml:space="preserve">
+    <value>Not connected. Retrying shortly.</value>
+  </data>
+  <data name="Source_Personal" xml:space="preserve">
+    <value>classified by your rule</value>
+  </data>
+  <data name="Source_Builtin" xml:space="preserve">
+    <value>classified by the default rules</value>
+  </data>
+  <data name="Source_Heuristic" xml:space="preserve">
+    <value>guessed from the window</value>
+  </data>
+  <data name="Source_Unknown" xml:space="preserve">
+    <value>not recognized, shown as "Using"</value>
+  </data>
+  <data name="Source_WithTarget" xml:space="preserve">
+    <value>{0}: {1}.</value>
+  </data>
+  <data name="Source_Plain" xml:space="preserve">
+    <value>{0}.</value>
+  </data>
+  <data name="Full_Category" xml:space="preserve">
+    <value>Category: {0}</value>
+  </data>
+  <data name="Full_Site" xml:space="preserve">
+    <value>Site: {0}</value>
+  </data>
+  <data name="Full_App" xml:space="preserve">
+    <value>App: {0}</value>
+  </data>
+  <data name="Full_Title" xml:space="preserve">
+    <value>Title: {0}</value>
+  </data>
+  <data name="RuleKind_Process" xml:space="preserve">
+    <value>App</value>
+  </data>
+  <data name="RuleKind_Domain" xml:space="preserve">
+    <value>Website</value>
+  </data>
+  <data name="RuleKind_TitleKeyword" xml:space="preserve">
+    <value>Title keyword</value>
+  </data>
+  <data name="NoTitle_App" xml:space="preserve">
+    <value>App · {0}</value>
+  </data>
+  <data name="NoTitle_Process" xml:space="preserve">
+    <value>Process · {0}.exe</value>
+  </data>
+  <data name="NoTitle_Domain" xml:space="preserve">
+    <value>Site · {0}</value>
+  </data>
+  <data name="NoTitle_Title" xml:space="preserve">
+    <value>Title contains · {0}</value>
+  </data>
+  <data name="Legend_Work" xml:space="preserve">
+    <value>Work</value>
+  </data>
+  <data name="Legend_Chat" xml:space="preserve">
+    <value>Chat</value>
+  </data>
+  <data name="Legend_Relax" xml:space="preserve">
+    <value>Break</value>
+  </data>
+  <data name="Legend_Browse" xml:space="preserve">
+    <value>Web</value>
+  </data>
+  <data name="Legend_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="Legend_Hidden" xml:space="preserve">
+    <value>{0} (category hidden)</value>
+  </data>
+  <data name="Stats_NotYet" xml:space="preserve">
+    <value>{0} · Upcoming</value>
+  </data>
+  <data name="Stats_Total" xml:space="preserve">
+    <value>Total {0}</value>
+  </data>
+  <data name="Stats_Away" xml:space="preserve">
+    <value>Away {0}</value>
+  </data>
+  <data name="Stats_Locked" xml:space="preserve">
+    <value>Locked {0}</value>
+  </data>
+  <data name="Stats_SharedDays" xml:space="preserve">
+    <value>{0} shares the last {1} days.</value>
+  </data>
+  <data name="Stats_HiddenCategories" xml:space="preserve">
+    <value>Some categories are shared as status only.</value>
+  </data>
+  <data name="Stats_HiddenTitles" xml:space="preserve">
+    <value>Titles are hidden for some categories, so app names are shown.</value>
+  </data>
+  <data name="Stats_NoTimeline" xml:space="preserve">
+    <value>This day is past the retention period. Only the daily total is kept, without a timeline.</value>
+  </data>
+  <data name="Stats_EmptyMine" xml:space="preserve">
+    <value>Nothing recorded for this period. Usage is recorded only while DeskPal is running.</value>
+  </data>
+  <data name="Stats_EmptyOther" xml:space="preserve">
+    <value>Nothing recorded for this period.</value>
+  </data>
+  <data name="Stats_UsageTime" xml:space="preserve">
+    <value>Usage</value>
+  </data>
+  <data name="Stats_DailyAverage" xml:space="preserve">
+    <value>Daily average</value>
+  </data>
+  <data name="Stats_ByState" xml:space="preserve">
+    <value>By status</value>
+  </data>
+  <data name="Stats_TopApps" xml:space="preserve">
+    <value>Top apps and sites</value>
+  </data>
+  <data name="Stats_TopTitles" xml:space="preserve">
+    <value>Top titles</value>
+  </data>
+  <data name="Stats_YesterdayTotal" xml:space="preserve">
+    <value>Yesterday: {0}</value>
+  </data>
+  <data name="Compare_DaySame" xml:space="preserve">
+    <value>About the same as the day before</value>
+  </data>
+  <data name="Compare_DayMore" xml:space="preserve">
+    <value>{0} more than the day before</value>
+  </data>
+  <data name="Compare_DayLess" xml:space="preserve">
+    <value>{0} less than the day before</value>
+  </data>
+  <data name="Compare_WeekSame" xml:space="preserve">
+    <value>About the same as last week</value>
+  </data>
+  <data name="Compare_WeekMore" xml:space="preserve">
+    <value>{0} more per day than last week</value>
+  </data>
+  <data name="Compare_WeekLess" xml:space="preserve">
+    <value>{0} less per day than last week</value>
+  </data>
+  <data name="Compare_MonthSame" xml:space="preserve">
+    <value>About the same as last month</value>
+  </data>
+  <data name="Compare_MonthMore" xml:space="preserve">
+    <value>{0} more per day than last month</value>
+  </data>
+  <data name="Compare_MonthLess" xml:space="preserve">
+    <value>{0} less per day than last month</value>
+  </data>
+  <data name="Stats_ThisWeek" xml:space="preserve">
+    <value>{0} (this week)</value>
+  </data>
+  <data name="Stats_ThisMonth" xml:space="preserve">
+    <value>{0} (this month)</value>
+  </data>
+  <data name="Stats_TodayTitle" xml:space="preserve">
+    <value>{0} (today)</value>
+  </data>
+  <data name="Stats_YesterdayTitle" xml:space="preserve">
+    <value>{0} (yesterday)</value>
+  </data>
+  <data name="WhatsNew_Title" xml:space="preserve">
+    <value>Updated to {0}</value>
+  </data>
+  <data name="WhatsNew_Count" xml:space="preserve">
+    <value>{0} changes</value>
+  </data>
+  <data name="WhatsNew_CountSince" xml:space="preserve">
+    <value>{1} changes since {0}</value>
+  </data>
+  <data name="Import_TooLarge" xml:space="preserve">
+    <value>The file is larger than 100 MB and cannot be imported.</value>
+  </data>
+  <data name="Import_NotExport" xml:space="preserve">
+    <value>This is not a usage file exported by DeskPal.</value>
+  </data>
+  <data name="Import_Unsupported" xml:space="preserve">
+    <value>This is not a usage file exported by DeskPal, or its version is not supported.</value>
+  </data>
+  <data name="Import_Empty" xml:space="preserve">
+    <value>The file is empty.</value>
+  </data>
+  <data name="Import_Title" xml:space="preserve">
+    <value>Import usage data</value>
+  </data>
+  <data name="Import_NothingNew" xml:space="preserve">
+    <value>No new records. This data has already been imported.</value>
+  </data>
+  <data name="Import_Done" xml:space="preserve">
+    <value>Imported {0} records and {1} daily totals.</value>
+  </data>
+  <data name="Export_Title" xml:space="preserve">
+    <value>Export usage data</value>
+  </data>
+  <data name="Export_FileName" xml:space="preserve">
+    <value>DeskPal-usage-{0}.json</value>
+  </data>
+  <data name="Export_Filter" xml:space="preserve">
+    <value>Usage data (*.json)|*.json</value>
+  </data>
+  <data name="Export_Done" xml:space="preserve">
+    <value>Exported to {0}</value>
+  </data>
+  <data name="App_AlreadyRunning" xml:space="preserve">
+    <value>DeskPal is already running. Open it from the icon in the notification area.</value>
+  </data>
+  <data name="Tray_Open" xml:space="preserve">
+    <value>Open DeskPal</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Tray_LoadRoomsFailed" xml:space="preserve">
+    <value>Could not load rooms: {0}</value>
+  </data>
+  <data name="Login_WindowTitle" xml:space="preserve">
+    <value>Sign in to DeskPal</value>
+  </data>
+  <data name="Login_LoadFailed" xml:space="preserve">
+    <value>Could not load the sign-in page: {0}</value>
+  </data>
+  <data name="Login_SignedOutElsewhere" xml:space="preserve">
+    <value>Your account signed in on another computer. Please sign in again.</value>
+  </data>
+  <data name="Login_SessionExpired" xml:space="preserve">
+    <value>Your session has expired. Please sign in again.</value>
+  </data>
+  <data name="Login_InvalidServer" xml:space="preserve">
+    <value>The server address must start with http:// or https://</value>
+  </data>
+  <data name="Login_DisplayNameRequired" xml:space="preserve">
+    <value>Enter a display name to create an account</value>
+  </data>
+  <data name="Runtime_Missing" xml:space="preserve">
+    <value>Microsoft Edge WebView2 Runtime was not found. {0}
+
+Click OK to open the download page. Restart DeskPal after installing it.</value>
+  </data>
+  <data name="Runtime_PanelUnavailable" xml:space="preserve">
+    <value>The panel cannot be shown. Status sharing still works.</value>
+  </data>
+  <data name="Runtime_LoginUnavailable" xml:space="preserve">
+    <value>The sign-in page cannot be shown.</value>
+  </data>
+  <data name="Panel_RuntimeMissing" xml:space="preserve">
+    <value>Microsoft Edge WebView2 Runtime was not found, so the panel cannot be shown. Status sharing still works.
+
+Restart DeskPal after installing it.</value>
+  </data>
+  <data name="Panel_LoadFailed" xml:space="preserve">
+    <value>Could not load the panel: {0}</value>
+  </data>
+  <data name="Panel_OpenDownload" xml:space="preserve">
+    <value>Open download page</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Error_Unsupported" xml:space="preserve">
+    <value>Unsupported action: {0}</value>
+  </data>
+  <data name="Error_InvalidId" xml:space="preserve">
+    <value>{0} is not a valid ID</value>
+  </data>
+  <data name="Error_RoomNameRequired" xml:space="preserve">
+    <value>Enter a room name</value>
+  </data>
+  <data name="Error_InviteCodeRequired" xml:space="preserve">
+    <value>Enter an invite code</value>
+  </data>
+  <data name="Error_StatsDays" xml:space="preserve">
+    <value>Choose 1, 3, 7 or 30 days</value>
+  </data>
+  <data name="Error_Retention" xml:space="preserve">
+    <value>Invalid retention period</value>
+  </data>
+  <data name="Error_NoTitleKind" xml:space="preserve">
+    <value>Invalid type</value>
+  </data>
+  <data name="Error_NoTitleDomain" xml:space="preserve">
+    <value>Invalid site, e.g. github.com</value>
+  </data>
+  <data name="Error_NoTitleLength" xml:space="preserve">
+    <value>Enter 1 to {0} characters</value>
+  </data>
+  <data name="Error_MemberNotInRoom" xml:space="preserve">
+    <value>This member is not in the current room</value>
+  </data>
+  <data name="Error_BlockedCannotPin" xml:space="preserve">
+    <value>Unblock this member before pinning them</value>
+  </data>
+  <data name="Error_BlockedCannotView" xml:space="preserve">
+    <value>Unblock this member to view their stats</value>
+  </data>
+  <data name="Error_MemberNotSharing" xml:space="preserve">
+    <value>{0} does not share usage stats in this room</value>
+  </data>
+  <data name="Error_MemberSharedDays" xml:space="preserve">
+    <value>{0} shares only the last {1} days</value>
+  </data>
+  <data name="Error_NothingRecognized" xml:space="preserve">
+    <value>No app has been detected yet.</value>
+  </data>
+  <data name="Error_NothingToCorrect" xml:space="preserve">
+    <value>No app has been detected yet. Switch to the app you want to reclassify, then open the panel again.</value>
+  </data>
+  <data name="Error_CategoryRequired" xml:space="preserve">
+    <value>Choose a category</value>
+  </data>
+  <data name="Error_RuleKind" xml:space="preserve">
+    <value>Invalid rule type</value>
+  </data>
+  <data name="Error_DisplayName" xml:space="preserve">
+    <value>Display name must be 1 to 20 characters</value>
+  </data>
+  <data name="Error_CloseAction" xml:space="preserve">
+    <value>Invalid close option</value>
+  </data>
+  <data name="Error_Theme" xml:space="preserve">
+    <value>Invalid theme</value>
+  </data>
+  <data name="Error_Language" xml:space="preserve">
+    <value>Invalid language</value>
+  </data>
+  <data name="Error_LogoutUnavailable" xml:space="preserve">
+    <value>You cannot sign out right now.</value>
+  </data>
+  <data name="Error_StatsRange" xml:space="preserve">
+    <value>Invalid time range</value>
+  </data>
+  <data name="Api_Unreachable" xml:space="preserve">
+    <value>Cannot reach the server {0}: {1}</value>
+  </data>
+  <data name="Api_Failed" xml:space="preserve">
+    <value>Request failed (HTTP {0})</value>
+  </data>
+  <data name="Room_Fallback" xml:space="preserve">
+    <value>Room</value>
+  </data>
+  <data name="Member_Fallback" xml:space="preserve">
+    <value>A member</value>
+  </data>
+  <data name="Room_Dissolved" xml:space="preserve">
+    <value>The owner deleted this room</value>
+  </data>
+  <data name="Room_MemberJoined" xml:space="preserve">
+    <value>{0} joined the room</value>
+  </data>
+  <data name="Room_Kicked" xml:space="preserve">
+    <value>You were removed from this room. You can rejoin with a new invite code.</value>
+  </data>
+  <data name="Room_InviteCopied" xml:space="preserve">
+    <value>Invite code copied to the clipboard. Valid until {0}. Creating a new code invalidates the old one; removed members can rejoin with the new code.</value>
+  </data>
+  <data name="Stats_NotConnected" xml:space="preserve">
+    <value>Not connected to the server. Try again later.</value>
+  </data>
+  <data name="Stats_NoResponse" xml:space="preserve">
+    <value>This member is offline, not in this room right now, or did not respond.</value>
+  </data>
+  <data name="Stats_DecryptFailed" xml:space="preserve">
+    <value>The stats received could not be decrypted. Try again.</value>
+  </data>
+  <data name="Stats_PeerNotSharing" xml:space="preserve">
+    <value>This member does not share usage stats in this room.</value>
+  </data>
+  <data name="Stats_PeerSharedDays" xml:space="preserve">
+    <value>This member shares only the last {0} days.</value>
+  </data>
+  <data name="Update_NotInstalled" xml:space="preserve">
+    <value>This copy is not installed, so it cannot update itself. Install DeskPal from the setup file on GitHub Releases (DeskPal-&lt;version&gt;-Setup.exe).</value>
+  </data>
+  <data name="Update_Checking" xml:space="preserve">
+    <value>Checking for updates…</value>
+  </data>
+  <data name="Update_CheckFailed" xml:space="preserve">
+    <value>Could not check for updates: {0}</value>
+  </data>
+  <data name="Update_UpToDate" xml:space="preserve">
+    <value>You have the latest version ({0}).</value>
+  </data>
+  <data name="Update_Downgrade" xml:space="preserve">
+    <value>The stable release {0} is older than the beta you are using ({1}). Switch to the stable release and restart? Otherwise you will stay on this version until a newer stable release is out.</value>
+  </data>
+  <data name="Update_DownloadFailed" xml:space="preserve">
+    <value>Could not download the update: {0}</value>
+  </data>
+  <data name="Update_ChannelChanged" xml:space="preserve">
+    <value>The update channel changed, so this download was discarded.</value>
+  </data>
+  <data name="Update_Ready" xml:space="preserve">
+    <value>Version {0} has been downloaded and will be installed when you exit.</value>
+  </data>
+  <data name="Update_RestartNow" xml:space="preserve">
+    <value>Restart and update now?</value>
+  </data>
+  <data name="Update_DownloadingStable" xml:space="preserve">
+    <value>Downloading the stable release…</value>
+  </data>
+  <data name="Update_StableUnchanged" xml:space="preserve">
+    <value>The stable release has not changed.</value>
+  </data>
+  <data name="Update_StableDownloadFailed" xml:space="preserve">
+    <value>Could not download the stable release: {0}</value>
+  </data>
+  <data name="Update_Downloading" xml:space="preserve">
+    <value>Downloading version {0}…</value>
+  </data>
+  <data name="Update_DownloadingPercent" xml:space="preserve">
+    <value>Downloading version {0} ({1}%)</value>
+  </data>
+  <data name="ApiError_auth_userNameInvalid" xml:space="preserve">
+    <value>User name must be 3 to 32 characters: letters, digits, underscores or hyphens</value>
+  </data>
+  <data name="ApiError_auth_passwordTooShort" xml:space="preserve">
+    <value>Password must be at least 8 characters</value>
+  </data>
+  <data name="ApiError_auth_userNameTaken" xml:space="preserve">
+    <value>This user name is already taken</value>
+  </data>
+  <data name="ApiError_auth_wrongPassword" xml:space="preserve">
+    <value>Incorrect user name or password</value>
+  </data>
+  <data name="ApiError_auth_accountMissing" xml:space="preserve">
+    <value>Account not found</value>
+  </data>
+  <data name="ApiError_auth_displayNameInvalid" xml:space="preserve">
+    <value>Display name must be 1 to 20 characters</value>
+  </data>
+  <data name="ApiError_room_notMember" xml:space="preserve">
+    <value>The room does not exist, or you are not a member</value>
+  </data>
+  <data name="ApiError_room_nameInvalid" xml:space="preserve">
+    <value>Room name must be 1 to 30 characters</value>
+  </data>
+  <data name="ApiError_room_ownLimit" xml:space="preserve">
+    <value>You can own at most {limit} rooms</value>
+  </data>
+  <data name="ApiError_room_inviteInvalid" xml:space="preserve">
+    <value>The invite code is invalid or has expired</value>
+  </data>
+  <data name="ApiError_room_alreadyMember" xml:space="preserve">
+    <value>You are already a member of this room</value>
+  </data>
+  <data name="ApiError_room_banned" xml:space="preserve">
+    <value>You were removed from this room. You can rejoin with a new invite code.</value>
+  </data>
+  <data name="ApiError_room_full" xml:space="preserve">
+    <value>This room is full (limit: {limit} members)</value>
+  </data>
+  <data name="ApiError_room_ownerCannotLeave" xml:space="preserve">
+    <value>The owner cannot leave. Transfer ownership or delete the room first.</value>
+  </data>
+  <data name="ApiError_room_ownerOnlyKick" xml:space="preserve">
+    <value>Only the owner can remove members</value>
+  </data>
+  <data name="ApiError_room_cannotKickOwner" xml:space="preserve">
+    <value>The owner cannot be removed</value>
+  </data>
+  <data name="ApiError_room_memberMissing" xml:space="preserve">
+    <value>This member is not in the room</value>
+  </data>
+  <data name="ApiError_room_ownerOnlyTransfer" xml:space="preserve">
+    <value>Only the owner can transfer ownership</value>
+  </data>
+  <data name="ApiError_room_transferTarget" xml:space="preserve">
+    <value>Ownership can only go to another member of this room</value>
+  </data>
+  <data name="ApiError_room_ownerOnlyRename" xml:space="preserve">
+    <value>Only the owner can rename the room</value>
+  </data>
+  <data name="ApiError_room_ownerOnlyDissolve" xml:space="preserve">
+    <value>Only the owner can delete the room</value>
+  </data>
+  <data name="ApiError_room_statsDaysInvalid" xml:space="preserve">
+    <value>Choose 1, 3, 7 or 30 days</value>
+  </data>
+  <data name="ApiError_room_cannotBlockSelf" xml:space="preserve">
+    <value>You cannot block yourself</value>
+  </data>
+  <data name="ApiError_rule_patternInvalid" xml:space="preserve">
+    <value>The rule must be 1 to 200 characters</value>
+  </data>
+  <data name="ApiError_rule_categoryRequired" xml:space="preserve">
+    <value>Choose a category</value>
+  </data>
+  <data name="ApiError_rule_limit" xml:space="preserve">
+    <value>You can have at most {limit} personal rules. Delete some you no longer need.</value>
+  </data>
+  <data name="ApiError_sharing_off" xml:space="preserve">
+    <value>Usage data sharing is turned off</value>
+  </data>
+  <data name="ApiError_hub_unsupportedType" xml:space="preserve">
+    <value>Unsupported message type</value>
+  </data>
+  <data name="ApiError_hub_notMember" xml:space="preserve">
+    <value>You are not a member of this room</value>
+  </data>
+</root>

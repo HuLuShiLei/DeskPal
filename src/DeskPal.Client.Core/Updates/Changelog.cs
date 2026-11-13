@@ -1,3 +1,4 @@
+using DeskPal.Client.Core.Localization;
 using DeskPal.Client.Core.Ui;
 
 namespace DeskPal.Client.Core.Updates;
@@ -88,8 +89,8 @@ public static class Changelog
 
         var count = unseen.Sum(s => s.Items.Count);
         var summary = string.IsNullOrEmpty(previousVersion) || previousVersion == currentVersion
-            ? $"共 {count} 项更新"
-            : $"相较于 {previousVersion}，共 {count} 项更新";
-        return new WhatsNewView($"已更新到 {currentVersion}", summary, unseen);
+            ? UiLanguage.Format(Strings.WhatsNew_Count, count)
+            : UiLanguage.Format(Strings.WhatsNew_CountSince, previousVersion, count);
+        return new WhatsNewView(UiLanguage.Format(Strings.WhatsNew_Title, currentVersion), summary, unseen);
     }
 }

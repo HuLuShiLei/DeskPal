@@ -1,3 +1,4 @@
+using DeskPal.Client.Core.Localization;
 using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Usage;
 using DeskPal.Shared.Api;
@@ -9,6 +10,7 @@ namespace DeskPal.Client.Core.Ui;
 /// Everything the HTML panel shows. Pushed to the page as one JSON message; the page only lays it out.
 /// Field names are mirrored in web/src/bridge.ts.
 /// </summary>
+/// <param name="Locale">zh-CN or en: the language of the text in this state. The page switches its own text to match.</param>
 public sealed record PanelState(
     ConnectionView Connection,
     MeView Me,
@@ -22,7 +24,8 @@ public sealed record PanelState(
     IReadOnlyList<MyRuleItem> MyRules,
     IReadOnlyList<UnclassifiedItem> Unclassified,
     WhatsNewView? WhatsNew = null,
-    UsageView? Usage = null);
+    UsageView? Usage = null,
+    string Locale = UiLanguage.Chinese);
 
 public sealed record ConnectionView(bool Connected, string Text);
 
@@ -100,4 +103,5 @@ public sealed record SettingsView(
     string? UpdateActivity,
     bool? ShareUsage = null,
     string Theme = "system",
-    string CloseAction = "ask");
+    string CloseAction = "ask",
+    string Language = UiLanguage.FollowSystem);

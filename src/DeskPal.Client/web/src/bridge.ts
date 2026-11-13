@@ -56,6 +56,7 @@ export interface CardMessage {
   member: MemberItem;
   detail: string | null;
   theme: "system" | "light" | "dark";
+  locale: "zh-CN" | "en";
 }
 
 export interface Option<T extends string> {
@@ -114,6 +115,8 @@ export interface PanelState {
     theme: "system" | "light" | "dark";
     /** ask 每次询问，minimize 最小化，tray 最小化到系统托盘。 */
     closeAction: "ask" | "minimize" | "tray";
+    /** system 跟随 Windows 显示语言，zh-CN / en 固定。 */
+    language: Language;
   };
   myRules: MyRuleItem[];
   unclassified: UnclassifiedItem[];
@@ -128,7 +131,11 @@ export interface PanelState {
     /** 最近 7 天查看过我的统计的人，最新的在前。 */
     viewers: { name: string; room: string; when: string }[];
   } | null;
+  /** 文案实际使用的语言。宿主推送的文字已经是这个语言，页面自己的文字跟着切换。 */
+  locale: "zh-CN" | "en";
 }
+
+export type Language = "system" | "zh-CN" | "en";
 
 export type NoTitleKind = "App" | "Process" | "Domain" | "Title";
 export type StatsScale = "Day" | "Week" | "Month";
@@ -205,6 +212,7 @@ export type Command =
   | { type: "settings.topmost"; enabled: boolean }
   | { type: "settings.theme"; theme: "system" | "light" | "dark" }
   | { type: "settings.closeAction"; action: "ask" | "minimize" | "tray" }
+  | { type: "settings.language"; language: Language }
   | { type: "update.check" }
   | { type: "update.beta"; enabled: boolean }
   | { type: "update.restart" }

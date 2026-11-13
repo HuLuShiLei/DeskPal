@@ -1,7 +1,7 @@
 import { useRef, useState } from "preact/hooks";
-import type { PanelState } from "../bridge";
+import type { Language, PanelState } from "../bridge";
 import { useHost } from "../host";
-import { sharingMessage } from "../sharing";
+import { t } from "../i18n";
 import { Icon, Section, SettingRow, Switch } from "../ui";
 
 const issuePageUrl = "https://github.com/HuLuShiLei/DeskPal/issues/new/choose";
@@ -20,7 +20,7 @@ export function SettingsPage({ state }: { state: PanelState }) {
   const [pressed, setPressed] = useState(false);
   const seen = useRef(false);
   if (s.updateActivity) seen.current = true;
-  const status = s.updateActivity ?? (pressed && !seen.current ? "正在检查更新…" : null);
+  const status = s.updateActivity ?? (pressed && !seen.current ? t("settings.checking") : null);
   const waiting = pressed || s.updateActivity !== null;
 
   const check = async () => {
@@ -36,19 +36,19 @@ export function SettingsPage({ state }: { state: PanelState }) {
 
   const rename = async () => {
     const a = await ask({
-      title: "修改名称",
-      message: "其他人看到的名称。",
-      input: { initial: state.me.displayName, placeholder: "1 到 20 个字符", maxLength: 20, required: true },
-      okText: "保存",
+      title: t("settings.rename"),
+      message: t("settings.renameMessage"),
+      input: { initial: state.me.displayName, placeholder: t("settings.renamePlaceholder"), maxLength: 20, required: true },
+      okText: t("common.save"),
     });
-    if (a.ok && a.text !== state.me.displayName) await run({ type: "me.rename", name: a.text }, "已修改");
+    if (a.ok && a.text !== state.me.displayName) await run({ type: "me.rename", name: a.text }, t("common.renamed"));
   };
 
   const logout = async () => {
     const answer = await ask({
-      title: "退出登录",
-      message: "确定退出登录？之后会回到登录页，可以换账号或服务器。",
-      okText: "退出登录",
+      title: t("settings.logout"),
+      message: t("settings.logoutMessage"),
+      okText: t("settings.logout"),
       danger: true,
     });
     if (answer.ok) await run({ type: "auth.logout" });
@@ -56,15 +56,15 @@ export function SettingsPage({ state }: { state: PanelState }) {
 
   const sharing = async (enabled: boolean) => {
     if (enabled) {
-      const a = await ask({ title: "帮助改进默认分类", message: sharingMessage, okText: "同意分享" });
+      const a = await ask({ title: t("sharing.title"), message: t("sharing.message"), okText: t("sharing.agree") });
       if (!a.ok) return;
     }
-    await run({ type: "settings.shareUsage", enabled }, enabled ? "已开启" : "已关闭，已上传的未识别应用记录会删除");
+    await run({ type: "settings.shareUsage", enabled }, enabled ? t("settings.sharingOn") : t("settings.sharingOff"));
   };
 
   return (
     <>
-      <Section title="账号">
+      <Section title={t("settings.account")}>
         <div class="card flush">
           <SettingRow title={state.me.displayName} description={
               <>
@@ -75,73 +75,80 @@ export function SettingsPage({ state }: { state: PanelState }) {
               </>
             }
           >
-            <button class="icon-button" title="修改名称" aria-label="修改名称" onClick={rename}>
+            <button class="icon-button" title={t("settings.rename")} aria-label={t("settings.rename")} onClick={rename}>
               <Icon name="edit" />
             </button>
             <button class="subtle danger" onClick={logout}>
-              退出登录
+              {t("settings.logout")}
             </button>
           </SettingRow>
         </div>
       </Section>
-      <Section title="常规">
+      <Section title={t("settings.general")}>
         <div class="card flush">
-          <SettingRow title="开机自启" hint="登录 Windows 后在后台启动">
-            <Switch checked={s.autoStart} label="开机自启" onChange={(v) => run({ type: "settings.autoStart", enabled: v })} />
+          <SettingRow title={t("settings.autoStart")} hint={t("settings.autoStartHint")}>
+            <Switch checked={s.autoStart} label={t("settings.autoStart")} onChange={(v) => run({ type: "settings.autoStart", enabled: v })} />
           </SettingRow>
-          <SettingRow title="窗口置顶" hint="面板显示在其他窗口上面">
-            <Switch checked={s.topmost} label="窗口置顶" onChange={(v) => run({ type: "settings.topmost", enabled: v })} />
+          <SettingRow title={t("settings.topmost")} hint={t("settings.topmostHint")}>
+            <Switch checked={s.topmost} label={t("settings.topmost")} onChange={(v) => run({ type: "settings.topmost", enabled: v })} />
           </SettingRow>
-          <SettingRow title="关闭窗口时" hint="点击关闭按钮后的操作">
+          <SettingRow title={t("settings.closeAction")} hint={t("settings.closeActionHint")}>
             <select
-              aria-label="关闭窗口时"
+              aria-label={t("settings.closeAction")}
               value={s.closeAction}
               onChange={(e) => run({ type: "settings.closeAction", action: e.currentTarget.value as "ask" | "minimize" | "tray" })}
             >
-              <option value="ask">每次询问</option>
-              <option value="minimize">最小化</option>
-              <option value="tray">最小化到系统托盘</option>
+              <option value="ask">{t("settings.closeAsk")}</option>
+              <option value="minimize">{t("common.minimize")}</option>
+              <option value="tray">{t("settings.closeTray")}</option>
             </select>
           </SettingRow>
-          <SettingRow title="夜间模式" hint="跟随 Windows，或固定为浅色、深色">
-            <select aria-label="夜间模式" value={s.theme} onChange={(e) => run({ type: "settings.theme", theme: e.currentTarget.value as "system" | "light" | "dark" })}>
-              <option value="system">跟随系统</option>
-              <option value="light">浅色</option>
-              <option value="dark">深色</option>
+          <SettingRow title={t("settings.theme")} hint={t("settings.themeHint")}>
+            <select aria-label={t("settings.theme")} value={s.theme} onChange={(e) => run({ type: "settings.theme", theme: e.currentTarget.value as "system" | "light" | "dark" })}>
+              <option value="system">{t("settings.followSystem")}</option>
+              <option value="light">{t("settings.light")}</option>
+              <option value="dark">{t("settings.dark")}</option>
+            </select>
+          </SettingRow>
+          <SettingRow title={t("settings.language")} hint={t("settings.languageHint")}>
+            <select aria-label={t("settings.language")} value={s.language} onChange={(e) => run({ type: "settings.language", language: e.currentTarget.value as Language })}>
+              <option value="system">{t("settings.followSystem")}</option>
+              <option value="zh-CN">{t("settings.languageChinese")}</option>
+              <option value="en">{t("settings.languageEnglish")}</option>
             </select>
           </SettingRow>
         </div>
       </Section>
-      <Section title="分类">
+      <Section title={t("settings.categories")}>
         <div class="card flush">
-          <SettingRow title="帮助改进默认分类" hint="上传没有识别的桌面应用和你的分类，不含窗口标题和网页">
-            <Switch checked={s.shareUsage === true} label="帮助改进默认分类" onChange={sharing} />
+          <SettingRow title={t("sharing.title")} hint={t("settings.sharingHint")}>
+            <Switch checked={s.shareUsage === true} label={t("sharing.title")} onChange={sharing} />
           </SettingRow>
         </div>
       </Section>
-      <Section title="更新">
+      <Section title={t("settings.updates")}>
         <div class="card flush">
-          <SettingRow title={`当前版本 ${s.version}`} description={status ?? (s.updateReady ? "新版本已下载，重启后安装" : undefined)}>
+          <SettingRow title={t("settings.version", { version: s.version })} description={status ?? (s.updateReady ? t("settings.downloaded") : undefined)}>
             <button disabled={waiting} onClick={check}>
-              {waiting ? "请稍候…" : "检查更新"}
+              {waiting ? t("common.pleaseWait") : t("settings.check")}
             </button>
           </SettingRow>
-          <SettingRow title="加入测试版" hint="更早收到新功能，可能不稳定">
-            <Switch checked={s.receiveBeta} label="加入测试版" onChange={(v) => run({ type: "update.beta", enabled: v })} />
+          <SettingRow title={t("settings.beta")} hint={t("settings.betaHint")}>
+            <Switch checked={s.receiveBeta} label={t("settings.beta")} onChange={(v) => run({ type: "update.beta", enabled: v })} />
           </SettingRow>
           {s.updateReady && (
-            <SettingRow title="新版本已就绪">
+            <SettingRow title={t("settings.ready")}>
               <button class="primary" onClick={() => run({ type: "update.restart" })}>
-                立即重启并更新
+                {t("settings.restart")}
               </button>
             </SettingRow>
           )}
         </div>
       </Section>
-      <Section title="反馈">
+      <Section title={t("settings.feedback")}>
         <div class="card flush">
-          <SettingRow title="问题与建议" hint="在浏览器中提交问题反馈或功能建议">
-            <button onClick={openIssuePage}>跳转</button>
+          <SettingRow title={t("settings.issues")} hint={t("settings.issuesHint")}>
+            <button onClick={openIssuePage}>{t("settings.open")}</button>
           </SettingRow>
         </div>
       </Section>

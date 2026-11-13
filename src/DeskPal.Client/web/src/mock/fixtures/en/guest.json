@@ -1,0 +1,224 @@
+{
+  "connection": {
+    "connected": false,
+    "text": "Connection lost. Reconnecting…"
+  },
+  "me": {
+    "displayName": "Alice",
+    "view": {
+      "headline": "Sharing paused",
+      "app": null,
+      "detail": null,
+      "tone": "away"
+    },
+    "source": null,
+    "visible": "Sharing paused",
+    "paused": true,
+    "pending": null,
+    "meta": "For 5 min",
+    "full": null
+  },
+  "rooms": [
+    {
+      "id": "00000000-0000-0000-0000-0000000000a1",
+      "name": "测试房间",
+      "isOwner": true,
+      "memberCount": 3,
+      "maxMembers": 20
+    },
+    {
+      "id": "00000000-0000-0000-0000-0000000000a2",
+      "name": "同事房间",
+      "isOwner": false,
+      "memberCount": 2,
+      "maxMembers": 20
+    }
+  ],
+  "selectedRoomId": "00000000-0000-0000-0000-0000000000a2",
+  "emptyHint": null,
+  "members": [
+    {
+      "userId": "00000000-0000-0000-0000-00000000da7e",
+      "name": "Dave",
+      "isOwner": true,
+      "online": false,
+      "view": {
+        "headline": "Offline",
+        "app": null,
+        "detail": null,
+        "tone": "offline"
+      },
+      "meta": "",
+      "pinned": false,
+      "blocked": false,
+      "shareStats": false
+    }
+  ],
+  "privacy": {
+    "rows": [
+      {
+        "category": "Work",
+        "name": "Work",
+        "level": "StateOnly"
+      },
+      {
+        "category": "Communication",
+        "name": "Chat",
+        "level": "StateOnly"
+      },
+      {
+        "category": "Video",
+        "name": "Video",
+        "level": "Category"
+      },
+      {
+        "category": "Game",
+        "name": "Games",
+        "level": "Category"
+      },
+      {
+        "category": "Browsing",
+        "name": "Web browsing",
+        "level": "Category"
+      },
+      {
+        "category": "Other",
+        "name": "Other",
+        "level": "Category"
+      }
+    ],
+    "levels": [
+      {
+        "value": "StateOnly",
+        "name": "Status only"
+      },
+      {
+        "value": "Category",
+        "name": "Category and app"
+      },
+      {
+        "value": "Detail",
+        "name": "Full details (titles)"
+      }
+    ],
+    "shareStats": true,
+    "statsDays": 7,
+    "dayOptions": [
+      {
+        "value": 1,
+        "name": "1 days"
+      },
+      {
+        "value": 3,
+        "name": "3 days"
+      },
+      {
+        "value": 7,
+        "name": "7 days"
+      },
+      {
+        "value": 30,
+        "name": "30 days"
+      }
+    ]
+  },
+  "correction": {
+    "target": null,
+    "current": "Other",
+    "options": [
+      {
+        "value": "Work",
+        "name": "Work"
+      },
+      {
+        "value": "Communication",
+        "name": "Chat"
+      },
+      {
+        "value": "Video",
+        "name": "Video"
+      },
+      {
+        "value": "Game",
+        "name": "Games"
+      },
+      {
+        "value": "Browsing",
+        "name": "Web browsing"
+      },
+      {
+        "value": "Other",
+        "name": "Other"
+      }
+    ],
+    "personal": false
+  },
+  "settings": {
+    "autoStart": false,
+    "topmost": true,
+    "receiveBeta": false,
+    "updateReady": true,
+    "version": "0.1.0",
+    "serverUrl": "https://deskpal.hafuhafu.cn:36443",
+    "userName": "alice",
+    "updateActivity": null,
+    "shareUsage": false,
+    "theme": "system",
+    "closeAction": "ask",
+    "language": "system"
+  },
+  "myRules": [],
+  "unclassified": [],
+  "whatsNew": null,
+  "usage": {
+    "retentionDays": 90,
+    "retentionOptions": [
+      {
+        "value": 30,
+        "name": "30 days"
+      },
+      {
+        "value": 90,
+        "name": "90 days"
+      },
+      {
+        "value": 180,
+        "name": "180 days"
+      },
+      {
+        "value": 365,
+        "name": "365 days"
+      }
+    ],
+    "noTitleRules": [
+      {
+        "kind": "App",
+        "pattern": "招商银行",
+        "label": "App · 招商银行"
+      },
+      {
+        "kind": "Domain",
+        "pattern": "cmbchina.com",
+        "label": "Site · cmbchina.com"
+      },
+      {
+        "kind": "Title",
+        "pattern": "病历",
+        "label": "Title contains · 病历"
+      }
+    ],
+    "viewers": [
+      {
+        "name": "Bob",
+        "room": "测试房间",
+        "when": "Today 13:00"
+      },
+      {
+        "name": "Dave",
+        "room": "同事房间",
+        "when": "Yesterday 12:00"
+      }
+    ]
+  },
+  "locale": "en"
+}

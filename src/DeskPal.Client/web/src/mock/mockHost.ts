@@ -1,5 +1,5 @@
 // 浏览器里开发用的模拟宿主。初始状态来自 C# 测试生成的 fixtures，命令的效果在这里粗略模拟。
-// 地址参数：?mock=default|no-room|guest|updated 选样例；?fail 让所有命令失败；?page=login 打开登录页；?page=card 打开第一个成员的置顶小卡片。
+// 地址参数：?mock=default|no-room|guest|updated 选样例；?lang=en 用英文样例；?fail 让所有命令失败；?page=login 打开登录页；?page=card 打开第一个成员的置顶小卡片。
 // 发出的命令记在 window.__sent，方便检查。
 
 import type { CommandResult, HostMessage, NoTitleKind, PanelState, PrivacyLevel, StatsView, Transport } from "../bridge";
@@ -8,6 +8,11 @@ import statsViews from "./fixtures/stats.json";
 import guestState from "./fixtures/guest.json";
 import noRoomState from "./fixtures/no-room.json";
 import updatedState from "./fixtures/updated.json";
+import enDefaultState from "./fixtures/en/default.json";
+import enStatsViews from "./fixtures/en/stats.json";
+import enGuestState from "./fixtures/en/guest.json";
+import enNoRoomState from "./fixtures/en/no-room.json";
+import enUpdatedState from "./fixtures/en/updated.json";
 
 declare global {
   interface Window {
@@ -22,11 +27,23 @@ const fixtures: Record<string, PanelState> = {
   updated: updatedState as PanelState,
 };
 
+const enFixtures: Record<string, PanelState> = {
+  default: enDefaultState as PanelState,
+  "no-room": enNoRoomState as PanelState,
+  guest: enGuestState as PanelState,
+  updated: enUpdatedState as PanelState,
+};
+
 type Incoming = { id?: number; type: string; [key: string]: unknown };
 
 export function createMockTransport(params: URLSearchParams): Transport {
   const listeners: ((m: HostMessage) => void)[] = [];
-  const initial = fixtures[params.get("mock") ?? "default"] ?? fixtures.default;
+  const english = params.get("lang") === "en";
+  // 宿主生成的文字按语言给，和 C# 一致。
+  const L = (zh: string, en: string) => (english ? en : zh);
+  const samples = english ? enFixtures : fixtures;
+  const views = (english ? enStatsViews : statsViews) as unknown as Record<string, StatsView>;
+  const initial = samples[params.get("mock") ?? "default"] ?? samples.default;
   const state: PanelState = structuredClone(initial);
   const fail = params.has("fail");
   const login = params.get("page") === "login";
@@ -47,11 +64,11 @@ export function createMockTransport(params: URLSearchParams): Transport {
   const room = (id: unknown) => state.rooms.find((r) => r.id === id);
 
   async function handle(m: Incoming): Promise<CommandResult> {
-    if (fail) return { ok: false, error: "服务器暂时不可用，请稍后再试" };
+    if (fail) return { ok: false, error: L("服务器暂时不可用，请稍后再试", "The server is temporarily unavailable. Try again later.") };
     switch (m.type) {
       case "auth.login":
         return m.password === "wrong"
-          ? { ok: false, error: "用户名或密码错误" }
+          ? { ok: false, error: L("用户名或密码错误", "Incorrect user name or password") }
           : { ok: true, error: null };
       case "auth.register":
         return { ok: true, error: null };
@@ -61,7 +78,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
           state,
           state.selectedRoomId
             ? { members: initial.members, privacy: initial.privacy, emptyHint: initial.emptyHint }
-            : { members: [], privacy: null, emptyHint: "当前无房间。请创建/选择一个房间，或用邀请码加入。" },
+            : { members: [], privacy: null, emptyHint: L("当前无房间。请创建/选择一个房间，或用邀请码加入。", "You are not in a room. Create or select one, or join with an invite code.") },
         );
         break;
       case "room.create":
@@ -69,12 +86,12 @@ export function createMockTransport(params: URLSearchParams): Transport {
         state.selectedRoomId = state.rooms.at(-1)!.id;
         break;
       case "room.join":
-        if (m.code === "00000000") return { ok: false, error: "邀请码无效或已过期" };
-        state.rooms.push({ id: crypto.randomUUID(), name: "加入的房间", isOwner: false, memberCount: 2, maxMembers: 20 });
+        if (m.code === "00000000") return { ok: false, error: L("邀请码无效或已过期", "The invite code is invalid or has expired") };
+        state.rooms.push({ id: crypto.randomUUID(), name: L("加入的房间", "Joined room"), isOwner: false, memberCount: 2, maxMembers: 20 });
         break;
       case "room.rename": {
         const r = room(m.roomId);
-        if (!r?.isOwner) return { ok: false, error: "只有所有者可以修改房间名称" };
+        if (!r?.isOwner) return { ok: false, error: L("只有所有者可以修改房间名称", "Only the owner can rename the room") };
         r.name = m.name as string;
         break;
       }
@@ -82,7 +99,13 @@ export function createMockTransport(params: URLSearchParams): Transport {
         return {
           ok: true,
           error: null,
-          data: { code: "K7Q2M9XA", message: "邀请码已复制到剪贴板，11 月 12 日 15:00 前有效。重新生成后旧邀请码失效，被踢出的人可以用新邀请码加入。" },
+          data: {
+            code: "K7Q2M9XA",
+            message: L(
+              "邀请码已复制到剪贴板，11 月 12 日 15:00 前有效。重新生成后旧邀请码失效，被踢出的人可以用新邀请码加入。",
+              "Invite code copied to the clipboard. Valid until Nov 12, 15:00. Creating a new code invalidates the old one; removed members can rejoin with the new code.",
+            ),
+          },
         };
       case "room.privacy": {
         const levels = m.levels as Record<string, PrivacyLevel>;
@@ -96,13 +119,15 @@ export function createMockTransport(params: URLSearchParams): Transport {
         // 样例只有「今天」所在的日、周、月；翻页时返回同一份。
         await new Promise((resolve) => setTimeout(resolve, m.userId ? 600 : 80));
         const key = `${m.userId ? "member-" : ""}${m.scale}-${m.granularity}`;
-        const view = (statsViews as unknown as Record<string, StatsView>)[key];
-        return view ? { ok: true, error: null, data: view } : { ok: false, error: "对方不在线、现在不在这个房间，或者没有响应。" };
+        const view = views[key];
+        return view
+          ? { ok: true, error: null, data: view }
+          : { ok: false, error: L("对方不在线、现在不在这个房间，或者没有响应。", "This member is offline, not in this room right now, or did not respond.") };
       }
       case "stats.export":
-        return { ok: true, error: null, data: { message: "已导出到 C:\\Users\\alice\\Documents\\DeskPal-使用统计-20261111.json" } };
+        return { ok: true, error: null, data: { message: L("已导出到 C:\\Users\\alice\\Documents\\DeskPal-使用统计-20261111.json", "Exported to C:\\Users\\alice\\Documents\\DeskPal-usage-20261111.json") } };
       case "stats.import":
-        return { ok: true, error: null, data: { message: "已导入 1280 段记录、0 条按天汇总。" } };
+        return { ok: true, error: null, data: { message: L("已导入 1280 段记录、0 条按天汇总。", "Imported 1280 records and 0 daily totals.") } };
       case "stats.clear":
         if (state.usage) state.usage.viewers = [];
         break;
@@ -112,7 +137,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "stats.noTitle.add": {
         const kind = m.kind as NoTitleKind;
         const pattern = (m.pattern as string).trim();
-        const label = { App: "应用", Process: "进程", Domain: "网址", Title: "标题含" }[kind];
+        const label = (english ? { App: "App", Process: "Process", Domain: "Site", Title: "Title contains" } : { App: "应用", Process: "进程", Domain: "网址", Title: "标题含" })[kind];
         if (state.usage && !state.usage.noTitleRules.some((r) => r.kind === kind && r.pattern === pattern))
           state.usage.noTitleRules.push({ kind, pattern, label: `${label} · ${pattern}` });
         break;
@@ -127,7 +152,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
       }
       case "room.kick": {
         const r = room(m.roomId);
-        if (!r?.isOwner) return { ok: false, error: "只有所有者可以踢出成员" };
+        if (!r?.isOwner) return { ok: false, error: L("只有所有者可以踢出成员", "Only the owner can remove members") };
         state.members = state.members.filter((member) => member.userId !== m.userId);
         r.memberCount = Math.max(1, r.memberCount - 1);
         break;
@@ -139,24 +164,24 @@ export function createMockTransport(params: URLSearchParams): Transport {
         if (!state.selectedRoomId) {
           state.members = [];
           state.privacy = null;
-          state.emptyHint = "当前无房间。请创建/选择一个房间，或用邀请码加入。";
+          state.emptyHint = L("当前无房间。请创建/选择一个房间，或用邀请码加入。", "You are not in a room. Create or select one, or join with an invite code.");
         }
         break;
       case "member.block":
       case "member.unblock": {
         const member = state.members.find((x) => x.userId === m.userId);
-        if (!member) return { ok: false, error: "该成员不在房间中" };
+        if (!member) return { ok: false, error: L("该成员不在房间中", "This member is not in the room") };
         member.blocked = m.type === "member.block";
         member.pinned = false;
         member.online = false;
         member.meta = "";
-        member.view = member.blocked ? { headline: "已屏蔽", app: null, detail: null, tone: "offline" } : { headline: "离线", app: null, detail: null, tone: "offline" };
+        member.view = { headline: member.blocked ? L("已屏蔽", "Blocked") : L("离线", "Offline"), app: null, detail: null, tone: "offline" };
         break;
       }
       case "member.pin":
       case "member.unpin": {
         const member = state.members.find((x) => x.userId === m.userId);
-        if (!member) return { ok: false, error: "该成员不在当前房间" };
+        if (!member) return { ok: false, error: L("该成员不在当前房间", "This member is not in the current room") };
         member.pinned = m.type === "member.pin";
         break;
       }
@@ -172,6 +197,14 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "settings.theme":
         state.settings.theme = m.theme === "light" || m.theme === "dark" ? m.theme : "system";
         break;
+      case "settings.language": {
+        // 宿主生成的文字来自对应语言的样例，所以换语言时带上 lang 重新打开。
+        const resolved = m.language === "system" ? (navigator.language.startsWith("zh") ? "zh-CN" : "en") : m.language;
+        const next = new URLSearchParams(location.search);
+        next.set("lang", resolved as string);
+        setTimeout(() => (location.search = next.toString()), 100);
+        break;
+      }
       case "settings.closeAction":
         state.settings.closeAction = m.action === "minimize" || m.action === "tray" ? m.action : "ask";
         break;
@@ -180,26 +213,26 @@ export function createMockTransport(params: URLSearchParams): Transport {
         break;
       case "update.check": {
         const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-        state.settings.updateActivity = "正在检查更新…";
+        state.settings.updateActivity = L("正在检查更新…", "Checking for updates…");
         pushState();
         await wait(400);
-        state.settings.updateActivity = "正在下载新版本 0.2.0（40%）";
+        state.settings.updateActivity = L("正在下载新版本 0.2.0（40%）", "Downloading version 0.2.0 (40%)");
         pushState();
         await wait(1600);
         state.settings.updateActivity = null;
         pushState();
-        if (await ask("confirm", "已下载新版本 0.2.0。要立即重启并更新吗？")) {
-          await ask("info", "（模拟）客户端会退出并安装更新。");
+        if (await ask("confirm", L("已下载新版本 0.2.0。要立即重启并更新吗？", "Version 0.2.0 has been downloaded. Restart and update now?"))) {
+          await ask("info", L("（模拟）客户端会退出并安装更新。", "(Mock) The client would exit and install the update."));
         }
         break;
       }
       case "presence.correct":
         state.correction.personal = true;
-        state.me.source = `「${state.correction.target}」按你设置的分类识别。`;
+        state.me.source = L(`「${state.correction.target}」按你设置的分类识别。`, `"${state.correction.target}" is classified by your rule.`);
         break;
       case "presence.resetCorrection":
         state.correction.personal = false;
-        state.me.source = `「${state.correction.target}」按默认分类识别。`;
+        state.me.source = L(`「${state.correction.target}」按默认分类识别。`, `"${state.correction.target}" is classified by the default rules.`);
         break;
       case "rules.set": {
         const name = (m.name as string | null) ?? (m.pattern as string);
@@ -209,7 +242,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
           kind: m.kind as PanelState["myRules"][number]["kind"],
           pattern: m.pattern as string,
           name,
-          kindName: m.kind === "Domain" ? "网站" : "应用",
+          kindName: m.kind === "Domain" ? L("网站", "Website") : L("应用", "App"),
           category: m.category as string,
           categoryName: option?.name ?? (m.category as string),
         });
@@ -232,7 +265,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "auth.logout":
         break;
       default:
-        return { ok: false, error: `不支持的操作：${m.type}` };
+        return { ok: false, error: L(`不支持的操作：${m.type}`, `Unsupported action: ${m.type}`) };
     }
     pushState();
     return { ok: true, error: null };
@@ -249,13 +282,13 @@ export function createMockTransport(params: URLSearchParams): Transport {
             type: "login",
             serverUrl: "https://deskpal.hafuhafu.cn:36443",
             userName: "alice",
-            notice: params.has("signedOut") ? "账号已在其他电脑登录，请重新登录。" : null,
+            notice: params.has("signedOut") ? L("账号已在其他电脑登录，请重新登录。", "Your account signed in on another computer. Please sign in again.") : null,
           });
         else if (card) {
           const member = state.members[0];
           if (member) {
             const detail = [member.view.app, member.view.detail].filter(Boolean).join(" · ") || null;
-            emit({ type: "card", member, detail, theme: state.settings.theme });
+            emit({ type: "card", member, detail, theme: state.settings.theme, locale: state.locale });
           }
           return;
         } else pushState();
@@ -265,7 +298,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
             state.me.view = pending.view;
             state.me.pending = null;
             state.me.full = pending.full;
-            state.me.meta = "刚刚开始";
+            state.me.meta = L("刚刚开始", "Just started");
             if (state.me.visible) state.me.visible = pending.view.headline;
             pushState();
           }, pending.remainingMs + 300);

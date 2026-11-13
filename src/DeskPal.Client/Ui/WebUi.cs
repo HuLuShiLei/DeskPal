@@ -49,7 +49,7 @@ public static class WebUi
     public static string Page(string page, string? theme)
     {
         var value = theme is "light" or "dark" ? theme : "system";
-        return page + (page.Contains('?') ? "&" : "?") + "theme=" + value;
+        return page + (page.Contains('?') ? "&" : "?") + "theme=" + value + "&lang=" + UiLanguage.Current;
     }
 
     public static bool IsDarkTheme()
@@ -80,7 +80,7 @@ public static class WebUi
     public static void ShowMissingRuntime(string consequence)
     {
         var answer = MessageBox.Show(
-            $"没有找到 Microsoft Edge WebView2 Runtime，{consequence}\n\n点击“确定”打开下载页面，安装后重新启动 DeskPal。",
+            UiLanguage.Format(Strings.Runtime_Missing, consequence),
             "DeskPal",
             MessageBoxButton.OKCancel,
             MessageBoxImage.Warning);
@@ -188,7 +188,7 @@ public sealed record WebCommand(int? Id, string Type, JsonElement Args)
 
     public bool Bool(string name) => Args.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True;
 
-    public Guid Guid(string name) => System.Guid.TryParse(String(name), out var id) ? id : throw new FormatException($"{name} 不是有效的 ID");
+    public Guid Guid(string name) => System.Guid.TryParse(String(name), out var id) ? id : throw new FormatException(UiLanguage.Format(Strings.Error_InvalidId, name));
 }
 
 /// <summary>Reply to a <see cref="WebCommand"/>. Error text is shown to the user as is.</summary>

@@ -19,8 +19,7 @@ public sealed record UpdateCheckResult(UpdateCheckKind Kind, string Message, str
 
 public sealed class UpdateService
 {
-    public const string NotInstalledMessage =
-        "当前是直接运行的程序，不能自动更新。请从 GitHub Release 安装带版本号的安装包（DeskPal-版本号-Setup.exe）。";
+    public static string NotInstalledMessage => Strings.Update_NotInstalled;
 
     private readonly AppSettings _settings;
     private readonly SettingsStore _store;
@@ -127,7 +126,7 @@ public sealed class UpdateService
     {
         if (interactive)
         {
-            BeginInteractive("正在检查更新…");
+            BeginInteractive(Strings.Update_Checking);
         }
 
         try
@@ -158,13 +157,13 @@ public sealed class UpdateService
             catch (Exception ex)
             {
                 _logger.LogWarning("Update check failed ({Error})", ex.GetType().Name);
-                return new UpdateCheckResult(UpdateCheckKind.Failed, $"检查更新失败：{ex.Message}", VersionLabel);
+                return new UpdateCheckResult(UpdateCheckKind.Failed, UiLanguage.Format(Strings.Update_CheckFailed, ex.Message), VersionLabel);
             }
 
             if (info is null)
             {
                 ClearReady();
-                return new UpdateCheckResult(UpdateCheckKind.UpToDate, $"当前已是最新版本 {VersionLabel}。", VersionLabel);
+                return new UpdateCheckResult(UpdateCheckKind.UpToDate, UiLanguage.Format(Strings.Update_UpToDate, VersionLabel), VersionLabel);
             }
 
             var target = info.TargetFullRelease.Version.ToString();
@@ -173,7 +172,7 @@ public sealed class UpdateService
                 ClearReady();
                 return new UpdateCheckResult(
                     UpdateCheckKind.DowngradeAvailable,
-                    $"正式版 {target} 低于当前测试版 {VersionLabel}。要切换到正式版并重启吗？不切换会继续使用当前版本，直到下一个更高的正式版。",
+                    UiLanguage.Format(Strings.Update_Downgrade, target, VersionLabel),
                     target);
             }
 
@@ -198,18 +197,18 @@ public sealed class UpdateService
                 }
 
                 _logger.LogWarning("Update download failed ({Error})", ex.GetType().Name);
-                return new UpdateCheckResult(UpdateCheckKind.Failed, $"下载更新失败：{ex.Message}", target);
+                return new UpdateCheckResult(UpdateCheckKind.Failed, UiLanguage.Format(Strings.Update_DownloadFailed, ex.Message), target);
             }
 
             if (!CommitReady(epoch, manager, info.TargetFullRelease, downgrade: false))
             {
                 DeleteDownloadedPackages();
-                return new UpdateCheckResult(UpdateCheckKind.UpToDate, "更新通道已改变，这次下载已放弃。", VersionLabel);
+                return new UpdateCheckResult(UpdateCheckKind.UpToDate, Strings.Update_ChannelChanged, VersionLabel);
             }
 
             Changed?.Invoke();
             _logger.LogInformation("Update {Version} downloaded", target);
-            return new UpdateCheckResult(UpdateCheckKind.Ready, $"新版本 {target} 已下载，退出后自动安装。", target);
+            return new UpdateCheckResult(UpdateCheckKind.Ready, UiLanguage.Format(Strings.Update_Ready, target), target);
             }
             finally
             {
@@ -227,7 +226,7 @@ public sealed class UpdateService
 
     public async Task<string?> DownloadDowngradeAsync()
     {
-        BeginInteractive("正在下载正式版…");
+        BeginInteractive(Strings.Update_DownloadingStable);
         try
         {
             await _gate.WaitAsync().ConfigureAwait(false);
@@ -248,7 +247,7 @@ public sealed class UpdateService
             var info = await manager.CheckForUpdatesAsync().ConfigureAwait(false);
             if (info is not { IsDowngrade: true })
             {
-                return "正式版没有变化。";
+                return Strings.Update_StableUnchanged;
             }
 
             var target = info.TargetFullRelease.Version.ToString();
@@ -257,7 +256,7 @@ public sealed class UpdateService
             if (!CommitReady(epoch, manager, info.TargetFullRelease, downgrade: true))
             {
                 DeleteDownloadedPackages();
-                return "更新通道已改变，这次下载已放弃。";
+                return Strings.Update_ChannelChanged;
             }
 
             Changed?.Invoke();
@@ -266,7 +265,7 @@ public sealed class UpdateService
         catch (Exception ex)
         {
             ForgetReadyIfPackageMissing();
-            return $"下载正式版失败：{ex.Message}";
+            return UiLanguage.Format(Strings.Update_StableDownloadFailed, ex.Message);
             }
             finally
             {
@@ -327,8 +326,8 @@ public sealed class UpdateService
     private void ReportDownload(string version, int? percent)
     {
         var text = percent is null
-            ? $"正在下载新版本 {version}…"
-            : $"正在下载新版本 {version}（{percent}%）";
+            ? UiLanguage.Format(Strings.Update_Downloading, version)
+            : UiLanguage.Format(Strings.Update_DownloadingPercent, version, percent);
         lock (_state)
         {
             if (_interactive == 0 || _activity == text)

@@ -164,7 +164,8 @@
     "updateActivity": null,
     "shareUsage": false,
     "theme": "system",
-    "closeAction": "ask"
+    "closeAction": "ask",
+    "language": "system"
   },
   "myRules": [],
   "unclassified": [],
@@ -218,5 +219,6 @@
         "when": "昨天 12:00"
       }
     ]
-  }
+  },
+  "locale": "zh-CN"
 }

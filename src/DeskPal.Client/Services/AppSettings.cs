@@ -31,6 +31,9 @@ public sealed class AppSettings
     /// <summary>system follows Windows, light and dark are fixed.</summary>
     public string Theme { get; set; } = "system";
 
+    /// <summary>system follows the Windows display language; zh-CN or en is fixed.</summary>
+    public string Language { get; set; } = "system";
+
     /// <summary>Copy of the account's answer on sharing usage data. null means not asked yet.</summary>
     public bool? ShareUsage { get; set; }
 

@@ -92,7 +92,7 @@ public sealed class ApiClient(AppSettings settings)
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
-            throw new ApiException($"无法连接服务器 {settings.ServerUrl}：{ex.Message}", 0);
+            throw new ApiException(UiLanguage.Format(Strings.Api_Unreachable, settings.ServerUrl, ex.Message), 0);
         }
 
         using (response)
@@ -113,7 +113,7 @@ public sealed class ApiClient(AppSettings settings)
                     Unauthorized?.Invoke();
                 }
 
-                throw new ApiException(error?.Error ?? $"请求失败（HTTP {(int)response.StatusCode}）", (int)response.StatusCode);
+                throw new ApiException(ApiErrorText.Describe(error?.Code, error?.Args) ?? UiLanguage.Format(Strings.Api_Failed, (int)response.StatusCode), (int)response.StatusCode);
             }
 
             if (response.StatusCode == System.Net.HttpStatusCode.NoContent)

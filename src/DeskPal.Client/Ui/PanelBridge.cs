@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
@@ -74,6 +75,9 @@ public sealed class PanelBridge
 
     public event Action<string>? ThemeChanged;
 
+    /// <summary>Raised after <see cref="UiLanguage.Apply"/> so native text (tray menu, window titles) can be refreshed.</summary>
+    public event Action? LanguageChanged;
+
     /// <summary>Where update confirmations are shown. Set by the panel window.</summary>
     public IUserPrompt Prompt { get; set; } = MessageBoxPrompt.Instance;
 
@@ -115,7 +119,8 @@ public sealed class PanelBridge
             _updates.ActivityText,
             _settings.ShareUsage,
             NormalizeTheme(_settings.Theme),
-            NormalizeCloseAction(_settings.CloseAction)),
+            NormalizeCloseAction(_settings.CloseAction),
+            UiLanguage.Normalize(_settings.Language)),
         WhatsNew = _whatsNew.Pending,
         Pinned = _pins.Users,
         Now = DateTimeOffset.UtcNow,
@@ -156,7 +161,7 @@ public sealed class PanelBridge
                 var name = c.String("name").Trim();
                 if (name.Length == 0)
                 {
-                    return CommandResult.Fail("请输入房间名称");
+                    return CommandResult.Fail(Strings.Error_RoomNameRequired);
                 }
 
                 var room = await _api.CreateRoomAsync(name);
@@ -170,7 +175,7 @@ public sealed class PanelBridge
                 var code = c.String("code").Trim();
                 if (code.Length == 0)
                 {
-                    return CommandResult.Fail("请输入邀请码");
+                    return CommandResult.Fail(Strings.Error_InviteCodeRequired);
                 }
 
                 var room = await _api.JoinRoomAsync(code);
@@ -200,7 +205,7 @@ public sealed class PanelBridge
                 return new CommandResult(true, Data: new
                 {
                     code = invite.Code,
-                    message = $"邀请码已复制到剪贴板，{invite.ExpiresAt.LocalDateTime:M 月 d 日 HH:mm} 前有效。重新生成后旧邀请码失效，被踢出的人可以用新邀请码加入。",
+                    message = UiLanguage.Format(Strings.Room_InviteCopied, UiLanguage.Format(Strings.Date_MonthDayTime, invite.ExpiresAt.LocalDateTime)),
                 });
             }
 
@@ -228,7 +233,7 @@ public sealed class PanelBridge
                 var days = c.Args.TryGetProperty("days", out var d) && d.ValueKind == JsonValueKind.Number ? d.GetInt32() : PrivacyProfile.DefaultStatsDays;
                 if (!PrivacyProfile.StatsDayOptions.Contains(days))
                 {
-                    return CommandResult.Fail("可查看天数只能是 1、3、7 或 30 天");
+                    return CommandResult.Fail(Strings.Error_StatsDays);
                 }
 
                 await _rooms.SaveStatsSharingAsync(c.Guid("roomId"), c.Bool("enabled"), days);
@@ -242,9 +247,9 @@ public sealed class PanelBridge
             {
                 var dialog = new Microsoft.Win32.SaveFileDialog
                 {
-                    Title = "导出使用统计",
-                    FileName = $"DeskPal-使用统计-{DateTime.Now:yyyyMMdd}.json",
-                    Filter = "使用统计 (*.json)|*.json",
+                    Title = Strings.Export_Title,
+                    FileName = string.Format(Strings.Export_FileName, DateTime.Now.ToString("yyyyMMdd")),
+                    Filter = Strings.Export_Filter,
                 };
                 if (dialog.ShowDialog() != true)
                 {
@@ -252,12 +257,12 @@ public sealed class PanelBridge
                 }
 
                 await Task.Run(() => _usage.Export(dialog.FileName));
-                return new CommandResult(true, Data: new { message = $"已导出到 {dialog.FileName}" });
+                return new CommandResult(true, Data: new { message = UiLanguage.Format(Strings.Export_Done, dialog.FileName) });
             }
 
             case "stats.import":
             {
-                var dialog = new Microsoft.Win32.OpenFileDialog { Title = "导入使用统计", Filter = "使用统计 (*.json)|*.json" };
+                var dialog = new Microsoft.Win32.OpenFileDialog { Title = Strings.Import_Title, Filter = Strings.Export_Filter };
                 if (dialog.ShowDialog() != true)
                 {
                     return CommandResult.Success;
@@ -267,8 +272,8 @@ public sealed class PanelBridge
                 {
                     var result = await Task.Run(() => _usage.Import(dialog.FileName));
                     var message = result.Segments + result.Rollups == 0
-                        ? "没有新的记录，这些数据已经导入过。"
-                        : $"已导入 {result.Segments} 段记录、{result.Rollups} 条按天汇总。";
+                        ? Strings.Import_NothingNew
+                        : UiLanguage.Format(Strings.Import_Done, result.Segments, result.Rollups);
                     return new CommandResult(true, Data: new { message });
                 }
                 catch (InvalidDataException ex)
@@ -286,7 +291,7 @@ public sealed class PanelBridge
                 var days = c.Args.TryGetProperty("days", out var d) && d.ValueKind == JsonValueKind.Number ? d.GetInt32() : 0;
                 if (!PanelStateBuilder.RetentionOptions.Contains(days))
                 {
-                    return CommandResult.Fail("保留天数不正确");
+                    return CommandResult.Fail(Strings.Error_Retention);
                 }
 
                 await Task.Run(() => _usage.SetRetention(days));
@@ -297,12 +302,12 @@ public sealed class PanelBridge
             {
                 if (!Enum.TryParse<NoTitleKind>(c.String("kind"), out var kind) || !Enum.IsDefined(kind))
                 {
-                    return CommandResult.Fail("类型不正确");
+                    return CommandResult.Fail(Strings.Error_NoTitleKind);
                 }
 
                 if (NoTitleRule.Create(kind, c.String("pattern")) is not { } rule)
                 {
-                    return CommandResult.Fail(kind == NoTitleKind.Domain ? "网址不正确，例如 zhihu.com" : $"请输入 1 到 {NoTitleRule.MaxLength} 个字符");
+                    return CommandResult.Fail(kind == NoTitleKind.Domain ? Strings.Error_NoTitleDomain : UiLanguage.Format(Strings.Error_NoTitleLength, NoTitleRule.MaxLength));
                 }
 
                 if (!_settings.NoTitleRules.Any(r => r.SameAs(rule)))
@@ -348,12 +353,12 @@ public sealed class PanelBridge
                 var userId = c.Guid("userId");
                 if (_rooms.SelectedRoom is not { } room || room.Members.All(m => m.UserId != userId))
                 {
-                    return CommandResult.Fail("该成员不在当前房间");
+                    return CommandResult.Fail(Strings.Error_MemberNotInRoom);
                 }
 
                 if (room.Blocked?.Contains(userId) == true)
                 {
-                    return CommandResult.Fail("已屏蔽该成员，取消屏蔽后才能置顶");
+                    return CommandResult.Fail(Strings.Error_BlockedCannotPin);
                 }
 
                 _pins.Pin(room.Id, userId);
@@ -385,7 +390,7 @@ public sealed class PanelBridge
             {
                 if (CorrectionTarget.From(_presence.Snapshot, _presence.Classification?.AppDisplayName) is not { } target)
                 {
-                    return CommandResult.Fail("还没有识别到当前使用的应用。");
+                    return CommandResult.Fail(Strings.Error_NothingRecognized);
                 }
 
                 await _personalRules.DeleteAsync(target.Kind, target.Pattern);
@@ -396,7 +401,7 @@ public sealed class PanelBridge
             {
                 if (!Enum.TryParse<RuleKind>(c.String("kind"), out var kind) || !Enum.TryParse<ActivityCategory>(c.String("category"), out var category))
                 {
-                    return CommandResult.Fail("请选择类别");
+                    return CommandResult.Fail(Strings.Error_CategoryRequired);
                 }
 
                 await _personalRules.SetAsync(kind, c.String("pattern"), category, c.OptionalString("name"));
@@ -407,7 +412,7 @@ public sealed class PanelBridge
             {
                 if (!Enum.TryParse<RuleKind>(c.String("kind"), out var kind))
                 {
-                    return CommandResult.Fail("规则类型不正确");
+                    return CommandResult.Fail(Strings.Error_RuleKind);
                 }
 
                 await _personalRules.DeleteAsync(kind, c.String("pattern"));
@@ -419,7 +424,7 @@ public sealed class PanelBridge
                 var name = c.String("name").Trim();
                 if (name.Length is < 1 or > 20)
                 {
-                    return CommandResult.Fail("显示名称需要 1 到 20 个字符");
+                    return CommandResult.Fail(Strings.Error_DisplayName);
                 }
 
                 if (name != _settings.DisplayName)
@@ -457,7 +462,7 @@ public sealed class PanelBridge
                 var action = NormalizeCloseAction(c.String("action"));
                 if (action != c.String("action"))
                 {
-                    return CommandResult.Fail("关闭选项不正确");
+                    return CommandResult.Fail(Strings.Error_CloseAction);
                 }
 
                 _settings.CloseAction = action;
@@ -471,12 +476,27 @@ public sealed class PanelBridge
                 var theme = NormalizeTheme(c.String("theme"));
                 if (theme != c.String("theme"))
                 {
-                    return CommandResult.Fail("外观选项不正确");
+                    return CommandResult.Fail(Strings.Error_Theme);
                 }
 
                 _settings.Theme = theme;
                 _store.Save(_settings);
                 ThemeChanged?.Invoke(theme);
+                return CommandResult.Success;
+            }
+
+            case "settings.language":
+            {
+                var language = UiLanguage.Normalize(c.String("language"));
+                if (language != c.String("language"))
+                {
+                    return CommandResult.Fail(Strings.Error_Language);
+                }
+
+                _settings.Language = language;
+                _store.Save(_settings);
+                UiLanguage.Apply(UiLanguage.Resolve(language, CultureInfo.CurrentUICulture));
+                LanguageChanged?.Invoke();
                 return CommandResult.Success;
             }
 
@@ -511,14 +531,14 @@ public sealed class PanelBridge
             case "auth.logout":
                 if (Logout is null)
                 {
-                    return CommandResult.Fail("现在不能退出登录。");
+                    return CommandResult.Fail(Strings.Error_LogoutUnavailable);
                 }
 
                 await Logout();
                 return CommandResult.Success;
 
             default:
-                return CommandResult.Fail($"不支持的操作：{c.Type}");
+                return CommandResult.Fail(UiLanguage.Format(Strings.Error_Unsupported, c.Type));
         }
     }
 
@@ -526,7 +546,7 @@ public sealed class PanelBridge
     {
         if (!Enum.TryParse<StatsScale>(c.String("scale"), out var scale) || !Enum.TryParse<StatsGranularity>(c.String("granularity"), out var granularity))
         {
-            return CommandResult.Fail("统计范围不正确");
+            return CommandResult.Fail(Strings.Error_StatsRange);
         }
 
         var today = UsageService.Today;
@@ -544,24 +564,24 @@ public sealed class PanelBridge
         var userId = c.Guid("userId");
         if (_rooms.SelectedRoom is not { } room || room.Members.FirstOrDefault(m => m.UserId == userId) is not { } member)
         {
-            return CommandResult.Fail("该成员不在当前房间");
+            return CommandResult.Fail(Strings.Error_MemberNotInRoom);
         }
 
         if (room.Blocked?.Contains(userId) == true)
         {
-            return CommandResult.Fail("已屏蔽该成员，取消屏蔽后才能查看");
+            return CommandResult.Fail(Strings.Error_BlockedCannotView);
         }
 
         if (!member.ShareStats)
         {
-            return CommandResult.Fail($"{member.DisplayName} 没有在这个房间公开使用统计");
+            return CommandResult.Fail(UiLanguage.Format(Strings.Error_MemberNotSharing, member.DisplayName));
         }
 
         var first = today.AddDays(1 - member.StatsDays);
         var from = range.From < first ? first : range.From;
         if (from > to)
         {
-            return CommandResult.Fail($"{member.DisplayName} 只公开了最近 {member.StatsDays} 天的统计");
+            return CommandResult.Fail(UiLanguage.Format(Strings.Error_MemberSharedDays, member.DisplayName, member.StatsDays));
         }
 
         try
@@ -580,12 +600,12 @@ public sealed class PanelBridge
         var target = CorrectionTarget.From(_presence.Snapshot, _presence.Classification?.AppDisplayName);
         if (target is null)
         {
-            return CommandResult.Fail("还没有识别到当前使用的应用。切换到要纠正的应用，再打开面板。");
+            return CommandResult.Fail(Strings.Error_NothingToCorrect);
         }
 
         if (!Enum.TryParse<ActivityCategory>(c.String("category"), out var category))
         {
-            return CommandResult.Fail("请选择类别");
+            return CommandResult.Fail(Strings.Error_CategoryRequired);
         }
 
         await _personalRules.SetAsync(target.Kind, target.Pattern, category, target.DisplayName);

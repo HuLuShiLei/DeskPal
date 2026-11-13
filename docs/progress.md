@@ -22,6 +22,7 @@
 | 麦克风 | 不采集，没有“会议中” | 麦克风被占用也可能是语音聊天或打游戏 |
 | 聊天软件分类 | QQ、微信、Telegram 等个人聊天归为 `Communication`（在聊天）；企业微信、飞书、钉钉、邮箱、会议软件归为 `Work` | 用户选定 |
 | 界面文案 | 书面用语：工作中、在聊天、正在浏览网页、正在使用 XX、在看视频、在玩游戏；不用“忙”“摸鱼”。本机识别分标题、应用、详情三行。页面上写「房间」，不写 Room | 用户要求 |
+| 多语言 | 简体中文和英文。所有给用户看的文字都在客户端（resx 和 `web/src/i18n/`），Server 只返回错误码和参数，不做多语言。设置里可选跟随系统、简体中文、English，立即生效 | 用户要求文案从代码里抽出来、只由客户端提供 |
 | 浏览器 | 前台是浏览器时显示“正在浏览网页”，后面是域名和页面标题，不按视频、社交、购物等细分。个人分类可以把某个网站改成其他类别。隐私设为“显示类别和应用”时 Room 成员看到域名；标题只在“显示详情”时发出 | 用户要求浏览网页不做细分 |
 | Room 改名 | 只有所有者可以改，1 到 30 个字符 | 用户选定 |
 | 显示名称 | 设置页「账号」可以修改，1 到 20 个字符，允许重名。修改后广播 `room.memberRenamed`，房间成员和自己的其他电脑重新拉取 Room 列表 | 用户要求显示名称可以改，允许重名 |
@@ -150,3 +151,4 @@
 | 2026-11-13 | 单点登录：`Users` 增加 `SessionId`（迁移 `AddUserSession`），token 带 `sid`，Server 在 `OnTokenValidated` 里比对（`SessionCache` 缓存当前会话）。登录时给旧电脑发 `auth.sessionReplaced`，2 秒后断开（`ConnectionRegistry` 记住 `HubCallerContext`）。客户端收到这条消息、Hub 重连或接口返回 401 时清除 token，重启到登录页并显示提示；登录页的 `login` 消息增加 `notice` |
 | 2026-11-13 | 使用统计：Client.Core 新增 `Usage/`（`UsageRecorder`、`SqliteUsageStore`、`UsageAggregator`、`StatsFilter`、`StatsCrypto`）和 `Ui/StatsViewBuilder`，客户端新增 `UsageService`、`StatsExchange`，面板新增「统计」页。`Envelope` 增加 `To`，新消息 `stats.request`、`stats.response`（只发给 `To` 指定的成员，双方都要在房间里且没有互相屏蔽，每人每分钟最多 10 次请求）和 `room.memberSharingChanged`。`PrivacyProfileDto` 增加 `shareStats`、`statsDays`（为空时不改），`RoomMemberDto` 增加 `shareStats`、`statsDays`。SignalR 单条消息上限改为 128 KB。页面命令增加 `room.shareStats`、`stats.query`、`stats.export`、`stats.import`、`stats.clear`、`stats.retention`、`stats.noTitle.add`、`stats.noTitle.remove` |
 | 2026-11-13 | 「不记录标题的应用」改为「不记录标题」，规则分应用名、进程名、网址、标题关键词四种（`NoTitleRule`），`settings.json` 的 `noTitleApps` 改为 `noTitleRules`。`UsageRecorder.Record` 增加进程名和域名参数。页面命令 `stats.noTitle.add`、`stats.noTitle.remove` 改为传 `kind` 和 `pattern`，`UsageView.noTitleApps` 改为带说明文字的 `noTitleRules`。对话框的 `input` 增加 `placeholders`，和单选一起用时显示在选项下面 |
+| 2026-11-13 | 多语言：C# 文案移到 `Client.Core/Localization/Strings.resx` 和 `Strings.en.resx`，页面文案移到 `web/src/i18n/`。`ApiError` 从 `{ error }` 改为 `{ code, args }`，Server 不再返回中文，错误码见 `ApiErrorCodes`；`StatsResponsePayload` 增加 `errorCode`。`PanelState` 增加 `locale`，`SettingsView` 增加 `language`，`settings.json` 增加 `language`，页面命令增加 `settings.language`，`card` 消息增加 `locale`，页面地址增加 `lang`。安装向导增加英文。中文文案没有改动 |

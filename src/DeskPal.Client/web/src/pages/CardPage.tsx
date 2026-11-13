@@ -1,6 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import type { Bridge, CardMessage } from "../bridge";
 import { StatusBadge } from "../host";
+import { setLocale, t } from "../i18n";
 import { applyTheme } from "../theme";
 import { Avatar, Icon } from "../ui";
 
@@ -12,6 +13,7 @@ export function CardPage({ bridge }: { bridge: Bridge }) {
     bridge.on((m) => {
       if (m.type !== "card") return;
       applyTheme(m.theme);
+      setLocale(m.locale);
       setCard(m);
     });
     bridge.notify({ type: "ready" });
@@ -32,7 +34,7 @@ export function CardPage({ bridge }: { bridge: Bridge }) {
         </div>
         {detail && <p class="pin-card-detail">{detail}</p>}
       </div>
-      <button class="icon-button pin-card-close" aria-label="取消置顶" title="取消置顶" onClick={() => bridge.notify({ type: "window.close" })}>
+      <button class="icon-button pin-card-close" aria-label={t("status.unpin")} title={t("status.unpin")} onClick={() => bridge.notify({ type: "window.close" })}>
         <Icon name="close" />
       </button>
     </div>

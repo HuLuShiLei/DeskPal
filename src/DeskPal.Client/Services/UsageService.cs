@@ -82,7 +82,7 @@ public sealed class UsageService : IDisposable
     {
         if (new FileInfo(path).Length > UsageExport.MaxFileBytes)
         {
-            throw new InvalidDataException("文件超过 100 MB，不能导入。");
+            throw new InvalidDataException(Strings.Import_TooLarge);
         }
 
         UsageExport? data;
@@ -93,10 +93,10 @@ public sealed class UsageService : IDisposable
         }
         catch (JsonException)
         {
-            throw new InvalidDataException("不是 DeskPal 导出的使用统计文件。");
+            throw new InvalidDataException(Strings.Import_NotExport);
         }
 
-        var result = _db.Import(data ?? throw new InvalidDataException("文件是空的。"));
+        var result = _db.Import(data ?? throw new InvalidDataException(Strings.Import_Empty));
         Compact();
         return result;
     }

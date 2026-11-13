@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import type { Bridge } from "../bridge";
+import { t } from "../i18n";
 import { Icon, TitleBar } from "../ui";
 
 export function LoginPage({ bridge }: { bridge: Bridge }) {
@@ -37,13 +38,13 @@ export function LoginPage({ bridge }: { bridge: Bridge }) {
         : { type: "auth.login", serverUrl, userName, password },
     );
     setBusy(false);
-    if (!result.ok) setError(result.error ?? "登录失败");
+    if (!result.ok) setError(result.error ?? t("login.failed"));
   };
 
   return (
     <div class="window">
       <div class="chrome">
-        <TitleBar bridge={bridge} title={register ? "注册 DeskPal" : "登录 DeskPal"} />
+        <TitleBar bridge={bridge} title={register ? t("login.registerTitle") : t("login.title")} />
       </div>
       <form class="login" onSubmit={submit}>
         <div class="login-brand">
@@ -51,38 +52,38 @@ export function LoginPage({ bridge }: { bridge: Bridge }) {
             D
           </span>
           <h1>DeskPal</h1>
-          <p class="hint-text">和房间里的人互相看到在忙什么</p>
+          <p class="hint-text">{t("login.tagline")}</p>
         </div>
         <div class="segmented" role="tablist">
           <button type="button" role="tab" aria-selected={!register} onClick={() => setRegister(false)}>
-            登录
+            {t("login.login")}
           </button>
           <button type="button" role="tab" aria-selected={register} onClick={() => setRegister(true)}>
-            注册
+            {t("login.register")}
           </button>
         </div>
         <label>
-          用户名
+          {t("login.userName")}
           <input ref={userNameInput} value={userName} autoFocus onInput={(e) => setUserName(e.currentTarget.value)} required />
         </label>
         <label>
-          密码
+          {t("login.password")}
           <input ref={passwordInput} type="password" value={password} onInput={(e) => setPassword(e.currentTarget.value)} required />
         </label>
         {register && (
           <label>
-            显示名称
+            {t("login.displayName")}
             <input value={displayName} maxLength={20} onInput={(e) => setDisplayName(e.currentTarget.value)} required />
           </label>
         )}
         {showServer ? (
           <label>
-            服务器地址
+            {t("login.server")}
             <input value={serverUrl} onInput={(e) => setServerUrl(e.currentTarget.value)} required />
           </label>
         ) : (
           <button type="button" class="link-button" onClick={() => setShowServer(true)}>
-            服务器：{serverUrl || "未设置"}（修改）
+            {t("login.serverLink", { url: serverUrl || t("login.serverUnset") })}
           </button>
         )}
         {notice && !error && (
@@ -98,7 +99,7 @@ export function LoginPage({ bridge }: { bridge: Bridge }) {
           </p>
         )}
         <button type="submit" class="primary wide" disabled={busy}>
-          {busy ? "请稍候…" : register ? "注册" : "登录"}
+          {busy ? t("common.pleaseWait") : register ? t("login.register") : t("login.login")}
         </button>
       </form>
     </div>

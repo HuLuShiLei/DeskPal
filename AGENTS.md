@@ -6,6 +6,8 @@ Windows 状态共享客户端：同一个房间的成员实时看到对方在工
 
 对用户用中文。页面和会显示在页面上的错误信息写「房间」，不写 Room。代码、协议字段和类型名仍用 Room。Presence、Envelope 保持英文。
 
+客户端界面有简体中文和英文两套文案，都在客户端：C# 的在 `DeskPal.Client.Core/Localization/Strings*.resx`，页面的在 `web/src/i18n/`。Server 只返回错误码（`ApiErrorCodes`），不返回给用户看的文字。新增文案两种语言都要写。
+
 ## 先读什么
 
 | 要做的事 | 先读 |

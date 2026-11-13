@@ -6,16 +6,17 @@ import { RulesPage } from "./pages/RulesPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { StatsPage, type StatsTarget } from "./pages/StatsPage";
 import { StatusPage } from "./pages/StatusPage";
+import { setLocale, t, type MessageKey } from "./i18n";
 import { askSharing } from "./sharing";
 import { applyTheme } from "./theme";
 import { Flyout, Icon, TitleBar, type IconName } from "./ui";
 
-const tabs: { id: Tab; name: string; icon: IconName }[] = [
-  { id: "status", name: "状态", icon: "people" },
-  { id: "stats", name: "统计", icon: "chart" },
-  { id: "room", name: "房间", icon: "home" },
-  { id: "rules", name: "分类", icon: "tag" },
-  { id: "settings", name: "设置", icon: "settings" },
+const tabs: { id: Tab; name: MessageKey; icon: IconName }[] = [
+  { id: "status", name: "tab.status", icon: "people" },
+  { id: "stats", name: "tab.stats", icon: "chart" },
+  { id: "room", name: "tab.room", icon: "home" },
+  { id: "rules", name: "tab.rules", icon: "tag" },
+  { id: "settings", name: "tab.settings", icon: "settings" },
 ];
 
 type Tab = "status" | "stats" | "room" | "rules" | "settings";
@@ -37,18 +38,18 @@ export function App({ bridge }: { bridge: Bridge }) {
       let action: "minimize" | "tray" = closeAction === "minimize" ? "minimize" : "tray";
       if (closeAction !== "minimize" && closeAction !== "tray") {
         const answer = await host.ask({
-          title: "关闭窗口",
-          message: "点击关闭按钮时",
+          title: t("app.closeTitle"),
+          message: t("app.closeMessage"),
           select: {
             presentation: "radio",
             initial: "tray",
             options: [
-              { value: "minimize", name: "最小化" },
-              { value: "tray", name: "最小化到系统托盘" },
+              { value: "minimize", name: t("common.minimize") },
+              { value: "tray", name: t("settings.closeTray") },
             ],
           },
-          checkbox: { label: "不再提示", initial: false },
-          okText: "确定",
+          checkbox: { label: t("app.dontAskAgain"), initial: false },
+          okText: t("common.ok"),
         });
         if (!answer.ok) return;
         action = answer.selected === "minimize" ? "minimize" : "tray";
@@ -65,12 +66,15 @@ export function App({ bridge }: { bridge: Bridge }) {
 
   useEffect(() => {
     bridge.on(async (m) => {
-      if (m.type === "state") setState(m.state);
+      if (m.type === "state") {
+        setLocale(m.state.locale);
+        setState(m.state);
+      }
       if (m.type === "dialog") {
         const answer = await host.ask({
-          title: m.kind === "confirm" ? "请确认" : "提示",
+          title: m.kind === "confirm" ? t("app.confirmTitle") : t("app.noticeTitle"),
           message: m.message,
-          cancelText: m.kind === "confirm" ? "取消" : null,
+          cancelText: m.kind === "confirm" ? t("common.cancel") : null,
         });
         bridge.notify({ type: "dialog.answer", dialogId: m.id, ok: answer.ok });
       }
@@ -95,7 +99,7 @@ export function App({ bridge }: { bridge: Bridge }) {
         title: news.title,
         message: news.summary,
         sections: news.sections.map((s) => ({ title: s.version, items: s.items })),
-        okText: "知道了",
+        okText: t("common.gotIt"),
         cancelText: null,
       })
       .then(() => host.run({ type: "changelog.seen" }));
@@ -117,20 +121,20 @@ export function App({ bridge }: { bridge: Bridge }) {
           </TitleBar>
         </div>
         <div class="body" inert={dialogOpen}>
-          <nav class="rail" aria-label="页面">
-            {tabs.map((t) => (
+          <nav class="rail" aria-label={t("app.pages")}>
+            {tabs.map((item) => (
               <button
-                key={t.id}
+                key={item.id}
                 class="rail-item"
-                aria-current={tab === t.id ? "page" : undefined}
-                title={t.name}
+                aria-current={tab === item.id ? "page" : undefined}
+                title={t(item.name)}
                 onClick={() => {
-                  if (t.id === "stats") setStatsTarget(null);
-                  setTab(t.id);
+                  if (item.id === "stats") setStatsTarget(null);
+                  setTab(item.id);
                 }}
               >
-                <Icon name={t.icon} />
-                <span>{t.name}</span>
+                <Icon name={item.icon} />
+                <span>{t(item.name)}</span>
               </button>
             ))}
             {state && (
@@ -139,7 +143,7 @@ export function App({ bridge }: { bridge: Bridge }) {
           </nav>
           <main class="content">
             {!state ? (
-              <p class="loading">正在加载…</p>
+              <p class="loading">{t("common.loading")}</p>
             ) : (
               <>
                 {!state.connection.connected && (
@@ -177,7 +181,7 @@ function RoomSwitcher({ state, onManage }: { state: PanelState; onManage: () => 
   const { run } = useHost();
   const current = state.rooms.find((r) => r.id === state.selectedRoomId);
   return (
-    <Flyout label="切换房间" button={<span class="flyout-label">{current?.name ?? "无房间"}</span>}>
+    <Flyout label={t("app.switchRoom")} button={<span class="flyout-label">{current?.name ?? t("app.noRoom")}</span>}>
       {(close) => (
         <>
           {state.rooms.map((r) => (
@@ -208,7 +212,7 @@ function RoomSwitcher({ state, onManage }: { state: PanelState; onManage: () => 
             }}
           >
             <span class="menu-check">{!state.selectedRoomId && <Icon name="accept" />}</span>
-            <span class="menu-text">无房间</span>
+            <span class="menu-text">{t("app.noRoom")}</span>
           </button>
           <hr class="menu-sep" />
           <button
@@ -222,7 +226,7 @@ function RoomSwitcher({ state, onManage }: { state: PanelState; onManage: () => 
             <span class="menu-check">
               <Icon name="settings" />
             </span>
-            <span class="menu-text">管理房间</span>
+            <span class="menu-text">{t("app.manageRooms")}</span>
           </button>
         </>
       )}

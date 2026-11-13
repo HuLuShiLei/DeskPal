@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -37,11 +38,14 @@ public partial class App : Application
 
         _logs = new ClientLogFiles(AppPaths.LogDirectory);
         RegisterCrashHandlers(_logs);
+        var store = new SettingsStore();
+        var settings = store.Load();
+        UiLanguage.Apply(UiLanguage.Resolve(settings.Language, CultureInfo.CurrentUICulture));
         _singleInstance = new Mutex(false, "DeskPal.Client.SingleInstance");
         if (!_singleInstance.WaitOne(TimeSpan.FromSeconds(3)))
         {
             _logs.Write("INF", "DeskPal", "Already running");
-            MessageBox.Show("DeskPal 已经在运行，请从任务栏右下角的托盘图标打开。", "DeskPal");
+            MessageBox.Show(Strings.App_AlreadyRunning, "DeskPal");
             _singleInstance = null;
             _logs.Dispose();
             Shutdown();
@@ -49,10 +53,8 @@ public partial class App : Application
         }
 
         _logs.Write("INF", "DeskPal", "Starting");
-        var store = new SettingsStore();
-        var settings = store.Load();
         var api = new ApiClient(settings);
-        var notice = e.Args.Contains(SignedOutArg) ? "账号已在其他电脑登录，请重新登录。" : null;
+        var notice = e.Args.Contains(SignedOutArg) ? Strings.Login_SignedOutElsewhere : null;
         if (!await EnsureLoggedInAsync(settings, store, api, _logs, notice))
         {
             _logs.Write("INF", "DeskPal", "Stopped before the panel opened");
@@ -74,7 +76,7 @@ public partial class App : Application
 
         var personalRules = services.GetRequiredService<PersonalRules>();
 
-        _tray = CreateTray(updates);
+        _tray = CreateTray(updates, services.GetRequiredService<PanelBridge>());
         rooms.Notify += (title, message) => Dispatcher.BeginInvoke(() => _tray.ShowNotification(title, message));
         hub.Received += rooms.Handle;
         hub.Received += personalRules.Handle;
@@ -94,7 +96,7 @@ public partial class App : Application
         _cards = services.GetRequiredService<MemberCards>();
         if (!WebUi.RuntimeAvailable())
         {
-            _ = Dispatcher.BeginInvoke(() => WebUi.ShowMissingRuntime("面板无法显示。状态同步不受影响。"));
+            _ = Dispatcher.BeginInvoke(() => WebUi.ShowMissingRuntime(Strings.Runtime_PanelUnavailable));
         }
         else if (!e.Args.Contains("--minimized"))
         {
@@ -125,7 +127,7 @@ public partial class App : Application
                 logs.Write("WRN", "DeskPal", $"Saved session rejected ({ex.Status})");
                 if (ex.Status == 401)
                 {
-                    notice ??= "登录已失效，请重新登录。";
+                    notice ??= Strings.Login_SessionExpired;
                 }
 
                 settings.SetToken(null);
@@ -135,7 +137,7 @@ public partial class App : Application
 
         if (!WebUi.RuntimeAvailable())
         {
-            WebUi.ShowMissingRuntime("无法显示登录页面。");
+            WebUi.ShowMissingRuntime(Strings.Runtime_LoginUnavailable);
             return false;
         }
 
@@ -252,22 +254,27 @@ public partial class App : Application
             }
             catch (ApiException ex)
             {
-                _tray?.ShowNotification("DeskPal", $"加载房间失败：{ex.Message}");
+                _tray?.ShowNotification("DeskPal", UiLanguage.Format(Strings.Tray_LoadRoomsFailed, ex.Message));
                 return;
             }
         }
     }
 
-    private TaskbarIcon CreateTray(UpdateService updates)
+    private TaskbarIcon CreateTray(UpdateService updates, PanelBridge bridge)
     {
         var menu = new ContextMenu();
-        var open = new MenuItem { Header = "打开 DeskPal" };
+        var open = new MenuItem { Header = Strings.Tray_Open };
         open.Click += (_, _) => _panel?.ShowAndActivate();
-        var exit = new MenuItem { Header = "退出" };
+        var exit = new MenuItem { Header = Strings.Tray_Exit };
         exit.Click += async (_, _) => await ExitAsync();
         menu.Items.Add(open);
         menu.Items.Add(new Separator());
         menu.Items.Add(exit);
+        bridge.LanguageChanged += () => Dispatcher.BeginInvoke(() =>
+        {
+            open.Header = Strings.Tray_Open;
+            exit.Header = Strings.Tray_Exit;
+        });
 
         var tray = new TaskbarIcon
         {

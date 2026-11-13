@@ -1,6 +1,7 @@
 using DeskPal.Server.Data;
 using DeskPal.Server.Features.Auth;
 using DeskPal.Server.Features.Rooms;
+using DeskPal.Shared.Api;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -190,7 +191,7 @@ public sealed class RoomServiceTests : IDisposable
         var current = await _db.RoomInvites.SingleAsync(i => i.RoomId == room);
         var rejected = await _rooms.JoinAsync(_bob, current.Code);
         Assert.Equal(403, rejected.Status);
-        Assert.Equal("你已被移出该房间。邀请码更新后才能再次加入", rejected.Error);
+        Assert.Equal(ApiErrorCodes.RoomBanned, rejected.Error);
 
         var renewed = (await _rooms.CreateInviteAsync(_alice, room)).Value!;
         Assert.Equal(0, await _db.RoomBans.CountAsync());
@@ -220,7 +221,8 @@ public sealed class RoomServiceTests : IDisposable
 
         var rejected = await capped.JoinAsync(AddUser("dave"), invite.Code);
         Assert.Equal(409, rejected.Status);
-        Assert.Equal("该房间已满（上限 3 人）", rejected.Error);
+        Assert.Equal(ApiErrorCodes.RoomFull, rejected.Error);
+        Assert.Equal("3", rejected.Args![ApiErrorCodes.LimitArg]);
     }
 
     [Fact]

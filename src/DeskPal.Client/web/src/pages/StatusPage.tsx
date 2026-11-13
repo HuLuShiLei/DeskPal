@@ -1,5 +1,6 @@
 import type { MemberItem, PanelState, UnclassifiedItem } from "../bridge";
 import { PresenceDetail, StatusBadge, useCountdown, useHost } from "../host";
+import { t } from "../i18n";
 import { Avatar, Hint, HoverTip, Icon, Section, Switch } from "../ui";
 
 export function StatusPage({ state, onViewStats }: { state: PanelState; onViewStats: (member: { userId: string; name: string }) => void }) {
@@ -7,7 +8,7 @@ export function StatusPage({ state, onViewStats }: { state: PanelState; onViewSt
   return (
     <>
       <MyStatus state={state} />
-      <Section title={room ? `房间成员（${state.members.length}）` : "房间成员"} label="房间成员">
+      <Section title={room ? t("status.membersCount", { count: state.members.length }) : t("status.members")} label={t("status.members")}>
         {state.emptyHint && (
           <p class="infobar">
             <Icon name="info" />
@@ -42,14 +43,14 @@ function MemberRow({ member, onViewStats }: { member: MemberItem; onViewStats: (
       </li>
     );
   }
-  const label = member.pinned ? `取消置顶${member.name}` : `把${member.name}置顶到桌面`;
+  const label = member.pinned ? t("status.unpinName", { name: member.name }) : t("status.pinName", { name: member.name });
   return (
     <li class={member.online ? "list-row member" : "list-row member offline"} aria-label={member.name}>
       <Avatar name={member.name} tone={member.view.tone} />
       <div class="row-main">
         <p class="row-title">
           {member.name}
-          {member.isOwner && <span class="badge">所有者</span>}
+          {member.isOwner && <span class="badge">{t("common.owner")}</span>}
           {member.meta && <span class="row-meta">{member.meta}</span>}
         </p>
         <div>
@@ -58,13 +59,13 @@ function MemberRow({ member, onViewStats }: { member: MemberItem; onViewStats: (
         <PresenceDetail view={member.view} />
       </div>
       {member.shareStats && (
-        <button class="icon-button pin-button" title="查看统计" aria-label={`查看${member.name}的使用统计`} onClick={onViewStats}>
+        <button class="icon-button pin-button" title={t("status.viewStats")} aria-label={t("status.viewStatsOf", { name: member.name })} onClick={onViewStats}>
           <Icon name="chart" />
         </button>
       )}
       <button
         class={member.pinned ? "icon-button pin-button active" : "icon-button pin-button"}
-        title={member.pinned ? "取消置顶" : "置顶到桌面"}
+        title={member.pinned ? t("status.unpin") : t("status.pin")}
         aria-label={label}
         aria-pressed={member.pinned}
         onClick={() => run({ type: member.pinned ? "member.unpin" : "member.pin", userId: member.userId })}
@@ -81,31 +82,31 @@ function MyStatus({ state }: { state: PanelState }) {
 
   const correct = async () => {
     if (!correction.target) {
-      toast("还没有识别到当前使用的应用。切换到要纠正的应用，再打开面板。", true);
+      toast(t("status.noTarget"), true);
       return;
     }
     const a = await ask({
-      title: "纠正分类",
-      message: `把「${correction.target}」归为所选类别。`,
+      title: t("status.correct"),
+      message: t("status.correctMessage", { name: correction.target }),
       select: { options: correction.options, initial: correction.current },
-      okText: "保存",
+      okText: t("common.save"),
     });
-    if (a.ok) await run({ type: "presence.correct", category: a.selected }, "已保存，所有房间通用");
+    if (a.ok) await run({ type: "presence.correct", category: a.selected }, t("status.correctSaved"));
   };
 
   const reset = async () => {
-    const a = await ask({ title: "恢复默认分类", message: `删除你对「${correction.target}」设置的分类，改用默认分类。`, okText: "恢复默认" });
-    if (a.ok) await run({ type: "presence.resetCorrection" }, "已恢复默认分类");
+    const a = await ask({ title: t("status.resetTitle"), message: t("rule.removeMessage", { name: correction.target ?? "" }), okText: t("status.reset") });
+    if (a.ok) await run({ type: "presence.resetCorrection" }, t("status.resetDone"));
   };
 
   return (
-    <Section label="我的状态">
+    <Section label={t("status.mine")}>
       <div class={`card me tv-${me.view.tone}`}>
         <div class="me-head">
           <Avatar name={me.displayName} tone={me.view.tone} />
           <div class="row-main">
             <div class="row-title">
-              <span class="row-name">{me.displayName}（我）</span>
+              <span class="row-name">{t("common.me", { name: me.displayName })}</span>
               {me.pending ? (
                 <Pending pending={me.pending} source={me.source} />
               ) : (
@@ -126,19 +127,19 @@ function MyStatus({ state }: { state: PanelState }) {
           {!me.paused && (
             <button onClick={correct}>
               <Icon name="tag" />
-              纠正分类
+              {t("status.correct")}
             </button>
           )}
           {!me.paused && correction.personal && (
             <button onClick={reset}>
               <Icon name="undo" />
-              恢复默认
+              {t("status.reset")}
             </button>
           )}
           <span class="spacer" />
           <label class="inline-switch">
-            暂停分享
-            <Switch checked={me.paused} label="暂停分享" onChange={(v) => run({ type: "presence.pause", paused: v })} />
+            {t("status.pause")}
+            <Switch checked={me.paused} label={t("status.pause")} onChange={(v) => run({ type: "presence.pause", paused: v })} />
           </label>
         </div>
       </div>
@@ -151,18 +152,18 @@ function Pending({ pending, source }: { pending: NonNullable<PanelState["me"]["p
   const left = useCountdown(pending.remainingMs);
   const seconds = Math.ceil(left / 1000);
   const progress = Math.min(1, Math.max(0, 1 - left / (pending.totalSeconds * 1000)));
-  const why = [source, `保持 ${pending.totalSeconds} 秒不变后同步给房间成员`].filter(Boolean).join("\n");
+  const why = [source, t("pending.why", { seconds: pending.totalSeconds })].filter(Boolean).join("\n");
   return (
     <HoverTip text={pending.full ? `${pending.full}\n\n${why}` : why} class={`pending tv-${pending.view.tone}`}>
-      <span class="pending-text" role="status" aria-label={seconds > 0 ? `${seconds} 秒后变更为${pending.view.headline}` : `即将变更为${pending.view.headline}`}>
+      <span class="pending-text" role="status" aria-label={seconds > 0 ? t("pending.label", { seconds, state: pending.view.headline }) : t("pending.labelSoon", { state: pending.view.headline })}>
         <Icon name="timer" class="pending-icon" />
         {seconds > 0 ? (
           <>
-            <b>{seconds}</b> 秒<span class="pending-verb">后变为</span>
+            <b>{seconds}</b>{t("pending.unit")}<span class="pending-verb">{t("pending.verb")}</span>
           </>
         ) : (
           <>
-            即将<span class="pending-verb">变为</span>
+            {t("pending.soon")}<span class="pending-verb">{t("pending.soonVerb")}</span>
           </>
         )}
         <Icon name="forward" class="pending-arrow" />
@@ -179,16 +180,16 @@ function Unclassified({ state }: { state: PanelState }) {
   const { ask, run } = useHost();
   const classify = async (item: UnclassifiedItem) => {
     const a = await ask({
-      title: `「${item.name}」算什么？`,
-      message: "只改变你自己的识别结果，所有房间和电脑通用。",
+      title: t("rule.ask", { name: item.name }),
+      message: t("unclassified.message"),
       select: { options: state.correction.options, initial: "Work" },
-      okText: "保存",
+      okText: t("common.save"),
     });
-    if (a.ok) await run({ type: "rules.set", kind: item.kind, pattern: item.pattern, name: item.name, category: a.selected }, "已保存");
+    if (a.ok) await run({ type: "rules.set", kind: item.kind, pattern: item.pattern, name: item.name, category: a.selected }, t("common.saved"));
   };
 
   return (
-    <Section title="待归类" aside={<span class="section-note">今天用过、还没有识别的应用</span>}>
+    <Section title={t("unclassified.title")} aside={<span class="section-note">{t("unclassified.note")}</span>}>
       <ul class="list">
         {state.unclassified.map((item) => (
           <li key={item.pattern} class="list-row compact">
@@ -196,7 +197,7 @@ function Unclassified({ state }: { state: PanelState }) {
               <p class="row-title"><span class="row-name" title={item.name}>{item.name}</span></p>
               <p class="sub">{item.today}</p>
             </div>
-            <button onClick={() => classify(item)}>归类</button>
+            <button onClick={() => classify(item)}>{t("unclassified.classify")}</button>
           </li>
         ))}
       </ul>

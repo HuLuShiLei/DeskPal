@@ -22,7 +22,7 @@ public sealed class RuleCandidateService(DeskPalDbContext db, TimeProvider time,
         var user = await db.Users.FindAsync(userId);
         if (user is null)
         {
-            return ServiceResult<Unit>.Fail(401, "账号不存在");
+            return ServiceResult<Unit>.Fail(401, ApiErrorCodes.AccountMissing);
         }
 
         user.ShareUsage = enabled;
@@ -40,7 +40,7 @@ public sealed class RuleCandidateService(DeskPalDbContext db, TimeProvider time,
         var user = await db.Users.FindAsync(userId);
         if (user?.ShareUsage != true)
         {
-            return ServiceResult<Unit>.Fail(403, "没有同意分享使用数据");
+            return ServiceResult<Unit>.Fail(403, ApiErrorCodes.SharingOff);
         }
 
         var now = time.GetUtcNow();

@@ -1,4 +1,5 @@
 using System.Windows;
+using DeskPal.Client.Core.Localization;
 using DeskPal.Client.Services;
 
 namespace DeskPal.Client.Views;
@@ -46,7 +47,7 @@ public static class UpdateInteraction
         switch (result.Kind)
         {
             case UpdateCheckKind.Ready:
-                if (await prompt.AskAsync(PromptKind.Confirm, result.Message + "要立即重启并更新吗？"))
+                if (await prompt.AskAsync(PromptKind.Confirm, result.Message + Strings.SentenceSeparator + Strings.Update_RestartNow))
                 {
                     await exitAsync(true);
                 }
