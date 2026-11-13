@@ -14,4 +14,12 @@ public sealed class PrivacyProfile
     };
 
     public static PrivacyProfile CreateDefault() => new();
+
+    /// <summary>Saved when a member creates or joins a room: only the state is shared until the member chooses more.</summary>
+    public static PrivacyProfile CreateStateOnly() => new()
+    {
+        Levels = Enum.GetValues<ActivityCategory>()
+            .Where(c => c != ActivityCategory.None)
+            .ToDictionary(c => c, _ => PrivacyLevel.StateOnly),
+    };
 }

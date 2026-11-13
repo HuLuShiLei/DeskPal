@@ -61,7 +61,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
             MaxMembers = _options.MaxMembersPerRoom,
             CreatedAt = now,
         };
-        room.Members.Add(new RoomMember { RoomId = room.Id, UserId = userId, Role = RoomRole.Owner, JoinedAt = now });
+        room.Members.Add(new RoomMember { RoomId = room.Id, UserId = userId, Role = RoomRole.Owner, JoinedAt = now, PrivacyProfileJson = StateOnlyPrivacy() });
         db.Rooms.Add(room);
         await db.SaveChangesAsync();
         return ServiceResult<RoomDto>.Ok((await GetDtoAsync(room.Id))!);
@@ -123,7 +123,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
             return ServiceResult<RoomDto>.Fail(409, $"该房间已满（上限 {room.MaxMembers} 人）");
         }
 
-        room.Members.Add(new RoomMember { RoomId = room.Id, UserId = userId, Role = RoomRole.Member, JoinedAt = time.GetUtcNow() });
+        room.Members.Add(new RoomMember { RoomId = room.Id, UserId = userId, Role = RoomRole.Member, JoinedAt = time.GetUtcNow(), PrivacyProfileJson = StateOnlyPrivacy() });
         await db.SaveChangesAsync();
         return ServiceResult<RoomDto>.Ok((await GetDtoAsync(room.Id))!);
     }
@@ -299,6 +299,8 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         db.RoomMembers.Where(m => m.RoomId == roomId).Select(m => m.UserId).ToListAsync();
 
     private static bool IsValidName(string name) => name.Length is >= 1 and <= 30;
+
+    private static string StateOnlyPrivacy() => JsonSerializer.Serialize(PrivacyProfile.CreateStateOnly(), DeskPalJson.Options);
 
     private bool ApplyMemberCap(Room room)
     {

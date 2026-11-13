@@ -57,7 +57,7 @@ flowchart LR
 ### 个人分类
 
 - 「纠正分类」和「待归类」写入个人分类（`PUT /api/me/rules`），按账号保存在 Server 的 `UserRules` 表，所有房间、所有电脑通用，只影响自己的识别结果。没有房间规则：同一个应用，房间里每个人可以有不同的分类。
-- 识别结果照常经过隐私过滤后广播，所以别人看到的是你自己的分类，例如“工作中 · 微信”。`Work` 的隐私默认是只显示状态，要在该房间把工作改成“显示类别和应用”，别人才看得到应用名。
+- 识别结果照常经过隐私过滤后广播，所以别人看到的是你自己的分类，例如“工作中 · 微信”。新加入的房间所有类别默认只显示状态，要在该房间把工作改成“显示类别和应用”，别人才看得到应用名。
 - 修改后 Server 只给该用户自己的连接发 `rules.personalChanged`，各台电脑重新拉取。客户端在 `%APPDATA%\DeskPal\personal-rules.json` 缓存一份（带 userId，换账号时不用别人的缓存），离线启动时先用缓存。
 - 每人最多 500 条；`Meeting` 和退役类别不能设置。设置页的「我的分类」可以修改和删除，状态页对当前应用提供「恢复默认」。
 
@@ -127,7 +127,7 @@ flowchart LR
 
 ## 隐私
 
-- 隐私级别按 Room 和类别分别配置：`StateOnly`（只显示状态）、`Category`（再加类别和应用名）、`Detail`（再加窗口标题或媒体标题）。
+- 隐私级别按 Room 和类别分别配置：`StateOnly`（只显示状态）、`Category`（再加类别和应用名）、`Detail`（再加窗口标题或媒体标题）。创建或加入房间时，Server 把所有类别写成 `StateOnly`。
 - 默认值：`Work`、`Meeting`、`Communication` 为 `StateOnly`，其他类别为 `Category`。没有人默认开启 `Detail`。
 - 过滤在客户端完成，原始标题不经过 PrivacyFilter 就不会离开本机。
 - Envelope 的 `Enc` 字段预留给端到端加密，Server 不解析 Payload。

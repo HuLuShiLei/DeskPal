@@ -133,8 +133,22 @@ public sealed class RoomServiceTests : IDisposable
         await _rooms.SetPrivacyAsync(_alice, room, new DeskPal.Shared.Api.PrivacyProfileDto(levels));
 
         Assert.Single((await _rooms.GetPrivacyAsync(_alice, room)).Value!.Levels);
-        Assert.Empty((await _rooms.GetPrivacyAsync(_bob, room)).Value!.Levels);
         Assert.Equal(404, (await _rooms.GetPrivacyAsync(_carol, room)).Status);
+    }
+
+    [Fact]
+    public async Task New_members_share_only_the_state()
+    {
+        var room = await CreateFullRoomAsync();
+
+        foreach (var user in new[] { _alice, _bob })
+        {
+            var levels = (await _rooms.GetPrivacyAsync(user, room)).Value!.Levels;
+            var profile = new DeskPal.Shared.Presence.PrivacyProfile { Levels = levels };
+            Assert.All(
+                Enum.GetValues<DeskPal.Shared.Presence.ActivityCategory>().Where(c => c != DeskPal.Shared.Presence.ActivityCategory.None),
+                c => Assert.Equal(DeskPal.Shared.Presence.PrivacyLevel.StateOnly, profile.LevelFor(c)));
+        }
     }
 
     [Fact]
