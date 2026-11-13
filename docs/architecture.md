@@ -100,7 +100,7 @@ flowchart LR
 - Server 的错误只返回错误码和参数：`{ "code": "room.full", "args": { "limit": "20" } }`，错误码在 `DeskPal.Shared/Api/ApiErrorCodes.cs`。客户端 `ApiErrorText` 按 `ApiError_<码>` 查资源并代入参数；不认识的错误码显示「请求失败（HTTP 状态码）」。
 - 别人的客户端拒绝统计请求时，`stats.response` 带 `errorCode`（`not-shared`、`out-of-range`），请求方按自己的语言显示；旧客户端只带中文 `error`，照原样显示。
 - 安装向导（Inno Setup）按 Windows 显示语言选择简体中文或英文。
-- 只有中文的内容：`CHANGELOG.md` 的更新条目、内置规则库里的应用名、用户输入的名称。
+- 只有中文的内容：内置规则库里的应用名、用户输入的名称。更新条目在 `CHANGELOG.md` 里中英各写一行，按界面语言显示。
 
 
 ## 界面
@@ -125,7 +125,7 @@ flowchart LR
 - WebView2 用户数据目录：安装版是 `<安装目录>\WebView2`，直接运行时是 `%LOCALAPPDATA%\DeskPal\WebView2`。不放在 Velopack 每次更新都会替换的 `current\` 下。
 - 面板隐藏 5 分钟后释放 WebView2，它的进程随之退出；再打开时重新加载，约 0.5 秒。
 - 更新的确认和提示（`UpdateInteraction`）通过 `IUserPrompt` 显示在面板里；面板不可用时退回系统对话框。手动检查一点击，设置页就显示「正在检查更新…」，按钮变为「请稍候…」；开始下载后改为「正在下载新版本 x（百分比）」。检查更新不弹出 Windows 通知气泡。后台每 6 小时的检查不显示这些过程，下载完成后设置页的「立即重启并更新」变为可用。
-- 更新内容：根目录 `CHANGELOG.md` 随客户端复制到程序目录。启动时 `WhatsNewStore`（Client.Core）把它和 `%APPDATA%\DeskPal\changelog-seen.json` 里看过的条目比较，有新条目就放进 `PanelState.whatsNew`，页面弹出「已更新到 x」和按版本分组的列表；点「知道了」发 `changelog.seen`，记下当前版本和全部条目。没有记录时（首次安装、第一次升级到有这个功能的版本）只记录不弹出。
+- 更新内容：根目录 `CHANGELOG.md` 随客户端复制到程序目录。启动时 `WhatsNewStore`（Client.Core）把它和 `%APPDATA%\DeskPal\changelog-seen.json` 里看过的中文条目比较。每条下面一行 `en:` 是英文，放进 `PanelState.whatsNew` 时按当前界面语言选择。页面弹出「已更新到 x」和按版本分组的列表；点「知道了」发 `changelog.seen`，记下当前版本和全部中文条目。没有记录时（首次安装、第一次升级到有这个功能的版本）只记录不弹出。
 - 启动时检测 WebView2 Runtime。没有时用系统对话框提示下载：已登录时采集和同步照常，只是面板打不开；未登录时无法登录。
 
 宿主和页面之间用 JSON 消息通信（`PostWebMessageAsJson` / `chrome.webview.postMessage`），类型定义在 `web/src/bridge.ts`：
@@ -207,7 +207,7 @@ flowchart LR
 | `room.memberRenamed` | Server | `RoomEventPayload(userId)` | 成员改了显示名称。客户端重新拉取 Room 列表；是自己时（另一台电脑改的）先用 `/api/me` 更新本机保存的显示名称 |
 | `room.dissolved` | Server | `RoomEventPayload(null)` | 之后所有成员移出 Group |
 | `rules.personalChanged` | Server | `RoomEventPayload(本人)` | 只发给本人的所有连接，`RoomId` 为空 Guid。客户端重新拉取个人分类 |
-| `auth.sessionReplaced` | Server | `RoomEventPayload(本人)` | 账号在另一台电脑登录。只发给之前登录的电脑，`RoomId` 为空 Guid，2 秒后 Server 断开这些连接。客户端清除 token，重启到登录页，提示「账号已在其他电脑登录，请重新登录。」没收到这条消息的（当时离线），之后重连或调用接口得到 401 时同样处理 |
+| `auth.sessionReplaced` | Server | `RoomEventPayload(本人)` | 账号在另一台电脑登录。只发给之前登录的电脑，`RoomId` 为空 Guid，2 秒后 Server 断开这些连接。客户端清除 token，重启到登录页，提示「账号已在另一台电脑登录，这台电脑已退出。请重新登录。」没收到这条消息的（当时离线），之后重连或调用接口得到 401 时同样处理 |
 
 ## 数据模型（SQLite，本地 `storage/deskpal.db`，容器内 `/data/deskpal.db`）
 

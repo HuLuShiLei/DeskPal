@@ -20,7 +20,7 @@
   },
   "rooms": [],
   "selectedRoomId": null,
-  "emptyHint": "当前无房间。请创建/选择一个房间，或用邀请码加入。",
+  "emptyHint": "当前无房间。请创建或选择一个房间，也可以用邀请码加入。",
   "members": [],
   "privacy": null,
   "correction": {

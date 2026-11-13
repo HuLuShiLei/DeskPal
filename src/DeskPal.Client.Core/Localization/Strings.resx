@@ -175,7 +175,7 @@
     <value>房间里还没有其他成员。请在「房间」页生成邀请码。</value>
   </data>
   <data name="Panel_NoRoom" xml:space="preserve">
-    <value>当前无房间。请创建/选择一个房间，或用邀请码加入。</value>
+    <value>当前无房间。请创建或选择一个房间，也可以用邀请码加入。</value>
   </data>
   <data name="Panel_UsedToday" xml:space="preserve">
     <value>今天 {0}</value>
@@ -202,7 +202,7 @@
     <value>根据窗口特征推测</value>
   </data>
   <data name="Source_Unknown" xml:space="preserve">
-    <value>未识别，显示为正在使用</value>
+    <value>未识别，按应用名显示</value>
   </data>
   <data name="Source_WithTarget" xml:space="preserve">
     <value>「{0}」{1}。</value>
@@ -262,7 +262,7 @@
     <value>{0}（未公开类别）</value>
   </data>
   <data name="Stats_NotYet" xml:space="preserve">
-    <value>{0} · 还没到</value>
+    <value>{0} · 未开始</value>
   </data>
   <data name="Stats_Total" xml:space="preserve">
     <value>共 {0}</value>
@@ -409,7 +409,7 @@
     <value>登录页加载失败：{0}</value>
   </data>
   <data name="Login_SignedOutElsewhere" xml:space="preserve">
-    <value>账号已在其他电脑登录，请重新登录。</value>
+    <value>账号已在另一台电脑登录，这台电脑已退出。请重新登录。</value>
   </data>
   <data name="Login_SessionExpired" xml:space="preserve">
     <value>登录已失效，请重新登录。</value>
@@ -423,7 +423,7 @@
   <data name="Runtime_Missing" xml:space="preserve">
     <value>没有找到 Microsoft Edge WebView2 Runtime，{0}
 
-点击“确定”打开下载页面，安装后重新启动 DeskPal。</value>
+点击「确定」打开下载页面，安装后重新启动 DeskPal。</value>
   </data>
   <data name="Runtime_PanelUnavailable" xml:space="preserve">
     <value>面板无法显示。状态同步不受影响。</value>
@@ -536,7 +536,7 @@
     <value>{0} 加入了房间</value>
   </data>
   <data name="Room_Kicked" xml:space="preserve">
-    <value>你已被移出该房间。邀请码更新后才能再次加入</value>
+    <value>你已被移出该房间，需要使用新的邀请码才能再次加入。</value>
   </data>
   <data name="Room_InviteCopied" xml:space="preserve">
     <value>邀请码已复制，{0} 前有效。重新生成后旧邀请码失效，被踢出的成员可使用新邀请码加入。</value>
@@ -632,7 +632,7 @@
     <value>你已经是该房间的成员</value>
   </data>
   <data name="ApiError_room_banned" xml:space="preserve">
-    <value>你已被移出该房间。邀请码更新后才能再次加入</value>
+    <value>你已被移出该房间，需要使用新的邀请码才能再次加入。</value>
   </data>
   <data name="ApiError_room_full" xml:space="preserve">
     <value>该房间已满（上限 {limit} 人）</value>
@@ -674,10 +674,10 @@
     <value>请选择类别</value>
   </data>
   <data name="ApiError_rule_limit" xml:space="preserve">
-    <value>个人分类最多 {limit} 条，请先删除不需要的</value>
+    <value>个人分类最多 {limit} 条，请先删除不需要的分类</value>
   </data>
   <data name="ApiError_sharing_off" xml:space="preserve">
-    <value>没有同意分享使用数据</value>
+    <value>未开启分享使用数据</value>
   </data>
   <data name="ApiError_hub_unsupportedType" xml:space="preserve">
     <value>不支持的消息类型</value>

@@ -20,7 +20,7 @@
   },
   "rooms": [],
   "selectedRoomId": null,
-  "emptyHint": "You are not in a room. Create or select a room, or join one with an invite code.",
+  "emptyHint": "You are not in a room. Create or choose one, or join with an invite code.",
   "members": [],
   "privacy": null,
   "correction": {

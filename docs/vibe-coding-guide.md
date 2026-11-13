@@ -32,7 +32,7 @@ Cursor 会自动读取 `AGENTS.md` 和 `.cursor/rules/` 里匹配当前文件的
 
 **发布新版本**
 
-> 推送 main：先把这次要推送的改动整理进 `CHANGELOG.md` 最上面一节，再推送。
+> 推送 main：先把这次要推送的改动整理进 `CHANGELOG.md` 最上面一节（每条下面一行 `en:`），再推送。
 
 > 发布正式版 v0.2.0：确认 build、test 通过，`CHANGELOG.md` 最上面一节是 `## 0.2.0`，推送 main，再打 `v0.2.0` 标签推送，等 CI 跑完后检查 Release 里有 `DeskPal-0.2.0-Setup.exe`。测试版不用手动发：推送 main 后，已安装并加入测试版的客户端会自己检查更新。
 

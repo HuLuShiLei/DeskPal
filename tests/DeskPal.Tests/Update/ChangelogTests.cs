@@ -1,3 +1,4 @@
+using System.Globalization;
 using DeskPal.Client.Core.Updates;
 
 namespace DeskPal.Tests.Update;
@@ -14,6 +15,8 @@ public class ChangelogTests
         - 更新后显示更新内容
         - 面板可以拖动边框调整大小，
           最小 400×480
+          en: The panel can be resized.
+            Minimum size is 400×480
         * 设置里可以修改显示名称
 
         ## v0.1.1（2026-11-12）
@@ -30,8 +33,9 @@ public class ChangelogTests
         var sections = Changelog.Parse(Markdown.ReplaceLineEndings("\r\n"));
 
         Assert.Equal(["0.1.2", "0.1.1"], sections.Select(s => s.Version));
-        Assert.Equal(["更新后显示更新内容", "面板可以拖动边框调整大小， 最小 400×480", "设置里可以修改显示名称"], sections[0].Items);
-        Assert.Equal(["点关闭时可以选择最小化"], sections[1].Items);
+        Assert.Equal(["更新后显示更新内容", "面板可以拖动边框调整大小， 最小 400×480", "设置里可以修改显示名称"], sections[0].Items.Select(i => i.Zh));
+        Assert.Equal(["", "The panel can be resized. Minimum size is 400×480", ""], sections[0].Items.Select(i => i.En));
+        Assert.Equal(["点关闭时可以选择最小化"], sections[1].Items.Select(i => i.Zh));
     }
 
     [Fact]
@@ -47,6 +51,26 @@ public class ChangelogTests
         var section = Assert.Single(view.Sections);
         Assert.Equal("0.1.2", section.Version);
         Assert.Equal(2, section.Items.Count);
+    }
+
+    [Fact]
+    public void English_ui_shows_the_english_line_and_still_matches_the_chinese_text()
+    {
+        var sections = Changelog.Parse(Markdown);
+        var previous = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+        try
+        {
+            var view = Changelog.WhatsNew(sections, new HashSet<string>(), "0.1.1", "0.1.2")!;
+            Assert.Equal("The panel can be resized. Minimum size is 400×480", view.Sections[0].Items[1]);
+            Assert.Equal("更新后显示更新内容", view.Sections[0].Items[0]);
+            var hidden = Changelog.WhatsNew(sections, new HashSet<string> { "面板可以拖动边框调整大小， 最小 400×480" }, "0.1.1", "0.1.2")!;
+            Assert.DoesNotContain(hidden.Sections.SelectMany(section => section.Items), item => item.Contains("resized", StringComparison.Ordinal));
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previous;
+        }
     }
 
     [Fact]
@@ -79,5 +103,25 @@ public class ChangelogTests
 
         Assert.Equal("相较于 0.1.0，共 2 项更新", view.Summary);
         Assert.Equal(["0.1.2", "0.1.1"], view.Sections.Select(s => s.Version));
+    }
+
+    [Fact]
+    public void Shipped_changelog_has_english_for_every_item()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "DeskPal.slnx")))
+        {
+            dir = dir.Parent;
+        }
+
+        var path = Path.Combine(dir!.FullName, "CHANGELOG.md");
+        var sections = Changelog.Parse(File.ReadAllText(path));
+
+        Assert.Equal(["0.1.2", "0.1.1", "0.1.0"], sections.Select(s => s.Version));
+        Assert.All(sections.SelectMany(s => s.Items), item =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(item.En));
+            Assert.DoesNotContain("en:", item.Zh);
+        });
     }
 }

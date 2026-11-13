@@ -175,7 +175,7 @@
     <value>No other members yet. Create an invite code on the Rooms page.</value>
   </data>
   <data name="Panel_NoRoom" xml:space="preserve">
-    <value>You are not in a room. Create or select a room, or join one with an invite code.</value>
+    <value>You are not in a room. Create or choose one, or join with an invite code.</value>
   </data>
   <data name="Panel_UsedToday" xml:space="preserve">
     <value>Today: {0}</value>
@@ -202,7 +202,7 @@
     <value>inferred from the window</value>
   </data>
   <data name="Source_Unknown" xml:space="preserve">
-    <value>not recognized, shown as Using</value>
+    <value>not recognized, shown by app name</value>
   </data>
   <data name="Source_WithTarget" xml:space="preserve">
     <value>{0}: {1}.</value>
@@ -409,7 +409,7 @@
     <value>Could not load the sign-in page: {0}</value>
   </data>
   <data name="Login_SignedOutElsewhere" xml:space="preserve">
-    <value>Your account signed in on another computer. Please sign in again.</value>
+    <value>Your account was signed in on another computer, so this one was signed out. Sign in again to continue.</value>
   </data>
   <data name="Login_SessionExpired" xml:space="preserve">
     <value>Your session has expired. Please sign in again.</value>

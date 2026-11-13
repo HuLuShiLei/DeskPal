@@ -78,7 +78,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
           state,
           state.selectedRoomId
             ? { members: initial.members, privacy: initial.privacy, emptyHint: initial.emptyHint }
-            : { members: [], privacy: null, emptyHint: L("当前无房间。请创建/选择一个房间，或用邀请码加入。", "You are not in a room. Create or select one, or join with an invite code.") },
+            : { members: [], privacy: null, emptyHint: L("当前无房间。请创建或选择一个房间，也可以用邀请码加入。", "You are not in a room. Create or choose one, or join with an invite code.") },
         );
         break;
       case "room.create":
@@ -164,7 +164,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
         if (!state.selectedRoomId) {
           state.members = [];
           state.privacy = null;
-          state.emptyHint = L("当前无房间。请创建/选择一个房间，或用邀请码加入。", "You are not in a room. Create or select one, or join with an invite code.");
+          state.emptyHint = L("当前无房间。请创建或选择一个房间，也可以用邀请码加入。", "You are not in a room. Create or choose one, or join with an invite code.");
         }
         break;
       case "member.block":
@@ -282,7 +282,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
             type: "login",
             serverUrl: "https://deskpal.hafuhafu.cn:36443",
             userName: "alice",
-            notice: params.has("signedOut") ? L("账号已在其他电脑登录，请重新登录。", "Your account signed in on another computer. Please sign in again.") : null,
+            notice: params.has("signedOut") ? L("账号已在另一台电脑登录，这台电脑已退出。请重新登录。", "Your account was signed in on another computer, so this one was signed out. Sign in again to continue.") : null,
           });
         else if (card) {
           const member = state.members[0];

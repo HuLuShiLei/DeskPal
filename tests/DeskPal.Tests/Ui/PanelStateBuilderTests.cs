@@ -130,7 +130,7 @@ public class PanelStateBuilderTests
         Assert.Empty(state.Members);
         Assert.Null(state.SelectedRoomId);
         Assert.Null(state.Privacy);
-        Assert.Equal("当前无房间。请创建/选择一个房间，或用邀请码加入。", state.EmptyHint);
+        Assert.Equal("当前无房间。请创建或选择一个房间，也可以用邀请码加入。", state.EmptyHint);
         Assert.Null(state.Me.Visible);
         Assert.Equal("理工生陷入云吸猫 (64)", state.Me.View.Detail);
         Assert.Equal("类别：聊天\n应用：QQ\n标题：理工生陷入云吸猫 (64)", state.Me.Full);
@@ -148,7 +148,7 @@ public class PanelStateBuilderTests
         Assert.Null(state.SelectedRoomId);
         Assert.Empty(state.Members);
         Assert.Null(state.Privacy);
-        Assert.Equal("当前无房间。请创建/选择一个房间，或用邀请码加入。", state.EmptyHint);
+        Assert.Equal("当前无房间。请创建或选择一个房间，也可以用邀请码加入。", state.EmptyHint);
     }
 
     [Fact]

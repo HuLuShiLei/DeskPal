@@ -7,18 +7,19 @@ namespace DeskPal.Client.Core.Updates;
 /// <summary>
 /// Compares the changelog shipped with this build with the items already shown on this computer.
 /// Without a record (first install, or the first version that has this feature) it only records what is there,
-/// so nobody gets a list of old changes.
+/// so nobody gets a list of old changes. The dialog text is chosen when the panel asks, so it follows the current language.
 /// </summary>
 public sealed class WhatsNewStore
 {
     private readonly string _seenPath;
     private readonly string _version;
+    private readonly string? _previousVersion;
     private readonly IReadOnlyList<ChangelogSection> _sections;
     private readonly HashSet<string> _seen = new(StringComparer.Ordinal);
     private readonly Lock _lock = new();
-    private WhatsNewView? _pending;
+    private bool _show;
 
-    /// <param name="changelog">Contents of CHANGELOG.md; null when the file is missing (e.g. `dotnet run` without it).</param>
+    /// <param name="changelog">Contents of CHANGELOG.md; null when the file is missing (e.g. dotnet run without it).</param>
     public WhatsNewStore(string? changelog, string seenPath, string version)
     {
         _seenPath = seenPath;
@@ -36,8 +37,9 @@ public sealed class WhatsNewStore
         }
 
         _seen.UnionWith(record.Items ?? []);
-        _pending = Changelog.WhatsNew(_sections, _seen, record.Version, version);
-        if (_pending is null && record.Version != version)
+        _previousVersion = record.Version;
+        _show = Changelog.WhatsNew(_sections, _seen, record.Version, version) is not null;
+        if (!_show && record.Version != version)
         {
             Save();
         }
@@ -49,7 +51,7 @@ public sealed class WhatsNewStore
         {
             lock (_lock)
             {
-                return _pending;
+                return _show ? Changelog.WhatsNew(_sections, _seen, _previousVersion, _version) : null;
             }
         }
     }
@@ -59,12 +61,12 @@ public sealed class WhatsNewStore
     {
         lock (_lock)
         {
-            if (_pending is null)
+            if (!_show)
             {
                 return;
             }
 
-            _pending = null;
+            _show = false;
             Save();
         }
     }
