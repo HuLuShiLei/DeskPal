@@ -26,7 +26,7 @@ public class PanelStateBuilderTests
         var carol = state.Members[1];
         Assert.False(carol.Online);
         Assert.Equal("离线", carol.View.Headline);
-        Assert.Equal("还没有收到状态", carol.Meta);
+        Assert.Equal("", carol.Meta);
         Assert.False(carol.Pinned);
         Assert.Null(state.EmptyHint);
     }
@@ -37,11 +37,12 @@ public class PanelStateBuilderTests
         var me = PanelStateBuilder.Build(PanelSamples.Default()).Me;
 
         Assert.Equal(new PresenceView("正在使用 Cursor", null, null, "other"), me.View);
-        Assert.Equal("按隐私设置，房间成员看不到标题", me.Hidden);
+        Assert.Equal("类别：其他\n应用：Cursor\n标题：roadmap.md - idea1 - Cursor", me.Full);
         Assert.Equal("已持续 1 分钟", me.Meta);
         Assert.Equal(new PresenceView("工作中", null, null, "work"), me.Pending!.View);
         Assert.Equal(7000, me.Pending.RemainingMs);
         Assert.Equal(10, me.Pending.TotalSeconds);
+        Assert.Equal("类别：工作\n应用：Cursor\n标题：plan.md - idea1 - Cursor", me.Pending.Full);
         Assert.Equal("「Cursor」按默认分类识别。", me.Source);
         Assert.Equal("正在使用 Cursor", me.Visible);
     }
@@ -59,16 +60,15 @@ public class PanelStateBuilderTests
         }).Me;
 
         Assert.Equal("plan.md - idea1 - Cursor", me.View.Detail);
-        Assert.Null(me.Hidden);
         Assert.Null(me.Pending);
         Assert.Equal("刚刚开始", me.Meta);
     }
 
     [Theory]
-    [InlineData(PrivacyLevel.StateOnly, null, null, "按隐私设置，房间成员看不到应用名和标题")]
-    [InlineData(PrivacyLevel.Category, "Cursor", null, "按隐私设置，房间成员看不到标题")]
-    [InlineData(PrivacyLevel.Detail, "Cursor", "plan.md - idea1 - Cursor", null)]
-    public void My_status_follows_the_privacy_level_of_the_selected_room(PrivacyLevel level, string? app, string? detail, string? hidden)
+    [InlineData(PrivacyLevel.StateOnly, null, null)]
+    [InlineData(PrivacyLevel.Category, "Cursor", null)]
+    [InlineData(PrivacyLevel.Detail, "Cursor", "plan.md - idea1 - Cursor")]
+    public void My_status_follows_the_privacy_level_and_keeps_the_full_text_for_hover(PrivacyLevel level, string? app, string? detail)
     {
         var input = PanelSamples.Default();
         var me = PanelStateBuilder.Build(input with
@@ -79,7 +79,17 @@ public class PanelStateBuilderTests
         }).Me;
 
         Assert.Equal(new PresenceView("工作中", app, detail, "work"), me.View);
-        Assert.Equal(hidden, me.Hidden);
+        Assert.Equal("类别：工作\n应用：Cursor\n标题：plan.md - idea1 - Cursor", me.Full);
+    }
+
+    [Fact]
+    public void Hover_text_skips_a_title_that_only_repeats_the_app()
+    {
+        var local = new LocalPresence(PresenceState.Communicating, ActivityCategory.Communication, "QQ", "QQ");
+
+        var me = PanelStateBuilder.Build(PanelSamples.Default() with { Local = local, Committed = new CommittedPresence(local, PanelSamples.Now), PendingDeadline = null }).Me;
+
+        Assert.Equal("类别：聊天\n应用：QQ", me.Full);
     }
 
     [Fact]
@@ -108,7 +118,7 @@ public class PanelStateBuilderTests
         Assert.Equal("当前无房间。请创建/选择一个房间，或用邀请码加入。", state.EmptyHint);
         Assert.Null(state.Me.Visible);
         Assert.Equal("理工生陷入云吸猫 (64)", state.Me.View.Detail);
-        Assert.Null(state.Me.Hidden);
+        Assert.Equal("类别：聊天\n应用：QQ\n标题：理工生陷入云吸猫 (64)", state.Me.Full);
         Assert.Equal("「QQ」按你设置的分类识别。", state.Me.Source);
         Assert.Null(state.Me.Pending);
         Assert.True(state.Correction.Personal);
@@ -124,7 +134,6 @@ public class PanelStateBuilderTests
         Assert.Empty(state.Members);
         Assert.Null(state.Privacy);
         Assert.Equal("当前无房间。请创建/选择一个房间，或用邀请码加入。", state.EmptyHint);
-        Assert.Null(state.Me.Hidden);
     }
 
     [Fact]
@@ -161,6 +170,7 @@ public class PanelStateBuilderTests
         Assert.Equal("", dave.Meta);
         Assert.Equal("暂停分享", state.Me.View.Headline);
         Assert.True(state.Me.Paused);
+        Assert.Null(state.Me.Full);
         Assert.Null(state.Correction.Target);
     }
 
@@ -196,7 +206,7 @@ public class PanelStateBuilderTests
         var me = PanelStateBuilder.Build(input).Me;
 
         Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", null, "browse"), me.View);
-        Assert.Equal("按隐私设置，房间成员看不到标题", me.Hidden);
+        Assert.Equal("类别：浏览网页\n网站：bilibili.com\n标题：猫猫合集", me.Full);
         Assert.Null(me.Source);
         Assert.Equal("正在浏览网页 · bilibili.com", me.Visible);
     }

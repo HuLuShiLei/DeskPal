@@ -1,4 +1,4 @@
-import type { ComponentChildren } from "preact";
+import type { ComponentChildren, RefObject } from "preact";
 import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import type { Bridge, PresenceView } from "./bridge";
 
@@ -78,17 +78,16 @@ export function Switch({ checked, label, disabled, onChange }: { checked: boolea
   );
 }
 
-/** 标题旁的圆形问号。悬停或键盘聚焦时显示说明，避免被滚动区域裁切。 */
-export function Hint({ text }: { text: string }) {
-  const [open, setOpen] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+/** 说明气泡：贴在 anchor 下方，放不下时放上方，用 fixed 定位避免被滚动区域裁切；滚动或窗口失焦时收起。 */
+function useBubble(open: boolean, close: () => void) {
+  const anchorRef = useRef<HTMLElement>(null);
   const bubbleRef = useRef<HTMLSpanElement>(null);
 
   useLayoutEffect(() => {
-    const button = buttonRef.current;
+    const target = anchorRef.current;
     const bubble = bubbleRef.current;
-    if (!open || !button || !bubble) return;
-    const anchor = button.getBoundingClientRect();
+    if (!open || !target || !bubble) return;
+    const anchor = target.getBoundingClientRect();
     const margin = 8;
     const gap = 6;
     const width = bubble.offsetWidth;
@@ -105,7 +104,6 @@ export function Hint({ text }: { text: string }) {
 
   useEffect(() => {
     if (!open) return;
-    const close = () => setOpen(false);
     window.addEventListener("scroll", close, true);
     window.addEventListener("blur", close);
     return () => {
@@ -114,12 +112,20 @@ export function Hint({ text }: { text: string }) {
     };
   }, [open]);
 
+  return { anchorRef, bubbleRef };
+}
+
+/** 标题旁的圆形问号。悬停或键盘聚焦时显示说明。 */
+export function Hint({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  const { anchorRef, bubbleRef } = useBubble(open, () => setOpen(false));
+
   return (
     <span class="hint">
       <button
         type="button"
         class="hint-button"
-        ref={buttonRef}
+        ref={anchorRef as RefObject<HTMLButtonElement>}
         aria-label={`说明。${text}`}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
@@ -134,6 +140,28 @@ export function Hint({ text }: { text: string }) {
         </span>
       )}
     </span>
+  );
+}
+
+/** 悬停整块内容时显示气泡。指到里面的问号时让给问号自己的说明。 */
+export function HoverTip({ text, class: cls, children }: { text: string | null; class?: string; children: ComponentChildren }) {
+  const [open, setOpen] = useState(false);
+  const { anchorRef, bubbleRef } = useBubble(open, () => setOpen(false));
+
+  return (
+    <div
+      class={cls}
+      ref={anchorRef as RefObject<HTMLDivElement>}
+      onMouseOver={(e) => setOpen(!!text && !(e.target as Element).closest(".hint"))}
+      onMouseLeave={() => setOpen(false)}
+    >
+      {children}
+      {open && text && (
+        <span class="hint-bubble" ref={bubbleRef} role="tooltip">
+          {text}
+        </span>
+      )}
+    </div>
   );
 }
 

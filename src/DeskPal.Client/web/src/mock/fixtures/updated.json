@@ -22,10 +22,11 @@
         "tone": "work"
       },
       "remainingMs": 7000,
-      "totalSeconds": 10
+      "totalSeconds": 10,
+      "full": "类别：工作\n应用：Cursor\n标题：plan.md - idea1 - Cursor"
     },
     "meta": "已持续 1 分钟",
-    "hidden": "按隐私设置，房间成员看不到标题"
+    "full": "类别：其他\n应用：Cursor\n标题：roadmap.md - idea1 - Cursor"
   },
   "rooms": [
     {
@@ -71,7 +72,7 @@
         "detail": null,
         "tone": "offline"
       },
-      "meta": "还没有收到状态",
+      "meta": "",
       "pinned": false
     }
   ],

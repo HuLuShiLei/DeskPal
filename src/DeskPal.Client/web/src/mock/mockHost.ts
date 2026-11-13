@@ -215,7 +215,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
           setTimeout(() => {
             state.me.view = pending.view;
             state.me.pending = null;
-            state.me.hidden = null;
+            state.me.full = pending.full;
             state.me.meta = "刚刚开始";
             if (state.me.visible) state.me.visible = pending.view.headline;
             pushState();

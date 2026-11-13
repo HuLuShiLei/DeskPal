@@ -209,11 +209,11 @@ export function StatusBadge({ view }: { view: PresenceView }) {
   );
 }
 
-/** 应用名一行，窗口标题最多两行；完整内容悬停查看。 */
-export function PresenceDetail({ view }: { view: PresenceView }) {
+/** 应用名一行，窗口标题最多两行；完整内容悬停查看。外层自己显示气泡时传 tip={false}。 */
+export function PresenceDetail({ view, tip = true }: { view: PresenceView; tip?: boolean }) {
   if (!view.app && !view.detail) return null;
   return (
-    <div class="presence-detail" title={[view.app, view.detail].filter(Boolean).join("\n")}>
+    <div class="presence-detail" title={tip ? [view.app, view.detail].filter(Boolean).join("\n") : undefined}>
       {view.app && <p class="presence-app">{view.app}</p>}
       {view.detail && <p class="presence-title">{view.detail}</p>}
     </div>

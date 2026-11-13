@@ -28,7 +28,7 @@ public sealed record ConnectionView(bool Connected, string Text);
 /// <param name="Source">How the current app was recognized. Shown on hover.</param>
 /// <param name="Pending">A newer local presence waiting to become stable, filtered the same way; null when nothing is waiting.</param>
 /// <param name="Meta">How long the current status has lasted.</param>
-/// <param name="Hidden">What the privacy setting keeps from the room, e.g. the title; null when nothing is held back.</param>
+/// <param name="Full">My own category, app and title without the privacy filter. Shown only to me on hover; null when there is no category.</param>
 public sealed record MeView(
     string DisplayName,
     PresenceView View,
@@ -37,11 +37,11 @@ public sealed record MeView(
     bool Paused,
     PendingView? Pending = null,
     string? Meta = null,
-    string? Hidden = null);
+    string? Full = null);
 
 /// <param name="RemainingMs">Time left when the state was built. The page counts down from here.</param>
 /// <param name="TotalSeconds">The full stable interval, for the progress bar.</param>
-public sealed record PendingView(PresenceView View, int RemainingMs, int TotalSeconds);
+public sealed record PendingView(PresenceView View, int RemainingMs, int TotalSeconds, string? Full = null);
 
 public sealed record RoomItem(Guid Id, string Name, bool IsOwner, int MemberCount, int MaxMembers);
 

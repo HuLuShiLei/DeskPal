@@ -96,9 +96,7 @@ public static class PanelStateBuilder
         {
             var snapshot = input.PresenceOf(room.Id, m.UserId);
             var view = snapshot is null ? new PresenceView("离线", null, null) : PresenceFormatter.Format(snapshot);
-            var meta = snapshot is null
-                ? "还没有收到状态"
-                : snapshot.State == PresenceState.Offline ? "" : Lasted(snapshot.Since, input.Now);
+            var meta = snapshot is null || snapshot.State == PresenceState.Offline ? "" : Lasted(snapshot.Since, input.Now);
             return new MemberItem(
                 m.UserId,
                 m.DisplayName,
@@ -132,7 +130,8 @@ public static class PanelStateBuilder
             ? new PendingView(
                 localView,
                 Math.Max(0, (int)(deadline - input.Now).TotalMilliseconds),
-                (int)Math.Round(input.StableFor.TotalSeconds))
+                (int)Math.Round(input.StableFor.TotalSeconds),
+                Full(local))
             : null;
 
         var layer = input.Classification?.Layer switch
@@ -162,30 +161,30 @@ public static class PanelStateBuilder
             input.Paused,
             pending,
             current is null ? null : Lasted(current.Since, input.Now),
-            Hidden(shownPresence, privacy));
+            Full(shownPresence));
     }
 
-    /// <summary>What the room does not get because of my privacy level, so the card is not mistaken for the full picture.</summary>
-    private static string? Hidden(LocalPresence presence, PrivacyProfile? privacy)
+    /// <summary>My own status without the privacy filter. Never sent; the panel shows it only on hover.</summary>
+    private static string? Full(LocalPresence presence)
     {
-        if (privacy is null || presence.Category == ActivityCategory.None)
+        if (presence.Category == ActivityCategory.None)
         {
             return null;
         }
 
-        var level = privacy.LevelFor(presence.Category);
-        var parts = new List<string>();
-        if (level == PrivacyLevel.StateOnly && !string.IsNullOrWhiteSpace(presence.AppDisplayName))
+        var lines = new List<string> { $"类别：{PresenceFormatter.CategoryName(presence.Category)}" };
+        if (!string.IsNullOrWhiteSpace(presence.AppDisplayName))
         {
-            parts.Add(presence.Category == ActivityCategory.Browsing ? "网站" : "应用名");
+            lines.Add($"{(presence.Category == ActivityCategory.Browsing ? "网站" : "应用")}：{presence.AppDisplayName}");
         }
 
-        if (level != PrivacyLevel.Detail && PresenceFormatter.Format(Unfiltered(presence)).Detail is not null)
+        if (!string.IsNullOrWhiteSpace(presence.Detail)
+            && !string.Equals(presence.Detail.Trim(), presence.AppDisplayName?.Trim(), StringComparison.OrdinalIgnoreCase))
         {
-            parts.Add("标题");
+            lines.Add($"标题：{presence.Detail}");
         }
 
-        return parts.Count == 0 ? null : $"按隐私设置，房间成员看不到{string.Join("和", parts)}";
+        return string.Join("\n", lines);
     }
 
     private static PresenceSnapshot Unfiltered(LocalPresence local) => new()

@@ -1,6 +1,6 @@
 import type { MemberItem, PanelState, UnclassifiedItem } from "../bridge";
 import { PresenceDetail, StatusBadge, useCountdown, useHost } from "../host";
-import { Avatar, Hint, Icon, Section, Switch } from "../ui";
+import { Avatar, Hint, HoverTip, Icon, Section, Switch } from "../ui";
 
 export function StatusPage({ state }: { state: PanelState }) {
   const room = state.rooms.find((r) => r.id === state.selectedRoomId);
@@ -86,25 +86,24 @@ function MyStatus({ state }: { state: PanelState }) {
         <div class="me-head">
           <Avatar name={me.displayName} tone={me.view.tone} />
           <div class="row-main">
-            <p class="row-title">
-              {me.displayName}（我）
-              {me.meta && <span class="row-meta">{me.meta}</span>}
-            </p>
-            <p class={`me-headline tv-${me.view.tone}`}>
-              <span class="status-dot" aria-hidden="true" />
-              <span>{me.view.headline}</span>
-              {me.source && !me.pending && <Hint text={me.source} />}
-            </p>
-            <PresenceDetail view={me.view} />
-            {me.hidden && (
-              <p class="me-hidden">
-                <Icon name="hide" />
-                {me.hidden}
+            <div class="row-title">
+              <span class="row-name">{me.displayName}（我）</span>
+              {me.pending ? (
+                <Pending pending={me.pending} source={me.source} />
+              ) : (
+                me.meta && <span class="row-meta">{me.meta}</span>
+              )}
+            </div>
+            <HoverTip text={me.full} class="me-presence">
+              <p class={`me-headline tv-${me.view.tone}`}>
+                <span class="status-dot" aria-hidden="true" />
+                <span>{me.view.headline}</span>
+                {me.source && !me.pending && <Hint text={me.source} />}
               </p>
-            )}
+              <PresenceDetail view={me.view} tip={false} />
+            </HoverTip>
           </div>
         </div>
-        {me.pending && <Pending pending={me.pending} source={me.source} />}
         <div class="toolbar">
           {!me.paused && (
             <button onClick={correct}>
@@ -129,37 +128,32 @@ function MyStatus({ state }: { state: PanelState }) {
   );
 }
 
+/** 新状态的倒计时放在标题行右侧，进度条贴在卡片底边，出现和消失都不改变卡片高度。 */
 function Pending({ pending, source }: { pending: NonNullable<PanelState["me"]["pending"]>; source: string | null }) {
   const left = useCountdown(pending.remainingMs);
   const seconds = Math.ceil(left / 1000);
   const progress = Math.min(1, Math.max(0, 1 - left / (pending.totalSeconds * 1000)));
-  const why = `保持 ${pending.totalSeconds} 秒不变后同步给房间成员`;
+  const why = [source, `保持 ${pending.totalSeconds} 秒不变后同步给房间成员`].filter(Boolean).join("\n");
   return (
-    <div class={`pending tv-${pending.view.tone}`} role="status" aria-label={seconds > 0 ? `${seconds} 秒后变更为${pending.view.headline}` : `即将变更为${pending.view.headline}`}>
-      <div class="pending-head">
+    <HoverTip text={pending.full ? `${pending.full}\n\n${why}` : why} class={`pending tv-${pending.view.tone}`}>
+      <span class="pending-text" role="status" aria-label={seconds > 0 ? `${seconds} 秒后变更为${pending.view.headline}` : `即将变更为${pending.view.headline}`}>
         <Icon name="timer" class="pending-icon" />
-        <span class="pending-count">
-          {seconds > 0 ? (
-            <>
-              <b>{seconds}</b> 秒后变更为
-            </>
-          ) : (
-            "即将变更为"
-          )}
-        </span>
-        <StatusBadge view={pending.view} />
-        <span class="spacer" />
-        <Hint text={source ? `${source}\n${why}` : why} />
-      </div>
-      <PresenceDetail view={pending.view} />
-      <div class="progress" aria-hidden="true">
+        {seconds > 0 ? (
+          <>
+            <b>{seconds}</b> 秒后变为
+          </>
+        ) : (
+          "即将变为"
+        )}
+        <span class="status-dot" aria-hidden="true" />
+        <span class="pending-state">{pending.view.headline}</span>
+      </span>
+      <span class="progress" aria-hidden="true">
         <span style={{ width: `${progress * 100}%` }} />
-      </div>
-    </div>
+      </span>
+    </HoverTip>
   );
 }
-
-
 function Unclassified({ state }: { state: PanelState }) {
   const { ask, run } = useHost();
   const classify = async (item: UnclassifiedItem) => {
