@@ -34,6 +34,9 @@ const glyphs = {
   more: "\uE712",
   block: "\uE8F8",
   remove: "\uE738",
+  app: "\uECAA",
+  globe: "\uE774",
+  text: "\uE8D2",
   check: "\uE73E",
 } as const;
 

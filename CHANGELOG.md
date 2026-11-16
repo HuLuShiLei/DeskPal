@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 分类页可以按类别筛选，并直接修改类别；待归类也显示在这里，选好类别即保存
+  en: On the Rules page you can filter by category and change a category in place. Unclassified apps appear there too, and choosing a category saves it
+
 - 房间页改为整块卡片：当前房间单独成卡，成员显示实时状态，屏蔽和踢出收进菜单
   en: The Rooms page uses one card per list. The current room has its own card, members show their live status, and block and kick are in a menu
 

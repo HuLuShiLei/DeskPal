@@ -1,26 +1,100 @@
 import { useState } from "preact/hooks";
-import type { MyRuleItem, PanelState } from "../bridge";
+import type { MyRuleItem, Option, PanelState, RuleKind } from "../bridge";
 import { useHost } from "../host";
 import { t } from "../i18n";
-import { Hint, Icon, Section } from "../ui";
+import { categoryTone, Hint, Icon, Section, type IconName } from "../ui";
+
+const kindIcons: Record<RuleKind, IconName> = { Process: "app", Domain: "globe", TitleKeyword: "text" };
 
 export function RulesPage({ state }: { state: PanelState }) {
+  return (
+    <>
+      {state.unclassified.length > 0 && <Unclassified state={state} />}
+      <MyRules state={state} />
+    </>
+  );
+}
+
+function KindTile({ kind, category }: { kind: RuleKind; category?: string }) {
+  return (
+    <span class={category ? `kind-tile tv-${categoryTone(category)}` : "kind-tile"} aria-hidden="true">
+      <Icon name={kindIcons[kind]} />
+    </span>
+  );
+}
+
+function CategorySelect({ label, value, options, placeholder, onChange }: { label: string; value: string; options: Option<string>[]; placeholder?: string; onChange: (category: string) => void }) {
+  return (
+    <select class="category-select" aria-label={label} value={value} onChange={(e) => onChange(e.currentTarget.value)}>
+      {placeholder && (
+        <option value="" disabled>
+          {placeholder}
+        </option>
+      )}
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>
+          {o.name}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function Unclassified({ state }: { state: PanelState }) {
+  const { run } = useHost();
+  return (
+    <Section
+      title={
+        <>
+          {t("unclassified.title")}
+          <Hint text={t("unclassified.note")} />
+        </>
+      }
+      label={t("unclassified.title")}
+      aside={<span class="section-note">{t("unclassified.count", { count: state.unclassified.length })}</span>}
+    >
+      <ul class="card flush list-card">
+        {state.unclassified.map((item) => (
+          <li key={item.kind + item.pattern} class="card-row">
+            <KindTile kind={item.kind} />
+            <div class="row-main">
+              <p class="row-title">
+                <span class="row-name" title={item.name}>
+                  {item.name}
+                </span>
+              </p>
+              <p class="sub">{item.today}</p>
+            </div>
+            <CategorySelect
+              label={t("unclassified.classifyName", { name: item.name })}
+              value=""
+              placeholder={t("unclassified.classify")}
+              options={state.correction.options}
+              onChange={(category) => void run({ type: "rules.set", kind: item.kind, pattern: item.pattern, name: item.name, category }, t("common.saved"))}
+            />
+          </li>
+        ))}
+      </ul>
+    </Section>
+  );
+}
+
+function MyRules({ state }: { state: PanelState }) {
   const { ask, run } = useHost();
   const [query, setQuery] = useState("");
-  const keyword = query.trim().toLowerCase();
-  const rules = keyword
-    ? state.myRules.filter((r) => [r.name, r.pattern, r.categoryName, r.kindName].some((text) => text.toLowerCase().includes(keyword)))
-    : state.myRules;
+  const [filter, setFilter] = useState<string | null>(null);
 
-  const edit = async (rule: MyRuleItem) => {
-    const a = await ask({
-      title: t("rule.ask", { name: rule.name }),
-      select: { options: state.correction.options, initial: rule.category },
-      okText: t("common.save"),
-    });
-    if (a.ok && a.selected !== rule.category) {
-      await run({ type: "rules.set", kind: rule.kind, pattern: rule.pattern, name: rule.name, category: a.selected }, t("common.saved"));
-    }
+  const counts = new Map<string, number>();
+  for (const r of state.myRules) counts.set(r.category, (counts.get(r.category) ?? 0) + 1);
+  const used = state.correction.options.filter((o) => counts.has(o.value));
+  const active = filter && counts.has(filter) ? filter : null;
+  const keyword = query.trim().toLowerCase();
+  const rules = state.myRules.filter(
+    (r) => (!active || r.category === active) && (!keyword || [r.name, r.pattern, r.categoryName, r.kindName].some((text) => text.toLowerCase().includes(keyword))),
+  );
+
+  const change = async (rule: MyRuleItem, category: string) => {
+    if (category !== rule.category) await run({ type: "rules.set", kind: rule.kind, pattern: rule.pattern, name: rule.name, category }, t("common.saved"));
   };
   const remove = async (rule: MyRuleItem) => {
     const a = await ask({ title: t("rules.deleteTitle"), message: t("rule.removeMessage", { name: rule.name }), okText: t("common.delete"), danger: true });
@@ -49,22 +123,39 @@ export function RulesPage({ state }: { state: PanelState }) {
             <Icon name="search" class="search-icon" />
             <input type="search" aria-label={t("rules.search")} placeholder={t("rules.searchPlaceholder")} value={query} onInput={(e) => setQuery(e.currentTarget.value)} />
           </div>
+          {used.length > 1 && (
+            <div class="chips" role="group" aria-label={t("rules.filter")}>
+              <button class="chip" aria-pressed={!active} onClick={() => setFilter(null)}>
+                {t("rules.all")}
+                <span class="chip-count">{state.myRules.length}</span>
+              </button>
+              {used.map((o) => (
+                <button key={o.value} class={`chip tv-${categoryTone(o.value)}`} aria-pressed={active === o.value} onClick={() => setFilter(active === o.value ? null : o.value)}>
+                  <span class="status-dot" aria-hidden="true" />
+                  {o.name}
+                  <span class="chip-count">{counts.get(o.value)}</span>
+                </button>
+              ))}
+            </div>
+          )}
           {rules.length === 0 ? (
             <p class="card-note">{t("rules.notFound", { query: query.trim() })}</p>
           ) : (
-            <ul class="list">
+            <ul class="card flush list-card">
               {rules.map((r) => (
-                <li key={r.kind + r.pattern} class="list-row compact">
+                <li key={r.kind + r.pattern} class="card-row">
+                  <KindTile kind={r.kind} category={r.category} />
                   <div class="row-main">
-                    <p class="row-title"><span class="row-name" title={r.name}>{r.name}</span></p>
-                    <p class="sub">
+                    <p class="row-title">
+                      <span class="row-name" title={r.name}>
+                        {r.name}
+                      </span>
+                    </p>
+                    <p class="sub" title={r.pattern}>
                       {r.kindName} · {r.pattern}
                     </p>
                   </div>
-                  <span class="pill">{r.categoryName}</span>
-                  <button class="icon-button" title={t("common.edit")} aria-label={t("rules.editName", { name: r.name })} onClick={() => edit(r)}>
-                    <Icon name="edit" />
-                  </button>
+                  <CategorySelect label={t("rules.editName", { name: r.name })} value={r.category} options={state.correction.options} onChange={(category) => void change(r, category)} />
                   <button class="icon-button" title={t("common.delete")} aria-label={t("rules.deleteName", { name: r.name })} onClick={() => remove(r)}>
                     <Icon name="delete" />
                   </button>

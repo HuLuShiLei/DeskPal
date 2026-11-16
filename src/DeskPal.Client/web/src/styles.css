@@ -600,3 +600,18 @@ button.card-row.selectable-row[aria-selected=true]:hover:not(:disabled) { backgr
 @keyframes menu-in { from { opacity: 0; transform: translateY(-4px); } }
 .context-menu .menu-item { min-height: 32px; }
 .menu-item.danger .menu-icon { color: inherit; }
+.kind-tile {
+  width: 30px; height: 30px; border-radius: 8px; flex: none; display: grid; place-items: center;
+  background: var(--hover); color: var(--muted);
+}
+.kind-tile .icon { font-size: 15px; }
+.kind-tile[class*="tv-"] { background: color-mix(in srgb, var(--tv) 18%, transparent); color: color-mix(in srgb, var(--tv) 85%, var(--text)); }
+select.category-select { flex: none; width: 104px; }
+
+.chip .status-dot { width: 7px; height: 7px; }
+.chip-count { font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.chip[aria-pressed=true] .chip-count { color: inherit; opacity: 0.75; }
+.chip[class*="tv-"][aria-pressed=true] {
+  background: color-mix(in srgb, var(--tv) 20%, transparent); color: color-mix(in srgb, var(--tv) 85%, var(--text));
+  border-color: color-mix(in srgb, var(--tv) 40%, transparent);
+}
