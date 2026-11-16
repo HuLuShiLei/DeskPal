@@ -197,3 +197,4 @@
 | 2026-11-16 | 关闭窗口增加「直接退出」：对话框和设置「关闭窗口时」都可以选。选中后发 `window.quit`，和托盘菜单的「退出」一样停止后台服务、断开连接后退出。`closeAction` 增加 `quit` |
 | 2026-11-16 | 内置规则库版本 7：Claude 的进程 `claude` 和域名 `claude.ai` 改为 Work，新增 Codex 进程 `codex` 为 Work。ChatGPT、豆包等其他 AI 助手仍是 Other |
 | 2026-11-16 | 邀请码可以反复查看：新增 `GET /api/rooms/{id}/invite`（`InviteDto`，房间没有邀请码时当场生成）；创建房间时一并生成邀请码；`POST /api/rooms/{id}/invites` 只有所有者能调用，其他成员返回 403 `room.ownerOnlyInvite`。邀请码不再过期：删除 `RoomInvites.ExpiresAt`、`Rooms:InviteLifetimeHours`，`RoomInvites.RoomId` 改为唯一索引（迁移 `RemoveRoomInviteExpiry`，先删除已过期的码和同一房间多余的码），`InviteDto` 只剩 `Code`。页面命令新增 `room.inviteGet`、`room.inviteCopy`（向服务器取最新的码再复制），`room.invite` 只返回 `code`；房间页「当前房间」卡片固定显示邀请码，去掉「生成邀请码」主按钮和弹窗，删除文案 `Room_InviteCopied`。`ApiError_room_inviteInvalid` 改为「邀请码无效」 |
+| 2026-11-16 | GitHub Release 说明开头改为书面用语：标明正式版或测试版、安装包和更新通道。检查更新和「加入测试版」写在「设置」的「关于」中 |

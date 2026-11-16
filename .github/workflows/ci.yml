@@ -180,9 +180,9 @@ jobs:
           $changes = if ($subjects.Count -eq 0) { '- 这次没有新的提交说明' } else { ($subjects | ForEach-Object { "- $_" }) -join "`n" }
           $setupName = "DeskPal-$version-Setup.exe"
           $intro = if ($pre) {
-            "测试版，供内部试用。`n`n安装 $setupName，安装时可以选择安装目录。安装之后会继续接收测试版。`n托盘菜单可以检查更新，也可以取消「加入测试版」。已下载的更新在退出时安装。"
+            "本版本为测试版。安装后将继续接收测试版更新。`n`n请下载并运行 $setupName。安装时可以选择安装目录。`n`n在「设置」的「关于」中可以检查更新，或关闭「加入测试版」。已下载的更新在退出程序时安装。"
           } else {
-            "安装 $setupName，安装时可以选择安装目录。默认只接收正式版。`n要接收 main 上的测试修复，在托盘菜单勾选「加入测试版」。"
+            "本版本为正式版。安装后默认只接收正式版更新。`n`n请下载并运行 $setupName。安装时可以选择安装目录。`n`n如需接收测试版，在「设置」的「关于」中开启「加入测试版」。"
           }
           $since = if ($previous) { "自 $previous 以来" } else { "本次发布" }
           $notes = "$intro`n`n## 更新内容（$since）`n`n$changes$more`n"
