@@ -7,6 +7,10 @@ internal static class NativeMethods
 {
     public const uint ProcessQueryLimitedInformation = 0x1000;
     public const uint MonitorDefaultToNearest = 2;
+    public const int SmCxSmIcon = 49;
+
+    [DllImport("user32.dll")]
+    public static extern int GetSystemMetrics(int index);
 
     [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();

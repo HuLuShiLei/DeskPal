@@ -25,7 +25,14 @@
     <Version>0.1.0</Version>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <StartupObject>DeskPal.Client.Program</StartupObject>
+    <ApplicationIcon>Assets\DeskPal.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <!-- 图标由 Assets/make-icon.ps1 生成；托盘从资源里读，安装向导直接引用这个文件。 -->
+  <ItemGroup>
+    <Resource Include="Assets\DeskPal.ico" />
+    <None Remove="Assets\make-icon.ps1" />
+  </ItemGroup>
 
   <!-- 更新后弹出的「更新内容」读程序目录下的 CHANGELOG.md。 -->
   <ItemGroup>

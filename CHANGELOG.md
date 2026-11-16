@@ -8,6 +8,8 @@
 
 ## 0.1.2
 
+- DeskPal 有了自己的图标，托盘、任务栏、开始菜单和安装程序都使用新图标
+  en: DeskPal has its own icon, shown in the tray, the taskbar, the Start menu, and the installer
 - 去掉「保留时长」，使用统计的时间轴和标题一直保留，不再只留每天的总时长
   en: "Keep details for" has been removed. The timeline and titles in usage stats are kept, not just the daily totals
 - 同步到服务器暂时只对部分账号开放。其他账号已开启的同步已关闭，服务器上的数据已删除，本机数据保留

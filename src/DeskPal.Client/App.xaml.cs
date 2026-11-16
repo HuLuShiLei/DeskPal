@@ -2,13 +2,13 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using DeskPal.Client.Collectors;
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Diagnostics;
 using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Updates;
+using DeskPal.Client.Native;
 using DeskPal.Client.Services;
 using DeskPal.Client.Ui;
 using DeskPal.Client.Views;
@@ -301,13 +301,7 @@ public partial class App : Application
             ToolTipText = $"DeskPal {updates.VersionLabel}",
             NoLeftClickDelay = true,
             ContextMenu = menu,
-            IconSource = new GeneratedIconSource
-            {
-                Text = "D",
-                Foreground = Brushes.White,
-                Background = new SolidColorBrush(Color.FromRgb(0x4F, 0x7D, 0xF3)),
-                FontSize = 40,
-            },
+            Icon = LoadTrayIcon(),
         };
         tray.TrayLeftMouseUp += (_, _) =>
         {
@@ -322,6 +316,14 @@ public partial class App : Application
         };
         tray.ForceCreate(false);
         return tray;
+    }
+
+    // 按系统小图标尺寸取 ico 里最接近的一张，避免缩放高 DPI 时托盘图标发虚。
+    private static System.Drawing.Icon LoadTrayIcon()
+    {
+        using var stream = GetResourceStream(new Uri("pack://application:,,,/Assets/DeskPal.ico")).Stream;
+        var size = NativeMethods.GetSystemMetrics(NativeMethods.SmCxSmIcon);
+        return new System.Drawing.Icon(stream, size, size);
     }
 
     private async Task LogoutAsync()
