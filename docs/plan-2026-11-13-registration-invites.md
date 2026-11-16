@@ -33,7 +33,7 @@
 ### 配置
 
 - `Auth:RequireSignupInvite`：`true` 时注册必须填写注册邀请码。`appsettings.json` 默认 `false`，本地开发和现有测试不受影响；生产环境在 Portainer 环境变量里设为 `Auth__RequireSignupInvite=true`。
-- `Auth:AdminUserNames`：管理员用户名列表，按小写比对。生产环境用环境变量 `Auth__AdminUserNames__0=<你的用户名>`。用户名不是密钥，但也不写进仓库里的 `stack.yml`。
+- `Auth:AdminUserNames`：管理员用户名，逗号分隔，不区分大小写，前后空格忽略。生产环境用环境变量 `Auth__AdminUserNames__0`，由 Stack 变量 `DESKPAL_ADMIN_USER` 传入（例如 `alice,bob`）。用户名不是密钥，但也不写进仓库里的 `stack.yml`。
 
 ### 注册
 

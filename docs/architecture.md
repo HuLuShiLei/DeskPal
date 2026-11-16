@@ -195,7 +195,7 @@ flowchart LR
 |---|---|---|
 | POST | `/api/auth/register` | 注册，返回 `AuthResponse`（含 token，有效期 30 天）。`Auth:RequireSignupInvite` 为 true 时必须带 `signupCode`：没填返回 400 `auth.signupCodeRequired`；不存在、已使用、已作废都返回 400 `auth.signupCodeInvalid`，不区分哪一种。创建账号和占用注册邀请码在同一个事务里，用条件更新占用，同一个码并发注册只有一个成功；用户名已被占用时不消耗注册邀请码。开关关闭时忽略 `signupCode` |
 | POST | `/api/auth/login` | 登录。同一账号同一时间只能在一台电脑上登录：每次登录（和注册）生成新的 `Users.SessionId` 并写进 token（`sid`），之前登录的电脑收到 `auth.sessionReplaced`，2 秒后断开，它的旧 token 之后一律返回 401。部署前发出、不带 `sid` 的 token 在该账号下次登录前仍然有效 |
-| GET | `/api/me` | 当前用户，含 `shareUsage`（空表示还没问过）和 `isAdmin`（用户名在 `Auth:AdminUserNames` 里）。登录、注册、改名的返回值同样带 `isAdmin` |
+| GET | `/api/me` | 当前用户，含 `shareUsage`（空表示还没问过）和 `isAdmin`（用户名在 `Auth:AdminUserNames` 里，逗号分隔，不区分大小写）。登录、注册、改名的返回值同样带 `isAdmin` |
 | GET | `/api/admin/signup-invites` | 管理员查看注册邀请码（`SignupInviteDto`），不含已作废的；未使用的在前，最多 100 条。已使用的带使用者的用户名和显示名称。非管理员返回 403 `auth.notAdmin`，下面两个接口相同 |
 | POST | `/api/admin/signup-invites` | 管理员生成一个注册邀请码：8 位，字母表和房间邀请码相同，不过期 |
 | DELETE | `/api/admin/signup-invites/{code}` | 管理员作废一个未使用的注册邀请码，返回 204；已使用的返回 409 `auth.signupCodeUsed`，不存在或已作废返回 404 `auth.signupCodeInvalid` |
@@ -292,7 +292,7 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 | 环节 | 做法 |
 |---|---|
 | Server 镜像 | `.github/workflows/docker.yml`：推送默认分支或 `v*` 标签时用 `deploy/Dockerfile.server` 构建，推到 `ghcr.io/hulushilei/deskpal-server` |
-| Server 运行 | Portainer Stack（`deploy/stack.yml`），在 192.168.66.5 上发布 18820 端口；`Jwt__Key` 来自 Stack 环境变量 `DESKPAL_JWT_KEY`，`Rules__MaintainerToken` 来自可选的 `DESKPAL_MAINTAINER_TOKEN`；`Auth__RequireSignupInvite`、`Auth__AdminUserNames__0` 来自可选的 `DESKPAL_REQUIRE_SIGNUP_INVITE`、`DESKPAL_ADMIN_USER` |
+| Server 运行 | Portainer Stack（`deploy/stack.yml`），在 192.168.66.5 上发布 18820 端口；`Jwt__Key` 来自 Stack 环境变量 `DESKPAL_JWT_KEY`，`Rules__MaintainerToken` 来自可选的 `DESKPAL_MAINTAINER_TOKEN`；`Auth__RequireSignupInvite`、`Auth__AdminUserNames__0` 来自可选的 `DESKPAL_REQUIRE_SIGNUP_INVITE`、`DESKPAL_ADMIN_USER`（多个用户名用逗号分隔） |
 | 规则库候选 | `.github/workflows/rule-candidates.yml`：每周一和手动运行，用 secret `DESKPAL_MAINTAINER_TOKEN` 请求 `/api/rules/candidates`，`.github/scripts/merge-rule-candidates.mjs` 合并进 `builtin-rules.json`，校验后开 PR（分支 `rules/candidates`） |
 | 自动更新 | main 上的镜像同时推 `latest` 和 `sha-<提交号>`。GitHub Actions POST `PORTAINER_WEBHOOK_URL?tag=sha-<提交号>`，再等到 `/health` 的 `revision` 等于该提交号。Traefik 只在 36443 上公开 webhook token 路径 |
 | HTTPS | 192.168.66.10 上已有的 Traefik：`deskpal.hafuhafu.cn` 走 443 和 36443 两个入口，`*.hafuhafu.cn` 泛域名证书（阿里云 DNS challenge）；路由文件 `/etc/traefik/conf/deskpal.yml`，仓库里的副本是 `deploy/traefik-dynamic.yml` |

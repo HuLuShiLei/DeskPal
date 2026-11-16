@@ -84,6 +84,9 @@ public sealed class SignupInviteTests : IClassFixture<SignupInviteTests.ServerFa
         Assert.True((await SendAsync<AuthResponse>(http, HttpMethod.Get, "/api/me", null, admin.Token)).IsAdmin);
 
         var open = OpenRegistration().CreateClient();
+        var second = await SendAsync<AuthResponse>(open, HttpMethod.Post, "/api/auth/register", Register("inviteadmin2", null, unique: false), null);
+        Assert.True(second.IsAdmin);
+        Assert.True((await SendAsync<AuthResponse>(http, HttpMethod.Get, "/api/me", null, second.Token)).IsAdmin);
         var member = await SendAsync<AuthResponse>(open, HttpMethod.Post, "/api/auth/register", Register("member", null), null);
         Assert.False(member.IsAdmin);
         Assert.False((await SendAsync<AuthResponse>(http, HttpMethod.Get, "/api/me", null, member.Token)).IsAdmin);
@@ -154,7 +157,7 @@ public sealed class SignupInviteTests : IClassFixture<SignupInviteTests.ServerFa
             builder.UseEnvironment("Development");
             builder.UseSetting("ConnectionStrings:Default", $"Data Source={_dbPath};Pooling=False");
             builder.UseSetting("Auth:RequireSignupInvite", "true");
-            builder.UseSetting("Auth:AdminUserNames:0", AdminName);
+            builder.UseSetting("Auth:AdminUserNames:0", " InviteAdmin , inviteadmin2 ");
         }
 
         protected override void Dispose(bool disposing)

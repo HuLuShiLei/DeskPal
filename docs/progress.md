@@ -192,3 +192,4 @@
 | 2026-11-16 | `Other` 的标题固定为「其他活动」，`PresenceView.App` 照常带应用名，和其他状态一样分两行；删除 `State_UsingApp`，`State_UsingOtherApp` 改名为 `State_Other` |
 | 2026-11-16 | 左侧导航：「状态」改名「首页」（`tab.status`，英文 Home），图标从多人改为房子；「房间」图标从房子改为多人（`group`，U+E902）。说明文案里的「状态页」同步改为「首页」（`privacy.shareHint`、`rules.hint`、`rules.empty`、`noTitle.hint`） |
 | 2026-11-16 | 检查更新加节流（`UpdateCheckThrottle`）：手动检查 5 分钟内沿用同一通道上次「已是最新」的结果；被 GitHub 限流后到恢复时间之前不再请求，提示新增文案 `Update_RateLimited`。`GithubSource` 改用 `GithubApiDownloader`，读取 `Retry-After` 和 `X-RateLimit-Reset`，请求 Release 列表失败时不再按小写网址重试一次 |
+| 2026-11-16 | 管理员名单支持逗号分隔：`Auth:AdminUserNames` 的每一项按逗号拆开，忽略空项和首尾空格，不区分大小写。Stack 变量 `DESKPAL_ADMIN_USER` 写成 `alice,bob` 即可 |
