@@ -2,9 +2,11 @@
 // 地址参数：?mock=default|no-room|guest|updated 选样例；?lang=en 用英文样例；?fail 让所有命令失败；?page=login 打开登录页；?page=card 打开第一个成员的置顶小卡片；?sync=on|pin|error|folder|unavailable 让统计页的同步处于已开启、待输入 PIN 码、上传失败、同步文件夹已开启、文件夹无法访问；?existing 让选择的文件夹里已有其他电脑的同步数据。
 // 发出的命令记在 window.__sent，方便检查。
 
-import type { CommandResult, HostMessage, NoTitleKind, PanelState, PrivacyLevel, SignupInviteItem, StatsView, Transport } from "../bridge";
+import type { CommandResult, HostMessage, NoTitleKind, PanelState, PrivacyLevel, SignupInviteItem, StatsAppView, StatsView, Transport } from "../bridge";
 import defaultState from "./fixtures/default.json";
 import statsViews from "./fixtures/stats.json";
+import statsApps from "./fixtures/stats-apps.json";
+import enStatsApps from "./fixtures/en/stats-apps.json";
 import guestState from "./fixtures/guest.json";
 import noRoomState from "./fixtures/no-room.json";
 import updatedState from "./fixtures/updated.json";
@@ -43,6 +45,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
   const L = (zh: string, en: string) => (english ? en : zh);
   const samples = english ? enFixtures : fixtures;
   const views = (english ? enStatsViews : statsViews) as unknown as Record<string, StatsView>;
+  const appViews = (english ? enStatsApps : statsApps) as unknown as Record<string, StatsAppView>;
   const initial = samples[params.get("mock") ?? "default"] ?? samples.default;
   const state: PanelState = structuredClone(initial);
   const syncSample = params.get("sync");
@@ -162,6 +165,14 @@ export function createMockTransport(params: URLSearchParams): Transport {
         return view
           ? { ok: true, error: null, data: view }
           : { ok: false, error: L("对方不在线、当前不在此房间，或没有响应。", "This member is offline, not in this room, or did not respond.") };
+      }
+      case "stats.app": {
+        // 样例只有每个应用在「今天」所在的日、周、月的详情；标题详情返回所属应用的那页，换上标题。
+        await new Promise((resolve) => setTimeout(resolve, 80));
+        const view = appViews[`${m.scale}-${m.app}`];
+        if (!view) return { ok: false, error: L("读取统计失败", "Could not load stats") };
+        const title = m.title as string | null;
+        return { ok: true, error: null, data: title ? { ...view, name: title, sub: `${view.name} · ${view.sub}`, titles: [] } : view };
       }
       case "stats.export":
         return { ok: true, error: null, data: { message: L("已导出到 C:\\Users\\alice\\Documents\\DeskPal-使用统计-20261111.json", "Exported to C:\\Users\\alice\\Documents\\DeskPal-usage-20261111.json") } };

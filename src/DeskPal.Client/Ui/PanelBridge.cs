@@ -258,6 +258,9 @@ public sealed class PanelBridge
             case "stats.query":
                 return await QueryStatsAsync(c);
 
+            case "stats.app":
+                return await QueryAppStatsAsync(c);
+
             case "stats.export":
             {
                 var dialog = new Microsoft.Win32.SaveFileDialog
@@ -693,8 +696,8 @@ public sealed class PanelBridge
 
         if (c.OptionalString("userId") is null)
         {
-            var (mine, targets) = await Task.Run(() => (_usage.Report(range.From, to, (previous.From, previous.To)), _usage.RuleTargets()));
-            return new CommandResult(true, Data: StatsViewBuilder.Build(mine, scale, rankBy, anchor, today, targetOf: targets, filter: filter));
+            var mine = await Task.Run(() => _usage.Report(range.From, to, (previous.From, previous.To)));
+            return new CommandResult(true, Data: StatsViewBuilder.Build(mine, scale, rankBy, anchor, today, filter: filter));
         }
 
         var userId = c.Guid("userId");
@@ -729,6 +732,23 @@ public sealed class PanelBridge
         {
             return CommandResult.Fail(ex.Message);
         }
+    }
+
+    /// <summary>Detail page of one of my ranking rows; only for my own stats.</summary>
+    private async Task<CommandResult> QueryAppStatsAsync(WebCommand c)
+    {
+        if (!Enum.TryParse<StatsScale>(c.String("scale"), out var scale) || c.OptionalString("app") is not { Length: > 0 } app)
+        {
+            return CommandResult.Fail(Strings.Error_StatsRange);
+        }
+
+        var today = UsageService.Today;
+        var anchor = DateOnly.TryParseExact(c.String("date"), "yyyy-MM-dd", out var date) && date <= today ? date : today;
+        var range = StatsRange.Of(scale, anchor);
+        var to = range.To > today ? today : range.To;
+        var title = c.OptionalString("title");
+        var (detail, targets) = await Task.Run(() => (_usage.AppDetail(range.From, to, app, title), _usage.RuleTargets()));
+        return new CommandResult(true, Data: StatsAppViewBuilder.Build(detail, app, title, scale, anchor, today, targets(app)));
     }
 
     private async Task<CommandResult> CorrectAsync(WebCommand c)

@@ -6,7 +6,8 @@ namespace DeskPal.Client.Core.Usage;
 /// <summary>
 /// Reduces a report to what a room may see. Each category is shown at that room's privacy level for the category:
 /// only the state, also the app, or also the titles. The same rule as the live presence: the state tells the category
-/// (work, chat, video, game, browsing, other), so the category is always kept.
+/// (work, chat, video, game, browsing, other), so the category is always kept. When and how long each day was used
+/// (weekly rhythm, first and last use) is not shared at all.
 /// </summary>
 public static class StatsFilter
 {
@@ -32,6 +33,8 @@ public static class StatsFilter
                 PrivacyLevel.Category => t with { Title = null },
                 _ => t,
             }), top),
+            WeekHours = null,
+            Bounds = null,
         };
     }
 }

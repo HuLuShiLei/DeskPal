@@ -68,7 +68,23 @@ public sealed class UsageService : IDisposable
     {
         Recorder.Flush();
         var report = Build(from, to);
-        return previous is { } p ? report with { PreviousSeconds = UsageAggregator.ActiveSeconds(Build(p.From, p.To)) } : report;
+        return previous is { } p ? report with { Previous = UsageAggregator.Totals(Build(p.From, p.To)) } : report;
+    }
+
+    /// <param name="title">Only this title of the app; null for the whole app.</param>
+    public UsageAppDetail AppDetail(DateOnly from, DateOnly to, string app, string? title)
+    {
+        Recorder.Flush();
+        var zone = TimeZoneInfo.Local;
+        var reclassifier = _reclassifier;
+        return UsageAppDetail.Build(
+            _db.Segments(UsageAggregator.LocalMidnight(from, zone), UsageAggregator.LocalMidnight(to.AddDays(1), zone)).Select(reclassifier.Apply),
+            _db.Rollups(from, to).Select(reclassifier.Apply),
+            app,
+            title,
+            from,
+            to,
+            zone);
     }
 
     /// <summary>The no-title rules changed, here or from another computer through sync.</summary>
@@ -141,7 +157,7 @@ public sealed class UsageService : IDisposable
         var zone = TimeZoneInfo.Local;
         var reclassifier = _reclassifier;
         return UsageAggregator.Build(
-            _db.Segments(UsageAggregator.LocalMidnight(from, zone), UsageAggregator.LocalMidnight(to.AddDays(1), zone)).Select(reclassifier.Apply),
+            _db.Segments(UsageAggregator.LocalMidnight(from, zone), UsageAggregator.LocalMidnight(to.AddDays(1), zone).AddHours(UsageAggregator.DayStartHour)).Select(reclassifier.Apply),
             _db.Rollups(from, to).Select(reclassifier.Apply),
             from,
             to,

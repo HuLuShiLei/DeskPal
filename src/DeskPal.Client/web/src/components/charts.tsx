@@ -1,4 +1,4 @@
-import type { StatsView } from "../bridge";
+import type { StatsBar, StatsRhythm, StatsView } from "../bridge";
 import { t } from "../i18n";
 
 /** 一天 24 小时的横向色带。悬停显示起止时间和时长。 */
@@ -22,25 +22,32 @@ export function Timeline({ spans }: { spans: StatsView["timeline"] }) {
   );
 }
 
-/** 堆叠柱。每根柱按图例分色；点有日期的柱进入那一天。 */
-export function Bars({ view, onPick }: { view: StatsView; onPick: (date: string) => void }) {
-  const tone = new Map(view.legend.map((l) => [l.key, l]));
+/** 堆叠柱。每根柱按图例分色；给了 onPick 时，点有日期的柱进入那一天。 */
+export function Bars({ bars, max, maxLabel, legend, onPick, label = t("charts.bars") }: {
+  bars: StatsBar[];
+  max: number;
+  maxLabel: string;
+  legend: StatsView["legend"];
+  onPick?: (date: string) => void;
+  label?: string;
+}) {
+  const tone = new Map(legend.map((l) => [l.key, l]));
   const width = 10;
   return (
     <div class="stats-bars">
-      <span class="stats-max">{view.barMaxLabel}</span>
-      <svg viewBox={`0 0 ${view.bars.length * width} 100`} preserveAspectRatio="none" role="img" aria-label={t("charts.bars")}>
-        <line x1="0" x2={view.bars.length * width} y1="0.5" y2="0.5" class="stats-grid" />
-        <line x1="0" x2={view.bars.length * width} y1="50" y2="50" class="stats-grid" />
-        {view.bars.map((bar, i) => {
+      <span class="stats-max">{maxLabel}</span>
+      <svg viewBox={`0 0 ${bars.length * width} 100`} preserveAspectRatio="none" role="img" aria-label={label}>
+        <line x1="0" x2={bars.length * width} y1="0.5" y2="0.5" class="stats-grid" />
+        <line x1="0" x2={bars.length * width} y1="50" y2="50" class="stats-grid" />
+        {bars.map((bar, i) => {
           let y = 100;
-          const clickable = bar.date !== null && view.scale !== "Day";
+          const clickable = bar.date !== null && onPick !== undefined;
           return (
             <g key={i} class={clickable ? "stats-bar clickable" : "stats-bar"} onClick={() => clickable && onPick(bar.date!)}>
               <title>{bar.tip}</title>
               <rect x={i * width} y="0" width={width} height="100" class="stats-hit" />
               {bar.parts.map((p) => {
-                const h = Math.min(y, (p.seconds / view.barMax) * 100);
+                const h = Math.min(y, (p.seconds / max) * 100);
                 y -= h;
                 const legend = tone.get(p.key);
                 return (
@@ -59,9 +66,37 @@ export function Bars({ view, onPick }: { view: StatsView; onPick: (date: string)
           );
         })}
       </svg>
-      <div class="stats-axis" style={{ gridTemplateColumns: `repeat(${view.bars.length}, minmax(0, 1fr))` }} aria-hidden="true">
-        {view.bars.map((bar, i) => (
+      <div class="stats-axis" style={{ gridTemplateColumns: `repeat(${bars.length}, minmax(0, 1fr))` }} aria-hidden="true">
+        {bars.map((bar, i) => (
           <span key={i}>{bar.label}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** 一周节律：星期 × 小时，颜色越深用得越多。悬停显示星期、时段和时长。 */
+export function Heatmap({ rhythm }: { rhythm: StatsRhythm }) {
+  const color = rhythm.tone ? `var(--tone-${rhythm.tone})` : "var(--accent)";
+  return (
+    <div class="stats-heatmap" role="img" aria-label={t("stats.rhythm")}>
+      {rhythm.rows.map((row) => (
+        <div key={row.label} class="stats-heatmap-row">
+          <span class="stats-heatmap-label">{row.label}</span>
+          {row.cells.map((cell, hour) => (
+            <span
+              key={hour}
+              class="stats-heatmap-cell"
+              title={cell.tip}
+              style={cell.seconds > 0 && rhythm.max > 0 ? { background: color, opacity: 0.15 + 0.85 * (cell.seconds / rhythm.max) } : undefined}
+            />
+          ))}
+        </div>
+      ))}
+      <div class="stats-heatmap-row stats-heatmap-axis" aria-hidden="true">
+        <span class="stats-heatmap-label" />
+        {Array.from({ length: 24 }, (_, hour) => (
+          <span key={hour}>{hour % 6 === 0 ? hour : ""}</span>
         ))}
       </div>
     </div>
@@ -88,13 +123,13 @@ export function Legend({ legend, selected, onPick }: { legend: StatsView["legend
   );
 }
 
-/** 排行：名称、所属应用或类别、横向占比条和时长。带 rule 的行可以点击修改分类，带 filter 的类别行点击后只看这一类。 */
+/** 排行：名称、所属应用或类别、横向占比条和时长。带 detail 的行点击后打开详情，带 filter 的类别行点击后只看这一类。 */
 export function Ranking({ items, onPick }: { items: StatsView["ranking"]; onPick?: (item: StatsView["ranking"][number]) => void }) {
   return (
     <ol class="stats-ranking">
       {items.map((item, i) => {
-        const pick = (item.rule || item.filter) && onPick ? () => onPick(item) : undefined;
-        const tip = [item.name, item.sub, pick && t(item.filter ? "stats.filterHint" : "stats.clickToReclassify")].filter(Boolean).join("\n");
+        const pick = (item.detail || item.filter) && onPick ? () => onPick(item) : undefined;
+        const tip = [item.name, item.sub, pick && t(item.filter ? "stats.filterHint" : "stats.clickForDetail")].filter(Boolean).join("\n");
         return (
         <li
           key={i}

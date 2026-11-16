@@ -32,6 +32,8 @@ public class PanelFixtureTests
     {
         Check("stats", StatsSamples.Views());
         InEnglish(() => Check("en/stats", StatsSamples.Views()));
+        Check("stats-apps", StatsSamples.AppViews());
+        InEnglish(() => Check("en/stats-apps", StatsSamples.AppViews()));
     }
 
     private static void InEnglish(Action action)

@@ -28,6 +28,12 @@
   en: You can change how an app or a site is categorized in Usage stats. Past records follow the new category
 - 查看今天的统计时，不再和昨天比较
   en: Today's usage stats are no longer compared with yesterday
+- 和上一周期比较时，列出变化最大的几个类别
+  en: Comparisons with the previous period list the categories that changed most
+- 点击统计排行中的应用或标题，可以查看它的使用次数、平均每次时长、最长一次、最常用时段和常见标题；更改分类也在这里
+  en: Click an app or a title in the ranking to see its sessions, average and longest session, peak hour, and top titles. You can change its category there too
+- 自己的统计显示首次活动和最后活动时间（凌晨 4 点前算前一天），周和月显示一周节律
+  en: Your own stats show when you were first and last active (activity before 4 a.m. counts toward the previous day). Week and month views show your weekly rhythm
 - 浏览器里正在播放的视频记为在看视频。全屏游戏不再因为别处正在播放视频而被记成在看视频
   en: A video playing in the browser counts as watching a video. A full-screen game is no longer counted as a video because something else is playing
 - 设置里可以选择暂离的时间，并在其他电脑登录后保持一致

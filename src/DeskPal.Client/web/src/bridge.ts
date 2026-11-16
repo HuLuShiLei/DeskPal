@@ -166,7 +166,7 @@ export interface StatsView {
   canNext: boolean;
   legend: { key: string; name: string; tone: Tone; hidden: boolean }[];
   /** 日视图 24 根（每小时），周、月视图每天一根。 */
-  bars: { label: string; tip: string; date: string | null; parts: { key: string; seconds: number }[] }[];
+  bars: StatsBar[];
   barMax: number;
   barMaxLabel: string;
   /** 只有日视图有：从零点起的秒数。 */
@@ -174,6 +174,26 @@ export interface StatsView {
   ranking: StatsRankItem[];
   note: string | null;
   empty: string | null;
+  /** 和上一周期相比变化最大的类别，显示在对比下面。 */
+  changes: { key: string; name: string; tone: Tone; text: string; hidden: boolean }[];
+  /** 首次和最后活动；周、月是平均值。只在看自己时有。 */
+  bounds: string | null;
+  /** 一周节律：周一到周日，每行 24 格。只在看自己的周、月时有。 */
+  rhythm: StatsRhythm | null;
+}
+
+export interface StatsRhythm {
+  rows: { label: string; cells: { seconds: number; tip: string }[] }[];
+  /** 只看某一类时用这一类的颜色；null 用强调色。 */
+  tone: Tone | null;
+  max: number;
+}
+
+export interface StatsBar {
+  label: string;
+  tip: string;
+  date: string | null;
+  parts: { key: string; seconds: number }[];
 }
 
 export interface StatsRankItem {
@@ -183,10 +203,44 @@ export interface StatsRankItem {
   time: string;
   share: number;
   hidden: boolean;
-  /** 只在自己的应用、标题排行上有：点击后用 rules.set 修改分类，历史统计按新分类显示。 */
-  rule: { kind: RuleKind; pattern: string; name: string; category: string } | null;
+  /** 只在自己的应用、标题排行上有：点击后用 stats.app 打开详情。 */
+  detail: StatsDetailKey | null;
   /** 只在类别排行上有：点击后只看这一类。 */
   filter: string | null;
+}
+
+export interface StatsDetailKey {
+  app: string;
+  title: string | null;
+}
+
+/** 某个应用、网站或标题的详情，由 stats.app 返回，范围和统计页相同。 */
+export interface StatsAppView {
+  scale: StatsScale;
+  anchor: string;
+  name: string;
+  sub: string | null;
+  title: string;
+  canPrev: boolean;
+  canNext: boolean;
+  totalLabel: string;
+  total: string;
+  summary: string | null;
+  facts: { label: string; value: string }[];
+  legend: StatsView["legend"];
+  /** 日视图 24 根（每小时），周、月视图每天一根。 */
+  bars: StatsBar[];
+  barMax: number;
+  barMaxLabel: string;
+  /** 周、月视图按小时的分布；日视图为空。 */
+  hours: StatsBar[];
+  hoursMax: number;
+  hoursMaxLabel: string;
+  /** 常见标题；查看某个标题时为空。 */
+  titles: StatsRankItem[];
+  /** 修改分类时用 rules.set 保存的个人分类；null 表示不能修改。 */
+  rule: { kind: RuleKind; pattern: string; name: string; category: string } | null;
+  empty: string | null;
 }
 
 export type DialogKind = "confirm" | "info" | "warning";
@@ -207,6 +261,7 @@ export type Command =
   | { type: "room.privacy"; roomId: string; levels: Record<string, PrivacyLevel> }
   | { type: "room.shareStats"; roomId: string; enabled: boolean; days: number }
   | { type: "stats.query"; scale: StatsScale; rankBy: StatsRankBy; filter: string | null; date: string | null; userId: string | null }
+  | { type: "stats.app"; scale: StatsScale; date: string | null; app: string; title: string | null }
   | { type: "stats.export" }
   | { type: "stats.import" }
   | { type: "stats.clear" }

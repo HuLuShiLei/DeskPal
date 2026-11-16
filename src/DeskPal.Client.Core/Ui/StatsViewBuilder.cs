@@ -21,7 +21,7 @@ public static class StatsViewBuilder
         new("other", Strings.Legend_Other, "other"),
     ];
 
-    private static StatsLegend[] CategoryLegend =>
+    internal static StatsLegend[] CategoryLegend =>
     [
         new("Work", Strings.Category_Work, "work"),
         new("Communication", Strings.Category_Communication, "chat"),
@@ -33,14 +33,21 @@ public static class StatsViewBuilder
 
     /// <param name="anchor">Any day in the range being shown.</param>
     /// <param name="today">Today on this computer; later days cannot be opened.</param>
-    /// <param name="owner">Name of the member the report came from; null for my own stats.</param>
-    /// <param name="targetOf">What a personal rule for a recorded app name would be saved against; null when ranking rows cannot be changed.</param>
+    /// <summary>Category changes smaller than this are not listed.</summary>
+    private const long MinChangeSeconds = 5 * 60;
+
+    private const int MaxChanges = 3;
+
+    private static readonly DayOfWeek[] WeekFromMonday =
+        [DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday];
+
+    /// <param name="owner">Name of the member the report came from; null for my own stats, whose ranking rows open the detail page.</param>
     /// <param name="filter">Legend key to show only; ignored when the range has no such category.</param>
-    public static StatsView Build(UsageReport report, StatsScale scale, StatsRankBy rankBy, DateOnly anchor, DateOnly today, string? owner = null, Func<string, StatsRuleTarget?>? targetOf = null, string? filter = null)
+    public static StatsView Build(UsageReport report, StatsScale scale, StatsRankBy rankBy, DateOnly anchor, DateOnly today, string? owner = null, string? filter = null)
     {
         var range = StatsRange.Of(scale, anchor);
         var stateLegend = StateLegend;
-        var legend = CategoryLegend
+        var fullLegend = CategoryLegend
             .Concat(stateLegend.Select(s => new StatsLegend("hidden-" + s.Key, UiLanguage.Format(Strings.Legend_Hidden, s.Name), s.Tone, Hidden: true)))
             .ToList();
         string KeyOf(PresenceState state, ActivityCategory category) => CategoryKey(category) ?? "hidden-" + StateKey(state, category);
@@ -49,7 +56,7 @@ public static class StatsViewBuilder
         var used = counted.Select(d => KeyOf(d.State, d.Category))
             .Concat(report.Apps.Concat(report.Titles).Select(i => KeyOf(i.State, i.Category)))
             .ToHashSet();
-        legend = legend.Where(l => used.Contains(l.Key)).ToList();
+        var legend = fullLegend.Where(l => used.Contains(l.Key)).ToList();
         var shownLegend = filter is null ? null : legend.FirstOrDefault(l => l.Key == filter);
         filter = shownLegend?.Key;
         bool Shown(string key) => filter is null || key == filter;
@@ -142,6 +149,12 @@ public static class StatsViewBuilder
             empty = owner is null ? Strings.Stats_EmptyMine : Strings.Stats_EmptyOther;
         }
 
+        var previousRange = Previous(scale, anchor);
+        var compare = filter is null ? Compare(report.Previous?.Sum(p => p.Seconds), scale, total, average, previousRange, scale == StatsScale.Day && range.From == today) : null;
+        var changes = compare is null || report.Previous is not { } previous
+            ? []
+            : Changes(counted, previous, scale, shownDays, previousRange.Days, KeyOf, fullLegend);
+
         var totalLabel = scale == StatsScale.Day ? Strings.Stats_UsageTime : Strings.Stats_DailyAverage;
         return new StatsView(
             scale,
@@ -152,7 +165,7 @@ public static class StatsViewBuilder
             Title(scale, range, today),
             shownLegend is null ? totalLabel : UiLanguage.Format(Strings.Stats_Of, totalLabel, shownLegend.Name),
             Duration(scale == StatsScale.Day ? total : average),
-            filter is null ? Compare(report.PreviousSeconds, scale, total, average, Previous(scale, anchor), scale == StatsScale.Day && range.From == today) : null,
+            compare,
             summary.Count == 0 ? null : string.Join(" · ", summary),
             report.SharedDays is not { } days || range.From > today.AddDays(1 - days),
             range.To < today,
@@ -163,12 +176,92 @@ public static class StatsViewBuilder
             scale == StatsScale.Day
                 ? report.Timeline.Where(s => filter is null || (UsageStates.Counts(s.State) && KeyOf(s.State, s.Category) == filter)).Select(Span).ToList()
                 : [],
-            Ranking(report, rankBy, legend, stateLegend, KeyOf, Shown, owner is null ? targetOf : null),
+            Ranking(report, rankBy, legend, stateLegend, KeyOf, Shown, mine: owner is null),
             notes.Count == 0 ? null : string.Join(Strings.SentenceSeparator, notes),
-            empty);
+            empty,
+            changes,
+            filter is null ? Bounds(report.Bounds, scale, range) : null,
+            scale == StatsScale.Day ? null : Rhythm(report.WeekHours, scale, shownFrom, shownDays, KeyOf, Shown, shownLegend?.Tone));
     }
 
     public static string Duration(long seconds) => PresenceFormatter.Duration(seconds);
+
+    /// <summary>Differences per category, as daily averages for a week or month like the total.</summary>
+    private static List<StatsChange> Changes(
+        IEnumerable<UsageTotal> current,
+        IEnumerable<UsageTotal> previous,
+        StatsScale scale,
+        int days,
+        int previousDays,
+        Func<PresenceState, ActivityCategory, string> keyOf,
+        IReadOnlyList<StatsLegend> legend)
+    {
+        Dictionary<string, long> PerKey(IEnumerable<UsageTotal> totals, int d) => totals
+            .Where(t => UsageStates.Counts(t.State))
+            .GroupBy(t => keyOf(t.State, t.Category))
+            .ToDictionary(g => g.Key, g => scale == StatsScale.Day ? g.Sum(t => t.Seconds) : g.Sum(t => t.Seconds) / Math.Max(1, d));
+
+        var now = PerKey(current, days);
+        var before = PerKey(previous, previousDays);
+        return now.Keys.Union(before.Keys)
+            .Select(key => (Key: key, Diff: now.GetValueOrDefault(key) - before.GetValueOrDefault(key), Legend: legend.FirstOrDefault(l => l.Key == key)))
+            .Where(c => c.Legend is not null && Math.Abs(c.Diff) >= MinChangeSeconds)
+            .OrderByDescending(c => Math.Abs(c.Diff))
+            .Take(MaxChanges)
+            .Select(c => new StatsChange(c.Key, c.Legend!.Name, c.Legend.Tone, (c.Diff > 0 ? "+" : "\u2212") + Duration(Math.Abs(c.Diff)), c.Legend.Hidden))
+            .ToList();
+    }
+
+    private static string? Bounds(IReadOnlyList<UsageDayBounds>? bounds, StatsScale scale, StatsRange range)
+    {
+        var days = bounds?.Where(b => b.Date >= range.From && b.Date <= range.To).ToList();
+        if (days is not { Count: > 0 })
+        {
+            return null;
+        }
+
+        return scale == StatsScale.Day
+            ? UiLanguage.Format(Strings.Stats_Bounds, DayClock(days[0].First), DayClock(days[0].Last))
+            : UiLanguage.Format(Strings.Stats_AverageBounds, DayClock((int)days.Average(b => b.First)), DayClock((int)days.Average(b => b.Last)));
+    }
+
+    /// <summary>Time of day; after midnight it says it is the next day.</summary>
+    private static string DayClock(int seconds) => seconds >= 86400 ? UiLanguage.Format(Strings.Stats_NextDay, Clock(seconds - 86400)) : Clock(seconds);
+
+    /// <param name="from">First day the range shows; with <paramref name="days"/>, how many of each weekday a month has so far.</param>
+    private static StatsRhythm? Rhythm(
+        IReadOnlyList<UsageWeekHour>? weekHours,
+        StatsScale scale,
+        DateOnly from,
+        int days,
+        Func<PresenceState, ActivityCategory, string> keyOf,
+        Func<string, bool> shown,
+        string? tone)
+    {
+        if (weekHours is not { Count: > 0 })
+        {
+            return null;
+        }
+
+        var weekdays = Enumerable.Range(0, days).Select(i => from.AddDays(i).DayOfWeek).GroupBy(d => d).ToDictionary(g => g.Key, g => g.Count());
+        var seconds = weekHours
+            .Where(w => UsageStates.Counts(w.State) && shown(keyOf(w.State, w.Category)))
+            .GroupBy(w => (w.Day, w.Hour))
+            .ToDictionary(g => g.Key, g => g.Sum(w => w.Seconds));
+        var tip = scale == StatsScale.Week ? Strings.Stats_RhythmTip : Strings.Stats_RhythmAverageTip;
+        var rows = WeekFromMonday.Select(day =>
+        {
+            var count = weekdays.GetValueOrDefault(day);
+            var name = PresenceFormatter.Weekday(day);
+            var cells = Enumerable.Range(0, 24).Select(hour =>
+            {
+                var s = count == 0 ? 0 : seconds.GetValueOrDefault((day, hour)) / count;
+                return new StatsRhythmCell(s, UiLanguage.Format(tip, name, hour, hour + 1, Duration(s)));
+            }).ToList();
+            return new StatsRhythmRow(UiLanguage.Format(Strings.Stats_RhythmDay, name), cells);
+        }).ToList();
+        return new StatsRhythm(rows, tone, rows.SelectMany(r => r.Cells).Select(c => c.Seconds).DefaultIfEmpty(0).Max());
+    }
 
     private static List<StatsPart> Parts(IEnumerable<UsageTotal> totals, Func<PresenceState, ActivityCategory, string> keyOf, Func<string, bool> shown) => totals
         .Where(t => UsageStates.Counts(t.State))
@@ -185,11 +278,10 @@ public static class StatsViewBuilder
         StatsLegend[] stateLegend,
         Func<PresenceState, ActivityCategory, string> keyOf,
         Func<string, bool> shown,
-        Func<string, StatsRuleTarget?>? targetOf)
+        bool mine)
     {
         StatsLegend Legend(string key) => legend.FirstOrDefault(l => l.Key == key) ?? stateLegend[^1];
-        StatsRuleTarget? Target(string? app, ActivityCategory category) =>
-            app is null || targetOf?.Invoke(app) is not { } target ? null : target with { Category = category.ToString() };
+        StatsDetailKey? Detail(string? app, string? title) => mine && app is not null ? new StatsDetailKey(app, title) : null;
 
         var rows = rankBy switch
         {
@@ -200,7 +292,7 @@ public static class StatsViewBuilder
                 .Select(g =>
                 {
                     var l = Legend(g.Key);
-                    return (Legend: l, Name: l.Name, Sub: (string?)null, Seconds: g.Sum(d => d.Seconds), Target: (StatsRuleTarget?)null, Filter: (string?)g.Key);
+                    return (Legend: l, Name: l.Name, Sub: (string?)null, Seconds: g.Sum(d => d.Seconds), Detail: (StatsDetailKey?)null, Filter: (string?)g.Key);
                 })
                 .ToList(),
             StatsRankBy.App => report.Apps
@@ -210,7 +302,7 @@ public static class StatsViewBuilder
                 {
                     var l = Legend(g.Key.Key);
                     var app = AppNames.LocalizeOrNull(g.Key.App);
-                    return (Legend: l, Name: app ?? l.Name, Sub: l.Hidden || app is null ? null : l.Name, Seconds: g.Sum(a => a.Seconds), Target: Target(g.Key.App, g.First().Category), Filter: (string?)null);
+                    return (Legend: l, Name: app ?? l.Name, Sub: l.Hidden || app is null ? null : l.Name, Seconds: g.Sum(a => a.Seconds), Detail: Detail(g.Key.App, null), Filter: (string?)null);
                 })
                 .ToList(),
             _ => report.Titles
@@ -222,14 +314,14 @@ public static class StatsViewBuilder
                     var app = AppNames.LocalizeOrNull(g.Key.App);
                     var name = g.Key.Title ?? app ?? l.Name;
                     string? sub = l.Hidden ? null : g.Key.Title is not null && app is not null ? $"{app} · {l.Name}" : app is null ? null : l.Name;
-                    return (Legend: l, Name: name, Sub: sub, Seconds: g.Sum(t => t.Seconds), Target: Target(g.Key.App, g.First().Category), Filter: (string?)null);
+                    return (Legend: l, Name: name, Sub: sub, Seconds: g.Sum(t => t.Seconds), Detail: Detail(g.Key.App, g.Key.Title), Filter: (string?)null);
                 })
                 .ToList(),
         };
 
         var top = rows.Where(r => r.Seconds >= 60).OrderByDescending(r => r.Seconds).Take(UsageAggregator.TopCount).ToList();
         var max = top.Count == 0 ? 1 : top[0].Seconds;
-        return top.Select(r => new StatsRankItem(r.Name, r.Sub, r.Legend.Tone, Duration(r.Seconds), Math.Round((double)r.Seconds / max, 3), r.Legend.Hidden, r.Target, r.Filter)).ToList();
+        return top.Select(r => new StatsRankItem(r.Name, r.Sub, r.Legend.Tone, Duration(r.Seconds), Math.Round((double)r.Seconds / max, 3), r.Legend.Hidden, r.Detail, r.Filter)).ToList();
     }
     private static StatsSpanView Span(UsageSpan span)
     {
@@ -263,7 +355,7 @@ public static class StatsViewBuilder
 
     private static StatsRange Previous(StatsScale scale, DateOnly anchor) => StatsRange.Previous(scale, anchor);
 
-    private static string Title(StatsScale scale, StatsRange range, DateOnly today)
+    internal static string Title(StatsScale scale, StatsRange range, DateOnly today)
     {
         var current = range.From <= today && today <= range.To;
         switch (scale)
@@ -288,7 +380,7 @@ public static class StatsViewBuilder
         }
     }
 
-    private static string Clock(int seconds) => $"{seconds / 3600}:{seconds % 3600 / 60:00}";
+    internal static string Clock(int seconds) => $"{seconds / 3600}:{seconds % 3600 / 60:00}";
 
     private static string StateKey(PresenceState state, ActivityCategory category) => state switch
     {
@@ -303,7 +395,7 @@ public static class StatsViewBuilder
         _ => "other",
     };
 
-    private static string? CategoryKey(ActivityCategory category) => category switch
+    internal static string? CategoryKey(ActivityCategory category) => category switch
     {
         ActivityCategory.Work or ActivityCategory.Meeting => "Work",
         ActivityCategory.Communication => "Communication",

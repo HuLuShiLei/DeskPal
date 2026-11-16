@@ -88,26 +88,43 @@ public static class StatsSamples
             var range = StatsRange.Of(scale, Today);
             var previous = StatsRange.Previous(scale, Today);
             var to = range.To > Today ? Today : range.To;
-            var mine = UsageAggregator.Build(segments, [], range.From, to, Zone) with
-            {
-                PreviousSeconds = UsageAggregator.ActiveSeconds(UsageAggregator.Build(segments, [], previous.From, previous.To, Zone)),
-            };
+            var previousTotals = UsageAggregator.Totals(UsageAggregator.Build(segments, [], previous.From, previous.To, Zone));
+            var mine = UsageAggregator.Build(segments, [], range.From, to, Zone) with { Previous = previousTotals };
             var first = Today.AddDays(1 - BobPrivacy.StatsDays);
             var from = range.From < first ? first : range.From;
             var bob = StatsFilter.Apply(UsageAggregator.Build(segments, [], from, to, Zone), BobPrivacy) with
             {
                 SharedDays = BobPrivacy.StatsDays,
-                PreviousSeconds = scale == StatsScale.Day ? UsageAggregator.ActiveSeconds(UsageAggregator.Build(segments, [], previous.From, previous.To, Zone)) : null,
+                Previous = scale == StatsScale.Day ? previousTotals : null,
             };
             foreach (var rankBy in Enum.GetValues<StatsRankBy>())
             {
-                views[$"{scale}-{rankBy}"] = StatsViewBuilder.Build(mine, scale, rankBy, Today, Today, targetOf: Target);
+                views[$"{scale}-{rankBy}"] = StatsViewBuilder.Build(mine, scale, rankBy, Today, Today);
                 views[$"member-{scale}-{rankBy}"] = StatsViewBuilder.Build(bob, scale, rankBy, Today, Today, "Bob");
             }
 
             if (scale == StatsScale.Week)
             {
-                views["Week-App-Game"] = StatsViewBuilder.Build(mine, scale, StatsRankBy.App, Today, Today, targetOf: Target, filter: "Game");
+                views["Week-App-Game"] = StatsViewBuilder.Build(mine, scale, StatsRankBy.App, Today, Today, filter: "Game");
+            }
+        }
+
+        return views;
+    }
+
+    /// <summary>Detail pages of every sample app in the day, week and month of today, as "Day-Cursor". Written to web/src/mock/fixtures/stats-apps.json.</summary>
+    public static IReadOnlyDictionary<string, StatsAppView> AppViews()
+    {
+        var segments = Segments();
+        var views = new Dictionary<string, StatsAppView>();
+        foreach (var scale in Enum.GetValues<StatsScale>())
+        {
+            var range = StatsRange.Of(scale, Today);
+            var to = range.To > Today ? Today : range.To;
+            foreach (var app in Targets.Keys)
+            {
+                var detail = UsageAppDetail.Build(segments, [], app, null, range.From, to, Zone);
+                views[$"{scale}-{app}"] = StatsAppViewBuilder.Build(detail, app, null, scale, Today, Today, Target(app));
             }
         }
 

@@ -348,6 +348,39 @@
   <data name="Stats_YesterdayTitle" xml:space="preserve">
     <value>{0}（昨天）</value>
   </data>
+  <data name="Stats_Bounds" xml:space="preserve">
+    <value>首次活动 {0} · 最后活动 {1}</value>
+  </data>
+  <data name="Stats_AverageBounds" xml:space="preserve">
+    <value>平均首次活动 {0} · 平均最后活动 {1}</value>
+  </data>
+  <data name="Stats_NextDay" xml:space="preserve">
+    <value>次日 {0}</value>
+  </data>
+  <data name="Stats_RhythmDay" xml:space="preserve">
+    <value>周{0}</value>
+  </data>
+  <data name="Stats_RhythmTip" xml:space="preserve">
+    <value>周{0} {1}:00–{2}:00 · {3}</value>
+  </data>
+  <data name="Stats_RhythmAverageTip" xml:space="preserve">
+    <value>周{0} {1}:00–{2}:00 · 平均 {3}</value>
+  </data>
+  <data name="Stats_Sessions" xml:space="preserve">
+    <value>使用次数</value>
+  </data>
+  <data name="Stats_SessionsValue" xml:space="preserve">
+    <value>{0} 次</value>
+  </data>
+  <data name="Stats_AverageSession" xml:space="preserve">
+    <value>平均每次</value>
+  </data>
+  <data name="Stats_LongestSession" xml:space="preserve">
+    <value>最长一次</value>
+  </data>
+  <data name="Stats_PeakHour" xml:space="preserve">
+    <value>最常用时段</value>
+  </data>
   <data name="WhatsNew_Title" xml:space="preserve">
     <value>已更新到 {0}</value>
   </data>

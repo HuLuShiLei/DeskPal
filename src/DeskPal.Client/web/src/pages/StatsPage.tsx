@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import type { NoTitleKind, PanelState, StatsRankBy, StatsRankItem, StatsScale, StatsView } from "../bridge";
-import { Bars, Legend, Ranking, Timeline } from "../components/charts";
+import type { NoTitleKind, PanelState, StatsAppView, StatsDetailKey, StatsRankBy, StatsRankItem, StatsScale, StatsView } from "../bridge";
+import { Bars, Heatmap, Legend, Ranking, Timeline } from "../components/charts";
 import { useHost } from "../host";
 import { t, type MessageKey } from "../i18n";
 import { Icon, Section, SettingRow, Switch } from "../ui";
@@ -39,6 +39,12 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const latest = useRef(0);
+  /** 正在看的详情；fromApp 表示从应用详情里的标题点进来，返回时回到应用详情。 */
+  const [detail, setDetail] = useState<(StatsDetailKey & { fromApp?: boolean }) | null>(null);
+  const [appView, setAppView] = useState<StatsAppView | null>(null);
+  const [appError, setAppError] = useState<string | null>(null);
+  const [appLoading, setAppLoading] = useState(false);
+  const latestApp = useRef(0);
 
   const sharing = state.members.filter((m) => m.shareStats && !m.blocked);
   const userId = target?.userId ?? null;
@@ -63,14 +69,40 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
     return () => clearInterval(timer);
   }, [scale, rankBy, filter, date, userId, revision]);
 
-  const anchor = view?.anchor ?? date;
+  useEffect(() => {
+    if (!detail) {
+      setAppView(null);
+      setAppError(null);
+      return;
+    }
+    const query = async () => {
+      const id = ++latestApp.current;
+      setAppLoading(true);
+      const result = await bridge.request({ type: "stats.app", scale, date, app: detail.app, title: detail.title });
+      if (id !== latestApp.current) return;
+      setAppLoading(false);
+      if (result.ok) {
+        setAppView(result.data as StatsAppView);
+        setAppError(null);
+      } else {
+        setAppError(result.error ?? t("stats.loadFailed"));
+      }
+    };
+    void query();
+    const timer = setInterval(() => void query(), 60_000);
+    return () => clearInterval(timer);
+  }, [detail, scale, date, revision]);
+
+  const nav = detail ? appView : view;
+  const busy = detail ? appLoading : loading;
+  const anchor = nav?.anchor ?? date;
   const go = (step: number) => anchor && setDate(shift(anchor, scale, step));
 
-  const reclassify = async (item: StatsRankItem) => {
-    const rule = item.rule;
+  const reclassify = async (app: StatsAppView) => {
+    const rule = app.rule;
     if (!rule) return;
     const a = await ask({
-      title: t("rule.ask", { name: item.name }),
+      title: t("rule.ask", { name: detail?.title ? rule.name : app.name }),
       message: t("stats.reclassifyMessage"),
       select: { options: state.correction.options, initial: rule.category },
       okText: t("common.save"),
@@ -84,8 +116,8 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
     if (item.filter) {
       setFilter(item.filter);
       setRankBy("App");
-    } else {
-      void reclassify(item);
+    } else if (item.detail) {
+      setDetail(item.detail);
     }
   };
 
@@ -104,6 +136,7 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
                 setView(null);
                 setDate(null);
                 setFilter(null);
+                setDetail(null);
                 onTarget(member ? { userId: member.userId, name: member.name } : null);
               }}
             >
@@ -129,27 +162,51 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
 
         </div>
         <div class="stats-nav">
-          <button class="icon-button" aria-label={t("stats.prev")} title={t("stats.prev")} disabled={!view?.canPrev || loading} onClick={() => go(-1)}>
+          <button class="icon-button" aria-label={t("stats.prev")} title={t("stats.prev")} disabled={!nav?.canPrev || busy} onClick={() => go(-1)}>
             <Icon name="back" />
           </button>
-          <span class="stats-title">{view?.title ?? "　"}</span>
-          <button class="icon-button" aria-label={t("stats.next")} title={t("stats.next")} disabled={!view?.canNext || loading} onClick={() => go(1)}>
+          <span class="stats-title">{nav?.title ?? "　"}</span>
+          <button class="icon-button" aria-label={t("stats.next")} title={t("stats.next")} disabled={!nav?.canNext || busy} onClick={() => go(1)}>
             <Icon name="forward" />
           </button>
-          {view?.canNext && (
+          {nav?.canNext && (
             <button class="subtle" onClick={() => setDate(null)}>
               {t("stats.today")}
             </button>
           )}
         </div>
-        {error && (
-          <p class="infobar error" role="alert">
-            <Icon name="warning" />
-            {error}
-          </p>
+        {detail ? (
+          <>
+            {appError && (
+              <p class="infobar error" role="alert">
+                <Icon name="warning" />
+                {appError}
+              </p>
+            )}
+            {!appView && !appError && <p class="loading">{t("stats.reading")}</p>}
+            {appView && (
+              <AppDetail
+                view={appView}
+                busy={appLoading}
+                onBack={() => setDetail(detail.fromApp ? { app: detail.app, title: null } : null)}
+                onPick={(d) => (setScale("Day"), setDate(d))}
+                onReclassify={() => void reclassify(appView)}
+                onTitle={(title) => setDetail({ app: detail.app, title, fromApp: true })}
+              />
+            )}
+          </>
+        ) : (
+          <>
+            {error && (
+              <p class="infobar error" role="alert">
+                <Icon name="warning" />
+                {error}
+              </p>
+            )}
+            {!view && !error && <p class="loading">{target ? t("stats.requesting", { name: target.name }) : t("stats.reading")}</p>}
+            {view && <Report view={view} onPick={(d) => (setScale("Day"), setDate(d))} onRow={pickRow} rankBy={rankBy} onRankBy={setRankBy} onFilter={setFilter} busy={loading} />}
+          </>
         )}
-        {!view && !error && <p class="loading">{target ? t("stats.requesting", { name: target.name }) : t("stats.reading")}</p>}
-        {view && <Report view={view} onPick={(d) => (setScale("Day"), setDate(d))} onRow={pickRow} rankBy={rankBy} onRankBy={setRankBy} onFilter={setFilter} busy={loading} />}
       </Section>
       {!target && state.usage && <UsageSettings usage={state.usage} />}
     </>
@@ -177,6 +234,17 @@ function Report({ view, onPick, onRow, rankBy, onRankBy, onFilter, busy }: {
         <p class="stats-total-label">{view.totalLabel}</p>
         <p class="stats-total">{view.total}</p>
         {(view.compare || view.summary) && <p class="stats-compare">{[view.compare, view.summary].filter(Boolean).join(" · ")}</p>}
+        {view.changes.length > 0 && (
+          <ul class="stats-changes" aria-label={t("stats.changes")}>
+            {view.changes.map((c) => (
+              <li key={c.key} class={c.hidden ? "hidden-part" : undefined}>
+                <span class="stats-swatch" style={{ background: `var(--tone-${c.tone})` }} />
+                {c.name} {c.text}
+              </li>
+            ))}
+          </ul>
+        )}
+        {view.bounds && <p class="stats-compare">{view.bounds}</p>}
       </div>
       {view.empty ? (
         <p class="stats-empty">{view.empty}</p>
@@ -184,9 +252,15 @@ function Report({ view, onPick, onRow, rankBy, onRankBy, onFilter, busy }: {
         <>
           <div class="card stats-chart">
             {view.timeline.length > 0 && <Timeline spans={view.timeline} />}
-            <Bars view={view} onPick={onPick} />
+            <Bars bars={view.bars} max={view.barMax} maxLabel={view.barMaxLabel} legend={view.legend} onPick={view.scale === "Day" ? undefined : onPick} />
             <Legend legend={view.legend} selected={view.filter} onPick={onFilter} />
           </div>
+          {view.rhythm && (
+            <div class="card stats-chart">
+              <p class="stats-card-title">{t("stats.rhythm")}</p>
+              <Heatmap rhythm={view.rhythm} />
+            </div>
+          )}
           <div class="card stats-ranking-card">
             <div class="segmented" role="tablist" aria-label={t("stats.rankBy")}>
               {rankings.map((r) => (
@@ -197,6 +271,66 @@ function Report({ view, onPick, onRow, rankBy, onRankBy, onFilter, busy }: {
             </div>
             {view.ranking.length > 0 && <Ranking items={view.ranking} onPick={onRow} />}
           </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function AppDetail({ view, busy, onBack, onPick, onReclassify, onTitle }: {
+  view: StatsAppView;
+  busy: boolean;
+  onBack: () => void;
+  onPick: (date: string) => void;
+  onReclassify: () => void;
+  onTitle: (title: string) => void;
+}) {
+  return (
+    <div class={busy ? "stats-report busy" : "stats-report"} aria-busy={busy}>
+      <div class="stats-detail-head">
+        <button class="icon-button" aria-label={t("stats.back")} title={t("stats.back")} onClick={onBack}>
+          <Icon name="back" />
+        </button>
+        <div class="stats-detail-name">
+          <span class="stats-rank-name">{view.name}</span>
+          {view.sub && <span class="stats-rank-sub">{view.sub}</span>}
+        </div>
+        {view.rule && <button onClick={onReclassify}>{t("stats.changeCategory")}</button>}
+      </div>
+      <div class="card stats-summary">
+        <p class="stats-total-label">{view.totalLabel}</p>
+        <p class="stats-total">{view.total}</p>
+        {view.summary && <p class="stats-compare">{view.summary}</p>}
+        {view.facts.length > 0 && (
+          <dl class="stats-facts">
+            {view.facts.map((f) => (
+              <div key={f.label}>
+                <dt>{f.label}</dt>
+                <dd>{f.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </div>
+      {view.empty ? (
+        <p class="stats-empty">{view.empty}</p>
+      ) : (
+        <>
+          <div class="card stats-chart">
+            <Bars bars={view.bars} max={view.barMax} maxLabel={view.barMaxLabel} legend={view.legend} onPick={view.scale === "Day" ? undefined : onPick} />
+          </div>
+          {view.hours.length > 0 && (
+            <div class="card stats-chart">
+              <p class="stats-card-title">{t("stats.byHour")}</p>
+              <Bars bars={view.hours} max={view.hoursMax} maxLabel={view.hoursMaxLabel} legend={view.legend} label={t("stats.byHour")} />
+            </div>
+          )}
+          {view.titles.length > 0 && (
+            <div class="card stats-ranking-card">
+              <p class="stats-card-title">{t("stats.topTitles")}</p>
+              <Ranking items={view.titles} onPick={(item) => item.detail?.title && onTitle(item.detail.title)} />
+            </div>
+          )}
         </>
       )}
     </div>

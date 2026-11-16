@@ -134,12 +134,12 @@ flowchart LR
 | 方向 | 消息 |
 |---|---|
 | 宿主 → 页面 | `state`（完整的 `PanelState`，变化后最多每 200 毫秒推一次）、`result{id, ok, error, data}`、`dialog{id, kind, message}`、`login{userName, notice}`（不带服务器地址，登录页不显示也不能修改，地址只在 `settings.json` 的 `serverUrl`） |
-| 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`presence.pause / correct / resetCorrection`、`rules.set / delete`、`stats.query / export / import / clear / noTitle.add / noTitle.remove`、`settings.autoStart / topmost / shareUsage / theme / closeAction / language`、`update.check / beta / restart`、`changelog.seen`、`auth.login / register / logout` |
+| 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`presence.pause / correct / resetCorrection`、`rules.set / delete`、`stats.query / app / export / import / clear / noTitle.add / noTitle.remove`、`settings.autoStart / topmost / shareUsage / theme / closeAction / language`、`update.check / beta / restart`、`changelog.seen`、`auth.login / register / logout` |
 | 页面 → 宿主，不回复 | `ready`、`dialog.answer{dialogId, ok}`、`window.minimize`、`window.close` |
 
 `PanelState` 由 `PanelStateBuilder` 在 Client.Core 里生成，界面上的文字（连接状态、空提示、识别方式（悬停问号显示）、待提交状态、我的分类、待归类）都在 C# 里算好。状态页不显示「房间成员看到」，页面只负责显示。页面写「房间」，不写 Room。`PanelFixtureTests` 把几组样例按中文、英文各序列化一份到 `web/src/mock/fixtures/` 和 `fixtures/en/`，不一致就失败，改了 `PanelState` 或文案后用 `DESKPAL_UPDATE_FIXTURES=1` 运行测试更新。
 
-在浏览器里调试：`cd src/DeskPal.Client/web; npm run dev`，打开 `http://localhost:5190/`。没有 `chrome.webview` 时页面用模拟宿主，参数 `?mock=default|no-room|guest` 切换样例，`?lang=en` 用英文样例，`stats.query` 返回 `fixtures/stats.json` 里的样例（只有「今天」所在的日、周、月），`?sync=on|pin|error|folder|unavailable` 让统计页的同步处于已开启、待输入 PIN 码、上传失败、同步文件夹已开启、文件夹无法访问，`?existing` 让选择的文件夹里已有其他电脑的同步数据，`?fail` 让所有命令失败，`?page=login` 打开登录页，发出的命令记录在 `window.__sent`。Debug 版客户端设置环境变量 `DESKPAL_UI_URL=http://localhost:5190/` 可以直接加载开发服务器。
+在浏览器里调试：`cd src/DeskPal.Client/web; npm run dev`，打开 `http://localhost:5190/`。没有 `chrome.webview` 时页面用模拟宿主，参数 `?mock=default|no-room|guest` 切换样例，`?lang=en` 用英文样例，`stats.query` 返回 `fixtures/stats.json` 里的样例（只有「今天」所在的日、周、月），`stats.app` 返回 `fixtures/stats-apps.json`，`?sync=on|pin|error|folder|unavailable` 让统计页的同步处于已开启、待输入 PIN 码、上传失败、同步文件夹已开启、文件夹无法访问，`?existing` 让选择的文件夹里已有其他电脑的同步数据，`?fail` 让所有命令失败，`?page=login` 打开登录页，发出的命令记录在 `window.__sent`。Debug 版客户端设置环境变量 `DESKPAL_UI_URL=http://localhost:5190/` 可以直接加载开发服务器。
 
 ## 使用统计
 
@@ -148,7 +148,9 @@ flowchart LR
 - 记录：`PresenceCoordinator` 每次判定后交给 `UsageRecorder`（Client.Core）。状态、类别、应用、标题任一变化就开始新的片段；两次判定间隔超过 30 秒时中间不计；跨过本地零点时切开。暂停分享时按没有暂停时的判定记录。暂离、锁屏只记状态。标题最长 200 个字符，标题等于应用名时不记标题。「不记录标题」的规则（`NoTitleRule`）分四种：应用名（和状态页一致）、进程名（按 `RulePattern` 去掉 `.exe`）、网址（按域名，子域名也算；浏览器只拿得到域名，拿不到路径）、标题关键词（窗口标题、网页标题、媒体标题包含即算），命中时只记类别和名称。
 - 存储：`SqliteUsageStore`，每个账号一个文件 `%APPDATA%\DeskPal\usage\<userId>.db`，不加密。表 `Segments`（片段，`DeviceId + StartAt` 唯一）、`DailyRollups`（旧版本或其他电脑按保留时长折叠过的日期的按天汇总）、`StatsViews`（谁查看过，保留 7 天）、`SyncDays`（同步到服务器的每天哈希和版本号）、`FolderWritten`（写入同步文件夹的每天哈希）、`FolderRead`（读过的其他电脑文件的大小和修改时间）。正在进行的片段每分钟写一次结束时间。片段一直保留，不再折叠；`UsageService` 每 6 小时调用 `PruneViews`，只删除 7 天前的查看记录。
 - 导入导出：JSON（`UsageExport`，`schemaVersion` 1，不限文件大小，导入时整个文件读进内存），导出全部片段和汇总，导入时按 `DeviceId + StartAt` 去重。
-- 显示：`UsageAggregator` 把片段汇总成 `UsageReport`（每天、每小时、时间轴、应用排行、标题排行），`StatsViewBuilder` 再按范围和细粒度生成页面要画的 `StatsView`，文字都在 C# 里算好。页面用手写 SVG 和 CSS 画时间轴、堆叠柱、图例和排行。
+- 显示：`UsageAggregator` 把片段汇总成 `UsageReport`（每天、每小时、时间轴、应用排行、标题排行、上一周期合计 `Previous`、星期几 × 小时 `WeekHours`、每个逻辑日的首末活动 `Bounds`），`StatsViewBuilder` 再按范围和排行方式生成页面要画的 `StatsView`（含类别变化 `Changes`、首末活动 `Bounds`、一周节律 `Rhythm`），文字都在 C# 里算好。逻辑日从凌晨 4 点开始（`UsageAggregator.DayStartHour`），`UsageService` 多读到范围结束后一天的 4 点。页面用手写 SVG 和 CSS 画时间轴、堆叠柱、热力图、图例和排行。
+- 应用详情：页面命令 `stats.app`（`scale`、`date`、`app`、可空的 `title`）只查自己的统计。`UsageAppDetail` 按应用名（和标题）精确匹配计入的片段，算每天、每小时、使用次数（间隔不超过 60 秒合并为一次）、最长一次和前 10 个标题；`StatsAppViewBuilder` 生成 `StatsAppView`，带「更改分类」需要的 `Rule`。
+- 不发给房间成员的：`StatsFilter` 清空 `WeekHours` 和 `Bounds`，房间成员看不到作息；排行行没有 `Detail`，不能进详情。
 - 查看房间成员：成员在房间隐私设置里打开「公开使用统计」后，其他人通过 `stats.request` 向本人的客户端请求。请求带一次性的 ECDH P-256 公钥；本人的客户端检查自己当前进入的就是这个房间、请求方是成员且没有被屏蔽，把范围截到公开的天数，用 `StatsFilter` 按该房间每个类别的隐私级别降级，再用 AES-GCM 加密（密钥由 ECDH 结果经 SHA-256 派生，`RequestId` 作为附加数据，内容先 Brotli 压缩）后回复 `stats.response`。请求 30 秒没有回复就提示对方不在线或不在这个房间。双方都把结果缓存 60 秒。
 
 ### 同步到服务器

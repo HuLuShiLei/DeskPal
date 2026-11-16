@@ -503,3 +503,18 @@ button.hint-button:active:not(:disabled) { background: var(--pressed); color: va
 .stats-viewers { margin: 0; padding: 4px 14px 10px; list-style: none; display: grid; gap: 4px; }
 .stats-viewers li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: baseline; }
 .stats-no-title { padding: 4px 14px 12px; }
+.stats-changes { display: flex; flex-wrap: wrap; gap: 2px 12px; margin: 2px 0 0; padding: 0; list-style: none; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.stats-changes li { display: inline-flex; align-items: center; gap: 6px; }
+.stats-card-title { font-size: 12px; color: var(--muted); }
+.stats-heatmap { display: grid; gap: 2px; }
+.stats-heatmap-row { display: grid; grid-template-columns: 32px repeat(24, minmax(0, 1fr)); gap: 2px; align-items: center; }
+.stats-heatmap-label { font-size: 11px; color: var(--faint); white-space: nowrap; }
+.stats-heatmap-cell { height: 12px; border-radius: 2px; background: var(--hover); }
+.stats-heatmap-axis span { font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: visible; }
+.stats-detail-head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.stats-detail-name { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; font-weight: 600; }
+.stats-detail-head > button:not(.icon-button) { flex: none; }
+.stats-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; margin: 8px 0 0; }
+.stats-facts div { min-width: 0; }
+.stats-facts dt { font-size: 12px; color: var(--muted); }
+.stats-facts dd { margin: 0; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

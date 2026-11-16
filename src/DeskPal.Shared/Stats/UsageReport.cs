@@ -11,8 +11,10 @@ namespace DeskPal.Shared.Stats;
 /// <param name="Timeline">State spans of a single day, in seconds since local midnight. Only filled when the range is a single day.</param>
 /// <param name="Apps">Usage per category and app, longest first.</param>
 /// <param name="Titles">Usage per category, app and title, longest first.</param>
-/// <param name="PreviousSeconds">Usage in the period of the same length right before; null when it is outside what can be shown.</param>
+/// <param name="Previous">Usage per state and category in the period before, without away and locked time; null when it is outside what can be shown.</param>
 /// <param name="SharedDays">How many recent days the owner shares. Only set on reports received from a room member.</param>
+/// <param name="WeekHours">Seconds per weekday and hour of the day over the range. Not sent to room members.</param>
+/// <param name="Bounds">First and last use of each day. Not sent to room members.</param>
 public sealed record UsageReport(
     DateOnly From,
     DateOnly To,
@@ -21,11 +23,20 @@ public sealed record UsageReport(
     IReadOnlyList<UsageSpan> Timeline,
     IReadOnlyList<UsageItem> Apps,
     IReadOnlyList<UsageItem> Titles,
-    long? PreviousSeconds = null,
-    int? SharedDays = null);
+    IReadOnlyList<UsageTotal>? Previous = null,
+    int? SharedDays = null,
+    IReadOnlyList<UsageWeekHour>? WeekHours = null,
+    IReadOnlyList<UsageDayBounds>? Bounds = null);
 
 /// <param name="Hour">0 to 23 for hourly totals, -1 for daily totals.</param>
 public sealed record UsageTotal(DateOnly Date, int Hour, PresenceState State, ActivityCategory Category, long Seconds);
+
+public sealed record UsageWeekHour(DayOfWeek Day, int Hour, PresenceState State, ActivityCategory Category, long Seconds);
+
+/// <summary>A day runs from 4:00 to 4:00 the next morning, so staying up until 1:00 still ends the day before.</summary>
+/// <param name="First">Start of the first use, in seconds since the local midnight of <paramref name="Date"/>.</param>
+/// <param name="Last">End of the last use, in seconds since the same midnight; above 86400 when it is after midnight.</param>
+public sealed record UsageDayBounds(DateOnly Date, int First, int Last);
 
 /// <param name="Category">Video and game are told apart on the timeline. None from older versions, and for away and locked time.</param>
 public sealed record UsageSpan(int Start, int End, PresenceState State, ActivityCategory Category = ActivityCategory.None);
