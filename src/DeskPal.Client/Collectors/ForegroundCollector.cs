@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Native;
 using Microsoft.Extensions.Hosting;
@@ -10,11 +11,6 @@ namespace DeskPal.Client.Collectors;
 /// <summary>Polls the foreground window once per second. Polling avoids global hooks, which security software tends to flag.</summary>
 public sealed class ForegroundCollector(ActivityBus bus, ForegroundState state, ILogger<ForegroundCollector> logger) : BackgroundService
 {
-    private static readonly HashSet<string> Browsers = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "chrome", "msedge", "firefox", "brave", "opera", "vivaldi", "arc", "360se", "360chrome", "qqbrowser", "sogouexplorer", "2345explorer",
-    };
-
     private static readonly HashSet<string> ShellClasses = new(StringComparer.Ordinal) { "Progman", "WorkerW", "Shell_TrayWnd" };
 
     private readonly ConcurrentDictionary<string, string> _displayNames = new(StringComparer.OrdinalIgnoreCase);
@@ -61,10 +57,10 @@ public sealed class ForegroundCollector(ActivityBus bus, ForegroundState state, 
         var path = NativeMethods.GetProcessPath(pid);
         var processName = path is null ? SafeProcessName(pid) : Path.GetFileNameWithoutExtension(path);
         var title = NativeMethods.GetWindowTitle(hwnd);
-        var isBrowser = Browsers.Contains(processName);
+        var isBrowser = Browsers.IsBrowser(processName);
         var fullscreen = !ShellClasses.Contains(windowClass) && NativeMethods.IsFullscreen(hwnd);
 
-        state.Set(hwnd, isBrowser);
+        state.Set(hwnd, isBrowser, processName, title);
 
         var displayName = processName.Equals("ApplicationFrameHost", StringComparison.OrdinalIgnoreCase) && title.Length > 0
             ? title
@@ -110,11 +106,11 @@ public sealed class ForegroundCollector(ActivityBus bus, ForegroundState state, 
 /// <summary>The current foreground window, shared with collectors that inspect it further.</summary>
 public sealed class ForegroundState
 {
-    private volatile Snapshot _current = new(IntPtr.Zero, false);
+    private volatile Snapshot _current = new(IntPtr.Zero, false, "", "");
 
     public Snapshot Current => _current;
 
-    public void Set(IntPtr hwnd, bool isBrowser) => _current = new Snapshot(hwnd, isBrowser);
+    public void Set(IntPtr hwnd, bool isBrowser, string processName, string title) => _current = new Snapshot(hwnd, isBrowser, processName, title);
 
-    public sealed record Snapshot(IntPtr Hwnd, bool IsBrowser);
+    public sealed record Snapshot(IntPtr Hwnd, bool IsBrowser, string ProcessName, string Title);
 }

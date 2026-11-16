@@ -161,6 +161,91 @@ public class ClassifierTests
     }
 
     [Fact]
+    public void Browser_playing_the_video_of_its_tab_is_video()
+    {
+        var watching = TestData.Browser("www.bilibili.com", "(3) 猫猫合集_哔哩哔哩_bilibili - Google Chrome", fullscreen: true)
+            .Apply(new MediaSignal(true, "猫猫合集", "UP 主", "Chrome"));
+        var result = Create().Classify(watching);
+        Assert.Equal((ActivityCategory.Video, "bilibili.com", RuleLayer.Browser), (result.Category, result.AppDisplayName, result.Layer));
+
+        var otherTab = TestData.Browser("github.com", "PR #1 - Google Chrome").Apply(new MediaSignal(true, "猫猫合集", null, "Chrome"));
+        Assert.Equal(ActivityCategory.Browsing, Create().Classify(otherTab).Category);
+
+        var otherBrowser = TestData.Browser("www.bilibili.com", "猫猫合集_哔哩哔哩_bilibili - Google Chrome").Apply(new MediaSignal(true, "猫猫合集", null, "MSEdge"));
+        Assert.Equal(ActivityCategory.Browsing, Create().Classify(otherBrowser).Category);
+    }
+
+    [Fact]
+    public void Fullscreen_game_with_a_video_in_the_background_is_not_video()
+    {
+        var snapshot = TestData.App("ffxiv_dx11", "最终幻想XIV", @"D:\SquareEnix\FINAL FANTASY XIV - A Realm Reborn\game\ffxiv_dx11.exe", fullscreen: true)
+            .Apply(new MediaSignal(true, "猫猫合集", null, "MSEdge"));
+
+        Assert.Equal((ActivityCategory.Game, RuleLayer.Heuristic), (Create().Classify(snapshot).Category, Create().Classify(snapshot).Layer));
+        Assert.Equal(ActivityCategory.Other, Create().Classify(TestData.App("mystery", fullscreen: true).Apply(new MediaSignal(true, "猫猫合集", null, "MSEdge"))).Category);
+    }
+
+    [Theory]
+    [InlineData(@"C:\Program Files\Epic Games\Fortnite\FortniteGame\Binaries\Win64\FortniteClient-Win64-Shipping.exe")]
+    [InlineData(@"D:\WeGameApps\英雄联盟\Game\League of Legends.exe")]
+    [InlineData(@"C:\XboxGames\Forza Horizon 5\Content\ForzaHorizon5.exe")]
+    [InlineData(@"D:\miHoYo\Genshin Impact\Genshin Impact Game\YuanShen.exe")]
+    public void Game_library_paths_are_games(string path)
+    {
+        Assert.Equal(ActivityCategory.Game, Create().Classify(TestData.App(Path.GetFileNameWithoutExtension(path), path: path)).Category);
+    }
+
+    [Theory]
+    [InlineData(@"C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win64\EpicWebHelper.exe")]
+    [InlineData(@"D:\miHoYo Launcher\launcher.exe")]
+    [InlineData(@"D:\Steam\steamapps\common\Indie\UnityCrashHandler64.exe")]
+    public void Launchers_next_to_games_are_not_games(string path)
+    {
+        Assert.Equal(ActivityCategory.Other, Create().Classify(TestData.App(Path.GetFileNameWithoutExtension(path), path: path)).Category);
+    }
+
+    [Fact]
+    public void Personal_result_keeps_the_category_it_replaced()
+    {
+        var classifier = Create();
+        classifier.SetPersonal(new RuleSet(
+        [
+            new RuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Work, null),
+            new RuleDto(RuleKind.Process, "devenv", ActivityCategory.Game, null),
+        ]));
+
+        Assert.Equal((ActivityCategory.Work, ActivityCategory.Browsing), (classifier.Classify(TestData.Browser("bilibili.com")).Category, classifier.Classify(TestData.Browser("bilibili.com")).Default));
+        Assert.Equal((ActivityCategory.Game, ActivityCategory.Work), (classifier.Classify(TestData.App("devenv")).Category, classifier.Classify(TestData.App("devenv")).Default));
+        Assert.Equal(ActivityCategory.Other, Create().Classify(TestData.App("mystery")).Default);
+    }
+
+    [Theory]
+    [InlineData("MSEdge", "msedge", true)]
+    [InlineData("Chrome", "chrome", true)]
+    [InlineData("308046B0AF4A39CB", "firefox", true)]
+    [InlineData("Spotify.exe", "Spotify", true)]
+    [InlineData("SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify", "spotify", true)]
+    [InlineData("MSEdge", "chrome", false)]
+    [InlineData("308046B0AF4A39CB", "chrome", false)]
+    [InlineData(null, "chrome", false)]
+    public void Media_session_is_matched_to_its_process(string? sourceApp, string process, bool expected)
+    {
+        Assert.Equal(expected, MediaSources.IsFrom(sourceApp, process));
+    }
+
+    [Fact]
+    public void Browser_address_is_pending_until_read_after_a_title_change()
+    {
+        var snapshot = TestData.Browser("github.com", "PR #1 - Google Chrome");
+        Assert.False(snapshot.DomainPending);
+
+        var switched = snapshot.Apply(new ForegroundSignal("chrome", null, "Google Chrome", "猫猫合集 - Google Chrome", false, true));
+        Assert.Equal((true, "github.com"), (switched.DomainPending, switched.BrowserDomain));
+        Assert.False(switched.Apply(new BrowserDomainSignal("bilibili.com")).DomainPending);
+        Assert.False(switched.Apply(new ForegroundSignal("devenv", null, "VS", "x", false, false)).DomainPending);
+    }
+
+    [Fact]
     public void Switching_to_another_app_clears_browser_domain()
     {
         var snapshot = TestData.Browser("bilibili.com").Apply(new ForegroundSignal("devenv", null, "VS", "x", false, false));

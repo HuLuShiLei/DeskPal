@@ -130,6 +130,41 @@ public class PresenceDebouncerTests
     }
 }
 
+public class TitleAndIdleTests
+{
+    [Theory]
+    [InlineData("(12) 猫猫合集_哔哩哔哩_bilibili", "猫猫合集_哔哩哔哩_bilibili")]
+    [InlineData("[3] Inbox", "Inbox")]
+    [InlineData("\u200e某个群组 – (255549)", "某个群组")]
+    [InlineData("Telegram", "Telegram")]
+    [InlineData("2026 年计划 (v2)", "2026 年计划 (v2)")]
+    [InlineData("  ", null)]
+    public void Changing_counters_are_removed_from_titles(string title, string? expected)
+    {
+        Assert.Equal(expected, TitleText.Clean(title));
+    }
+
+    private static readonly ClassificationResult Watching = new(ActivityCategory.Video, "bilibili.com", RuleLayer.Browser);
+
+    [Fact]
+    public void Watching_in_the_foreground_is_not_idle()
+    {
+        var windowed = TestData.Browser("bilibili.com", "猫猫合集_哔哩哔哩_bilibili - Google Chrome")
+            .Apply(new MediaSignal(true, "猫猫合集", null, "Chrome"))
+            .Apply(new IdleSignal(true));
+        var presence = PresenceResolver.Resolve(windowed, Watching, paused: false);
+        Assert.Equal((PresenceState.Slacking, "猫猫合集"), (presence.State, presence.Detail));
+
+        var backgroundMedia = TestData.App("ffxiv_dx11", "最终幻想XIV", fullscreen: true)
+            .Apply(new MediaSignal(true, "猫猫合集", null, "MSEdge"))
+            .Apply(new IdleSignal(true));
+        Assert.Equal(PresenceState.Away, PresenceResolver.Resolve(backgroundMedia, new ClassificationResult(ActivityCategory.Game, "最终幻想XIV", RuleLayer.Builtin), paused: false).State);
+
+        var fullscreenPlayer = TestData.App("PotPlayerMini64", "电影.mkv", fullscreen: true).Apply(new IdleSignal(true));
+        Assert.Equal(PresenceState.Slacking, PresenceResolver.Resolve(fullscreenPlayer, new ClassificationResult(ActivityCategory.Video, "PotPlayer", RuleLayer.Builtin), paused: false).State);
+    }
+}
+
 public class PrivacyFilterTests
 {
     private static readonly CommittedPresence Video = new(
@@ -137,14 +172,14 @@ public class PrivacyFilterTests
         DateTimeOffset.UnixEpoch);
 
     [Fact]
-    public void Default_profile_shows_category_for_slacking_and_state_only_for_work()
+    public void Default_profile_shows_the_app_for_slacking_and_only_the_state_for_work()
     {
         var profile = PrivacyProfile.CreateDefault();
         var video = PrivacyFilter.Apply(Video, profile);
         var work = PrivacyFilter.Apply(new CommittedPresence(new LocalPresence(PresenceState.Working, ActivityCategory.Work, "Excel", "工资表.xlsx"), DateTimeOffset.UnixEpoch), profile);
 
         Assert.Equal((ActivityCategory.Video, "哔哩哔哩", (string?)null), (video.Category, video.AppDisplayName, video.Detail));
-        Assert.Equal((PresenceState.Working, ActivityCategory.None, (string?)null, (string?)null), (work.State, work.Category, work.AppDisplayName, work.Detail));
+        Assert.Equal((PresenceState.Working, ActivityCategory.Work, (string?)null, (string?)null), (work.State, work.Category, work.AppDisplayName, work.Detail));
 
         var browsing = PrivacyFilter.Apply(new CommittedPresence(new LocalPresence(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "猫猫合集"), DateTimeOffset.UnixEpoch), profile);
         Assert.Equal((PresenceState.Browsing, "bilibili.com", (string?)null), (browsing.State, browsing.AppDisplayName, browsing.Detail));
@@ -159,7 +194,7 @@ public class PrivacyFilterTests
         var profile = new PrivacyProfile { Levels = { [ActivityCategory.Video] = level } };
         var result = PrivacyFilter.Apply(Video, profile);
 
-        Assert.Equal(PresenceState.Slacking, result.State);
+        Assert.Equal((PresenceState.Slacking, ActivityCategory.Video), (result.State, result.Category));
         Assert.Equal(hasApp, result.AppDisplayName is not null);
         Assert.Equal(hasDetail, result.Detail is not null);
     }
@@ -192,9 +227,11 @@ public class PresenceFormatterTests
     [InlineData(PresenceState.Meeting, ActivityCategory.Meeting, "工作中")]
     [InlineData(PresenceState.Communicating, ActivityCategory.Communication, "在聊天")]
     [InlineData(PresenceState.Slacking, ActivityCategory.Social, "正在浏览网页")]
-    [InlineData(PresenceState.Slacking, ActivityCategory.Music, "工作中")]
+    [InlineData(PresenceState.Slacking, ActivityCategory.Music, "正在使用其他应用")]
+    [InlineData(PresenceState.Slacking, ActivityCategory.Video, "在看视频")]
+    [InlineData(PresenceState.Slacking, ActivityCategory.Game, "在玩游戏")]
     [InlineData(PresenceState.Slacking, ActivityCategory.None, "在放松")]
-    [InlineData(PresenceState.Other, ActivityCategory.Other, "工作中")]
+    [InlineData(PresenceState.Other, ActivityCategory.Other, "正在使用其他应用")]
     [InlineData(PresenceState.Away, ActivityCategory.None, "暂离")]
     [InlineData(PresenceState.Locked, ActivityCategory.None, "已锁屏")]
     public void Headlines_use_written_chinese(PresenceState state, ActivityCategory category, string expected)

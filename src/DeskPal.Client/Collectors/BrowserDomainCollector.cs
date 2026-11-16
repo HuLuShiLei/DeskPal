@@ -16,32 +16,39 @@ public sealed class BrowserDomainCollector(ActivityBus bus, ForegroundState fore
     private AutomationElement? _cachedAddressBar;
     private Task<string?>? _inflight;
 
+    /// <summary>
+    /// Reads every 2 seconds, and right away when the tab title changes, so a new site is not recorded under the previous one.
+    /// After a title change it publishes even an unchanged domain: that tells the snapshot the address is read.
+    /// </summary>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(2));
-        IntPtr lastHwnd = IntPtr.Zero;
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(500));
+        ForegroundState.Snapshot? last = null;
         string? lastDomain = null;
+        var lastRead = DateTimeOffset.MinValue;
         while (await timer.WaitForNextTickAsync(stoppingToken))
         {
             var current = foreground.Current;
             if (!current.IsBrowser)
             {
-                lastHwnd = IntPtr.Zero;
+                last = null;
                 lastDomain = null;
                 continue;
             }
 
-            if (_inflight is { IsCompleted: false })
+            var changed = current != last;
+            if ((!changed && DateTimeOffset.UtcNow - lastRead < TimeSpan.FromSeconds(2)) || _inflight is { IsCompleted: false })
             {
                 continue;
             }
 
+            lastRead = DateTimeOffset.UtcNow;
             var readTask = _inflight = Task.Run(() => ReadDomain(current.Hwnd), stoppingToken);
             var finished = await Task.WhenAny(readTask, Task.Delay(TimeSpan.FromSeconds(3), stoppingToken));
             var domain = finished == readTask ? await readTask : null;
-            if (current.Hwnd != lastHwnd || domain != lastDomain)
+            if (changed || domain != lastDomain)
             {
-                lastHwnd = current.Hwnd;
+                last = current;
                 lastDomain = domain;
                 bus.Publish(new BrowserDomainSignal(domain));
             }

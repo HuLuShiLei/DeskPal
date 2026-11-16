@@ -11,7 +11,11 @@ public static class PresenceResolver
         " - Google Chrome", " - Microsoft Edge", " - Mozilla Firefox", " - 360安全浏览器", " - QQ浏览器", " - 搜狗高速浏览器",
     ];
 
-    /// <summary>Priority: paused, locked, idle, then the classified foreground activity.</summary>
+    /// <summary>
+    /// Priority: paused, locked, idle, then the classified foreground activity.
+    /// Watching a video is not idle: the program in front plays it, or a video player is full screen
+    /// (players that do not report to the system media controls).
+    /// </summary>
     public static LocalPresence Resolve(ActivitySnapshot snapshot, ClassificationResult classification, bool paused)
     {
         if (paused)
@@ -24,9 +28,9 @@ public static class PresenceResolver
             return new LocalPresence(PresenceState.Locked, ActivityCategory.None, null, null);
         }
 
-
-        var watchingFullscreen = snapshot.Foreground?.IsFullscreen == true && snapshot.Media.IsPlaying;
-        if (snapshot.IsIdle && !watchingFullscreen)
+        var watching = classification.Category == ActivityCategory.Video
+            && (MediaSources.PlayingInForeground(snapshot) || snapshot.Foreground?.IsFullscreen == true);
+        if (snapshot.IsIdle && !watching)
         {
             return new LocalPresence(PresenceState.Away, ActivityCategory.None, null, null);
         }
@@ -38,11 +42,12 @@ public static class PresenceResolver
             BuildDetail(snapshot, classification.Category));
     }
 
+    /// <summary>The media title only when the program in front plays it; music in the background is not what I am looking at.</summary>
     private static string? BuildDetail(ActivitySnapshot snapshot, ActivityCategory category)
     {
-        if (category.IsSlacking() && snapshot.Media is { IsPlaying: true, Title: { Length: > 0 } title })
+        if (category.IsSlacking() && MediaSources.PlayingInForeground(snapshot) && TitleText.Clean(snapshot.Media.Title) is { } title)
         {
-            return string.IsNullOrWhiteSpace(snapshot.Media.Artist) ? title : $"{title} - {snapshot.Media.Artist}";
+            return string.IsNullOrWhiteSpace(snapshot.Media.Artist) ? title : $"{title} - {snapshot.Media.Artist.Trim()}";
         }
 
         var windowTitle = snapshot.Foreground?.WindowTitle;
@@ -55,10 +60,11 @@ public static class PresenceResolver
         {
             if (windowTitle.EndsWith(suffix, StringComparison.Ordinal))
             {
-                return windowTitle[..^suffix.Length];
+                windowTitle = windowTitle[..^suffix.Length];
+                break;
             }
         }
 
-        return windowTitle;
+        return TitleText.Clean(windowTitle);
     }
 }

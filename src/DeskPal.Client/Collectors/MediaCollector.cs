@@ -1,3 +1,4 @@
+using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Pipeline;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -5,9 +6,14 @@ using Windows.Media.Control;
 
 namespace DeskPal.Client.Collectors;
 
-/// <summary>Reads what the system media controls show (song or video title), the same info as the volume flyout.</summary>
-public sealed class MediaCollector(ActivityBus bus, ILogger<MediaCollector> logger) : BackgroundService
+/// <summary>
+/// Reads what the system media controls show (song or video title), the same info as the volume flyout.
+/// When several apps have a session, the one of the foreground program wins over the one Windows shows.
+/// </summary>
+public sealed class MediaCollector(ActivityBus bus, ForegroundState foreground, ILogger<MediaCollector> logger) : BackgroundService
 {
+    private static readonly MediaSignal Stopped = new(false, null, null, null);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         GlobalSystemMediaTransportControlsSessionManager manager;
@@ -21,7 +27,7 @@ public sealed class MediaCollector(ActivityBus bus, ILogger<MediaCollector> logg
             return;
         }
 
-        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(2));
         MediaSignal? last = null;
         do
         {
@@ -39,11 +45,12 @@ public sealed class MediaCollector(ActivityBus bus, ILogger<MediaCollector> logg
     {
         try
         {
-            var session = manager.GetCurrentSession();
-            if (session is null
-                || session.GetPlaybackInfo().PlaybackStatus != GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing)
+            var process = foreground.Current.ProcessName;
+            var session = manager.GetSessions().FirstOrDefault(s => IsPlaying(s) && MediaSources.IsFrom(s.SourceAppUserModelId, process))
+                ?? manager.GetCurrentSession();
+            if (session is null || !IsPlaying(session))
             {
-                return new MediaSignal(false, null, null, null);
+                return Stopped;
             }
 
             var props = await session.TryGetMediaPropertiesAsync();
@@ -52,9 +59,12 @@ public sealed class MediaCollector(ActivityBus bus, ILogger<MediaCollector> logg
         catch (Exception ex)
         {
             logger.LogDebug(ex, "Reading media session failed");
-            return new MediaSignal(false, null, null, null);
+            return Stopped;
         }
     }
+
+    private static bool IsPlaying(GlobalSystemMediaTransportControlsSession session) =>
+        session.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
 
     private static string? Blank(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }
