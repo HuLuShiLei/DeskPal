@@ -19,6 +19,7 @@ public class PanelStateBuilderTests
         Assert.Equal(["Bob", "Carol"], state.Members.Select(m => m.Name));
         var bob = state.Members[0];
         Assert.True(bob.Online);
+        Assert.True(bob.ShareStats);
         Assert.Equal("在看视频", bob.View.Headline);
         Assert.Equal("哔哩哔哩", bob.View.App);
         Assert.EndsWith("…", bob.View.Detail);
@@ -31,6 +32,21 @@ public class PanelStateBuilderTests
         Assert.Equal("", carol.Meta);
         Assert.False(carol.Pinned);
         Assert.Null(state.EmptyHint);
+    }
+
+    [Fact]
+    public void Sharing_member_loses_the_stats_button_when_offline()
+    {
+        var offline = new PresenceSnapshot { State = PresenceState.Offline, Since = PanelSamples.Now };
+        var input = PanelSamples.Default() with
+        {
+            PresenceOf = (_, user) => user == PanelSamples.Bob ? offline : null,
+        };
+
+        var bob = PanelStateBuilder.Build(input).Members.Single(m => m.Name == "Bob");
+        Assert.False(bob.Online);
+        Assert.Equal("离线", bob.View.Headline);
+        Assert.False(bob.ShareStats);
     }
 
     [Fact]

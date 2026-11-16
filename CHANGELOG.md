@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 公开了使用统计的成员离线后，首页的「查看统计」会随离线状态一起消失。
+  en: When a member who shares usage stats goes offline, View stats on Home disappears with the offline status.
+
 - 每个房间创建时就有邀请码，在房间页的「当前房间」中可以查看和复制。邀请码不再过期，只有所有者可以重新生成，重新生成后旧邀请码失效。
   en: Every room gets an invite code when it is created, shown under Current room on the Rooms page, ready to copy. Invite codes no longer expire. Only the owner can create a new one, which replaces the old code.
 

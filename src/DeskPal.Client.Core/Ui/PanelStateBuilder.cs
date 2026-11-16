@@ -147,17 +147,18 @@ public static class PanelStateBuilder
             }
 
             var snapshot = input.PresenceOf(room.Id, m.UserId);
+            var online = snapshot is not null && snapshot.State != PresenceState.Offline;
             var view = snapshot is null ? new PresenceView(Strings.State_Offline, null, null) : PresenceFormatter.Format(snapshot);
-            var meta = snapshot is null || snapshot.State == PresenceState.Offline ? "" : Lasted(snapshot.Since, input.Now);
+            var meta = online ? Lasted(snapshot!.Since, input.Now) : "";
             return new MemberItem(
                 m.UserId,
                 m.DisplayName,
                 m.Role == RoomRole.Owner,
-                snapshot is not null && snapshot.State != PresenceState.Offline,
+                online,
                 view,
                 meta,
                 input.Pinned.Contains(m.UserId),
-                ShareStats: m.ShareStats);
+                ShareStats: m.ShareStats && online);
         })
         .ToList();
 

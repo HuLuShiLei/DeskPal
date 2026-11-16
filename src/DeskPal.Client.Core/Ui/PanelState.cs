@@ -53,7 +53,7 @@ public sealed record RoomItem(Guid Id, string Name, bool IsOwner, int MemberCoun
 
 /// <param name="Pinned">Shown as a card on the desktop.</param>
 /// <param name="Blocked">I blocked this member: neither of us sees the other's presence. The member is not told.</param>
-/// <param name="ShareStats">The member shares usage stats in this room and is not blocked, so "查看统计" is shown.</param>
+/// <param name="ShareStats">The member shares usage stats, is online in this room, and is not blocked, so "查看统计" is shown. Clears with the offline status.</param>
 public sealed record MemberItem(Guid UserId, string Name, bool IsOwner, bool Online, PresenceView View, string Meta, bool Pinned = false, bool Blocked = false, bool ShareStats = false);
 
 public sealed record Option<T>(T Value, string Name);
