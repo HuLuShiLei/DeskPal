@@ -209,7 +209,7 @@ public class PresenceFormatterTests
         Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", "猫猫合集", "browse"), Format(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "猫猫合集"));
         Assert.Equal(new PresenceView("正在浏览网页", "bilibili.com", null, "browse"), Format(PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", null));
         Assert.Equal(new PresenceView("正在浏览网页", null, "新标签页", "browse"), Format(PresenceState.Browsing, ActivityCategory.Browsing, null, "新标签页"));
-        Assert.Equal(new PresenceView("正在使用 XMind", null, null, "other"), Format(PresenceState.Other, app: "XMind"));
+        Assert.Equal(new PresenceView("其他活动", "XMind", null, "other"), Format(PresenceState.Other, app: "XMind"));
         Assert.Equal(new PresenceView("午休中", null, null, "other"), PresenceFormatter.Format(new PresenceSnapshot { State = PresenceState.Custom, CustomText = "午休中" }));
     }
 
@@ -218,7 +218,7 @@ public class PresenceFormatterTests
     {
         Assert.Equal(new PresenceView("在聊天", "QQ", null, "chat"), Format(PresenceState.Communicating, ActivityCategory.Communication, "QQ", "QQ"));
         Assert.Equal(new PresenceView("在聊天", "QQ", null, "chat"), Format(PresenceState.Communicating, ActivityCategory.Communication, "QQ", " qq "));
-        Assert.Equal(new PresenceView("正在使用 XMind", null, null, "other"), Format(PresenceState.Other, ActivityCategory.Other, "XMind", "XMind"));
+        Assert.Equal(new PresenceView("其他活动", "XMind", null, "other"), Format(PresenceState.Other, ActivityCategory.Other, "XMind", "XMind"));
         Assert.Equal(new PresenceView("在聊天", "QQ", "QQ - 聊天", "chat"), Format(PresenceState.Communicating, ActivityCategory.Communication, "QQ", "QQ - 聊天"));
     }
 
@@ -227,11 +227,11 @@ public class PresenceFormatterTests
     [InlineData(PresenceState.Meeting, ActivityCategory.Meeting, "工作中")]
     [InlineData(PresenceState.Communicating, ActivityCategory.Communication, "在聊天")]
     [InlineData(PresenceState.Slacking, ActivityCategory.Social, "正在浏览网页")]
-    [InlineData(PresenceState.Slacking, ActivityCategory.Music, "正在使用其他应用")]
+    [InlineData(PresenceState.Slacking, ActivityCategory.Music, "其他活动")]
     [InlineData(PresenceState.Slacking, ActivityCategory.Video, "在看视频")]
     [InlineData(PresenceState.Slacking, ActivityCategory.Game, "在玩游戏")]
     [InlineData(PresenceState.Slacking, ActivityCategory.None, "在放松")]
-    [InlineData(PresenceState.Other, ActivityCategory.Other, "正在使用其他应用")]
+    [InlineData(PresenceState.Other, ActivityCategory.Other, "其他活动")]
     [InlineData(PresenceState.Away, ActivityCategory.None, "暂离")]
     [InlineData(PresenceState.Locked, ActivityCategory.None, "已锁屏")]
     public void Headlines_use_written_chinese(PresenceState state, ActivityCategory category, string expected)

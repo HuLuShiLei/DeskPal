@@ -65,7 +65,7 @@ public class PanelStateBuilderTests
     {
         var me = PanelStateBuilder.Build(PanelSamples.Default()).Me;
 
-        Assert.Equal(new PresenceView("正在使用 Cursor", null, null, "other"), me.View);
+        Assert.Equal(new PresenceView("其他活动", "Cursor", null, "other"), me.View);
         Assert.Equal("类别：其他\n应用：Cursor\n标题：roadmap.md - idea1 - Cursor", me.Full);
         Assert.Equal("已持续 1 分钟", me.Meta);
         Assert.Equal(new PresenceView("工作中", null, null, "work"), me.Pending!.View);
@@ -73,7 +73,7 @@ public class PanelStateBuilderTests
         Assert.Equal(10, me.Pending.TotalSeconds);
         Assert.Equal("类别：工作\n应用：Cursor\n标题：plan.md - idea1 - Cursor", me.Pending.Full);
         Assert.Equal("「Cursor」按默认分类识别。", me.Source);
-        Assert.Equal("正在使用 Cursor", me.Visible);
+        Assert.Equal("其他活动 · Cursor", me.Visible);
     }
 
     [Fact]

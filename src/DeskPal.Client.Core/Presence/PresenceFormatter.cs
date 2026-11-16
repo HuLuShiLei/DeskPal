@@ -4,8 +4,8 @@ using DeskPal.Shared.Presence;
 
 namespace DeskPal.Client.Core.Presence;
 
-/// <param name="Headline">State line, e.g. "工作中" or "正在使用 XMind".</param>
-/// <param name="App">App name, null when the headline already contains it.</param>
+/// <param name="Headline">State line, e.g. "工作中" or "其他活动".</param>
+/// <param name="App">App name, or the domain for web pages.</param>
 /// <param name="Detail">Window or media title, shortened for display.</param>
 /// <param name="Tone">Color of the status dot: work, chat, relax, browse, other, away, offline.</param>
 public sealed record PresenceView(string Headline, string? App, string? Detail, string Tone = "offline");
@@ -42,7 +42,7 @@ public static class PresenceFormatter
             PresenceState.Away => Strings.State_Away,
             PresenceState.Working or PresenceState.Meeting => Strings.State_Working,
             PresenceState.Communicating => Strings.State_Chatting,
-            PresenceState.Other => app is null ? Strings.State_UsingOtherApp : UiLanguage.Format(Strings.State_UsingApp, app),
+            PresenceState.Other => Strings.State_Other,
             PresenceState.Slacking => SlackingLabel(snapshot.Category),
             PresenceState.Browsing => Strings.State_Browsing,
             _ => snapshot.State.ToString(),
@@ -60,7 +60,7 @@ public static class PresenceFormatter
         };
 
         var detail = OmitDuplicate(sent, OmitDuplicate(app, Shorten(snapshot.Detail)));
-        return new PresenceView(headline, state == PresenceState.Other ? null : app, detail, tone);
+        return new PresenceView(headline, app, detail, tone);
     }
 
     public static string OneLine(PresenceView view) =>

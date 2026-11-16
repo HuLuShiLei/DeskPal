@@ -6,13 +6,13 @@
   "me": {
     "displayName": "Alice",
     "view": {
-      "headline": "正在使用 Cursor",
-      "app": null,
+      "headline": "其他活动",
+      "app": "Cursor",
       "detail": null,
       "tone": "other"
     },
     "source": "「Cursor」按默认分类识别。",
-    "visible": "正在使用 Cursor",
+    "visible": "其他活动 · Cursor",
     "paused": false,
     "pending": {
       "view": {

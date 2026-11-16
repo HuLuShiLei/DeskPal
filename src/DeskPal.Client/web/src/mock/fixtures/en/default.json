@@ -6,13 +6,13 @@
   "me": {
     "displayName": "Alice",
     "view": {
-      "headline": "Using Cursor",
-      "app": null,
+      "headline": "Other activity",
+      "app": "Cursor",
       "detail": null,
       "tone": "other"
     },
     "source": "Cursor: matched a default category.",
-    "visible": "Using Cursor",
+    "visible": "Other activity · Cursor",
     "paused": false,
     "pending": {
       "view": {

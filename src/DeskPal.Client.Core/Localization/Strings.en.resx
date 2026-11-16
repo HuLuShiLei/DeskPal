@@ -33,11 +33,8 @@
   <data name="State_Chatting" xml:space="preserve">
     <value>Chatting</value>
   </data>
-  <data name="State_UsingApp" xml:space="preserve">
-    <value>Using {0}</value>
-  </data>
-  <data name="State_UsingOtherApp" xml:space="preserve">
-    <value>Using another app</value>
+  <data name="State_Other" xml:space="preserve">
+    <value>Other activity</value>
   </data>
   <data name="State_Browsing" xml:space="preserve">
     <value>Browsing the web</value>

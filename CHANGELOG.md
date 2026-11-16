@@ -8,6 +8,8 @@
 
 ## 0.1.2
 
+- 识别为「其他」的应用改为显示「其他活动」，应用名显示在下一行，和工作中、在聊天等状态的排版一致
+  en: Apps in the Other category now show "Other activity" with the app name on the next line, matching the layout of other statuses
 - 面板左上角改为 DeskPal 文字标志
   en: The panel's top-left corner now shows the DeskPal wordmark
 - 「其他」状态改用绿色，不再和离线一样是灰色；房间成员和自己的状态卡片按状态显示颜色，更容易一眼看出谁在做什么
