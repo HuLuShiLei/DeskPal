@@ -116,7 +116,7 @@ export function App({ bridge }: { bridge: Bridge }) {
     <HostContext.Provider value={host}>
       <div class="window">
         <div class="chrome" inert={dialogOpen}>
-          <TitleBar bridge={bridge} title="DeskPal" onClose={() => void closePanel()}>
+          <TitleBar bridge={bridge} onClose={() => void closePanel()}>
             {state && <RoomSwitcher state={state} onManage={() => setTab("room")} />}
           </TitleBar>
         </div>

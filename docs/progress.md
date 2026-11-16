@@ -188,3 +188,4 @@
 | 2026-11-16 | 隐私级别只改名：`StateOnly` 显示为「只显示类别」，`Category` 显示为「显示应用」，枚举和发出的内容不变 |
 | 2026-11-16 | 配色：`--tone-other` 从灰色改为绿色，和离线区分；状态标签、标题不再对 `other` 特殊处理。在线成员行和「我的状态」卡片用同一种状态色斜向渐变加同色描边。浅色主题不再用纯白：`--bg` #e8eaef、`--surface` #f1f2f5、`--surface-strong` #fafbfc，卡片加 `--card-shadow`，`WebUi` 的宿主背景色同步 |
 | 2026-11-16 | 房间成员可以拖动排序，只保存在本机：`settings.json` 增加 `memberOrder`（房间 id → 成员 id 列表），`PanelInput` 增加 `MemberOrder`，没在列表里的成员按 Server 顺序排在后面。页面命令增加 `member.reorder`（`roomId`、`userIds`），保存时顺带删除已不在的房间 |
+| 2026-11-16 | 标题栏去掉蓝色「D」图标，主面板显示 DeskPal 字标（「Pal」用强调色渐变），登录窗口标题栏仍显示文字标题 |

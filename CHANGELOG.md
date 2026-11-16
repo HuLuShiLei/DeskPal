@@ -8,6 +8,8 @@
 
 ## 0.1.2
 
+- 面板左上角改为 DeskPal 文字标志
+  en: The panel's top-left corner now shows the DeskPal wordmark
 - 「其他」状态改用绿色，不再和离线一样是灰色；房间成员和自己的状态卡片按状态显示颜色，更容易一眼看出谁在做什么
   en: The Other status is now green instead of gray like Offline. Your status card and room members are colored by status, so you can tell at a glance what everyone is doing
 - 浅色模式改用柔和的浅灰底色，不再是纯白

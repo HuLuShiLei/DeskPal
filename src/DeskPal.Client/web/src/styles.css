@@ -153,7 +153,15 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
   background: linear-gradient(135deg, #5b8cff, #3f6fe8); color: #fff;
 }
 .app-mark.large { width: 52px; height: 52px; border-radius: 14px; font-size: 26px; box-shadow: 0 6px 18px rgba(63, 111, 232, 0.35); }
-.app-title { margin-left: 10px; font-size: 12px; color: var(--muted); }
+.app-title { font-size: 12px; color: var(--muted); }
+.wordmark {
+  font: 700 16px/1 "Segoe UI Variable Display", "Segoe UI", sans-serif; letter-spacing: -0.4px;
+  color: var(--text); white-space: nowrap;
+}
+.wordmark-accent {
+  background: linear-gradient(120deg, var(--accent), var(--tone-browse));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
 .titlebar-content { flex: 1; display: flex; justify-content: center; min-width: 0; padding: 0 8px; }
 .caption-buttons { display: flex; align-self: stretch; -webkit-app-region: no-drag; app-region: no-drag; }
 .caption {

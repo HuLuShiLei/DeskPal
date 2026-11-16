@@ -42,14 +42,17 @@ export function Icon({ name, class: cls }: { name: IconName; class?: string }) {
   );
 }
 
-/** 自绘标题栏。空白处可以拖动窗口（app-region: drag），按钮区域不参与拖动。 */
-export function TitleBar({ bridge, title, children, onClose }: { bridge: Bridge; title: string; children?: ComponentChildren; onClose?: () => void }) {
+/** 自绘标题栏。空白处可以拖动窗口（app-region: drag），按钮区域不参与拖动。不传 title 时显示 DeskPal 字标。 */
+export function TitleBar({ bridge, title, children, onClose }: { bridge: Bridge; title?: string; children?: ComponentChildren; onClose?: () => void }) {
   return (
     <header class="titlebar">
-      <span class="app-mark" aria-hidden="true">
-        D
-      </span>
-      <span class="app-title">{title}</span>
+      {title ? (
+        <span class="app-title">{title}</span>
+      ) : (
+        <span class="wordmark" aria-label="DeskPal">
+          Desk<span class="wordmark-accent">Pal</span>
+        </span>
+      )}
       <div class="titlebar-content">{children}</div>
       <div class="caption-buttons">
         <button class="caption" aria-label={t("common.minimize")} title={t("common.minimize")} onClick={() => bridge.notify({ type: "window.minimize" })}>
