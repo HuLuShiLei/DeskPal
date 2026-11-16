@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 关闭窗口时可以选择直接退出，设置里的「关闭窗口时」也可以选这一项。
+  en: Closing the window can quit DeskPal, and the same choice is available in Settings.
+
 - 设置页的账号显示头像；更新和反馈合并为「关于」，可以打开日志文件夹；注册邀请码改为卡片列表
   en: The account in Settings shows an avatar. Updates and feedback are grouped under About, where you can open the log folder. Signup invite codes are shown as a card list
 

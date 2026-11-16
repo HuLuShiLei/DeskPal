@@ -93,6 +93,7 @@ public partial class App : Application
         _ = updates.RunPeriodicAsync(_updates.Token);
 
         _panel = services.GetRequiredService<PanelWindow>();
+        _panel.QuitRequested += async (_, _) => await ExitAsync();
         _cards = services.GetRequiredService<MemberCards>();
         if (!WebUi.RuntimeAvailable())
         {

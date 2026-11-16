@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import type { Language, PanelState, SignupInviteItem } from "../bridge";
+import type { CloseAction, Language, PanelState, SignupInviteItem } from "../bridge";
 import { useHost } from "../host";
 import { t } from "../i18n";
 import { Avatar, Icon, Section, SettingRow, Switch } from "../ui";
@@ -94,11 +94,12 @@ export function SettingsPage({ state }: { state: PanelState }) {
             <select
               aria-label={t("settings.closeAction")}
               value={s.closeAction}
-              onChange={(e) => run({ type: "settings.closeAction", action: e.currentTarget.value as "ask" | "minimize" | "tray" })}
+              onChange={(e) => run({ type: "settings.closeAction", action: e.currentTarget.value as CloseAction })}
             >
               <option value="ask">{t("settings.closeAsk")}</option>
               <option value="minimize">{t("common.minimize")}</option>
               <option value="tray">{t("settings.closeTray")}</option>
+              <option value="quit">{t("settings.closeQuit")}</option>
             </select>
           </SettingRow>
           <SettingRow title={t("settings.theme")}>

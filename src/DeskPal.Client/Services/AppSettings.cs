@@ -25,7 +25,7 @@ public sealed class AppSettings
 
     public bool Topmost { get; set; }
 
-    /// <summary>ask, minimize, or tray. ask shows a choice the next time the close button is used.</summary>
+    /// <summary>ask, minimize, tray, or quit. ask shows a choice the next time the close button is used. quit leaves the app.</summary>
     public string CloseAction { get; set; } = "ask";
 
     /// <summary>system follows Windows, light and dark are fixed.</summary>

@@ -76,6 +76,9 @@ public sealed class PanelWindow : Window, IUserPrompt
 
     public bool AllowClose { get; set; }
 
+    /// <summary>The page chose to quit. The app handles this the same way as the tray Exit item.</summary>
+    public event EventHandler? QuitRequested;
+
     protected override void OnClosing(CancelEventArgs e)
     {
         if (!AllowClose)
@@ -236,6 +239,9 @@ public sealed class PanelWindow : Window, IUserPrompt
                     pending.TrySetResult(command.Bool("ok"));
                 }
 
+                return;
+            case "window.quit":
+                QuitRequested?.Invoke(this, EventArgs.Empty);
                 return;
         }
 

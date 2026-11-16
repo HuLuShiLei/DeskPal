@@ -114,8 +114,8 @@ export interface PanelState {
     shareUsage: boolean | null;
     /** system 跟随 Windows，light / dark 固定。 */
     theme: "system" | "light" | "dark";
-    /** ask 每次询问，minimize 最小化，tray 最小化到系统托盘。 */
-    closeAction: "ask" | "minimize" | "tray";
+    /** ask 每次询问，minimize 最小化，tray 最小化到系统托盘，quit 直接退出。 */
+    closeAction: CloseAction;
     /** system 跟随 Windows 显示语言，zh-CN / en 固定。 */
     language: Language;
     /** 服务器把这个账号列为管理员，设置页显示注册邀请码。 */
@@ -294,7 +294,7 @@ export type Command =
   | { type: "settings.autoStart"; enabled: boolean }
   | { type: "settings.topmost"; enabled: boolean }
   | { type: "settings.theme"; theme: "system" | "light" | "dark" }
-  | { type: "settings.closeAction"; action: "ask" | "minimize" | "tray" }
+  | { type: "settings.closeAction"; action: CloseAction }
   | { type: "settings.language"; language: Language }
   | { type: "settings.idleMinutes"; minutes: number }
   | { type: "update.check" }
@@ -317,12 +317,16 @@ export interface SignupInviteItem {
   text: string;
 }
 
+/** ask 每次询问，minimize 最小化，tray 最小化到系统托盘，quit 直接退出。 */
+export type CloseAction = "ask" | "minimize" | "tray" | "quit";
+
 /** 不需要回复的消息。window.* 是自绘标题栏的按钮，由窗口直接处理。 */
 export type Notice =
   | { type: "ready" }
   | { type: "dialog.answer"; dialogId: number; ok: boolean }
   | { type: "window.minimize" }
-  | { type: "window.close" };
+  | { type: "window.close" }
+  | { type: "window.quit" };
 
 export interface CommandResult {
   ok: boolean;

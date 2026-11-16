@@ -284,7 +284,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
         if ([1, 5, 10, 15, 30].includes(m.minutes as number)) state.settings.idleMinutes = m.minutes as number;
         break;
       case "settings.closeAction":
-        state.settings.closeAction = m.action === "minimize" || m.action === "tray" ? m.action : "ask";
+        state.settings.closeAction = m.action === "minimize" || m.action === "tray" || m.action === "quit" ? m.action : "ask";
         break;
       case "update.beta":
         state.settings.receiveBeta = m.enabled as boolean;

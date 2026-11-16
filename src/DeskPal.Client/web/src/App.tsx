@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import type { Bridge, PanelState } from "./bridge";
+import type { Bridge, CloseAction, PanelState } from "./bridge";
 import { HostContext, useHost, useHostServices } from "./host";
 import { RoomPage } from "./pages/RoomPage";
 import { RulesPage } from "./pages/RulesPage";
@@ -25,40 +25,48 @@ export function App({ bridge }: { bridge: Bridge }) {
   const [state, setState] = useState<PanelState | null>(null);
   const [tab, setTab] = useState<Tab>("status");
   const [statsTarget, setStatsTarget] = useState<StatsTarget>(null);
-  const [closeAction, setCloseAction] = useState<"ask" | "minimize" | "tray">("ask");
+  const [closeAction, setCloseAction] = useState<CloseAction>("ask");
   const { host, overlay, dialogOpen } = useHostServices(bridge);
   const askedSharing = useRef(false);
   const shownWhatsNew = useRef(false);
   const closing = useRef(false);
 
+  const performClose = (action: Exclude<CloseAction, "ask">) => {
+    if (action === "minimize") bridge.notify({ type: "window.minimize" });
+    else if (action === "quit") bridge.notify({ type: "window.quit" });
+    else bridge.notify({ type: "window.close" });
+  };
+
   const closePanel = async () => {
     if (closing.current) return;
     closing.current = true;
     try {
-      let action: "minimize" | "tray" = closeAction === "minimize" ? "minimize" : "tray";
-      if (closeAction !== "minimize" && closeAction !== "tray") {
-        const answer = await host.ask({
-          title: t("app.closeTitle"),
-          message: t("app.closeMessage"),
-          select: {
-            presentation: "radio",
-            initial: "tray",
-            options: [
-              { value: "minimize", name: t("common.minimize") },
-              { value: "tray", name: t("settings.closeTray") },
-            ],
-          },
-          checkbox: { label: t("app.dontAskAgain"), initial: false },
-          okText: t("common.ok"),
-        });
-        if (!answer.ok) return;
-        action = answer.selected === "minimize" ? "minimize" : "tray";
-        if (answer.checked) {
-          setCloseAction(action);
-          await host.run({ type: "settings.closeAction", action });
-        }
+      if (closeAction === "minimize" || closeAction === "tray" || closeAction === "quit") {
+        performClose(closeAction);
+        return;
       }
-      bridge.notify({ type: action === "minimize" ? "window.minimize" : "window.close" });
+      const answer = await host.ask({
+        title: t("app.closeTitle"),
+        message: t("app.closeMessage"),
+        select: {
+          presentation: "radio",
+          initial: "tray",
+          options: [
+            { value: "minimize", name: t("common.minimize") },
+            { value: "tray", name: t("settings.closeTray") },
+            { value: "quit", name: t("settings.closeQuit") },
+          ],
+        },
+        checkbox: { label: t("app.dontAskAgain"), initial: false },
+        okText: t("common.ok"),
+      });
+      if (!answer.ok) return;
+      const action = answer.selected === "minimize" || answer.selected === "quit" ? answer.selected : "tray";
+      if (answer.checked) {
+        setCloseAction(action);
+        await host.run({ type: "settings.closeAction", action });
+      }
+      performClose(action);
     } finally {
       closing.current = false;
     }

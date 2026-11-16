@@ -177,6 +177,7 @@ export const en: Record<keyof typeof zh, string> = {
   "settings.closeActionHint": "What happens when you click Close",
   "settings.closeAsk": "Ask every time",
   "settings.closeTray": "Minimize to tray",
+  "settings.closeQuit": "Exit",
   "settings.theme": "Theme",
   "settings.themeHint": "Follow Windows, or always use light or dark",
   "settings.followSystem": "Use system setting",

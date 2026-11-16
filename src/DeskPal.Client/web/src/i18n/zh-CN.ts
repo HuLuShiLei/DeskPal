@@ -175,6 +175,7 @@ export const zh = {
   "settings.closeActionHint": "点击关闭按钮后的操作",
   "settings.closeAsk": "每次询问",
   "settings.closeTray": "最小化到系统托盘",
+  "settings.closeQuit": "直接退出",
   "settings.theme": "夜间模式",
   "settings.themeHint": "跟随 Windows，或固定为浅色、深色",
   "settings.followSystem": "跟随系统",

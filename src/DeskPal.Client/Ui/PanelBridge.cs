@@ -796,7 +796,7 @@ public sealed class PanelBridge
 
     private static string NormalizeTheme(string? theme) => theme is "light" or "dark" or "system" ? theme : "system";
 
-    private static string NormalizeCloseAction(string? action) => action is "minimize" or "tray" or "ask" ? action : "ask";
+    private static string NormalizeCloseAction(string? action) => action is "minimize" or "tray" or "quit" or "ask" ? action : "ask";
 
     private void RaiseChanged() => Changed?.Invoke();
 }
