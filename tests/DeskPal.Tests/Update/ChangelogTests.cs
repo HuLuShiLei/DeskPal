@@ -117,7 +117,7 @@ public class ChangelogTests
         var path = Path.Combine(dir!.FullName, "CHANGELOG.md");
         var sections = Changelog.Parse(File.ReadAllText(path));
 
-        Assert.Equal(["0.1.3", "0.1.2", "0.1.1", "0.1.0"], sections.Select(s => s.Version));
+        Assert.Equal(["0.1.4", "0.1.3", "0.1.2", "0.1.1", "0.1.0"], sections.Select(s => s.Version));
         Assert.All(sections.SelectMany(s => s.Items), item =>
         {
             Assert.False(string.IsNullOrWhiteSpace(item.En));

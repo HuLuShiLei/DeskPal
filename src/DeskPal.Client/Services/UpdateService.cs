@@ -29,6 +29,7 @@ public sealed class UpdateService
     private readonly bool _installed;
     private readonly bool _installedPrerelease;
     private readonly InstalledUpdateManager? _locator;
+    private readonly UpdateCheckThrottle _throttle = new();
     private int _channelEpoch;
     private InstalledUpdateManager? _manager;
     private VelopackAsset? _ready;
@@ -148,11 +149,29 @@ public sealed class UpdateService
                 beta = UpdatePolicy.ReceiveBeta(_settings.IncludePrerelease, _installedPrerelease);
             }
 
+            var now = DateTimeOffset.UtcNow;
+            if (_throttle.BlockedUntil(now) is { } blockedUntil)
+            {
+                _logger.LogInformation("Update check skipped because GitHub rate limit lasts until {Until:O}", blockedUntil);
+                return new UpdateCheckResult(UpdateCheckKind.Failed, RateLimitedMessage(blockedUntil), VersionLabel);
+            }
+
+            if (interactive && _throttle.RecentlyUpToDate(beta, now))
+            {
+                return new UpdateCheckResult(UpdateCheckKind.UpToDate, UiLanguage.Format(Strings.Update_UpToDate, VersionLabel), VersionLabel);
+            }
+
             var manager = CreateManager(beta);
             UpdateInfo? info;
             try
             {
                 info = await manager.CheckForUpdatesAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex) when (UpdateRateLimitedException.Find(ex) is { } limited)
+            {
+                var until = _throttle.RateLimited(now, limited.ResetAt);
+                _logger.LogWarning("Update check rate limited by GitHub until {Until:O}", until);
+                return new UpdateCheckResult(UpdateCheckKind.Failed, RateLimitedMessage(until), VersionLabel);
             }
             catch (Exception ex)
             {
@@ -163,8 +182,11 @@ public sealed class UpdateService
             if (info is null)
             {
                 ClearReady();
+                _throttle.UpToDate(beta, now);
                 return new UpdateCheckResult(UpdateCheckKind.UpToDate, UiLanguage.Format(Strings.Update_UpToDate, VersionLabel), VersionLabel);
             }
+
+            _throttle.Forget(beta);
 
             var target = info.TargetFullRelease.Version.ToString();
             if (info.IsDowngrade)
@@ -243,6 +265,11 @@ public sealed class UpdateService
                 epoch = _channelEpoch;
             }
 
+            if (_throttle.BlockedUntil(DateTimeOffset.UtcNow) is { } blockedUntil)
+            {
+                return RateLimitedMessage(blockedUntil);
+            }
+
             var manager = CreateManager(beta: false);
             var info = await manager.CheckForUpdatesAsync().ConfigureAwait(false);
             if (info is not { IsDowngrade: true })
@@ -261,6 +288,10 @@ public sealed class UpdateService
 
             Changed?.Invoke();
             return null;
+        }
+        catch (Exception ex) when (UpdateRateLimitedException.Find(ex) is { } limited)
+        {
+            return RateLimitedMessage(_throttle.RateLimited(DateTimeOffset.UtcNow, limited.ResetAt));
         }
         catch (Exception ex)
         {
@@ -502,12 +533,15 @@ public sealed class UpdateService
     }
 
     private static InstalledUpdateManager CreateManager(bool beta) => new(
-        new GithubSource(UpdatePolicy.RepositoryUrl, null, beta),
+        new GithubSource(UpdatePolicy.RepositoryUrl, null, beta, new GithubApiDownloader()),
         new UpdateOptions
         {
             ExplicitChannel = UpdatePolicy.Channel(beta),
             AllowVersionDowngrade = !beta,
         });
+
+    private static string RateLimitedMessage(DateTimeOffset until) =>
+        UiLanguage.Format(Strings.Update_RateLimited, until.ToLocalTime().ToString("t", UiLanguage.Culture));
 
     private static string AssemblyVersion()
     {

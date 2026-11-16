@@ -6,6 +6,11 @@
 - 只改 CI、文档、测试，用户感受不到的，不写。
 - 客户端更新后，第一次打开面板时按界面语言显示还没看过的条目。看过与否按中文比对：改了中文会再显示一次，只改英文不会。
 
+## 0.1.4
+
+- 检查更新过于频繁时，提示几点后可以再试，到时间之前不再检查；5 分钟内重复检查直接显示上次的结果
+  en: If update checks are too frequent, DeskPal tells you when to try again and waits until then. Checking again within 5 minutes shows the last result
+
 ## 0.1.3
 
 - 首页的「房间成员」标题不再显示人数；「拖动可调整顺序」和「待归类」的说明收进标题旁的问号，悬停查看；「我的状态」去掉了问号，识别依据改为悬停状态时显示

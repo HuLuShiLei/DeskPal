@@ -622,6 +622,9 @@ Restart DeskPal after installing it.</value>
   <data name="Update_StableDownloadFailed" xml:space="preserve">
     <value>Could not download the stable release: {0}</value>
   </data>
+  <data name="Update_RateLimited" xml:space="preserve">
+    <value>Too many update checks. Try again after {0}.</value>
+  </data>
   <data name="Update_Downloading" xml:space="preserve">
     <value>Downloading version {0}…</value>
   </data>
