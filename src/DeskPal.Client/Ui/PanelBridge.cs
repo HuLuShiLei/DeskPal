@@ -679,7 +679,7 @@ public sealed class PanelBridge
 
     private async Task<CommandResult> QueryStatsAsync(WebCommand c)
     {
-        if (!Enum.TryParse<StatsScale>(c.String("scale"), out var scale) || !Enum.TryParse<StatsGranularity>(c.String("granularity"), out var granularity))
+        if (!Enum.TryParse<StatsScale>(c.String("scale"), out var scale) || !Enum.TryParse<StatsRankBy>(c.String("rankBy"), out var rankBy))
         {
             return CommandResult.Fail(Strings.Error_StatsRange);
         }
@@ -689,11 +689,12 @@ public sealed class PanelBridge
         var range = StatsRange.Of(scale, anchor);
         var previous = StatsRange.Previous(scale, anchor);
         var to = range.To > today ? today : range.To;
+        var filter = c.OptionalString("filter");
 
         if (c.OptionalString("userId") is null)
         {
             var (mine, targets) = await Task.Run(() => (_usage.Report(range.From, to, (previous.From, previous.To)), _usage.RuleTargets()));
-            return new CommandResult(true, Data: StatsViewBuilder.Build(mine, scale, granularity, anchor, today, targetOf: targets));
+            return new CommandResult(true, Data: StatsViewBuilder.Build(mine, scale, rankBy, anchor, today, targetOf: targets, filter: filter));
         }
 
         var userId = c.Guid("userId");
@@ -722,7 +723,7 @@ public sealed class PanelBridge
         try
         {
             var report = await _stats.RequestAsync(room.Id, userId, from, to, (previous.From, previous.To));
-            return new CommandResult(true, Data: StatsViewBuilder.Build(report, scale, granularity, anchor, today, member.DisplayName));
+            return new CommandResult(true, Data: StatsViewBuilder.Build(report, scale, rankBy, anchor, today, member.DisplayName, filter: filter));
         }
         catch (StatsUnavailableException ex)
         {

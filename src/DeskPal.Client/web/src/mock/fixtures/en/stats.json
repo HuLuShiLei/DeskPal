@@ -1,7 +1,8 @@
 {
-  "Day-State": {
+  "Day-Category": {
     "scale": "Day",
-    "granularity": "State",
+    "rankBy": "Category",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "Wed, Nov 11 (today)",
@@ -13,19 +14,19 @@
     "canNext": false,
     "legend": [
       {
-        "key": "work",
+        "key": "Work",
         "name": "Work",
         "tone": "work",
         "hidden": false
       },
       {
-        "key": "chat",
+        "key": "Communication",
         "name": "Chat",
         "tone": "chat",
         "hidden": false
       },
       {
-        "key": "video",
+        "key": "Video",
         "name": "Video",
         "tone": "relax",
         "hidden": false
@@ -92,7 +93,7 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 3000
           }
         ]
@@ -103,11 +104,11 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 2700
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           }
         ]
@@ -118,7 +119,7 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 3600
           }
         ]
@@ -129,7 +130,7 @@
         "date": null,
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 1200
           }
         ]
@@ -140,11 +141,11 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 1800
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 1200
           }
         ]
@@ -155,7 +156,7 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 3600
           }
         ]
@@ -263,7 +264,8 @@
         "time": "4 h 5 min",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Work"
       },
       {
         "name": "Video",
@@ -272,7 +274,8 @@
         "time": "40 min",
         "share": 0.163,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Video"
       },
       {
         "name": "Chat",
@@ -281,16 +284,17 @@
         "time": "15 min",
         "share": 0.061,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Communication"
       }
     ],
-    "rankingTitle": "By status",
     "note": null,
     "empty": null
   },
-  "member-Day-State": {
+  "member-Day-Category": {
     "scale": "Day",
-    "granularity": "State",
+    "rankBy": "Category",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "Wed, Nov 11 (today)",
@@ -302,19 +306,19 @@
     "canNext": false,
     "legend": [
       {
-        "key": "work",
+        "key": "Work",
         "name": "Work",
         "tone": "work",
         "hidden": false
       },
       {
-        "key": "chat",
+        "key": "Communication",
         "name": "Chat",
         "tone": "chat",
         "hidden": false
       },
       {
-        "key": "video",
+        "key": "Video",
         "name": "Video",
         "tone": "relax",
         "hidden": false
@@ -381,7 +385,7 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 3000
           }
         ]
@@ -392,11 +396,11 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 2700
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           }
         ]
@@ -407,7 +411,7 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 3600
           }
         ]
@@ -418,7 +422,7 @@
         "date": null,
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 1200
           }
         ]
@@ -429,11 +433,11 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 1800
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 1200
           }
         ]
@@ -444,7 +448,7 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 3600
           }
         ]
@@ -552,7 +556,8 @@
         "time": "4 h 5 min",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Work"
       },
       {
         "name": "Video",
@@ -561,7 +566,8 @@
         "time": "40 min",
         "share": 0.163,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Video"
       },
       {
         "name": "Chat",
@@ -570,16 +576,17 @@
         "time": "15 min",
         "share": 0.061,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Communication"
       }
     ],
-    "rankingTitle": "By status",
     "note": "Bob shares the last 7 days.",
     "empty": null
   },
-  "Day-Category": {
+  "Day-App": {
     "scale": "Day",
-    "granularity": "Category",
+    "rankBy": "App",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "Wed, Nov 11 (today)",
@@ -846,7 +853,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "Visual Studio Code",
@@ -860,7 +868,8 @@
           "pattern": "code",
           "name": "Visual Studio Code",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -874,7 +883,8 @@
           "pattern": "bilibili",
           "name": "哔哩哔哩",
           "category": "Video"
-        }
+        },
+        "filter": null
       },
       {
         "name": "微信",
@@ -888,16 +898,17 @@
           "pattern": "weixin",
           "name": "微信",
           "category": "Communication"
-        }
+        },
+        "filter": null
       }
     ],
-    "rankingTitle": "Top apps and sites",
     "note": null,
     "empty": null
   },
-  "member-Day-Category": {
+  "member-Day-App": {
     "scale": "Day",
-    "granularity": "Category",
+    "rankBy": "App",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "Wed, Nov 11 (today)",
@@ -1159,7 +1170,8 @@
         "time": "4 h 5 min",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -1168,7 +1180,8 @@
         "time": "40 min",
         "share": 0.163,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "Chat",
@@ -1177,16 +1190,17 @@
         "time": "15 min",
         "share": 0.061,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       }
     ],
-    "rankingTitle": "Top apps and sites",
     "note": "Bob shares the last 7 days. Some categories are status only.",
     "empty": null
   },
   "Day-Title": {
     "scale": "Day",
-    "granularity": "Title",
+    "rankBy": "Title",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "Wed, Nov 11 (today)",
@@ -1453,7 +1467,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "architecture.md - docs",
@@ -1467,7 +1482,8 @@
           "pattern": "code",
           "name": "Visual Studio Code",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "StatsPage.tsx - idea1 - Cursor",
@@ -1481,7 +1497,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
@@ -1495,7 +1512,8 @@
           "pattern": "bilibili",
           "name": "哔哩哔哩",
           "category": "Video"
-        }
+        },
+        "filter": null
       },
       {
         "name": "项目群",
@@ -1509,16 +1527,17 @@
           "pattern": "weixin",
           "name": "微信",
           "category": "Communication"
-        }
+        },
+        "filter": null
       }
     ],
-    "rankingTitle": "Top titles",
     "note": null,
     "empty": null
   },
   "member-Day-Title": {
     "scale": "Day",
-    "granularity": "Title",
+    "rankBy": "Title",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "Wed, Nov 11 (today)",
@@ -1780,7 +1799,8 @@
         "time": "4 h 5 min",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -1789,7 +1809,8 @@
         "time": "40 min",
         "share": 0.163,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "Chat",
@@ -1798,16 +1819,17 @@
         "time": "15 min",
         "share": 0.061,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       }
     ],
-    "rankingTitle": "Top titles",
     "note": "Bob shares the last 7 days. Some categories are status only. Some categories omit titles and show the app name.",
     "empty": null
   },
-  "Week-State": {
+  "Week-Category": {
     "scale": "Week",
-    "granularity": "State",
+    "rankBy": "Category",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "Nov 9 – Nov 15 (this week)",
@@ -1819,37 +1841,37 @@
     "canNext": false,
     "legend": [
       {
-        "key": "work",
+        "key": "Work",
         "name": "Work",
         "tone": "work",
         "hidden": false
       },
       {
-        "key": "chat",
+        "key": "Communication",
         "name": "Chat",
         "tone": "chat",
         "hidden": false
       },
       {
-        "key": "video",
+        "key": "Video",
         "name": "Video",
         "tone": "relax",
         "hidden": false
       },
       {
-        "key": "game",
+        "key": "Game",
         "name": "Games",
         "tone": "game",
         "hidden": false
       },
       {
-        "key": "browse",
-        "name": "Web",
+        "key": "Browsing",
+        "name": "Web browsing",
         "tone": "browse",
         "hidden": false
       },
       {
-        "key": "other",
+        "key": "Other",
         "name": "Other",
         "tone": "other",
         "hidden": false
@@ -1862,27 +1884,27 @@
         "date": "2026-11-09",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -1893,23 +1915,23 @@
         "date": "2026-11-10",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -1920,15 +1942,15 @@
         "date": "2026-11-11",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 14700
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           }
         ]
@@ -1969,7 +1991,8 @@
         "time": "16 h 35 min",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Work"
       },
       {
         "name": "Video",
@@ -1978,7 +2001,8 @@
         "time": "2 h",
         "share": 0.121,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Video"
       },
       {
         "name": "Games",
@@ -1987,7 +2011,8 @@
         "time": "1 h 30 min",
         "share": 0.09,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Game"
       },
       {
         "name": "Chat",
@@ -1996,7 +2021,8 @@
         "time": "1 h 15 min",
         "share": 0.075,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Communication"
       },
       {
         "name": "Other",
@@ -2005,25 +2031,27 @@
         "time": "1 h",
         "share": 0.06,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Other"
       },
       {
-        "name": "Web",
+        "name": "Web browsing",
         "sub": null,
         "tone": "browse",
         "time": "40 min",
         "share": 0.04,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Browsing"
       }
     ],
-    "rankingTitle": "By status",
     "note": null,
     "empty": null
   },
-  "member-Week-State": {
+  "member-Week-Category": {
     "scale": "Week",
-    "granularity": "State",
+    "rankBy": "Category",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "Nov 9 – Nov 15 (this week)",
@@ -2035,37 +2063,37 @@
     "canNext": false,
     "legend": [
       {
-        "key": "work",
+        "key": "Work",
         "name": "Work",
         "tone": "work",
         "hidden": false
       },
       {
-        "key": "chat",
+        "key": "Communication",
         "name": "Chat",
         "tone": "chat",
         "hidden": false
       },
       {
-        "key": "video",
+        "key": "Video",
         "name": "Video",
         "tone": "relax",
         "hidden": false
       },
       {
-        "key": "game",
+        "key": "Game",
         "name": "Games",
         "tone": "game",
         "hidden": false
       },
       {
-        "key": "browse",
-        "name": "Web",
+        "key": "Browsing",
+        "name": "Web browsing",
         "tone": "browse",
         "hidden": false
       },
       {
-        "key": "other",
+        "key": "Other",
         "name": "Other",
         "tone": "other",
         "hidden": false
@@ -2078,27 +2106,27 @@
         "date": "2026-11-09",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -2109,23 +2137,23 @@
         "date": "2026-11-10",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -2136,15 +2164,15 @@
         "date": "2026-11-11",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 14700
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           }
         ]
@@ -2185,7 +2213,8 @@
         "time": "16 h 35 min",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Work"
       },
       {
         "name": "Video",
@@ -2194,7 +2223,8 @@
         "time": "2 h",
         "share": 0.121,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Video"
       },
       {
         "name": "Games",
@@ -2203,7 +2233,8 @@
         "time": "1 h 30 min",
         "share": 0.09,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Game"
       },
       {
         "name": "Chat",
@@ -2212,7 +2243,8 @@
         "time": "1 h 15 min",
         "share": 0.075,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Communication"
       },
       {
         "name": "Other",
@@ -2221,25 +2253,27 @@
         "time": "1 h",
         "share": 0.06,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Other"
       },
       {
-        "name": "Web",
+        "name": "Web browsing",
         "sub": null,
         "tone": "browse",
         "time": "40 min",
         "share": 0.04,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Browsing"
       }
     ],
-    "rankingTitle": "By status",
     "note": "Bob shares the last 7 days.",
     "empty": null
   },
-  "Week-Category": {
+  "Week-App": {
     "scale": "Week",
-    "granularity": "Category",
+    "rankBy": "App",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "Nov 9 – Nov 15 (this week)",
@@ -2406,7 +2440,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "Visual Studio Code",
@@ -2420,7 +2455,8 @@
           "pattern": "code",
           "name": "Visual Studio Code",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -2434,7 +2470,8 @@
           "pattern": "bilibili",
           "name": "哔哩哔哩",
           "category": "Video"
-        }
+        },
+        "filter": null
       },
       {
         "name": "原神",
@@ -2448,7 +2485,8 @@
           "pattern": "yuanshen",
           "name": "原神",
           "category": "Game"
-        }
+        },
+        "filter": null
       },
       {
         "name": "微信",
@@ -2462,7 +2500,8 @@
           "pattern": "weixin",
           "name": "微信",
           "category": "Communication"
-        }
+        },
+        "filter": null
       },
       {
         "name": "XMind",
@@ -2476,7 +2515,8 @@
           "pattern": "xmind",
           "name": "XMind",
           "category": "Other"
-        }
+        },
+        "filter": null
       },
       {
         "name": "知乎",
@@ -2490,16 +2530,17 @@
           "pattern": "zhihu.com",
           "name": "知乎",
           "category": "Browsing"
-        }
+        },
+        "filter": null
       }
     ],
-    "rankingTitle": "Top apps and sites",
     "note": null,
     "empty": null
   },
-  "member-Week-Category": {
+  "member-Week-App": {
     "scale": "Week",
-    "granularity": "Category",
+    "rankBy": "App",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "Nov 9 – Nov 15 (this week)",
@@ -2661,7 +2702,8 @@
         "time": "16 h 35 min",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -2670,7 +2712,8 @@
         "time": "2 h",
         "share": 0.121,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "原神",
@@ -2679,7 +2722,8 @@
         "time": "1 h 30 min",
         "share": 0.09,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "Chat",
@@ -2688,7 +2732,8 @@
         "time": "1 h 15 min",
         "share": 0.075,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "XMind",
@@ -2697,7 +2742,8 @@
         "time": "1 h",
         "share": 0.06,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "知乎",
@@ -2706,16 +2752,17 @@
         "time": "40 min",
         "share": 0.04,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       }
     ],
-    "rankingTitle": "Top apps and sites",
     "note": "Bob shares the last 7 days. Some categories are status only.",
     "empty": null
   },
   "Week-Title": {
     "scale": "Week",
-    "granularity": "Title",
+    "rankBy": "Title",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "Nov 9 – Nov 15 (this week)",
@@ -2882,7 +2929,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "architecture.md - docs",
@@ -2896,7 +2944,8 @@
           "pattern": "code",
           "name": "Visual Studio Code",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "StatsPage.tsx - idea1 - Cursor",
@@ -2910,7 +2959,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
@@ -2924,7 +2974,8 @@
           "pattern": "bilibili",
           "name": "哔哩哔哩",
           "category": "Video"
-        }
+        },
+        "filter": null
       },
       {
         "name": "深境螺旋",
@@ -2938,7 +2989,8 @@
           "pattern": "yuanshen",
           "name": "原神",
           "category": "Game"
-        }
+        },
+        "filter": null
       },
       {
         "name": "项目群",
@@ -2952,7 +3004,8 @@
           "pattern": "weixin",
           "name": "微信",
           "category": "Communication"
-        }
+        },
+        "filter": null
       },
       {
         "name": "使用统计方案",
@@ -2966,7 +3019,8 @@
           "pattern": "xmind",
           "name": "XMind",
           "category": "Other"
-        }
+        },
+        "filter": null
       },
       {
         "name": "如何评价手写 SVG 图表",
@@ -2980,16 +3034,17 @@
           "pattern": "zhihu.com",
           "name": "知乎",
           "category": "Browsing"
-        }
+        },
+        "filter": null
       }
     ],
-    "rankingTitle": "Top titles",
     "note": null,
     "empty": null
   },
   "member-Week-Title": {
     "scale": "Week",
-    "granularity": "Title",
+    "rankBy": "Title",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "Nov 9 – Nov 15 (this week)",
@@ -3151,7 +3206,8 @@
         "time": "16 h 35 min",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -3160,7 +3216,8 @@
         "time": "2 h",
         "share": 0.121,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "深境螺旋",
@@ -3169,7 +3226,8 @@
         "time": "1 h 30 min",
         "share": 0.09,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "Chat",
@@ -3178,7 +3236,8 @@
         "time": "1 h 15 min",
         "share": 0.075,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "XMind",
@@ -3187,7 +3246,8 @@
         "time": "1 h",
         "share": 0.06,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "知乎",
@@ -3196,16 +3256,140 @@
         "time": "40 min",
         "share": 0.04,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       }
     ],
-    "rankingTitle": "Top titles",
     "note": "Bob shares the last 7 days. Some categories are status only. Some categories omit titles and show the app name.",
     "empty": null
   },
-  "Month-State": {
+  "Week-App-Game": {
+    "scale": "Week",
+    "rankBy": "App",
+    "filter": "Game",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "Nov 9 – Nov 15 (this week)",
+    "totalLabel": "Daily average (Games)",
+    "total": "30 min",
+    "compare": null,
+    "summary": "Total 1 h 30 min",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "Games",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "Web browsing",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "Other",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "Mon",
+        "tip": "Mon, Nov 9 · 1 h 30 min",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "Game",
+            "seconds": 5400
+          }
+        ]
+      },
+      {
+        "label": "Tue",
+        "tip": "Tue, Nov 10 · 0 min",
+        "date": "2026-11-10",
+        "parts": []
+      },
+      {
+        "label": "Wed",
+        "tip": "Wed, Nov 11 · 0 min",
+        "date": "2026-11-11",
+        "parts": []
+      },
+      {
+        "label": "Thu",
+        "tip": "Thu, Nov 12 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Fri",
+        "tip": "Fri, Nov 13 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sat",
+        "tip": "Sat, Nov 14 · Upcoming",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "Sun",
+        "tip": "Sun, Nov 15 · Upcoming",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 7200,
+    "barMaxLabel": "2 h",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "原神",
+        "sub": "Games",
+        "tone": "game",
+        "time": "1 h 30 min",
+        "share": 1,
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "yuanshen",
+          "name": "原神",
+          "category": "Game"
+        },
+        "filter": null
+      }
+    ],
+    "note": null,
+    "empty": null
+  },
+  "Month-Category": {
     "scale": "Month",
-    "granularity": "State",
+    "rankBy": "Category",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "November 2026 (this month)",
@@ -3217,37 +3401,37 @@
     "canNext": false,
     "legend": [
       {
-        "key": "work",
+        "key": "Work",
         "name": "Work",
         "tone": "work",
         "hidden": false
       },
       {
-        "key": "chat",
+        "key": "Communication",
         "name": "Chat",
         "tone": "chat",
         "hidden": false
       },
       {
-        "key": "video",
+        "key": "Video",
         "name": "Video",
         "tone": "relax",
         "hidden": false
       },
       {
-        "key": "game",
+        "key": "Game",
         "name": "Games",
         "tone": "game",
         "hidden": false
       },
       {
-        "key": "browse",
-        "name": "Web",
+        "key": "Browsing",
+        "name": "Web browsing",
         "tone": "browse",
         "hidden": false
       },
       {
-        "key": "other",
+        "key": "Other",
         "name": "Other",
         "tone": "other",
         "hidden": false
@@ -3260,15 +3444,15 @@
         "date": "2026-11-01",
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 7800
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 10800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 4200
           }
         ]
@@ -3279,23 +3463,23 @@
         "date": "2026-11-02",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 24300
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3306,27 +3490,27 @@
         "date": "2026-11-03",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3337,23 +3521,23 @@
         "date": "2026-11-04",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3364,27 +3548,27 @@
         "date": "2026-11-05",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 24300
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3395,23 +3579,23 @@
         "date": "2026-11-06",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3422,15 +3606,15 @@
         "date": "2026-11-07",
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 7800
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 10800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 4200
           }
         ]
@@ -3441,15 +3625,15 @@
         "date": "2026-11-08",
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 7200
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 10800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 3600
           }
         ]
@@ -3460,27 +3644,27 @@
         "date": "2026-11-09",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3491,23 +3675,23 @@
         "date": "2026-11-10",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3518,15 +3702,15 @@
         "date": "2026-11-11",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 14700
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           }
         ]
@@ -3657,7 +3841,8 @@
         "time": "48 h 40 min",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Work"
       },
       {
         "name": "Games",
@@ -3666,7 +3851,8 @@
         "time": "13 h 30 min",
         "share": 0.277,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Game"
       },
       {
         "name": "Video",
@@ -3675,16 +3861,18 @@
         "time": "11 h 40 min",
         "share": 0.24,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Video"
       },
       {
-        "name": "Web",
+        "name": "Web browsing",
         "sub": null,
         "tone": "browse",
         "time": "5 h 40 min",
         "share": 0.116,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Browsing"
       },
       {
         "name": "Other",
@@ -3693,7 +3881,8 @@
         "time": "3 h 30 min",
         "share": 0.072,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Other"
       },
       {
         "name": "Chat",
@@ -3702,16 +3891,17 @@
         "time": "3 h 20 min",
         "share": 0.068,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Communication"
       }
     ],
-    "rankingTitle": "By status",
     "note": null,
     "empty": null
   },
-  "member-Month-State": {
+  "member-Month-Category": {
     "scale": "Month",
-    "granularity": "State",
+    "rankBy": "Category",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "November 2026 (this month)",
@@ -3723,37 +3913,37 @@
     "canNext": false,
     "legend": [
       {
-        "key": "work",
+        "key": "Work",
         "name": "Work",
         "tone": "work",
         "hidden": false
       },
       {
-        "key": "chat",
+        "key": "Communication",
         "name": "Chat",
         "tone": "chat",
         "hidden": false
       },
       {
-        "key": "video",
+        "key": "Video",
         "name": "Video",
         "tone": "relax",
         "hidden": false
       },
       {
-        "key": "game",
+        "key": "Game",
         "name": "Games",
         "tone": "game",
         "hidden": false
       },
       {
-        "key": "browse",
-        "name": "Web",
+        "key": "Browsing",
+        "name": "Web browsing",
         "tone": "browse",
         "hidden": false
       },
       {
-        "key": "other",
+        "key": "Other",
         "name": "Other",
         "tone": "other",
         "hidden": false
@@ -3790,27 +3980,27 @@
         "date": "2026-11-05",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 24300
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3821,23 +4011,23 @@
         "date": "2026-11-06",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3848,15 +4038,15 @@
         "date": "2026-11-07",
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 7800
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 10800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 4200
           }
         ]
@@ -3867,15 +4057,15 @@
         "date": "2026-11-08",
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 7200
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 10800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 3600
           }
         ]
@@ -3886,27 +4076,27 @@
         "date": "2026-11-09",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3917,23 +4107,23 @@
         "date": "2026-11-10",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3944,15 +4134,15 @@
         "date": "2026-11-11",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 14700
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           }
         ]
@@ -4083,7 +4273,8 @@
         "time": "29 h 25 min",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Work"
       },
       {
         "name": "Games",
@@ -4092,7 +4283,8 @@
         "time": "9 h",
         "share": 0.306,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Game"
       },
       {
         "name": "Video",
@@ -4101,16 +4293,18 @@
         "time": "7 h 30 min",
         "share": 0.255,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Video"
       },
       {
-        "name": "Web",
+        "name": "Web browsing",
         "sub": null,
         "tone": "browse",
         "time": "3 h 30 min",
         "share": 0.119,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Browsing"
       },
       {
         "name": "Chat",
@@ -4119,7 +4313,8 @@
         "time": "2 h 5 min",
         "share": 0.071,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Communication"
       },
       {
         "name": "Other",
@@ -4128,16 +4323,17 @@
         "time": "2 h",
         "share": 0.068,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Other"
       }
     ],
-    "rankingTitle": "By status",
     "note": "Bob shares the last 7 days.",
     "empty": null
   },
-  "Month-Category": {
+  "Month-App": {
     "scale": "Month",
-    "granularity": "Category",
+    "rankBy": "App",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "November 2026 (this month)",
@@ -4594,7 +4790,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "Visual Studio Code",
@@ -4608,7 +4805,8 @@
           "pattern": "code",
           "name": "Visual Studio Code",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "原神",
@@ -4622,7 +4820,8 @@
           "pattern": "yuanshen",
           "name": "原神",
           "category": "Game"
-        }
+        },
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -4636,7 +4835,8 @@
           "pattern": "bilibili",
           "name": "哔哩哔哩",
           "category": "Video"
-        }
+        },
+        "filter": null
       },
       {
         "name": "知乎",
@@ -4650,7 +4850,8 @@
           "pattern": "zhihu.com",
           "name": "知乎",
           "category": "Browsing"
-        }
+        },
+        "filter": null
       },
       {
         "name": "XMind",
@@ -4664,7 +4865,8 @@
           "pattern": "xmind",
           "name": "XMind",
           "category": "Other"
-        }
+        },
+        "filter": null
       },
       {
         "name": "微信",
@@ -4678,16 +4880,17 @@
           "pattern": "weixin",
           "name": "微信",
           "category": "Communication"
-        }
+        },
+        "filter": null
       }
     ],
-    "rankingTitle": "Top apps and sites",
     "note": null,
     "empty": null
   },
-  "member-Month-Category": {
+  "member-Month-App": {
     "scale": "Month",
-    "granularity": "Category",
+    "rankBy": "App",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "November 2026 (this month)",
@@ -5059,7 +5262,8 @@
         "time": "29 h 25 min",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "原神",
@@ -5068,7 +5272,8 @@
         "time": "9 h",
         "share": 0.306,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -5077,7 +5282,8 @@
         "time": "7 h 30 min",
         "share": 0.255,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "知乎",
@@ -5086,7 +5292,8 @@
         "time": "3 h 30 min",
         "share": 0.119,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "Chat",
@@ -5095,7 +5302,8 @@
         "time": "2 h 5 min",
         "share": 0.071,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "XMind",
@@ -5104,16 +5312,17 @@
         "time": "2 h",
         "share": 0.068,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       }
     ],
-    "rankingTitle": "Top apps and sites",
     "note": "Bob shares the last 7 days. Some categories are status only.",
     "empty": null
   },
   "Month-Title": {
     "scale": "Month",
-    "granularity": "Title",
+    "rankBy": "Title",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "November 2026 (this month)",
@@ -5570,7 +5779,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "architecture.md - docs",
@@ -5584,7 +5794,8 @@
           "pattern": "code",
           "name": "Visual Studio Code",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "深境螺旋",
@@ -5598,7 +5809,8 @@
           "pattern": "yuanshen",
           "name": "原神",
           "category": "Game"
-        }
+        },
+        "filter": null
       },
       {
         "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
@@ -5612,7 +5824,8 @@
           "pattern": "bilibili",
           "name": "哔哩哔哩",
           "category": "Video"
-        }
+        },
+        "filter": null
       },
       {
         "name": "StatsPage.tsx - idea1 - Cursor",
@@ -5626,7 +5839,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "使用统计方案",
@@ -5640,7 +5854,8 @@
           "pattern": "xmind",
           "name": "XMind",
           "category": "Other"
-        }
+        },
+        "filter": null
       },
       {
         "name": "项目群",
@@ -5654,7 +5869,8 @@
           "pattern": "weixin",
           "name": "微信",
           "category": "Communication"
-        }
+        },
+        "filter": null
       },
       {
         "name": "如何评价这个周末",
@@ -5668,7 +5884,8 @@
           "pattern": "zhihu.com",
           "name": "知乎",
           "category": "Browsing"
-        }
+        },
+        "filter": null
       },
       {
         "name": "如何评价手写 SVG 图表",
@@ -5682,16 +5899,17 @@
           "pattern": "zhihu.com",
           "name": "知乎",
           "category": "Browsing"
-        }
+        },
+        "filter": null
       }
     ],
-    "rankingTitle": "Top titles",
     "note": null,
     "empty": null
   },
   "member-Month-Title": {
     "scale": "Month",
-    "granularity": "Title",
+    "rankBy": "Title",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "November 2026 (this month)",
@@ -6063,7 +6281,8 @@
         "time": "29 h 25 min",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "深境螺旋",
@@ -6072,7 +6291,8 @@
         "time": "9 h",
         "share": 0.306,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -6081,7 +6301,8 @@
         "time": "7 h 30 min",
         "share": 0.255,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "知乎",
@@ -6090,7 +6311,8 @@
         "time": "3 h 30 min",
         "share": 0.119,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "Chat",
@@ -6099,7 +6321,8 @@
         "time": "2 h 5 min",
         "share": 0.071,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "XMind",
@@ -6108,10 +6331,10 @@
         "time": "2 h",
         "share": 0.068,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       }
     ],
-    "rankingTitle": "Top titles",
     "note": "Bob shares the last 7 days. Some categories are status only. Some categories omit titles and show the app name.",
     "empty": null
   }

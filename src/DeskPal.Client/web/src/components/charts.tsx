@@ -68,26 +68,33 @@ export function Bars({ view, onPick }: { view: StatsView; onPick: (date: string)
   );
 }
 
-export function Legend({ legend }: { legend: StatsView["legend"] }) {
+/** 图例。点某一类只看这一类，再点一次显示全部。 */
+export function Legend({ legend, selected, onPick }: { legend: StatsView["legend"]; selected: string | null; onPick: (key: string | null) => void }) {
   return (
-    <ul class="stats-legend">
+    <ul class={selected ? "stats-legend filtered" : "stats-legend"}>
       {legend.map((l) => (
         <li key={l.key} class={l.hidden ? "hidden-part" : undefined}>
-          <span class="stats-swatch" style={{ background: `var(--tone-${l.tone})` }} />
-          {l.name}
+          <button
+            aria-pressed={selected === l.key}
+            title={selected === l.key ? t("stats.filterClear") : t("stats.filterHint")}
+            onClick={() => onPick(selected === l.key ? null : l.key)}
+          >
+            <span class="stats-swatch" style={{ background: `var(--tone-${l.tone})` }} />
+            {l.name}
+          </button>
         </li>
       ))}
     </ul>
   );
 }
 
-/** 排行：名称、所属应用或类别、横向占比条和时长。带 rule 的行可以点击修改分类。 */
+/** 排行：名称、所属应用或类别、横向占比条和时长。带 rule 的行可以点击修改分类，带 filter 的类别行点击后只看这一类。 */
 export function Ranking({ items, onPick }: { items: StatsView["ranking"]; onPick?: (item: StatsView["ranking"][number]) => void }) {
   return (
     <ol class="stats-ranking">
       {items.map((item, i) => {
-        const pick = item.rule && onPick ? () => onPick(item) : undefined;
-        const tip = [item.name, item.sub, pick && t("stats.clickToReclassify")].filter(Boolean).join("\n");
+        const pick = (item.rule || item.filter) && onPick ? () => onPick(item) : undefined;
+        const tip = [item.name, item.sub, pick && t(item.filter ? "stats.filterHint" : "stats.clickToReclassify")].filter(Boolean).join("\n");
         return (
         <li
           key={i}

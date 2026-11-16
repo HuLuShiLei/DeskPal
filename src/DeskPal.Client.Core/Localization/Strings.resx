@@ -306,14 +306,8 @@
   <data name="Stats_DailyAverage" xml:space="preserve">
     <value>日均使用时长</value>
   </data>
-  <data name="Stats_ByState" xml:space="preserve">
-    <value>按状态</value>
-  </data>
-  <data name="Stats_TopApps" xml:space="preserve">
-    <value>使用最多的应用和网站</value>
-  </data>
-  <data name="Stats_TopTitles" xml:space="preserve">
-    <value>使用最多的标题</value>
+  <data name="Stats_Of" xml:space="preserve">
+    <value>{0}（{1}）</value>
   </data>
   <data name="Compare_DaySame" xml:space="preserve">
     <value>和前一天差不多</value>

@@ -484,6 +484,12 @@ button.hint-button:active:not(:disabled) { background: var(--pressed); color: va
 .stats-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0; padding: 0; list-style: none; font-size: 12px; color: var(--muted); }
 .stats-legend li { display: inline-flex; align-items: center; gap: 6px; }
 .stats-swatch { width: 10px; height: 10px; border-radius: 3px; }
+.stats-legend button { min-height: 22px; margin: 0 -6px; padding: 0 6px; border: none; background: transparent; color: inherit; gap: 6px; }
+.stats-legend button:hover:not(:disabled) { background: var(--hover); }
+.stats-legend button:active:not(:disabled) { background: var(--pressed); }
+.stats-legend button[aria-pressed=true] { color: var(--text); font-weight: 600; }
+.stats-legend.filtered button[aria-pressed=false] { opacity: 0.55; }
+.stats-ranking-card .segmented { margin-bottom: 2px; }
 .stats-ranking { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
 .stats-ranking li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: baseline; }
 .stats-ranking li.pickable { cursor: pointer; margin: -4px -6px; padding: 4px 6px; border-radius: var(--radius); }

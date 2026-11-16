@@ -144,12 +144,15 @@ export type Language = "system" | "zh-CN" | "en";
 
 export type NoTitleKind = "App" | "Process" | "Domain" | "Title";
 export type StatsScale = "Day" | "Week" | "Month";
-export type StatsGranularity = "State" | "Category" | "Title";
+/** 排行列出什么。图表固定按类别着色。 */
+export type StatsRankBy = "Category" | "App" | "Title";
 
 /** 统计页的一页，由 stats.query 按需返回，不随 PanelState 推送。时间都是秒。 */
 export interface StatsView {
   scale: StatsScale;
-  granularity: StatsGranularity;
+  rankBy: StatsRankBy;
+  /** 只看的类别（图例的 key），总时长、图表和排行都只算这一类；null 表示全部。 */
+  filter: string | null;
   /** yyyy-MM-dd，范围里的任意一天。 */
   anchor: string;
   /** 查看别人时是对方的名字；看自己时为 null。 */
@@ -169,7 +172,6 @@ export interface StatsView {
   /** 只有日视图有：从零点起的秒数。 */
   timeline: { start: number; end: number; tone: Tone; tip: string }[];
   ranking: StatsRankItem[];
-  rankingTitle: string;
   note: string | null;
   empty: string | null;
 }
@@ -183,6 +185,8 @@ export interface StatsRankItem {
   hidden: boolean;
   /** 只在自己的应用、标题排行上有：点击后用 rules.set 修改分类，历史统计按新分类显示。 */
   rule: { kind: RuleKind; pattern: string; name: string; category: string } | null;
+  /** 只在类别排行上有：点击后只看这一类。 */
+  filter: string | null;
 }
 
 export type DialogKind = "confirm" | "info" | "warning";
@@ -202,7 +206,7 @@ export type Command =
   | { type: "room.invite"; roomId: string }
   | { type: "room.privacy"; roomId: string; levels: Record<string, PrivacyLevel> }
   | { type: "room.shareStats"; roomId: string; enabled: boolean; days: number }
-  | { type: "stats.query"; scale: StatsScale; granularity: StatsGranularity; date: string | null; userId: string | null }
+  | { type: "stats.query"; scale: StatsScale; rankBy: StatsRankBy; filter: string | null; date: string | null; userId: string | null }
   | { type: "stats.export" }
   | { type: "stats.import" }
   | { type: "stats.clear" }

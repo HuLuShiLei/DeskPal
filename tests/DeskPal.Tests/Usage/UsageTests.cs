@@ -245,13 +245,13 @@ public class UsageTests : IDisposable
         ];
         var report = UsageAggregator.Build(segments, [], Day, Day, Zone) with { PreviousSeconds = 3600 };
 
-        var view = StatsViewBuilder.Build(report, StatsScale.Day, StatsGranularity.Category, Day, Day);
+        var view = StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.App, Day, Day);
 
         Assert.Equal("11 月 11 日 星期三（今天）", view.Title);
         Assert.Equal(("使用时长", "1 小时 30 分钟"), (view.TotalLabel, view.Total));
         Assert.Null(view.Compare);
-        Assert.Equal("比前一天多 30 分钟", StatsViewBuilder.Build(report, StatsScale.Day, StatsGranularity.Category, Day, Day.AddDays(1)).Compare);
-        Assert.Null(StatsViewBuilder.Build(report with { PreviousSeconds = 0 }, StatsScale.Day, StatsGranularity.Category, Day, Day).Compare);
+        Assert.Equal("比前一天多 30 分钟", StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.App, Day, Day.AddDays(1)).Compare);
+        Assert.Null(StatsViewBuilder.Build(report with { PreviousSeconds = 0 }, StatsScale.Day, StatsRankBy.App, Day, Day).Compare);
         Assert.Equal("暂离 10 分钟", view.Summary);
         Assert.Equal(24, view.Bars.Count);
         Assert.Equal([("Cursor", "工作"), ("哔哩哔哩", "视频")], view.Ranking.Select(r => (r.Name, r.Sub)));
@@ -272,7 +272,7 @@ public class UsageTests : IDisposable
         ];
         var report = UsageAggregator.Build(segments, [], monday, Day, Zone);
 
-        var view = StatsViewBuilder.Build(report, StatsScale.Week, StatsGranularity.State, Day, Day);
+        var view = StatsViewBuilder.Build(report, StatsScale.Week, StatsRankBy.Category, Day, Day);
 
         Assert.Equal("11 月 9 日 – 11 月 15 日（本周）", view.Title);
         Assert.Equal(("日均使用时长", "1 小时"), (view.TotalLabel, view.Total));
@@ -294,12 +294,40 @@ public class UsageTests : IDisposable
         var profile = new PrivacyProfile { Levels = { [ActivityCategory.Work] = PrivacyLevel.StateOnly, [ActivityCategory.Video] = PrivacyLevel.Category } };
         var report = StatsFilter.Apply(UsageAggregator.Build(segments, [], Day, Day, Zone), profile) with { SharedDays = 1 };
 
-        var view = StatsViewBuilder.Build(report, StatsScale.Day, StatsGranularity.Title, Day, Day, "Bob");
+        var view = StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.Title, Day, Day, "Bob");
 
         Assert.Equal("Bob 公开了最近 1 天的统计。部分类别仅公开了状态。部分类别未公开标题，仅显示应用名。", view.Note);
         Assert.False(view.CanPrev);
         Assert.Contains(view.Ranking, r => r is { Name: "工作", Sub: null, Hidden: false });
         Assert.Contains(view.Ranking, r => r.Name == "哔哩哔哩");
+    }
+
+    [Fact]
+    public void A_category_can_be_shown_alone()
+    {
+        UsageSegment[] segments =
+        [
+            new(At(9, 0), At(10, 0), PresenceState.Working, ActivityCategory.Work, "Cursor", "a.md"),
+            new(At(10, 0), At(10, 10), PresenceState.Away, ActivityCategory.None, null, null),
+            new(At(10, 10), At(10, 40), PresenceState.Slacking, ActivityCategory.Game, "原神", null),
+            new(At(20, 0), At(20, 20), PresenceState.Slacking, ActivityCategory.Game, "Steam", null),
+        ];
+        var report = UsageAggregator.Build(segments, [], Day, Day, Zone) with { PreviousSeconds = 3600 };
+
+        var all = StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.Category, Day, Day.AddDays(1));
+        Assert.Equal([("工作", "Work"), ("游戏", "Game")], all.Ranking.Select(r => (r.Name, r.Filter)));
+
+        var game = StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.App, Day, Day.AddDays(1), filter: "Game");
+        Assert.Equal("Game", game.Filter);
+        Assert.Equal(("使用时长（游戏）", "50 分钟"), (game.TotalLabel, game.Total));
+        Assert.Null(game.Compare);
+        Assert.Null(game.Summary);
+        Assert.Equal(["Work", "Game"], game.Legend.Select(l => l.Key));
+        Assert.All(game.Bars.SelectMany(b => b.Parts), p => Assert.Equal("Game", p.Key));
+        Assert.Equal(2, game.Timeline.Count);
+        Assert.Equal(["原神", "Steam"], game.Ranking.Select(r => r.Name));
+
+        Assert.Null(StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.App, Day, Day, filter: "Video").Filter);
     }
 
     [Fact]
@@ -426,15 +454,15 @@ public class UsageTests : IDisposable
         var report = UsageAggregator.Build(segments, [], Day, Day, Zone);
         StatsRuleTarget? Targets(string app) => app == "bilibili.com" ? new StatsRuleTarget("Domain", "bilibili.com", app) : null;
 
-        var state = StatsViewBuilder.Build(report, StatsScale.Day, StatsGranularity.State, Day, Day, targetOf: Targets);
-        Assert.Equal(["video", "game"], state.Legend.Select(l => l.Key));
+        var state = StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.Category, Day, Day, targetOf: Targets);
+        Assert.Equal(["Video", "Game"], state.Legend.Select(l => l.Key));
         Assert.Equal(["relax", "game"], state.Timeline.Select(t => t.Tone));
         Assert.Equal(["视频", "游戏"], state.Ranking.Select(r => r.Name));
 
-        var apps = StatsViewBuilder.Build(report, StatsScale.Day, StatsGranularity.Category, Day, Day, targetOf: Targets);
+        var apps = StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.App, Day, Day, targetOf: Targets);
         Assert.Equal(new StatsRuleTarget("Domain", "bilibili.com", "bilibili.com", "Video"), apps.Ranking.Single(r => r.Name == "bilibili.com").Rule);
         Assert.Null(apps.Ranking.Single(r => r.Name == "最终幻想XIV").Rule);
-        Assert.All(StatsViewBuilder.Build(report, StatsScale.Day, StatsGranularity.Category, Day, Day, "Bob", Targets).Ranking, r => Assert.Null(r.Rule));
+        Assert.All(StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.App, Day, Day, "Bob", Targets).Ranking, r => Assert.Null(r.Rule));
     }
 
     private SqliteUsageStore NewStore()

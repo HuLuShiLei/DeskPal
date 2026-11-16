@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import type { NoTitleKind, PanelState, StatsGranularity, StatsRankItem, StatsScale, StatsView } from "../bridge";
+import type { NoTitleKind, PanelState, StatsRankBy, StatsRankItem, StatsScale, StatsView } from "../bridge";
 import { Bars, Legend, Ranking, Timeline } from "../components/charts";
 import { useHost } from "../host";
 import { t, type MessageKey } from "../i18n";
@@ -14,9 +14,9 @@ const scales: { value: StatsScale; name: MessageKey }[] = [
   { value: "Month", name: "stats.month" },
 ];
 
-const granularities: { value: StatsGranularity; name: MessageKey }[] = [
-  { value: "State", name: "stats.byState" },
+const rankings: { value: StatsRankBy; name: MessageKey }[] = [
   { value: "Category", name: "stats.byCategory" },
+  { value: "App", name: "stats.byApp" },
   { value: "Title", name: "stats.byTitle" },
 ];
 
@@ -32,7 +32,8 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
   const { bridge, ask, run } = useHost();
   const [revision, setRevision] = useState(0);
   const [scale, setScale] = useState<StatsScale>("Day");
-  const [granularity, setGranularity] = useState<StatsGranularity>("Category");
+  const [rankBy, setRankBy] = useState<StatsRankBy>("App");
+  const [filter, setFilter] = useState<string | null>(null);
   const [date, setDate] = useState<string | null>(null);
   const [view, setView] = useState<StatsView | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +47,7 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
     const query = async () => {
       const id = ++latest.current;
       setLoading(true);
-      const result = await bridge.request({ type: "stats.query", scale, granularity, date, userId });
+      const result = await bridge.request({ type: "stats.query", scale, rankBy, filter, date, userId });
       if (id !== latest.current) return;
       setLoading(false);
       if (result.ok) {
@@ -60,7 +61,7 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
     // 看自己的今天时，每分钟刷新一次。
     const timer = userId === null ? setInterval(() => void query(), 60_000) : undefined;
     return () => clearInterval(timer);
-  }, [scale, granularity, date, userId, revision]);
+  }, [scale, rankBy, filter, date, userId, revision]);
 
   const anchor = view?.anchor ?? date;
   const go = (step: number) => anchor && setDate(shift(anchor, scale, step));
@@ -79,6 +80,15 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
     if (result.ok) setRevision((r) => r + 1);
   };
 
+  const pickRow = (item: StatsRankItem) => {
+    if (item.filter) {
+      setFilter(item.filter);
+      setRankBy("App");
+    } else {
+      void reclassify(item);
+    }
+  };
+
   return (
     <>
       <Section
@@ -93,6 +103,7 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
                 const member = sharing.find((m) => m.userId === id);
                 setView(null);
                 setDate(null);
+                setFilter(null);
                 onTarget(member ? { userId: member.userId, name: member.name } : null);
               }}
             >
@@ -115,13 +126,7 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
               </button>
             ))}
           </div>
-          <div class="segmented" role="tablist" aria-label={t("stats.granularity")}>
-            {granularities.map((g) => (
-              <button key={g.value} role="tab" aria-selected={granularity === g.value} onClick={() => setGranularity(g.value)}>
-                {t(g.name)}
-              </button>
-            ))}
-          </div>
+
         </div>
         <div class="stats-nav">
           <button class="icon-button" aria-label={t("stats.prev")} title={t("stats.prev")} disabled={!view?.canPrev || loading} onClick={() => go(-1)}>
@@ -144,14 +149,22 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
           </p>
         )}
         {!view && !error && <p class="loading">{target ? t("stats.requesting", { name: target.name }) : t("stats.reading")}</p>}
-        {view && <Report view={view} onPick={(d) => (setScale("Day"), setDate(d))} onReclassify={(item) => void reclassify(item)} busy={loading} />}
+        {view && <Report view={view} onPick={(d) => (setScale("Day"), setDate(d))} onRow={pickRow} rankBy={rankBy} onRankBy={setRankBy} onFilter={setFilter} busy={loading} />}
       </Section>
       {!target && state.usage && <UsageSettings usage={state.usage} />}
     </>
   );
 }
 
-function Report({ view, onPick, onReclassify, busy }: { view: StatsView; onPick: (date: string) => void; onReclassify: (item: StatsRankItem) => void; busy: boolean }) {
+function Report({ view, onPick, onRow, rankBy, onRankBy, onFilter, busy }: {
+  view: StatsView;
+  onPick: (date: string) => void;
+  onRow: (item: StatsRankItem) => void;
+  rankBy: StatsRankBy;
+  onRankBy: (rankBy: StatsRankBy) => void;
+  onFilter: (key: string | null) => void;
+  busy: boolean;
+}) {
   return (
     <div class={busy ? "stats-report busy" : "stats-report"} aria-busy={busy}>
       {view.note && (
@@ -172,14 +185,18 @@ function Report({ view, onPick, onReclassify, busy }: { view: StatsView; onPick:
           <div class="card stats-chart">
             {view.timeline.length > 0 && <Timeline spans={view.timeline} />}
             <Bars view={view} onPick={onPick} />
-            <Legend legend={view.legend} />
+            <Legend legend={view.legend} selected={view.filter} onPick={onFilter} />
           </div>
-          {view.ranking.length > 0 && (
-            <div class="card">
-              <p class="card-label">{view.rankingTitle}</p>
-              <Ranking items={view.ranking} onPick={onReclassify} />
+          <div class="card stats-ranking-card">
+            <div class="segmented" role="tablist" aria-label={t("stats.rankBy")}>
+              {rankings.map((r) => (
+                <button key={r.value} role="tab" aria-selected={rankBy === r.value} onClick={() => onRankBy(r.value)}>
+                  {t(r.name)}
+                </button>
+              ))}
             </div>
-          )}
+            {view.ranking.length > 0 && <Ranking items={view.ranking} onPick={onRow} />}
+          </div>
         </>
       )}
     </div>

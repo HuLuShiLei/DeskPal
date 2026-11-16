@@ -306,14 +306,8 @@
   <data name="Stats_DailyAverage" xml:space="preserve">
     <value>Daily average</value>
   </data>
-  <data name="Stats_ByState" xml:space="preserve">
-    <value>By status</value>
-  </data>
-  <data name="Stats_TopApps" xml:space="preserve">
-    <value>Top apps and sites</value>
-  </data>
-  <data name="Stats_TopTitles" xml:space="preserve">
-    <value>Top titles</value>
+  <data name="Stats_Of" xml:space="preserve">
+    <value>{0} ({1})</value>
   </data>
   <data name="Compare_DaySame" xml:space="preserve">
     <value>Same as the day before</value>

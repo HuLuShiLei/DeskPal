@@ -7,11 +7,11 @@ public enum StatsScale
     Month,
 }
 
-/// <summary>How fine the chart colors and the ranking are: by state, by category and app, or by title.</summary>
-public enum StatsGranularity
+/// <summary>What the ranking lists. The chart is always colored by category.</summary>
+public enum StatsRankBy
 {
-    State,
     Category,
+    App,
     Title,
 }
 
@@ -42,11 +42,13 @@ public sealed record StatsRange(DateOnly From, DateOnly To)
 /// <param name="Summary">Sum and the time not counted, e.g. "共 21 小时 · 暂离 2 小时 · 锁屏 10 小时".</param>
 /// <param name="BarMax">Seconds at the top of the bar chart.</param>
 /// <param name="Timeline">State spans of a single day, in seconds since local midnight; empty for a week or month.</param>
+/// <param name="Filter">Legend key the totals, charts and ranking are limited to; null shows everything.</param>
 /// <param name="Note">Shown above the charts, e.g. how far back a member shares.</param>
 /// <param name="Empty">Shown instead of the charts when nothing was recorded.</param>
 public sealed record StatsView(
     StatsScale Scale,
-    StatsGranularity Granularity,
+    StatsRankBy RankBy,
+    string? Filter,
     DateOnly Anchor,
     string? Owner,
     string Title,
@@ -62,7 +64,6 @@ public sealed record StatsView(
     string BarMaxLabel,
     IReadOnlyList<StatsSpanView> Timeline,
     IReadOnlyList<StatsRankItem> Ranking,
-    string RankingTitle,
     string? Note,
     string? Empty);
 
@@ -78,8 +79,9 @@ public sealed record StatsPart(string Key, long Seconds);
 public sealed record StatsSpanView(int Start, int End, string Tone, string Tip);
 
 /// <param name="Share">Width of the bar, 0 to 1, relative to the first item.</param>
-/// <param name="Rule">Set on my own app and title rows whose process or domain is known; clicking changes their category.</param>
-public sealed record StatsRankItem(string Name, string? Sub, string Tone, string Time, double Share, bool Hidden = false, StatsRuleTarget? Rule = null);
+/// <param name="Rule">Set on my own app and title rows; clicking changes their category.</param>
+/// <param name="Filter">Set on category rows: the legend key to show only that category.</param>
+public sealed record StatsRankItem(string Name, string? Sub, string Tone, string Time, double Share, bool Hidden = false, StatsRuleTarget? Rule = null, string? Filter = null);
 
 /// <summary>A personal rule the page saves with rules.set, and the category the row has now.</summary>
 /// <param name="Kind">Process or Domain.</param>

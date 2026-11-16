@@ -78,7 +78,7 @@ public static class StatsSamples
         return list;
     }
 
-    /// <summary>Every page of the sample stats: mine as "Day-State" and so on, Bob's as "member-Day-State".</summary>
+    /// <summary>Every page of the sample stats: mine as "Day-App" and so on, Bob's as "member-Day-App", my week of games alone as "Week-App-Game".</summary>
     public static IReadOnlyDictionary<string, StatsView> Views()
     {
         var segments = Segments();
@@ -99,10 +99,15 @@ public static class StatsSamples
                 SharedDays = BobPrivacy.StatsDays,
                 PreviousSeconds = scale == StatsScale.Day ? UsageAggregator.ActiveSeconds(UsageAggregator.Build(segments, [], previous.From, previous.To, Zone)) : null,
             };
-            foreach (var granularity in Enum.GetValues<StatsGranularity>())
+            foreach (var rankBy in Enum.GetValues<StatsRankBy>())
             {
-                views[$"{scale}-{granularity}"] = StatsViewBuilder.Build(mine, scale, granularity, Today, Today, targetOf: Target);
-                views[$"member-{scale}-{granularity}"] = StatsViewBuilder.Build(bob, scale, granularity, Today, Today, "Bob");
+                views[$"{scale}-{rankBy}"] = StatsViewBuilder.Build(mine, scale, rankBy, Today, Today, targetOf: Target);
+                views[$"member-{scale}-{rankBy}"] = StatsViewBuilder.Build(bob, scale, rankBy, Today, Today, "Bob");
+            }
+
+            if (scale == StatsScale.Week)
+            {
+                views["Week-App-Game"] = StatsViewBuilder.Build(mine, scale, StatsRankBy.App, Today, Today, targetOf: Target, filter: "Game");
             }
         }
 

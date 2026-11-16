@@ -1,7 +1,8 @@
 {
-  "Day-State": {
+  "Day-Category": {
     "scale": "Day",
-    "granularity": "State",
+    "rankBy": "Category",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "11 月 11 日 星期三（今天）",
@@ -13,19 +14,19 @@
     "canNext": false,
     "legend": [
       {
-        "key": "work",
+        "key": "Work",
         "name": "工作",
         "tone": "work",
         "hidden": false
       },
       {
-        "key": "chat",
+        "key": "Communication",
         "name": "聊天",
         "tone": "chat",
         "hidden": false
       },
       {
-        "key": "video",
+        "key": "Video",
         "name": "视频",
         "tone": "relax",
         "hidden": false
@@ -92,7 +93,7 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 3000
           }
         ]
@@ -103,11 +104,11 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 2700
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           }
         ]
@@ -118,7 +119,7 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 3600
           }
         ]
@@ -129,7 +130,7 @@
         "date": null,
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 1200
           }
         ]
@@ -140,11 +141,11 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 1800
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 1200
           }
         ]
@@ -155,7 +156,7 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 3600
           }
         ]
@@ -263,7 +264,8 @@
         "time": "4 小时 5 分钟",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Work"
       },
       {
         "name": "视频",
@@ -272,7 +274,8 @@
         "time": "40 分钟",
         "share": 0.163,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Video"
       },
       {
         "name": "聊天",
@@ -281,16 +284,17 @@
         "time": "15 分钟",
         "share": 0.061,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Communication"
       }
     ],
-    "rankingTitle": "按状态",
     "note": null,
     "empty": null
   },
-  "member-Day-State": {
+  "member-Day-Category": {
     "scale": "Day",
-    "granularity": "State",
+    "rankBy": "Category",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "11 月 11 日 星期三（今天）",
@@ -302,19 +306,19 @@
     "canNext": false,
     "legend": [
       {
-        "key": "work",
+        "key": "Work",
         "name": "工作",
         "tone": "work",
         "hidden": false
       },
       {
-        "key": "chat",
+        "key": "Communication",
         "name": "聊天",
         "tone": "chat",
         "hidden": false
       },
       {
-        "key": "video",
+        "key": "Video",
         "name": "视频",
         "tone": "relax",
         "hidden": false
@@ -381,7 +385,7 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 3000
           }
         ]
@@ -392,11 +396,11 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 2700
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           }
         ]
@@ -407,7 +411,7 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 3600
           }
         ]
@@ -418,7 +422,7 @@
         "date": null,
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 1200
           }
         ]
@@ -429,11 +433,11 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 1800
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 1200
           }
         ]
@@ -444,7 +448,7 @@
         "date": null,
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 3600
           }
         ]
@@ -552,7 +556,8 @@
         "time": "4 小时 5 分钟",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Work"
       },
       {
         "name": "视频",
@@ -561,7 +566,8 @@
         "time": "40 分钟",
         "share": 0.163,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Video"
       },
       {
         "name": "聊天",
@@ -570,16 +576,17 @@
         "time": "15 分钟",
         "share": 0.061,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Communication"
       }
     ],
-    "rankingTitle": "按状态",
     "note": "Bob 公开了最近 7 天的统计。",
     "empty": null
   },
-  "Day-Category": {
+  "Day-App": {
     "scale": "Day",
-    "granularity": "Category",
+    "rankBy": "App",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "11 月 11 日 星期三（今天）",
@@ -846,7 +853,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "Visual Studio Code",
@@ -860,7 +868,8 @@
           "pattern": "code",
           "name": "Visual Studio Code",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -874,7 +883,8 @@
           "pattern": "bilibili",
           "name": "哔哩哔哩",
           "category": "Video"
-        }
+        },
+        "filter": null
       },
       {
         "name": "微信",
@@ -888,16 +898,17 @@
           "pattern": "weixin",
           "name": "微信",
           "category": "Communication"
-        }
+        },
+        "filter": null
       }
     ],
-    "rankingTitle": "使用最多的应用和网站",
     "note": null,
     "empty": null
   },
-  "member-Day-Category": {
+  "member-Day-App": {
     "scale": "Day",
-    "granularity": "Category",
+    "rankBy": "App",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "11 月 11 日 星期三（今天）",
@@ -1159,7 +1170,8 @@
         "time": "4 小时 5 分钟",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -1168,7 +1180,8 @@
         "time": "40 分钟",
         "share": 0.163,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "聊天",
@@ -1177,16 +1190,17 @@
         "time": "15 分钟",
         "share": 0.061,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       }
     ],
-    "rankingTitle": "使用最多的应用和网站",
     "note": "Bob 公开了最近 7 天的统计。部分类别仅公开了状态。",
     "empty": null
   },
   "Day-Title": {
     "scale": "Day",
-    "granularity": "Title",
+    "rankBy": "Title",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "11 月 11 日 星期三（今天）",
@@ -1453,7 +1467,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "architecture.md - docs",
@@ -1467,7 +1482,8 @@
           "pattern": "code",
           "name": "Visual Studio Code",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "StatsPage.tsx - idea1 - Cursor",
@@ -1481,7 +1497,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
@@ -1495,7 +1512,8 @@
           "pattern": "bilibili",
           "name": "哔哩哔哩",
           "category": "Video"
-        }
+        },
+        "filter": null
       },
       {
         "name": "项目群",
@@ -1509,16 +1527,17 @@
           "pattern": "weixin",
           "name": "微信",
           "category": "Communication"
-        }
+        },
+        "filter": null
       }
     ],
-    "rankingTitle": "使用最多的标题",
     "note": null,
     "empty": null
   },
   "member-Day-Title": {
     "scale": "Day",
-    "granularity": "Title",
+    "rankBy": "Title",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "11 月 11 日 星期三（今天）",
@@ -1780,7 +1799,8 @@
         "time": "4 小时 5 分钟",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -1789,7 +1809,8 @@
         "time": "40 分钟",
         "share": 0.163,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "聊天",
@@ -1798,16 +1819,17 @@
         "time": "15 分钟",
         "share": 0.061,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       }
     ],
-    "rankingTitle": "使用最多的标题",
     "note": "Bob 公开了最近 7 天的统计。部分类别仅公开了状态。部分类别未公开标题，仅显示应用名。",
     "empty": null
   },
-  "Week-State": {
+  "Week-Category": {
     "scale": "Week",
-    "granularity": "State",
+    "rankBy": "Category",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "11 月 9 日 – 11 月 15 日（本周）",
@@ -1819,37 +1841,37 @@
     "canNext": false,
     "legend": [
       {
-        "key": "work",
+        "key": "Work",
         "name": "工作",
         "tone": "work",
         "hidden": false
       },
       {
-        "key": "chat",
+        "key": "Communication",
         "name": "聊天",
         "tone": "chat",
         "hidden": false
       },
       {
-        "key": "video",
+        "key": "Video",
         "name": "视频",
         "tone": "relax",
         "hidden": false
       },
       {
-        "key": "game",
+        "key": "Game",
         "name": "游戏",
         "tone": "game",
         "hidden": false
       },
       {
-        "key": "browse",
+        "key": "Browsing",
         "name": "浏览网页",
         "tone": "browse",
         "hidden": false
       },
       {
-        "key": "other",
+        "key": "Other",
         "name": "其他",
         "tone": "other",
         "hidden": false
@@ -1862,27 +1884,27 @@
         "date": "2026-11-09",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -1893,23 +1915,23 @@
         "date": "2026-11-10",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -1920,15 +1942,15 @@
         "date": "2026-11-11",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 14700
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           }
         ]
@@ -1969,7 +1991,8 @@
         "time": "16 小时 35 分钟",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Work"
       },
       {
         "name": "视频",
@@ -1978,7 +2001,8 @@
         "time": "2 小时",
         "share": 0.121,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Video"
       },
       {
         "name": "游戏",
@@ -1987,7 +2011,8 @@
         "time": "1 小时 30 分钟",
         "share": 0.09,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Game"
       },
       {
         "name": "聊天",
@@ -1996,7 +2021,8 @@
         "time": "1 小时 15 分钟",
         "share": 0.075,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Communication"
       },
       {
         "name": "其他",
@@ -2005,7 +2031,8 @@
         "time": "1 小时",
         "share": 0.06,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Other"
       },
       {
         "name": "浏览网页",
@@ -2014,16 +2041,17 @@
         "time": "40 分钟",
         "share": 0.04,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Browsing"
       }
     ],
-    "rankingTitle": "按状态",
     "note": null,
     "empty": null
   },
-  "member-Week-State": {
+  "member-Week-Category": {
     "scale": "Week",
-    "granularity": "State",
+    "rankBy": "Category",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "11 月 9 日 – 11 月 15 日（本周）",
@@ -2035,37 +2063,37 @@
     "canNext": false,
     "legend": [
       {
-        "key": "work",
+        "key": "Work",
         "name": "工作",
         "tone": "work",
         "hidden": false
       },
       {
-        "key": "chat",
+        "key": "Communication",
         "name": "聊天",
         "tone": "chat",
         "hidden": false
       },
       {
-        "key": "video",
+        "key": "Video",
         "name": "视频",
         "tone": "relax",
         "hidden": false
       },
       {
-        "key": "game",
+        "key": "Game",
         "name": "游戏",
         "tone": "game",
         "hidden": false
       },
       {
-        "key": "browse",
+        "key": "Browsing",
         "name": "浏览网页",
         "tone": "browse",
         "hidden": false
       },
       {
-        "key": "other",
+        "key": "Other",
         "name": "其他",
         "tone": "other",
         "hidden": false
@@ -2078,27 +2106,27 @@
         "date": "2026-11-09",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -2109,23 +2137,23 @@
         "date": "2026-11-10",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -2136,15 +2164,15 @@
         "date": "2026-11-11",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 14700
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           }
         ]
@@ -2185,7 +2213,8 @@
         "time": "16 小时 35 分钟",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Work"
       },
       {
         "name": "视频",
@@ -2194,7 +2223,8 @@
         "time": "2 小时",
         "share": 0.121,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Video"
       },
       {
         "name": "游戏",
@@ -2203,7 +2233,8 @@
         "time": "1 小时 30 分钟",
         "share": 0.09,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Game"
       },
       {
         "name": "聊天",
@@ -2212,7 +2243,8 @@
         "time": "1 小时 15 分钟",
         "share": 0.075,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Communication"
       },
       {
         "name": "其他",
@@ -2221,7 +2253,8 @@
         "time": "1 小时",
         "share": 0.06,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Other"
       },
       {
         "name": "浏览网页",
@@ -2230,16 +2263,17 @@
         "time": "40 分钟",
         "share": 0.04,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Browsing"
       }
     ],
-    "rankingTitle": "按状态",
     "note": "Bob 公开了最近 7 天的统计。",
     "empty": null
   },
-  "Week-Category": {
+  "Week-App": {
     "scale": "Week",
-    "granularity": "Category",
+    "rankBy": "App",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "11 月 9 日 – 11 月 15 日（本周）",
@@ -2406,7 +2440,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "Visual Studio Code",
@@ -2420,7 +2455,8 @@
           "pattern": "code",
           "name": "Visual Studio Code",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -2434,7 +2470,8 @@
           "pattern": "bilibili",
           "name": "哔哩哔哩",
           "category": "Video"
-        }
+        },
+        "filter": null
       },
       {
         "name": "原神",
@@ -2448,7 +2485,8 @@
           "pattern": "yuanshen",
           "name": "原神",
           "category": "Game"
-        }
+        },
+        "filter": null
       },
       {
         "name": "微信",
@@ -2462,7 +2500,8 @@
           "pattern": "weixin",
           "name": "微信",
           "category": "Communication"
-        }
+        },
+        "filter": null
       },
       {
         "name": "XMind",
@@ -2476,7 +2515,8 @@
           "pattern": "xmind",
           "name": "XMind",
           "category": "Other"
-        }
+        },
+        "filter": null
       },
       {
         "name": "知乎",
@@ -2490,16 +2530,17 @@
           "pattern": "zhihu.com",
           "name": "知乎",
           "category": "Browsing"
-        }
+        },
+        "filter": null
       }
     ],
-    "rankingTitle": "使用最多的应用和网站",
     "note": null,
     "empty": null
   },
-  "member-Week-Category": {
+  "member-Week-App": {
     "scale": "Week",
-    "granularity": "Category",
+    "rankBy": "App",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "11 月 9 日 – 11 月 15 日（本周）",
@@ -2661,7 +2702,8 @@
         "time": "16 小时 35 分钟",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -2670,7 +2712,8 @@
         "time": "2 小时",
         "share": 0.121,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "原神",
@@ -2679,7 +2722,8 @@
         "time": "1 小时 30 分钟",
         "share": 0.09,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "聊天",
@@ -2688,7 +2732,8 @@
         "time": "1 小时 15 分钟",
         "share": 0.075,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "XMind",
@@ -2697,7 +2742,8 @@
         "time": "1 小时",
         "share": 0.06,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "知乎",
@@ -2706,16 +2752,17 @@
         "time": "40 分钟",
         "share": 0.04,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       }
     ],
-    "rankingTitle": "使用最多的应用和网站",
     "note": "Bob 公开了最近 7 天的统计。部分类别仅公开了状态。",
     "empty": null
   },
   "Week-Title": {
     "scale": "Week",
-    "granularity": "Title",
+    "rankBy": "Title",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "11 月 9 日 – 11 月 15 日（本周）",
@@ -2882,7 +2929,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "architecture.md - docs",
@@ -2896,7 +2944,8 @@
           "pattern": "code",
           "name": "Visual Studio Code",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "StatsPage.tsx - idea1 - Cursor",
@@ -2910,7 +2959,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
@@ -2924,7 +2974,8 @@
           "pattern": "bilibili",
           "name": "哔哩哔哩",
           "category": "Video"
-        }
+        },
+        "filter": null
       },
       {
         "name": "深境螺旋",
@@ -2938,7 +2989,8 @@
           "pattern": "yuanshen",
           "name": "原神",
           "category": "Game"
-        }
+        },
+        "filter": null
       },
       {
         "name": "项目群",
@@ -2952,7 +3004,8 @@
           "pattern": "weixin",
           "name": "微信",
           "category": "Communication"
-        }
+        },
+        "filter": null
       },
       {
         "name": "使用统计方案",
@@ -2966,7 +3019,8 @@
           "pattern": "xmind",
           "name": "XMind",
           "category": "Other"
-        }
+        },
+        "filter": null
       },
       {
         "name": "如何评价手写 SVG 图表",
@@ -2980,16 +3034,17 @@
           "pattern": "zhihu.com",
           "name": "知乎",
           "category": "Browsing"
-        }
+        },
+        "filter": null
       }
     ],
-    "rankingTitle": "使用最多的标题",
     "note": null,
     "empty": null
   },
   "member-Week-Title": {
     "scale": "Week",
-    "granularity": "Title",
+    "rankBy": "Title",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "11 月 9 日 – 11 月 15 日（本周）",
@@ -3151,7 +3206,8 @@
         "time": "16 小时 35 分钟",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -3160,7 +3216,8 @@
         "time": "2 小时",
         "share": 0.121,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "深境螺旋",
@@ -3169,7 +3226,8 @@
         "time": "1 小时 30 分钟",
         "share": 0.09,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "聊天",
@@ -3178,7 +3236,8 @@
         "time": "1 小时 15 分钟",
         "share": 0.075,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "XMind",
@@ -3187,7 +3246,8 @@
         "time": "1 小时",
         "share": 0.06,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "知乎",
@@ -3196,16 +3256,140 @@
         "time": "40 分钟",
         "share": 0.04,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       }
     ],
-    "rankingTitle": "使用最多的标题",
     "note": "Bob 公开了最近 7 天的统计。部分类别仅公开了状态。部分类别未公开标题，仅显示应用名。",
     "empty": null
   },
-  "Month-State": {
+  "Week-App-Game": {
+    "scale": "Week",
+    "rankBy": "App",
+    "filter": "Game",
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "11 月 9 日 – 11 月 15 日（本周）",
+    "totalLabel": "日均使用时长（游戏）",
+    "total": "30 分钟",
+    "compare": null,
+    "summary": "共 1 小时 30 分钟",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "工作",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "聊天",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "视频",
+        "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "Game",
+        "name": "游戏",
+        "tone": "game",
+        "hidden": false
+      },
+      {
+        "key": "Browsing",
+        "name": "浏览网页",
+        "tone": "browse",
+        "hidden": false
+      },
+      {
+        "key": "Other",
+        "name": "其他",
+        "tone": "other",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "一",
+        "tip": "11 月 9 日 星期一 · 1 小时 30 分钟",
+        "date": "2026-11-09",
+        "parts": [
+          {
+            "key": "Game",
+            "seconds": 5400
+          }
+        ]
+      },
+      {
+        "label": "二",
+        "tip": "11 月 10 日 星期二 · 0 分钟",
+        "date": "2026-11-10",
+        "parts": []
+      },
+      {
+        "label": "三",
+        "tip": "11 月 11 日 星期三 · 0 分钟",
+        "date": "2026-11-11",
+        "parts": []
+      },
+      {
+        "label": "四",
+        "tip": "11 月 12 日 星期四 · 未开始",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "五",
+        "tip": "11 月 13 日 星期五 · 未开始",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "六",
+        "tip": "11 月 14 日 星期六 · 未开始",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "日",
+        "tip": "11 月 15 日 星期日 · 未开始",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 7200,
+    "barMaxLabel": "2 小时",
+    "timeline": [],
+    "ranking": [
+      {
+        "name": "原神",
+        "sub": "游戏",
+        "tone": "game",
+        "time": "1 小时 30 分钟",
+        "share": 1,
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "yuanshen",
+          "name": "原神",
+          "category": "Game"
+        },
+        "filter": null
+      }
+    ],
+    "note": null,
+    "empty": null
+  },
+  "Month-Category": {
     "scale": "Month",
-    "granularity": "State",
+    "rankBy": "Category",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "2026 年 11 月（本月）",
@@ -3217,37 +3401,37 @@
     "canNext": false,
     "legend": [
       {
-        "key": "work",
+        "key": "Work",
         "name": "工作",
         "tone": "work",
         "hidden": false
       },
       {
-        "key": "chat",
+        "key": "Communication",
         "name": "聊天",
         "tone": "chat",
         "hidden": false
       },
       {
-        "key": "video",
+        "key": "Video",
         "name": "视频",
         "tone": "relax",
         "hidden": false
       },
       {
-        "key": "game",
+        "key": "Game",
         "name": "游戏",
         "tone": "game",
         "hidden": false
       },
       {
-        "key": "browse",
+        "key": "Browsing",
         "name": "浏览网页",
         "tone": "browse",
         "hidden": false
       },
       {
-        "key": "other",
+        "key": "Other",
         "name": "其他",
         "tone": "other",
         "hidden": false
@@ -3260,15 +3444,15 @@
         "date": "2026-11-01",
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 7800
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 10800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 4200
           }
         ]
@@ -3279,23 +3463,23 @@
         "date": "2026-11-02",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 24300
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3306,27 +3490,27 @@
         "date": "2026-11-03",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3337,23 +3521,23 @@
         "date": "2026-11-04",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3364,27 +3548,27 @@
         "date": "2026-11-05",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 24300
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3395,23 +3579,23 @@
         "date": "2026-11-06",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3422,15 +3606,15 @@
         "date": "2026-11-07",
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 7800
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 10800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 4200
           }
         ]
@@ -3441,15 +3625,15 @@
         "date": "2026-11-08",
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 7200
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 10800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 3600
           }
         ]
@@ -3460,27 +3644,27 @@
         "date": "2026-11-09",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3491,23 +3675,23 @@
         "date": "2026-11-10",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3518,15 +3702,15 @@
         "date": "2026-11-11",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 14700
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           }
         ]
@@ -3657,7 +3841,8 @@
         "time": "48 小时 40 分钟",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Work"
       },
       {
         "name": "游戏",
@@ -3666,7 +3851,8 @@
         "time": "13 小时 30 分钟",
         "share": 0.277,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Game"
       },
       {
         "name": "视频",
@@ -3675,7 +3861,8 @@
         "time": "11 小时 40 分钟",
         "share": 0.24,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Video"
       },
       {
         "name": "浏览网页",
@@ -3684,7 +3871,8 @@
         "time": "5 小时 40 分钟",
         "share": 0.116,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Browsing"
       },
       {
         "name": "其他",
@@ -3693,7 +3881,8 @@
         "time": "3 小时 30 分钟",
         "share": 0.072,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Other"
       },
       {
         "name": "聊天",
@@ -3702,16 +3891,17 @@
         "time": "3 小时 20 分钟",
         "share": 0.068,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Communication"
       }
     ],
-    "rankingTitle": "按状态",
     "note": null,
     "empty": null
   },
-  "member-Month-State": {
+  "member-Month-Category": {
     "scale": "Month",
-    "granularity": "State",
+    "rankBy": "Category",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "2026 年 11 月（本月）",
@@ -3723,37 +3913,37 @@
     "canNext": false,
     "legend": [
       {
-        "key": "work",
+        "key": "Work",
         "name": "工作",
         "tone": "work",
         "hidden": false
       },
       {
-        "key": "chat",
+        "key": "Communication",
         "name": "聊天",
         "tone": "chat",
         "hidden": false
       },
       {
-        "key": "video",
+        "key": "Video",
         "name": "视频",
         "tone": "relax",
         "hidden": false
       },
       {
-        "key": "game",
+        "key": "Game",
         "name": "游戏",
         "tone": "game",
         "hidden": false
       },
       {
-        "key": "browse",
+        "key": "Browsing",
         "name": "浏览网页",
         "tone": "browse",
         "hidden": false
       },
       {
-        "key": "other",
+        "key": "Other",
         "name": "其他",
         "tone": "other",
         "hidden": false
@@ -3790,27 +3980,27 @@
         "date": "2026-11-05",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 24300
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3821,23 +4011,23 @@
         "date": "2026-11-06",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3848,15 +4038,15 @@
         "date": "2026-11-07",
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 7800
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 10800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 4200
           }
         ]
@@ -3867,15 +4057,15 @@
         "date": "2026-11-08",
         "parts": [
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 7200
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 10800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 3600
           }
         ]
@@ -3886,27 +4076,27 @@
         "date": "2026-11-09",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "game",
+            "key": "Game",
             "seconds": 5400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3917,23 +4107,23 @@
         "date": "2026-11-10",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           },
           {
-            "key": "other",
+            "key": "Other",
             "seconds": 1800
           },
           {
-            "key": "browse",
+            "key": "Browsing",
             "seconds": 1200
           }
         ]
@@ -3944,15 +4134,15 @@
         "date": "2026-11-11",
         "parts": [
           {
-            "key": "work",
+            "key": "Work",
             "seconds": 14700
           },
           {
-            "key": "chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
-            "key": "video",
+            "key": "Video",
             "seconds": 2400
           }
         ]
@@ -4083,7 +4273,8 @@
         "time": "29 小时 25 分钟",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Work"
       },
       {
         "name": "游戏",
@@ -4092,7 +4283,8 @@
         "time": "9 小时",
         "share": 0.306,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Game"
       },
       {
         "name": "视频",
@@ -4101,7 +4293,8 @@
         "time": "7 小时 30 分钟",
         "share": 0.255,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Video"
       },
       {
         "name": "浏览网页",
@@ -4110,7 +4303,8 @@
         "time": "3 小时 30 分钟",
         "share": 0.119,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Browsing"
       },
       {
         "name": "聊天",
@@ -4119,7 +4313,8 @@
         "time": "2 小时 5 分钟",
         "share": 0.071,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Communication"
       },
       {
         "name": "其他",
@@ -4128,16 +4323,17 @@
         "time": "2 小时",
         "share": 0.068,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": "Other"
       }
     ],
-    "rankingTitle": "按状态",
     "note": "Bob 公开了最近 7 天的统计。",
     "empty": null
   },
-  "Month-Category": {
+  "Month-App": {
     "scale": "Month",
-    "granularity": "Category",
+    "rankBy": "App",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "2026 年 11 月（本月）",
@@ -4594,7 +4790,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "Visual Studio Code",
@@ -4608,7 +4805,8 @@
           "pattern": "code",
           "name": "Visual Studio Code",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "原神",
@@ -4622,7 +4820,8 @@
           "pattern": "yuanshen",
           "name": "原神",
           "category": "Game"
-        }
+        },
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -4636,7 +4835,8 @@
           "pattern": "bilibili",
           "name": "哔哩哔哩",
           "category": "Video"
-        }
+        },
+        "filter": null
       },
       {
         "name": "知乎",
@@ -4650,7 +4850,8 @@
           "pattern": "zhihu.com",
           "name": "知乎",
           "category": "Browsing"
-        }
+        },
+        "filter": null
       },
       {
         "name": "XMind",
@@ -4664,7 +4865,8 @@
           "pattern": "xmind",
           "name": "XMind",
           "category": "Other"
-        }
+        },
+        "filter": null
       },
       {
         "name": "微信",
@@ -4678,16 +4880,17 @@
           "pattern": "weixin",
           "name": "微信",
           "category": "Communication"
-        }
+        },
+        "filter": null
       }
     ],
-    "rankingTitle": "使用最多的应用和网站",
     "note": null,
     "empty": null
   },
-  "member-Month-Category": {
+  "member-Month-App": {
     "scale": "Month",
-    "granularity": "Category",
+    "rankBy": "App",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "2026 年 11 月（本月）",
@@ -5059,7 +5262,8 @@
         "time": "29 小时 25 分钟",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "原神",
@@ -5068,7 +5272,8 @@
         "time": "9 小时",
         "share": 0.306,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -5077,7 +5282,8 @@
         "time": "7 小时 30 分钟",
         "share": 0.255,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "知乎",
@@ -5086,7 +5292,8 @@
         "time": "3 小时 30 分钟",
         "share": 0.119,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "聊天",
@@ -5095,7 +5302,8 @@
         "time": "2 小时 5 分钟",
         "share": 0.071,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "XMind",
@@ -5104,16 +5312,17 @@
         "time": "2 小时",
         "share": 0.068,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       }
     ],
-    "rankingTitle": "使用最多的应用和网站",
     "note": "Bob 公开了最近 7 天的统计。部分类别仅公开了状态。",
     "empty": null
   },
   "Month-Title": {
     "scale": "Month",
-    "granularity": "Title",
+    "rankBy": "Title",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": null,
     "title": "2026 年 11 月（本月）",
@@ -5570,7 +5779,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "architecture.md - docs",
@@ -5584,7 +5794,8 @@
           "pattern": "code",
           "name": "Visual Studio Code",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "深境螺旋",
@@ -5598,7 +5809,8 @@
           "pattern": "yuanshen",
           "name": "原神",
           "category": "Game"
-        }
+        },
+        "filter": null
       },
       {
         "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
@@ -5612,7 +5824,8 @@
           "pattern": "bilibili",
           "name": "哔哩哔哩",
           "category": "Video"
-        }
+        },
+        "filter": null
       },
       {
         "name": "StatsPage.tsx - idea1 - Cursor",
@@ -5626,7 +5839,8 @@
           "pattern": "cursor",
           "name": "Cursor",
           "category": "Work"
-        }
+        },
+        "filter": null
       },
       {
         "name": "使用统计方案",
@@ -5640,7 +5854,8 @@
           "pattern": "xmind",
           "name": "XMind",
           "category": "Other"
-        }
+        },
+        "filter": null
       },
       {
         "name": "项目群",
@@ -5654,7 +5869,8 @@
           "pattern": "weixin",
           "name": "微信",
           "category": "Communication"
-        }
+        },
+        "filter": null
       },
       {
         "name": "如何评价这个周末",
@@ -5668,7 +5884,8 @@
           "pattern": "zhihu.com",
           "name": "知乎",
           "category": "Browsing"
-        }
+        },
+        "filter": null
       },
       {
         "name": "如何评价手写 SVG 图表",
@@ -5682,16 +5899,17 @@
           "pattern": "zhihu.com",
           "name": "知乎",
           "category": "Browsing"
-        }
+        },
+        "filter": null
       }
     ],
-    "rankingTitle": "使用最多的标题",
     "note": null,
     "empty": null
   },
   "member-Month-Title": {
     "scale": "Month",
-    "granularity": "Title",
+    "rankBy": "Title",
+    "filter": null,
     "anchor": "2026-11-11",
     "owner": "Bob",
     "title": "2026 年 11 月（本月）",
@@ -6063,7 +6281,8 @@
         "time": "29 小时 25 分钟",
         "share": 1,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "深境螺旋",
@@ -6072,7 +6291,8 @@
         "time": "9 小时",
         "share": 0.306,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "哔哩哔哩",
@@ -6081,7 +6301,8 @@
         "time": "7 小时 30 分钟",
         "share": 0.255,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "知乎",
@@ -6090,7 +6311,8 @@
         "time": "3 小时 30 分钟",
         "share": 0.119,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "聊天",
@@ -6099,7 +6321,8 @@
         "time": "2 小时 5 分钟",
         "share": 0.071,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       },
       {
         "name": "XMind",
@@ -6108,10 +6331,10 @@
         "time": "2 小时",
         "share": 0.068,
         "hidden": false,
-        "rule": null
+        "rule": null,
+        "filter": null
       }
     ],
-    "rankingTitle": "使用最多的标题",
     "note": "Bob 公开了最近 7 天的统计。部分类别仅公开了状态。部分类别未公开标题，仅显示应用名。",
     "empty": null
   }

@@ -9,7 +9,7 @@ namespace DeskPal.Client.Core.Ui;
 /// <summary>Turns a usage report into chart data and text for the stats page.</summary>
 public static class StatsViewBuilder
 {
-    /// <summary>"relax" only comes from older versions, which did not tell a hidden video from a hidden game.</summary>
+    /// <summary>Names and tones of state spans on the timeline. "relax" only comes from older versions, which did not tell a hidden video from a hidden game.</summary>
     private static StatsLegend[] StateLegend =>
     [
         new("work", Strings.Legend_Work, "work"),
@@ -35,41 +35,44 @@ public static class StatsViewBuilder
     /// <param name="today">Today on this computer; later days cannot be opened.</param>
     /// <param name="owner">Name of the member the report came from; null for my own stats.</param>
     /// <param name="targetOf">What a personal rule for a recorded app name would be saved against; null when ranking rows cannot be changed.</param>
-    public static StatsView Build(UsageReport report, StatsScale scale, StatsGranularity granularity, DateOnly anchor, DateOnly today, string? owner = null, Func<string, StatsRuleTarget?>? targetOf = null)
+    /// <param name="filter">Legend key to show only; ignored when the range has no such category.</param>
+    public static StatsView Build(UsageReport report, StatsScale scale, StatsRankBy rankBy, DateOnly anchor, DateOnly today, string? owner = null, Func<string, StatsRuleTarget?>? targetOf = null, string? filter = null)
     {
         var range = StatsRange.Of(scale, anchor);
         var stateLegend = StateLegend;
-        var legend = (granularity == StatsGranularity.State ? stateLegend : CategoryLegend)
+        var legend = CategoryLegend
             .Concat(stateLegend.Select(s => new StatsLegend("hidden-" + s.Key, UiLanguage.Format(Strings.Legend_Hidden, s.Name), s.Tone, Hidden: true)))
             .ToList();
-        string KeyOf(PresenceState state, ActivityCategory category) =>
-            granularity == StatsGranularity.State ? StateKey(state, category) : CategoryKey(category) ?? "hidden-" + StateKey(state, category);
+        string KeyOf(PresenceState state, ActivityCategory category) => CategoryKey(category) ?? "hidden-" + StateKey(state, category);
 
         var counted = report.Days.Where(d => UsageStates.Counts(d.State)).ToList();
-        var total = counted.Sum(d => d.Seconds);
+        var used = counted.Select(d => KeyOf(d.State, d.Category))
+            .Concat(report.Apps.Concat(report.Titles).Select(i => KeyOf(i.State, i.Category)))
+            .ToHashSet();
+        legend = legend.Where(l => used.Contains(l.Key)).ToList();
+        var shownLegend = filter is null ? null : legend.FirstOrDefault(l => l.Key == filter);
+        filter = shownLegend?.Key;
+        bool Shown(string key) => filter is null || key == filter;
+
+        var total = counted.Where(d => Shown(KeyOf(d.State, d.Category))).Sum(d => d.Seconds);
         var away = report.Days.Where(d => d.State == PresenceState.Away).Sum(d => d.Seconds);
         var locked = report.Days.Where(d => d.State == PresenceState.Locked).Sum(d => d.Seconds);
 
         var bars = scale == StatsScale.Day
             ? Enumerable.Range(0, 24).Select(hour =>
             {
-                var parts = Parts(report.Hours.Where(h => h.Hour == hour), KeyOf);
+                var parts = Parts(report.Hours.Where(h => h.Hour == hour), KeyOf, Shown);
                 return new StatsBar(hour % 6 == 0 ? hour.ToString() : "", $"{hour}:00–{hour + 1}:00 · {Duration(parts.Sum(p => p.Seconds))}", null, parts);
             }).ToList()
             : Enumerable.Range(0, range.Days).Select(i =>
             {
                 var date = range.From.AddDays(i);
-                var parts = Parts(counted.Where(d => d.Date == date), KeyOf);
+                var parts = Parts(counted.Where(d => d.Date == date), KeyOf, Shown);
                 var label = scale == StatsScale.Week ? PresenceFormatter.Weekday(date.DayOfWeek) : date.Day == 1 || date.Day % 5 == 0 ? date.Day.ToString() : "";
                 var day = PresenceFormatter.DateWithWeekday(date, today);
                 var tip = date > today ? UiLanguage.Format(Strings.Stats_NotYet, day) : $"{day} · {Duration(parts.Sum(p => p.Seconds))}";
                 return new StatsBar(label, tip, date <= today ? date : null, parts);
             }).ToList();
-
-        var used = bars.SelectMany(b => b.Parts).Select(p => p.Key)
-            .Concat(granularity == StatsGranularity.State ? [] : report.Apps.Concat(report.Titles).Select(i => KeyOf(i.State, i.Category)))
-            .ToHashSet();
-        legend = legend.Where(l => used.Contains(l.Key)).ToList();
 
         long barMax;
         string barMaxLabel;
@@ -96,12 +99,12 @@ public static class StatsViewBuilder
             summary.Add(UiLanguage.Format(Strings.Stats_Total, Duration(total)));
         }
 
-        if (away >= 60)
+        if (filter is null && away >= 60)
         {
             summary.Add(UiLanguage.Format(Strings.Stats_Away, Duration(away)));
         }
 
-        if (locked >= 60)
+        if (filter is null && locked >= 60)
         {
             summary.Add(UiLanguage.Format(Strings.Stats_Locked, Duration(locked)));
         }
@@ -112,10 +115,10 @@ public static class StatsViewBuilder
             notes.Add(UiLanguage.Format(Strings.Stats_SharedDays, owner, PresenceFormatter.Days(shared)));
         }
 
-        var hiddenShown = granularity switch
+        var hiddenShown = rankBy switch
         {
-            StatsGranularity.Category => report.Apps.Any(a => a.App is null),
-            StatsGranularity.Title => report.Titles.Any(t => t.App is null),
+            StatsRankBy.App => report.Apps.Any(a => a.App is null && Shown(KeyOf(a.State, a.Category))),
+            StatsRankBy.Title => report.Titles.Any(t => t.App is null && Shown(KeyOf(t.State, t.Category))),
             _ => false,
         } || bars.Any(b => b.Parts.Any(p => p.Key.StartsWith("hidden-", StringComparison.Ordinal)));
         if (owner is not null && hiddenShown)
@@ -123,7 +126,7 @@ public static class StatsViewBuilder
             notes.Add(Strings.Stats_HiddenCategories);
         }
 
-        if (owner is not null && granularity == StatsGranularity.Title && report.Titles.Any(t => t.App is not null && t.Title is null))
+        if (owner is not null && rankBy == StatsRankBy.Title && report.Titles.Any(t => t.App is not null && t.Title is null && Shown(KeyOf(t.State, t.Category))))
         {
             notes.Add(Strings.Stats_HiddenTitles);
         }
@@ -134,20 +137,22 @@ public static class StatsViewBuilder
         }
 
         string? empty = null;
-        if (total == 0 && away == 0 && locked == 0)
+        if (counted.Sum(d => d.Seconds) == 0 && away == 0 && locked == 0)
         {
             empty = owner is null ? Strings.Stats_EmptyMine : Strings.Stats_EmptyOther;
         }
 
+        var totalLabel = scale == StatsScale.Day ? Strings.Stats_UsageTime : Strings.Stats_DailyAverage;
         return new StatsView(
             scale,
-            granularity,
+            rankBy,
+            filter,
             anchor,
             owner,
             Title(scale, range, today),
-            scale == StatsScale.Day ? Strings.Stats_UsageTime : Strings.Stats_DailyAverage,
+            shownLegend is null ? totalLabel : UiLanguage.Format(Strings.Stats_Of, totalLabel, shownLegend.Name),
             Duration(scale == StatsScale.Day ? total : average),
-            Compare(report.PreviousSeconds, scale, total, average, Previous(scale, anchor), scale == StatsScale.Day && range.From == today),
+            filter is null ? Compare(report.PreviousSeconds, scale, total, average, Previous(scale, anchor), scale == StatsScale.Day && range.From == today) : null,
             summary.Count == 0 ? null : string.Join(" · ", summary),
             report.SharedDays is not { } days || range.From > today.AddDays(1 - days),
             range.To < today,
@@ -155,73 +160,77 @@ public static class StatsViewBuilder
             bars,
             barMax,
             barMaxLabel,
-            scale == StatsScale.Day ? report.Timeline.Select(Span).ToList() : [],
-            Ranking(report, granularity, legend, stateLegend, KeyOf, owner is null ? targetOf : null),
-            granularity switch
-            {
-                StatsGranularity.State => Strings.Stats_ByState,
-                StatsGranularity.Category => Strings.Stats_TopApps,
-                _ => Strings.Stats_TopTitles,
-            },
+            scale == StatsScale.Day
+                ? report.Timeline.Where(s => filter is null || (UsageStates.Counts(s.State) && KeyOf(s.State, s.Category) == filter)).Select(Span).ToList()
+                : [],
+            Ranking(report, rankBy, legend, stateLegend, KeyOf, Shown, owner is null ? targetOf : null),
             notes.Count == 0 ? null : string.Join(Strings.SentenceSeparator, notes),
             empty);
     }
 
     public static string Duration(long seconds) => PresenceFormatter.Duration(seconds);
 
-    private static List<StatsPart> Parts(IEnumerable<UsageTotal> totals, Func<PresenceState, ActivityCategory, string> keyOf) => totals
+    private static List<StatsPart> Parts(IEnumerable<UsageTotal> totals, Func<PresenceState, ActivityCategory, string> keyOf, Func<string, bool> shown) => totals
         .Where(t => UsageStates.Counts(t.State))
         .GroupBy(t => keyOf(t.State, t.Category))
+        .Where(g => shown(g.Key))
         .Select(g => new StatsPart(g.Key, g.Sum(t => t.Seconds)))
         .Where(p => p.Seconds > 0)
         .ToList();
 
     private static List<StatsRankItem> Ranking(
         UsageReport report,
-        StatsGranularity granularity,
+        StatsRankBy rankBy,
         IReadOnlyList<StatsLegend> legend,
         StatsLegend[] stateLegend,
         Func<PresenceState, ActivityCategory, string> keyOf,
+        Func<string, bool> shown,
         Func<string, StatsRuleTarget?>? targetOf)
     {
         StatsLegend Legend(string key) => legend.FirstOrDefault(l => l.Key == key) ?? stateLegend[^1];
         StatsRuleTarget? Target(string? app, ActivityCategory category) =>
             app is null || targetOf?.Invoke(app) is not { } target ? null : target with { Category = category.ToString() };
 
-        var rows = granularity switch
+        var rows = rankBy switch
         {
-            StatsGranularity.State => report.Days
+            StatsRankBy.Category => report.Days
                 .Where(d => UsageStates.Counts(d.State))
-                .GroupBy(d => StateKey(d.State, d.Category))
-                .Select(g => (Legend: stateLegend.First(s => s.Key == g.Key), Name: stateLegend.First(s => s.Key == g.Key).Name, Sub: (string?)null, Seconds: g.Sum(d => d.Seconds), Target: (StatsRuleTarget?)null))
+                .GroupBy(d => keyOf(d.State, d.Category))
+                .Where(g => shown(g.Key))
+                .Select(g =>
+                {
+                    var l = Legend(g.Key);
+                    return (Legend: l, Name: l.Name, Sub: (string?)null, Seconds: g.Sum(d => d.Seconds), Target: (StatsRuleTarget?)null, Filter: (string?)g.Key);
+                })
                 .ToList(),
-            StatsGranularity.Category => report.Apps
+            StatsRankBy.App => report.Apps
                 .GroupBy(a => (Key: keyOf(a.State, a.Category), a.App))
+                .Where(g => shown(g.Key.Key))
                 .Select(g =>
                 {
                     var l = Legend(g.Key.Key);
                     var app = AppNames.LocalizeOrNull(g.Key.App);
-                    return (Legend: l, Name: app ?? l.Name, Sub: l.Hidden || app is null ? null : l.Name, Seconds: g.Sum(a => a.Seconds), Target: Target(g.Key.App, g.First().Category));
+                    return (Legend: l, Name: app ?? l.Name, Sub: l.Hidden || app is null ? null : l.Name, Seconds: g.Sum(a => a.Seconds), Target: Target(g.Key.App, g.First().Category), Filter: (string?)null);
                 })
                 .ToList(),
             _ => report.Titles
                 .GroupBy(t => (Key: keyOf(t.State, t.Category), t.App, t.Title))
+                .Where(g => shown(g.Key.Key))
                 .Select(g =>
                 {
                     var l = Legend(g.Key.Key);
                     var app = AppNames.LocalizeOrNull(g.Key.App);
                     var name = g.Key.Title ?? app ?? l.Name;
                     string? sub = l.Hidden ? null : g.Key.Title is not null && app is not null ? $"{app} · {l.Name}" : app is null ? null : l.Name;
-                    return (Legend: l, Name: name, Sub: sub, Seconds: g.Sum(t => t.Seconds), Target: Target(g.Key.App, g.First().Category));
+                    return (Legend: l, Name: name, Sub: sub, Seconds: g.Sum(t => t.Seconds), Target: Target(g.Key.App, g.First().Category), Filter: (string?)null);
                 })
                 .ToList(),
         };
 
         var top = rows.Where(r => r.Seconds >= 60).OrderByDescending(r => r.Seconds).Take(UsageAggregator.TopCount).ToList();
         var max = top.Count == 0 ? 1 : top[0].Seconds;
-        return top.Select(r => new StatsRankItem(r.Name, r.Sub, r.Legend.Tone, Duration(r.Seconds), Math.Round((double)r.Seconds / max, 3), r.Legend.Hidden, r.Target)).ToList();
+        return top.Select(r => new StatsRankItem(r.Name, r.Sub, r.Legend.Tone, Duration(r.Seconds), Math.Round((double)r.Seconds / max, 3), r.Legend.Hidden, r.Target, r.Filter)).ToList();
     }
-
     private static StatsSpanView Span(UsageSpan span)
     {
         var state = StateLegend.First(s => s.Key == StateKey(span.State, span.Category));
