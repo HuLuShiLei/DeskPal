@@ -12,6 +12,8 @@
   en: The Other status is now green instead of gray like Offline. Your status card and room members are colored by status, so you can tell at a glance what everyone is doing
 - 浅色模式改用柔和的浅灰底色，不再是纯白
   en: Light mode now uses soft gray backgrounds instead of pure white
+- 房间成员可以拖动调整顺序，顺序只保存在本机
+  en: You can drag room members to reorder them. The order is saved on this computer only
 - DeskPal 有了自己的图标，托盘、任务栏、开始菜单和安装程序都使用新图标
   en: DeskPal has its own icon, shown in the tray, the taskbar, the Start menu, and the installer
 - 去掉「保留时长」，使用统计的时间轴和标题一直保留，不再只留每天的总时长

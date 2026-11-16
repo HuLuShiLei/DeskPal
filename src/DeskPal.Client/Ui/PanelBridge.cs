@@ -133,6 +133,7 @@ public sealed class PanelBridge
             AccountIdle.Normalize(_settings.IdleMinutes)),
         WhatsNew = _whatsNew.Pending,
         Pinned = _pins.Users,
+        MemberOrder = _rooms.SelectedRoom is { } selected && _settings.MemberOrder.TryGetValue(selected.Id, out var order) ? order : [],
         Now = DateTimeOffset.UtcNow,
         ShowUsage = true,
         NoTitleRules = _settings.NoTitleRules,
@@ -468,6 +469,26 @@ public sealed class PanelBridge
             case "member.unpin":
                 _pins.Unpin(c.Guid("userId"));
                 return CommandResult.Success;
+
+            case "member.reorder":
+            {
+                var roomId = c.Guid("roomId");
+                var rooms = _rooms.Rooms;
+                if (rooms.FirstOrDefault(r => r.Id == roomId) is not { } room)
+                {
+                    return CommandResult.Fail(Strings.Error_MemberNotInRoom);
+                }
+
+                foreach (var gone in _settings.MemberOrder.Keys.Where(id => rooms.All(r => r.Id != id)).ToList())
+                {
+                    _settings.MemberOrder.Remove(gone);
+                }
+
+                _settings.MemberOrder[room.Id] = c.GuidList("userIds").Distinct().Where(id => room.Members.Any(m => m.UserId == id)).ToList();
+                _store.Save(_settings);
+                RaiseChanged();
+                return CommandResult.Success;
+            }
 
             case "presence.pause":
                 _presence.SetPaused(c.Bool("paused"));

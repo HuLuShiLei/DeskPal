@@ -45,6 +45,7 @@ export const zh = {
   "status.mine": "我的状态",
   "status.members": "房间成员",
   "status.membersCount": "房间成员（{count}）",
+  "status.dragToSort": "拖动可调整顺序",
   "status.viewStats": "查看统计",
   "status.viewStatsOf": "查看{name}的使用统计",
   "status.pin": "置顶到桌面",

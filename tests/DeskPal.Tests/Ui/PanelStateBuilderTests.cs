@@ -4,6 +4,7 @@ using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Usage;
 using DeskPal.Shared;
+using DeskPal.Shared.Api;
 using DeskPal.Shared.Presence;
 
 namespace DeskPal.Tests.Ui;
@@ -30,6 +31,18 @@ public class PanelStateBuilderTests
         Assert.Equal("", carol.Meta);
         Assert.False(carol.Pinned);
         Assert.Null(state.EmptyHint);
+    }
+
+    [Fact]
+    public void Members_follow_my_order_and_new_members_go_last()
+    {
+        var room = PanelSamples.OwnedRoom with
+        {
+            Members = [.. PanelSamples.OwnedRoom.Members, new RoomMemberDto(PanelSamples.Dave, "Dave", RoomRole.Member, PanelSamples.Now)],
+        };
+        var input = PanelSamples.Default() with { SelectedRoom = room, MemberOrder = [PanelSamples.Carol, Guid.NewGuid(), PanelSamples.Bob] };
+
+        Assert.Equal(["Carol", "Bob", "Dave"], PanelStateBuilder.Build(input).Members.Select(m => m.Name));
     }
 
     [Fact]

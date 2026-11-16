@@ -255,6 +255,11 @@ export function createMockTransport(params: URLSearchParams): Transport {
         member.pinned = m.type === "member.pin";
         break;
       }
+      case "member.reorder": {
+        const ids = m.userIds as string[];
+        state.members.sort((a, b) => (ids.indexOf(a.userId) + 1 || 1e9) - (ids.indexOf(b.userId) + 1 || 1e9));
+        break;
+      }
       case "presence.pause":
         state.me.paused = m.paused as boolean;
         break;

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "preact/hooks";
 import type { MemberItem, PanelState, UnclassifiedItem } from "../bridge";
 import { PresenceDetail, StatusBadge, useCountdown, useHost } from "../host";
 import { t } from "../i18n";
@@ -8,31 +9,103 @@ export function StatusPage({ state, onViewStats }: { state: PanelState; onViewSt
   return (
     <>
       <MyStatus state={state} />
-      <Section title={room ? t("status.membersCount", { count: state.members.length }) : t("status.members")} label={t("status.members")}>
+      <Section
+        title={room ? t("status.membersCount", { count: state.members.length }) : t("status.members")}
+        label={t("status.members")}
+        aside={room && state.members.length > 1 ? <span class="section-note">{t("status.dragToSort")}</span> : undefined}
+      >
         {state.emptyHint && (
           <p class="infobar">
             <Icon name="info" />
             {state.emptyHint}
           </p>
         )}
-        {state.members.length > 0 && (
-          <ul class="list">
-            {state.members.map((m) => (
-              <MemberRow key={m.userId} member={m} onViewStats={() => onViewStats({ userId: m.userId, name: m.name })} />
-            ))}
-          </ul>
-        )}
+        {room && state.members.length > 0 && <MemberList roomId={room.id} members={state.members} onViewStats={onViewStats} />}
       </Section>
       {state.unclassified.length > 0 && <Unclassified state={state} />}
     </>
   );
 }
 
-function MemberRow({ member, onViewStats }: { member: MemberItem; onViewStats: () => void }) {
+/** 拖动成员调整顺序，只保存在本机。宿主推回新顺序之前先按本地顺序显示，避免松手后闪回。 */
+function MemberList({ roomId, members, onViewStats }: { roomId: string; members: MemberItem[]; onViewStats: (member: { userId: string; name: string }) => void }) {
   const { run } = useHost();
+  const [drag, setDrag] = useState<{ id: string; order: string[] } | null>(null);
+  const [saved, setSaved] = useState<string[] | null>(null);
+  const hostOrder = members.map((m) => m.userId);
+  const hostKey = hostOrder.join();
+  useEffect(() => {
+    if (saved && saved.join() === hostKey) setSaved(null);
+  }, [hostKey]);
+
+  const base = saved ? [...saved.filter((id) => hostOrder.includes(id)), ...hostOrder.filter((id) => !saved.includes(id))] : hostOrder;
+  const order = drag?.order ?? base;
+  const byId = new Map(members.map((m) => [m.userId, m]));
+  const canDrag = members.length > 1;
+
+  const over = (e: DragEvent, targetId: string) => {
+    if (!drag) return;
+    e.preventDefault();
+    if (targetId === drag.id) return;
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const rest = drag.order.filter((id) => id !== drag.id);
+    rest.splice(rest.indexOf(targetId) + (e.clientY > rect.top + rect.height / 2 ? 1 : 0), 0, drag.id);
+    if (rest.join() !== drag.order.join()) setDrag({ ...drag, order: rest });
+  };
+  const end = async () => {
+    if (!drag) return;
+    const next = drag.order;
+    setDrag(null);
+    if (next.join() === base.join()) return;
+    setSaved(next);
+    const result = await run({ type: "member.reorder", roomId, userIds: next });
+    if (!result.ok) setSaved(null);
+  };
+
+  return (
+    <ul class={drag ? "list dragging" : "list"} onDragOver={(e) => drag && e.preventDefault()} onDrop={(e) => e.preventDefault()}>
+      {order.map((id) => {
+        const m = byId.get(id)!;
+        return (
+          <MemberRow
+            key={id}
+            member={m}
+            onViewStats={() => onViewStats({ userId: m.userId, name: m.name })}
+            drag={
+              canDrag
+                ? {
+                    draggable: true,
+                    onDragStart: (e: DragEvent) => {
+                      e.dataTransfer?.setData("text/plain", m.name);
+                      if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
+                      setDrag({ id, order: base });
+                    },
+                    onDragOver: (e: DragEvent) => over(e, id),
+                    onDragEnd: () => void end(),
+                  }
+                : {}
+            }
+            dragging={drag?.id === id}
+          />
+        );
+      })}
+    </ul>
+  );
+}
+
+type DragProps = {
+  draggable?: boolean;
+  onDragStart?: (e: DragEvent) => void;
+  onDragOver?: (e: DragEvent) => void;
+  onDragEnd?: () => void;
+};
+
+function MemberRow({ member, onViewStats, drag, dragging }: { member: MemberItem; onViewStats: () => void; drag: DragProps; dragging: boolean }) {
+  const { run } = useHost();
+  const dragClass = dragging ? " dragging" : "";
   if (member.blocked) {
     return (
-      <li class="list-row member offline" aria-label={member.name}>
+      <li class={`list-row member offline${dragClass}`} aria-label={member.name} {...drag}>
         <Avatar name={member.name} tone={member.view.tone} />
         <div class="row-main">
           <p class="row-title">{member.name}</p>
@@ -45,7 +118,7 @@ function MemberRow({ member, onViewStats }: { member: MemberItem; onViewStats: (
   }
   const label = member.pinned ? t("status.unpinName", { name: member.name }) : t("status.pinName", { name: member.name });
   return (
-    <li class={`list-row member tv-${member.view.tone}${member.online ? "" : " offline"}`} aria-label={member.name}>
+    <li class={`list-row member tv-${member.view.tone}${member.online ? "" : " offline"}${dragClass}`} aria-label={member.name} {...drag}>
       <Avatar name={member.name} tone={member.view.tone} />
       <div class="row-main">
         <p class="row-title">

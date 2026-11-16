@@ -279,6 +279,7 @@ export type Command =
   | { type: "room.dissolve"; roomId: string }
   | { type: "member.pin"; userId: string }
   | { type: "member.unpin"; userId: string }
+  | { type: "member.reorder"; roomId: string; userIds: string[] }
   | { type: "member.block"; roomId: string; userId: string }
   | { type: "member.unblock"; roomId: string; userId: string }
   | { type: "presence.pause"; paused: boolean }

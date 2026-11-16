@@ -40,6 +40,9 @@ public sealed record PanelInput
     public required SettingsView Settings { get; init; }
     public WhatsNewView? WhatsNew { get; init; }
     public IReadOnlyCollection<Guid> Pinned { get; init; } = [];
+
+    /// <summary>The user's own order of the other members in the selected room. Members not listed follow in server order.</summary>
+    public IReadOnlyList<Guid> MemberOrder { get; init; } = [];
     public required DateTimeOffset Now { get; init; }
 
     /// <summary>false hides the usage section.</summary>
@@ -134,6 +137,7 @@ public static class PanelStateBuilder
 
     private static List<MemberItem> Members(PanelInput input, RoomDto room) => room.Members
         .Where(m => m.UserId != input.MyUserId)
+        .OrderBy(m => Rank(input.MemberOrder, m.UserId))
         .Select(m =>
         {
             if (room.Blocked?.Contains(m.UserId) == true)
@@ -155,6 +159,19 @@ public static class PanelStateBuilder
                 ShareStats: m.ShareStats);
         })
         .ToList();
+
+    private static int Rank(IReadOnlyList<Guid> order, Guid userId)
+    {
+        for (var i = 0; i < order.Count; i++)
+        {
+            if (order[i] == userId)
+            {
+                return i;
+            }
+        }
+
+        return int.MaxValue;
+    }
 
     private static MeView Me(PanelInput input, RoomDto? room)
     {

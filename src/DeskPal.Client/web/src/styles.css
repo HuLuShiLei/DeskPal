@@ -317,6 +317,9 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 .member-meta { margin: -3px 4px 0 0; font-size: 11px; line-height: 22px; color: var(--faint); white-space: nowrap; }
 .list-row.member:not(.offline):hover { background: linear-gradient(135deg, color-mix(in srgb, var(--tv) 16%, var(--surface-strong)), color-mix(in srgb, var(--surface-strong), var(--text) 2%) 55%); }
 .list-row.member { box-shadow: var(--card-shadow); }
+.list-row.member.dragging { opacity: 0.45; }
+.list.dragging .list-row.member:hover { background: var(--surface-strong); }
+.list.dragging .list-row.member:not(.offline):hover { background: linear-gradient(135deg, color-mix(in srgb, var(--tv) 12%, var(--surface-strong)), var(--surface-strong) 55%); }
 .list-row.offline .status-badge { color: var(--muted); background: var(--hover); }
 .list-row.offline .avatar { opacity: 0.6; }
 .list-row.offline .row-title { color: var(--muted); }

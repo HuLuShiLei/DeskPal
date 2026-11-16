@@ -47,6 +47,7 @@ export const en: Record<keyof typeof zh, string> = {
   "status.mine": "My status",
   "status.members": "Members",
   "status.membersCount": "Members ({count})",
+  "status.dragToSort": "Drag to reorder",
   "status.viewStats": "View stats",
   "status.viewStatsOf": "View {name}'s usage stats",
   "status.pin": "Pin to desktop",

@@ -49,6 +49,9 @@ public sealed class AppSettings
     /// <summary>Apps, processes, sites and title keywords whose titles are never recorded in the usage stats.</summary>
     public List<NoTitleRule> NoTitleRules { get; set; } = [];
 
+    /// <summary>Per room, the order the user dragged the other members into. Only affects this computer.</summary>
+    public Dictionary<Guid, List<Guid>> MemberOrder { get; set; } = [];
+
     public string? GetToken()
     {
         if (string.IsNullOrEmpty(ProtectedToken))
