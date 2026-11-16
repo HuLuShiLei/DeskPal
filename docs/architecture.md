@@ -179,7 +179,7 @@ flowchart LR
 
 ## 隐私
 
-- 隐私级别按 Room 和类别分别配置：`StateOnly`（只显示状态）、`Category`（再加类别和应用名）、`Detail`（再加窗口标题或媒体标题）。创建或加入房间时，Server 把所有类别写成 `StateOnly`。
+- 隐私级别按 Room 和类别分别配置：`StateOnly`（界面上叫「只显示类别」：状态和类别）、`Category`（「显示应用」：再加应用名）、`Detail`（「显示详情（标题）」：再加窗口标题或媒体标题）。创建或加入房间时，Server 把所有类别写成 `StateOnly`。
 - 默认值：`Work`、`Meeting`、`Communication` 为 `StateOnly`，其他类别为 `Category`。没有人默认开启 `Detail`。
 - 过滤在客户端完成，原始标题不经过 PrivacyFilter 就不会离开本机。
 - Envelope 的 `Enc` 字段预留给端到端加密，Server 不解析 Payload。`stats.response` 已经使用 `ecdh-p256-aesgcm`，其他消息仍是 `none`。

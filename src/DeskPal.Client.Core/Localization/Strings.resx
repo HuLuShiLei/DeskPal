@@ -109,10 +109,10 @@
     <value>无</value>
   </data>
   <data name="Privacy_StateOnly" xml:space="preserve">
-    <value>只显示状态</value>
+    <value>只显示类别</value>
   </data>
   <data name="Privacy_Category" xml:space="preserve">
-    <value>显示类别和应用</value>
+    <value>显示应用</value>
   </data>
   <data name="Privacy_Detail" xml:space="preserve">
     <value>显示详情（标题）</value>

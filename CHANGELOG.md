@@ -22,6 +22,8 @@
   en: Apps used for both work and personal life, such as remote desktop, virtual machines, Android emulators, PDF readers, AI assistants, note apps, and personal email, no longer count as working or gaming by default. They show the app name instead
 - 统计图表固定按类别显示，视频和游戏分开；排行可以切换类别、应用和标题，点图例中的某一类可以只看这一类
   en: Usage stats charts are always grouped by category, with video and games shown separately. The ranking switches between categories, apps, and titles. Click a category in the legend to show only that category
+- 房间隐私级别改名为只显示类别、显示应用、显示详情（标题），各级别显示的内容不变
+  en: Room privacy levels are renamed to Category only, Include app, and Include titles. What each level shows is unchanged
 - 统计里可以更改某个应用或网站的分类，过去的记录也会按新的分类显示
   en: You can change how an app or a site is categorized in Usage stats. Past records follow the new category
 - 查看今天的统计时，不再和昨天比较

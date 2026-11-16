@@ -116,11 +116,11 @@
     "levels": [
       {
         "value": "StateOnly",
-        "name": "Status only"
+        "name": "Category only"
       },
       {
         "value": "Category",
-        "name": "Category and app"
+        "name": "Include app"
       },
       {
         "value": "Detail",

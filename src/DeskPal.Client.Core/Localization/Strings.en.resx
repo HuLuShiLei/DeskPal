@@ -109,10 +109,10 @@
     <value>None</value>
   </data>
   <data name="Privacy_StateOnly" xml:space="preserve">
-    <value>Status only</value>
+    <value>Category only</value>
   </data>
   <data name="Privacy_Category" xml:space="preserve">
-    <value>Category and app</value>
+    <value>Include app</value>
   </data>
   <data name="Privacy_Detail" xml:space="preserve">
     <value>Include titles</value>

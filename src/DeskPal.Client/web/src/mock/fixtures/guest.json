@@ -90,11 +90,11 @@
     "levels": [
       {
         "value": "StateOnly",
-        "name": "只显示状态"
+        "name": "只显示类别"
       },
       {
         "value": "Category",
-        "name": "显示类别和应用"
+        "name": "显示应用"
       },
       {
         "value": "Detail",
