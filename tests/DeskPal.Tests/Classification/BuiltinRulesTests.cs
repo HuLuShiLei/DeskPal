@@ -42,6 +42,14 @@ public class BuiltinRulesTests
     }
 
     [Theory]
+    [InlineData("claude")]
+    [InlineData("codex")]
+    public void Coding_agents_are_work(string process)
+    {
+        Assert.Equal(ActivityCategory.Work, Rules.Match(TestData.App(process))!.Category);
+    }
+
+    [Theory]
     [InlineData("sunloginclient")]
     [InlineData("mstsc")]
     [InlineData("vmware")]
@@ -61,6 +69,7 @@ public class BuiltinRulesTests
     [InlineData("outlook.office.com", ActivityCategory.Work)]
     [InlineData("teams.microsoft.com", ActivityCategory.Work)]
     [InlineData("meeting.tencent.com", ActivityCategory.Work)]
+    [InlineData("claude.ai", ActivityCategory.Work)]
     [InlineData("wx.qq.com", ActivityCategory.Communication)]
     public void Web_versions_follow_their_desktop_apps(string domain, ActivityCategory expected)
     {

@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- Claude 和 Codex 显示为工作中。
+  en: Claude and Codex now show as Working.
+
 - 关闭窗口时可以选择直接退出，设置里的「关闭窗口时」也可以选这一项。
   en: Closing the window can quit DeskPal, and the same choice is available in Settings.
 

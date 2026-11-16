@@ -1,5 +1,5 @@
 {
-    "version": 6,
+    "version": 7,
     "rules": [
         {
             "kind": "Process",
@@ -826,8 +826,14 @@
         {
             "kind": "Process",
             "pattern": "claude",
-            "category": "Other",
+            "category": "Work",
             "name": "Claude"
+        },
+        {
+            "kind": "Process",
+            "pattern": "codex",
+            "category": "Work",
+            "name": "Codex"
         },
         {
             "kind": "Process",
@@ -2044,7 +2050,7 @@
         {
             "kind": "Domain",
             "pattern": "claude.ai",
-            "category": "Other",
+            "category": "Work",
             "name": "Claude"
         },
         {
@@ -2071,13 +2077,13 @@
         {
             "kind": "Domain",
             "pattern": "deepseek.com",
-            "category": "Other",
+            "category": "Work",
             "name": "DeepSeek"
         },
         {
             "kind": "Domain",
             "pattern": "tongyi.aliyun.com",
-            "category": "Other",
+            "category": "Work",
             "name": "通义",
             "names": {
                 "en": "Tongyi"
