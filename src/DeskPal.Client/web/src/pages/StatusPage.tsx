@@ -45,7 +45,7 @@ function MemberRow({ member, onViewStats }: { member: MemberItem; onViewStats: (
   }
   const label = member.pinned ? t("status.unpinName", { name: member.name }) : t("status.pinName", { name: member.name });
   return (
-    <li class={member.online ? "list-row member" : "list-row member offline"} aria-label={member.name}>
+    <li class={`list-row member tv-${member.view.tone}${member.online ? "" : " offline"}`} aria-label={member.name}>
       <Avatar name={member.name} tone={member.view.tone} />
       <div class="row-main">
         <p class="row-title">

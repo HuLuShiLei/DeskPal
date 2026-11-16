@@ -26,7 +26,7 @@ public static class WebUi
     /// <summary>system follows Windows. light and dark are fixed.</summary>
     public static System.Drawing.Color ColorFor(string? theme) => ResolveDark(theme)
         ? System.Drawing.Color.FromArgb(0x20, 0x20, 0x20)
-        : System.Drawing.Color.FromArgb(0xF3, 0xF3, 0xF3);
+        : System.Drawing.Color.FromArgb(0xE8, 0xEA, 0xEF);
 
     public static System.Windows.Media.SolidColorBrush BrushFor(string? theme)
     {
@@ -37,7 +37,7 @@ public static class WebUi
     /// <summary>Matches --surface in styles.css, the background of the panel's content area.</summary>
     public static System.Windows.Media.SolidColorBrush SurfaceBrushFor(string? theme) => ResolveDark(theme)
         ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x2B, 0x2B, 0x2B))
-        : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFB, 0xFB, 0xFB));
+        : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xF1, 0xF2, 0xF5));
 
     public static bool ResolveDark(string? theme) => theme switch
     {
@@ -189,6 +189,11 @@ public sealed record WebCommand(int? Id, string Type, JsonElement Args)
     public bool Bool(string name) => Args.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True;
 
     public Guid Guid(string name) => System.Guid.TryParse(String(name), out var id) ? id : throw new FormatException(UiLanguage.Format(Strings.Error_InvalidId, name));
+
+    public List<Guid> GuidList(string name) =>
+        Args.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Array
+            ? value.EnumerateArray().Select(e => System.Guid.TryParse(e.GetString(), out var id) ? id : throw new FormatException(UiLanguage.Format(Strings.Error_InvalidId, name))).ToList()
+            : throw new FormatException(UiLanguage.Format(Strings.Error_InvalidId, name));
 }
 
 /// <summary>Reply to a <see cref="WebCommand"/>. Error text is shown to the user as is.</summary>

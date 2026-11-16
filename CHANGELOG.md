@@ -8,6 +8,10 @@
 
 ## 0.1.2
 
+- 「其他」状态改用绿色，不再和离线一样是灰色；房间成员和自己的状态卡片按状态显示颜色，更容易一眼看出谁在做什么
+  en: The Other status is now green instead of gray like Offline. Your status card and room members are colored by status, so you can tell at a glance what everyone is doing
+- 浅色模式改用柔和的浅灰底色，不再是纯白
+  en: Light mode now uses soft gray backgrounds instead of pure white
 - DeskPal 有了自己的图标，托盘、任务栏、开始菜单和安装程序都使用新图标
   en: DeskPal has its own icon, shown in the tray, the taskbar, the Start menu, and the installer
 - 去掉「保留时长」，使用统计的时间轴和标题一直保留，不再只留每天的总时长

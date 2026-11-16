@@ -3,9 +3,9 @@
    --bg 和宿主窗口背景保持一致，避免加载时闪一下。 */
 :root {
   color-scheme: light;
-  --bg: #f3f3f3;
-  --surface: #fbfbfb;
-  --surface-strong: #ffffff;
+  --bg: #e8eaef;
+  --surface: #f1f2f5;
+  --surface-strong: #fafbfc;
   --hover: rgba(0, 0, 0, 0.04);
   --pressed: rgba(0, 0, 0, 0.07);
   --line: rgba(0, 0, 0, 0.0803);
@@ -23,12 +23,13 @@
   --warn-text: #5c4300;
   --info-bg: #eef3fd;
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+  --card-shadow: 0 1px 2px rgba(20, 30, 60, 0.05), 0 1px 1px rgba(20, 30, 60, 0.03);
   --tone-work: #3f6fe8;
   --tone-chat: #0f8a7e;
   --tone-relax: #d46a00;
   --tone-game: #c2297a;
   --tone-browse: #8a52d6;
-  --tone-other: #6b7280;
+  --tone-other: #3f9a2e;
   --tone-away: #b8a040;
   --tone-offline: #a0a0a0;
   --radius: 6px;
@@ -60,12 +61,13 @@
   --warn-text: #fce100;
   --info-bg: #26304a;
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --card-shadow: none;
   --tone-work: #7aa2ff;
   --tone-chat: #3ccbb8;
   --tone-relax: #ffa64d;
   --tone-game: #ff7ab8;
   --tone-browse: #c39bff;
-  --tone-other: #a1a7b3;
+  --tone-other: #8fd46a;
   --tone-away: #e0c95a;
   --tone-offline: #6f6f6f;
 }
@@ -203,6 +205,7 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 .card {
   background: var(--surface-strong); border: 1px solid var(--line); border-radius: var(--radius-lg);
   padding: 12px 14px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px;
+  box-shadow: var(--card-shadow);
 }
 .card.flush { padding: 0; gap: 0; }
 .card.flush > * + * { border-top: 1px solid var(--line); }
@@ -210,9 +213,11 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 .card-note { color: var(--muted); font-size: 12px; padding: 10px 14px; }
 .hint-text { color: var(--muted); font-size: 12px; }
 
-.card.me {
-  position: relative; overflow: hidden; gap: 10px; padding: 14px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--tv) 9%, var(--surface-strong)), var(--surface-strong) 70%);
+.card.me { position: relative; overflow: hidden; gap: 10px; padding: 14px; }
+/* 自己的卡片和在线成员用同一种状态色：斜向渐变加同色描边。 */
+.card.me, .list-row.member:not(.offline) {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--tv) 12%, var(--surface-strong)), var(--surface-strong) 55%);
+  border-color: color-mix(in srgb, var(--tv) 22%, var(--line));
 }
 .me-head { display: flex; gap: 12px; align-items: flex-start; }
 .me .avatar { width: 44px; height: 44px; font-size: 17px; }
@@ -221,7 +226,6 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
   font-size: 20px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere;
   color: color-mix(in srgb, var(--tv) 85%, var(--text));
 }
-.me-headline.tv-other { color: var(--text); }
 .me-headline .status-dot { width: 10px; height: 10px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--tv) 20%, transparent); }
 .me-headline .hint { margin-left: 2px; }
 .me .row-name { flex: none; max-width: 50%; }
@@ -242,7 +246,6 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
   min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 600;
   color: color-mix(in srgb, var(--tv) 85%, var(--text));
 }
-.pending.tv-other .pending-state { color: var(--text); }
 .pending-arrow { display: none; font-size: 11px; }
 .me .row-title { container-type: inline-size; }
 .me .row-title:has(.pending) .row-name { flex: 0 10 auto; min-width: 3em; }
@@ -284,10 +287,9 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 .status-badge {
   display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-width: 0;
   padding: 1px 10px 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; line-height: 20px;
-  color: color-mix(in srgb, var(--tv) 85%, var(--text)); background: color-mix(in srgb, var(--tv) 15%, transparent);
+  color: color-mix(in srgb, var(--tv) 85%, var(--text)); background: color-mix(in srgb, var(--tv) 20%, transparent);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.status-badge.tv-other { color: var(--text); }
 .presence-detail { display: grid; gap: 1px; min-width: 0; margin-top: 3px; font-size: 12px; }
 .presence-app { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .presence-title {
@@ -313,6 +315,8 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 .member-side { flex: none; display: flex; flex-direction: column; align-items: flex-end; margin: -2px -4px 0 0; }
 .member-actions { display: flex; }
 .member-meta { margin: -3px 4px 0 0; font-size: 11px; line-height: 22px; color: var(--faint); white-space: nowrap; }
+.list-row.member:not(.offline):hover { background: linear-gradient(135deg, color-mix(in srgb, var(--tv) 16%, var(--surface-strong)), color-mix(in srgb, var(--surface-strong), var(--text) 2%) 55%); }
+.list-row.member { box-shadow: var(--card-shadow); }
 .list-row.offline .status-badge { color: var(--muted); background: var(--hover); }
 .list-row.offline .avatar { opacity: 0.6; }
 .list-row.offline .row-title { color: var(--muted); }
@@ -350,7 +354,7 @@ button.code-copy:active:not(:disabled) { background: var(--pressed); }
   display: grid; place-items: center; font-weight: 600; font-size: 14px;
   background: var(--accent-soft); color: var(--accent);
 }
-.avatar[class*="tv-"] { background: color-mix(in srgb, var(--tv) 18%, transparent); color: color-mix(in srgb, var(--tv) 85%, var(--text)); }
+.avatar[class*="tv-"] { background: color-mix(in srgb, var(--tv) 24%, transparent); color: color-mix(in srgb, var(--tv) 85%, var(--text)); }
 
 .setting-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; min-height: 52px; }
 .setting-icon { font-size: 16px; color: var(--muted); }
