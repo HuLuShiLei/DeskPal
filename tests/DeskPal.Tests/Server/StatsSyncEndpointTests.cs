@@ -102,6 +102,37 @@ public sealed class StatsSyncEndpointTests : IClassFixture<StatsSyncEndpointTest
         await SendAsync<StatsSyncDayInfo>(http, HttpMethod.Put, $"{Base}/days/2026-11-02", Upload(big), alice.Token);
     }
 
+    [Fact]
+    public async Task Settings_are_kept_while_sync_is_on()
+    {
+        var http = _factory.CreateClient();
+        var alice = await RegisterAsync(http, "alice");
+        var settings = new UploadStatsSettingsRequest(Convert.ToBase64String([7, 8]));
+        await ExpectErrorAsync(http, HttpMethod.Put, $"{Base}/settings", settings, alice.Token, HttpStatusCode.Conflict, ApiErrorCodes.StatsSyncNotEnabled);
+
+        await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Put, Base, new EnableStatsSyncRequest("salt-a", "check-a"), alice.Token);
+        Assert.Null((await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Get, Base, null, alice.Token)).SettingsRevision);
+        var day = await SendAsync<StatsSyncDayInfo>(http, HttpMethod.Put, $"{Base}/days/2026-11-11", Upload([1]), alice.Token);
+        var saved = await SendAsync<StatsSyncSettingsInfo>(http, HttpMethod.Put, $"{Base}/settings", settings, alice.Token);
+        Assert.True(saved.Revision > day.Revision);
+        Assert.Equal(saved.Revision, (await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Get, Base, null, alice.Token)).SettingsRevision);
+        Assert.Equal(new StatsSyncSettingsDto(saved.Revision, settings.Data), await SendAsync<StatsSyncSettingsDto>(http, HttpMethod.Get, $"{Base}/settings", null, alice.Token));
+        await ExpectErrorAsync(http, HttpMethod.Put, $"{Base}/settings", new UploadStatsSettingsRequest(Convert.ToBase64String(new byte[64 * 1024 + 1])), alice.Token, HttpStatusCode.BadRequest, ApiErrorCodes.StatsSyncInvalid);
+
+        using (await RawAsync(http, HttpMethod.Delete, Base, null, alice.Token))
+        {
+        }
+
+        using (var gone = await RawAsync(http, HttpMethod.Get, $"{Base}/settings", null, alice.Token))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, gone.StatusCode);
+        }
+
+        await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Put, Base, new EnableStatsSyncRequest("salt-b", "check-b"), alice.Token);
+        Assert.Null((await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Get, Base, null, alice.Token)).SettingsRevision);
+    }
+
+
     private static UploadStatsDayRequest Upload(byte[] data) => new(Convert.ToBase64String(data));
 
     private static async Task<ApiError> ExpectErrorAsync(HttpClient http, HttpMethod method, string path, object? body, string token, HttpStatusCode status, string code)

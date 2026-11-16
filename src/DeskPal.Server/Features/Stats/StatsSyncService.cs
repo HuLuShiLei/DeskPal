@@ -11,6 +11,9 @@ public sealed class StatsSyncService(DeskPalDbContext db, TimeProvider time, IOp
 {
     private const int MaxTextLength = 200;
 
+    /// <summary>A few hundred no-title rules and the retention, encrypted. Far more than the panel lets anyone add.</summary>
+    private const int MaxSettingsBytes = 64 * 1024;
+
     public async Task<StatsSyncStatusDto> GetStatusAsync(Guid userId)
     {
         var user = await db.Users.SingleAsync(u => u.Id == userId);
@@ -34,11 +37,13 @@ public sealed class StatsSyncService(DeskPalDbContext db, TimeProvider time, IOp
         user.StatsSyncEnabled = true;
         user.StatsSyncSalt = req.Salt;
         user.StatsSyncKeyCheck = req.KeyCheck;
+        user.StatsSyncSettings = null;
+        user.StatsSyncSettingsRevision = null;
         await db.SaveChangesAsync();
         return ServiceResult<StatsSyncStatusDto>.Ok(await StatusAsync(user));
     }
 
-    /// <summary>Turns sync off and deletes every stored day, the salt and the key check in one transaction.</summary>
+    /// <summary>Turns sync off and deletes every stored day, the settings, the salt and the key check in one transaction.</summary>
     public async Task DisableAsync(Guid userId)
     {
         await using var tx = await db.Database.BeginTransactionAsync();
@@ -47,6 +52,8 @@ public sealed class StatsSyncService(DeskPalDbContext db, TimeProvider time, IOp
         user.StatsSyncEnabled = false;
         user.StatsSyncSalt = null;
         user.StatsSyncKeyCheck = null;
+        user.StatsSyncSettings = null;
+        user.StatsSyncSettingsRevision = null;
         await db.SaveChangesAsync();
         await tx.CommitAsync();
     }
@@ -109,6 +116,45 @@ public sealed class StatsSyncService(DeskPalDbContext db, TimeProvider time, IOp
         return day is null ? null : new StatsSyncDayDto(day.Date, day.Revision, Convert.ToBase64String(day.Data));
     }
 
+    public async Task<ServiceResult<StatsSyncSettingsInfo>> UploadSettingsAsync(Guid userId, UploadStatsSettingsRequest req)
+    {
+        var user = await db.Users.SingleAsync(u => u.Id == userId);
+        if (!user.StatsSyncEnabled)
+        {
+            return ServiceResult<StatsSyncSettingsInfo>.Fail(StatusCodes.Status409Conflict, ApiErrorCodes.StatsSyncNotEnabled);
+        }
+
+        byte[] data;
+        try
+        {
+            data = Convert.FromBase64String(req.Data ?? "");
+        }
+        catch (FormatException)
+        {
+            return ServiceResult<StatsSyncSettingsInfo>.Fail(StatusCodes.Status400BadRequest, ApiErrorCodes.StatsSyncInvalid);
+        }
+
+        if (data.Length is 0 or > MaxSettingsBytes)
+        {
+            return ServiceResult<StatsSyncSettingsInfo>.Fail(StatusCodes.Status400BadRequest, ApiErrorCodes.StatsSyncInvalid);
+        }
+
+        user.StatsSyncRevision++;
+        user.StatsSyncSettings = data;
+        user.StatsSyncSettingsRevision = user.StatsSyncRevision;
+        await db.SaveChangesAsync();
+        return ServiceResult<StatsSyncSettingsInfo>.Ok(new StatsSyncSettingsInfo(user.StatsSyncRevision));
+    }
+
+    /// <returns>null when sync is off or no settings are stored.</returns>
+    public async Task<StatsSyncSettingsDto?> DownloadSettingsAsync(Guid userId)
+    {
+        var user = await db.Users.AsNoTracking().SingleAsync(u => u.Id == userId);
+        return user is { StatsSyncEnabled: true, StatsSyncSettings: { } data, StatsSyncSettingsRevision: { } revision }
+            ? new StatsSyncSettingsDto(revision, Convert.ToBase64String(data))
+            : null;
+    }
+
 
     private async Task<StatsSyncStatusDto> StatusAsync(User user)
     {
@@ -121,7 +167,7 @@ public sealed class StatsSyncService(DeskPalDbContext db, TimeProvider time, IOp
             .OrderBy(d => d.Date)
             .Select(d => new StatsSyncDayInfo(d.Date, d.Revision))
             .ToListAsync();
-        return new StatsSyncStatusDto(true, user.StatsSyncSalt, user.StatsSyncKeyCheck, days);
+        return new StatsSyncStatusDto(true, user.StatsSyncSalt, user.StatsSyncKeyCheck, days, user.StatsSyncSettingsRevision);
     }
 
     private static bool Valid(string? text) => !string.IsNullOrWhiteSpace(text) && text.Length <= MaxTextLength;

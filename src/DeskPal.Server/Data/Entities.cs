@@ -25,8 +25,13 @@ public sealed class User
     public string? StatsSyncSalt { get; set; }
     public string? StatsSyncKeyCheck { get; set; }
 
-    /// <summary>Last revision given to an uploaded day. Never goes back, even when the days are deleted.</summary>
+    /// <summary>Last revision given to an uploaded day or settings. Never goes back, even when the days are deleted.</summary>
     public long StatsSyncRevision { get; set; }
+
+    /// <summary>Stats settings that follow the account, encrypted like the days. Only kept while sync is on.</summary>
+    public byte[]? StatsSyncSettings { get; set; }
+    public long? StatsSyncSettingsRevision { get; set; }
+
 }
 
 /// <summary>One day of a user's usage stats, encrypted on the user's computer. Only kept while the user has sync on.</summary>

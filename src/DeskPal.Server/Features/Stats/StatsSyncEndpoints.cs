@@ -26,5 +26,11 @@ public static class StatsSyncEndpoints
         sync.MapGet("/days/{date}", async (DateOnly date, HttpContext ctx, StatsSyncService service) =>
             await service.DownloadAsync(ctx.User.GetUserId(), date) is { } day ? Results.Ok(day) : Results.NotFound());
 
+        sync.MapPut("/settings", async (UploadStatsSettingsRequest req, HttpContext ctx, StatsSyncService service) =>
+            (await service.UploadSettingsAsync(ctx.User.GetUserId(), req)).ToHttp());
+
+        sync.MapGet("/settings", async (HttpContext ctx, StatsSyncService service) =>
+            await service.DownloadSettingsAsync(ctx.User.GetUserId()) is { } settings ? Results.Ok(settings) : Results.NotFound());
+
     }
 }

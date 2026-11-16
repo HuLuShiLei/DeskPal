@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Usage;
 using DeskPal.Shared;
 using DeskPal.Shared.Api;
@@ -26,9 +27,17 @@ public sealed class StatsSyncService : BackgroundService
         _settings = settings;
         _logger = logger;
         var keyPath = Path.Combine(SettingsStore.Directory, "usage", $"{settings.UserId:N}.sync-key");
-        _sync = new StatsSync(usage.Store, new HttpSyncApi(api), new DpapiKeyStore(keyPath), () => UsageService.Today);
+        _sync = new StatsSync(usage.Store, new HttpSyncApi(api), new DpapiKeyStore(keyPath), () => UsageService.Today, settings: new SettingsSource(usage, settings));
         _sync.Changed += () => Changed?.Invoke();
         usage.DaysChanged += () => _allDays = true;
+        usage.SettingsChanged += () =>
+        {
+            Changed?.Invoke();
+            if (_sync.Mode == StatsSyncMode.On)
+            {
+                _ = Task.Run(RunOnceAsync);
+            }
+        };
     }
 
     public event Action? Changed;
@@ -175,6 +184,48 @@ public sealed class StatsSyncService : BackgroundService
             catch (ApiException ex) when (ex.Status == 404)
             {
                 return null;
+            }
+        }
+
+        public async Task<long> UploadSettingsAsync(byte[] data) => (await api.UploadStatsSettingsAsync(data)).Revision;
+
+        public async Task<StatsSyncSettingsDto?> DownloadSettingsAsync()
+        {
+            try
+            {
+                return await api.DownloadStatsSettingsAsync();
+            }
+            catch (ApiException ex) when (ex.Status == 404)
+            {
+                return null;
+            }
+        }
+    }
+
+    /// <summary>Which titles are not recorded and how long details are kept; nothing else of <see cref="AppSettings"/> follows the account.</summary>
+    private sealed class SettingsSource(UsageService usage, AppSettings settings) : IStatsSettingsSource
+    {
+        public SyncedStatsSettings Read() => new(settings.NoTitleRules.ToList(), settings.UsageRetentionDays);
+
+        public void Apply(SyncedStatsSettings synced)
+        {
+            var rules = new List<NoTitleRule>();
+            foreach (var rule in synced.NoTitleRules)
+            {
+                if (NoTitleRule.Create(rule.Kind, rule.Pattern) is { } valid && Enum.IsDefined(valid.Kind) && !rules.Any(r => r.SameAs(valid)))
+                {
+                    rules.Add(valid);
+                }
+            }
+
+            if (!rules.SequenceEqual(settings.NoTitleRules))
+            {
+                usage.SetNoTitleRules(rules);
+            }
+
+            if (PanelStateBuilder.RetentionOptions.Contains(synced.RetentionDays) && synced.RetentionDays != settings.UsageRetentionDays)
+            {
+                usage.SetRetention(synced.RetentionDays);
             }
         }
     }

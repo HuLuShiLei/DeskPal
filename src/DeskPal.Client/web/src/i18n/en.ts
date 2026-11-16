@@ -245,6 +245,7 @@ export const en: Record<keyof typeof zh, string> = {
   "sync.hint": "Store an encrypted copy on the server and sync it to your other computers",
   "sync.needsPin": "Turned on from another computer. Enter the PIN to sync here.",
   "sync.folderOn": "The sync folder is on. Stop it first.",
+  "sync.settingsSynced": "\"Don't record titles\" and \"Keep details for\" also follow your account.",
   "sync.enterPin": "Enter PIN",
   "sync.enableMessage": "Your usage stats, including window titles, page titles and domains, will be encrypted with an 8-digit PIN and stored on the server. To sync another computer, sign in there and enter the PIN.\n\nThe PIN can't be recovered. Keep it somewhere safe. Turning sync off deletes the server copy immediately. Data on this computer is kept.",
   "sync.pinPlaceholder": "Set an 8-digit PIN",

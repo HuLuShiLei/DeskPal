@@ -243,6 +243,7 @@ export const zh = {
   "sync.hint": "加密保存到服务器，在其他电脑上登录后同步",
   "sync.needsPin": "已在其他电脑开启，输入 PIN 码后在本机同步",
   "sync.folderOn": "同步文件夹已开启，需先停止",
+  "sync.settingsSynced": "「不记录标题」和「保留时长」也随账号同步",
   "sync.enterPin": "输入 PIN 码",
   "sync.enableMessage": "使用统计将用 8 位 PIN 码加密后保存到服务器，包括窗口标题、网页标题和域名。在其他电脑上登录并输入 PIN 码后即可同步。\n\nPIN 码无法找回，请妥善保存。关闭同步时，服务器上的数据将立即删除，本机数据保留。",
   "sync.pinPlaceholder": "设置 8 位数字 PIN 码",

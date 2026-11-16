@@ -395,7 +395,7 @@ function UsageSettings({ usage }: { usage: NonNullable<PanelState["usage"]> }) {
               ) : folderOn && !synced ? (
                 t("sync.folderOn")
               ) : (
-                sync.error ?? undefined
+                (sync.error ?? (synced ? t("sync.settingsSynced") : undefined))
               )
             }
           >

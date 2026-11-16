@@ -90,6 +90,11 @@ public sealed class ApiClient(AppSettings settings)
 
     public Task<StatsSyncDayDto> DownloadStatsDayAsync(DateOnly date) => SendAsync<StatsSyncDayDto>(HttpMethod.Get, $"/api/me/stats-sync/days/{DayPath(date)}");
 
+    public Task<StatsSyncSettingsInfo> UploadStatsSettingsAsync(byte[] data) =>
+        SendAsync<StatsSyncSettingsInfo>(HttpMethod.Put, "/api/me/stats-sync/settings", new UploadStatsSettingsRequest(Convert.ToBase64String(data)));
+
+    public Task<StatsSyncSettingsDto> DownloadStatsSettingsAsync() => SendAsync<StatsSyncSettingsDto>(HttpMethod.Get, "/api/me/stats-sync/settings");
+
 
     private static string DayPath(DateOnly date) => date.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
 

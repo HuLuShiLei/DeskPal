@@ -225,6 +225,35 @@ public sealed class StatsSyncTests : IDisposable
         Assert.Equal(1800, b.Rollups(Day.AddDays(-5), Day.AddDays(-5)).Sum(r => r.Seconds));
     }
 
+    [Fact]
+    public async Task Stats_settings_follow_the_account_and_the_account_wins_on_unlock()
+    {
+        var server = new FakeServer();
+        var settingsA = new FakeSettings { Current = new([new NoTitleRule(NoTitleKind.App, "招商银行")], 30) };
+        var syncA = new StatsSync(NewStore(), server, new FakeKeys(), () => Day, Cheap, settingsA);
+        await syncA.EnableAsync(Pin);
+        await syncA.SyncAsync(allDays: false);
+        Assert.Equal(1, server.SettingsUploads);
+        Assert.DoesNotContain("招商银行", Encoding.UTF8.GetString(server.Settings!.Value.Data));
+
+        var settingsB = new FakeSettings { Current = new([], 365) };
+        var syncB = new StatsSync(NewStore(), server, new FakeKeys(), () => Day, Cheap, settingsB);
+        await syncB.UnlockAsync(Pin);
+        await syncB.SyncAsync(allDays: false);
+        Assert.Equal((30, "招商银行"), (settingsB.Current.RetentionDays, settingsB.Current.NoTitleRules.Single().Pattern));
+        Assert.Equal(1, server.SettingsUploads);
+
+        settingsB.Current = settingsB.Current with { RetentionDays = 180 };
+        await syncB.SyncAsync(allDays: false);
+        await syncA.SyncAsync(allDays: false);
+        await syncA.SyncAsync(allDays: false);
+        Assert.Equal(180, settingsA.Current.RetentionDays);
+        Assert.Equal(2, server.SettingsUploads);
+
+        await syncA.DisableAsync();
+        Assert.Null(server.Settings);
+    }
+
     private SqliteUsageStore NewStore()
     {
         var path = Path.Combine(Path.GetTempPath(), $"deskpal-sync-{Guid.NewGuid():N}.db");
@@ -248,6 +277,15 @@ public sealed class StatsSyncTests : IDisposable
                 File.Delete(path);
             }
         }
+    }
+
+    private sealed class FakeSettings : IStatsSettingsSource
+    {
+        public required SyncedStatsSettings Current { get; set; }
+
+        public SyncedStatsSettings Read() => Current;
+
+        public void Apply(SyncedStatsSettings settings) => Current = settings;
     }
 
     private sealed class FakeKeys : IStatsSyncKeyStore
@@ -274,9 +312,23 @@ public sealed class StatsSyncTests : IDisposable
         public int Downloads { get; private set; }
         public bool Unreachable { get; set; }
 
+        public (long Revision, byte[] Data)? Settings { get; private set; }
+        public int SettingsUploads { get; private set; }
+
         public Task<StatsSyncStatusDto> GetStatusAsync() => Task.FromResult(Enabled
-            ? new StatsSyncStatusDto(true, Salt, KeyCheck, Days.OrderBy(d => d.Key).Select(d => new StatsSyncDayInfo(d.Key, d.Value.Revision)).ToList())
+            ? new StatsSyncStatusDto(true, Salt, KeyCheck, Days.OrderBy(d => d.Key).Select(d => new StatsSyncDayInfo(d.Key, d.Value.Revision)).ToList(), Settings?.Revision)
             : new StatsSyncStatusDto(false, null, null, []));
+
+        public Task<long> UploadSettingsAsync(byte[] data)
+        {
+            Assert.True(Enabled);
+            SettingsUploads++;
+            Settings = (++_revision, data);
+            return Task.FromResult(_revision);
+        }
+
+        public Task<StatsSyncSettingsDto?> DownloadSettingsAsync() =>
+            Task.FromResult(Settings is { } s ? new StatsSyncSettingsDto(s.Revision, Convert.ToBase64String(s.Data)) : null);
 
         public async Task<StatsSyncStatusDto?> EnableAsync(EnableStatsSyncRequest request)
         {
@@ -287,6 +339,7 @@ public sealed class StatsSyncTests : IDisposable
 
             (Enabled, Salt, KeyCheck) = (true, request.Salt, request.KeyCheck);
             Days.Clear();
+            Settings = null;
             return await GetStatusAsync();
         }
 
@@ -299,6 +352,7 @@ public sealed class StatsSyncTests : IDisposable
 
             (Enabled, Salt, KeyCheck) = (false, null, null);
             Days.Clear();
+            Settings = null;
             return Task.CompletedTask;
         }
 
