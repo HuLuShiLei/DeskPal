@@ -339,6 +339,8 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "changelog.seen":
         state.whatsNew = null;
         break;
+      case "logs.open":
+        return { ok: true, error: null };
       case "update.restart":
       case "auth.logout":
         break;

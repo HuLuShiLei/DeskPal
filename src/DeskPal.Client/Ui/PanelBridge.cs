@@ -668,6 +668,11 @@ public sealed class PanelBridge
                 _whatsNew.Acknowledge();
                 return CommandResult.Success;
 
+            case "logs.open":
+                Directory.CreateDirectory(AppPaths.LogDirectory);
+                WebUi.OpenExternal(AppPaths.LogDirectory);
+                return CommandResult.Success;
+
             case "update.restart":
                 if (_updates.Exit is { } exit)
                 {

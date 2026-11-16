@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import type { Language, PanelState, SignupInviteItem } from "../bridge";
 import { useHost } from "../host";
 import { t } from "../i18n";
-import { Icon, Section, SettingRow, Switch } from "../ui";
+import { Avatar, Icon, Section, SettingRow, Switch } from "../ui";
 
 const issuePageUrl = "https://github.com/HuLuShiLei/DeskPal/issues/new/choose";
 
@@ -65,26 +65,32 @@ export function SettingsPage({ state }: { state: PanelState }) {
   return (
     <>
       <Section title={t("settings.account")}>
-        <div class="card flush">
-          <SettingRow title={state.me.displayName} description={s.userName}>
-            <button class="icon-button" title={t("settings.rename")} aria-label={t("settings.rename")} onClick={rename}>
-              <Icon name="edit" />
-            </button>
-            <button class="subtle danger" onClick={logout}>
-              {t("settings.logout")}
-            </button>
-          </SettingRow>
+        <div class="card account-card">
+          <Avatar name={state.me.displayName} tone={state.me.view.tone} />
+          <div class="row-main">
+            <p class="row-title">
+              <span class="row-name">{state.me.displayName}</span>
+              {s.isAdmin && <span class="badge">{t("settings.admin")}</span>}
+              <button class="icon-button" title={t("settings.rename")} aria-label={t("settings.rename")} onClick={rename}>
+                <Icon name="edit" />
+              </button>
+            </p>
+            <p class="sub">{s.userName}</p>
+          </div>
+          <button class="subtle danger" onClick={logout}>
+            {t("settings.logout")}
+          </button>
         </div>
       </Section>
       <Section title={t("settings.general")}>
         <div class="card flush">
-          <SettingRow title={t("settings.autoStart")} hint={t("settings.autoStartHint")}>
+          <SettingRow title={t("settings.autoStart")}>
             <Switch checked={s.autoStart} label={t("settings.autoStart")} onChange={(v) => run({ type: "settings.autoStart", enabled: v })} />
           </SettingRow>
-          <SettingRow title={t("settings.topmost")} hint={t("settings.topmostHint")}>
+          <SettingRow title={t("settings.topmost")}>
             <Switch checked={s.topmost} label={t("settings.topmost")} onChange={(v) => run({ type: "settings.topmost", enabled: v })} />
           </SettingRow>
-          <SettingRow title={t("settings.closeAction")} hint={t("settings.closeActionHint")}>
+          <SettingRow title={t("settings.closeAction")}>
             <select
               aria-label={t("settings.closeAction")}
               value={s.closeAction}
@@ -95,7 +101,7 @@ export function SettingsPage({ state }: { state: PanelState }) {
               <option value="tray">{t("settings.closeTray")}</option>
             </select>
           </SettingRow>
-          <SettingRow title={t("settings.theme")} hint={t("settings.themeHint")}>
+          <SettingRow title={t("settings.theme")}>
             <select aria-label={t("settings.theme")} value={s.theme} onChange={(e) => run({ type: "settings.theme", theme: e.currentTarget.value as "system" | "light" | "dark" })}>
               <option value="system">{t("settings.followSystem")}</option>
               <option value="light">{t("settings.light")}</option>
@@ -115,7 +121,7 @@ export function SettingsPage({ state }: { state: PanelState }) {
               ))}
             </select>
           </SettingRow>
-          <SettingRow title={t("settings.language")} hint={t("settings.languageHint")}>
+          <SettingRow title={t("settings.language")}>
             <select aria-label={t("settings.language")} value={s.language} onChange={(e) => run({ type: "settings.language", language: e.currentTarget.value as Language })}>
               <option value="system">{t("settings.followSystem")}</option>
               <option value="zh-CN">{t("settings.languageChinese")}</option>
@@ -131,15 +137,12 @@ export function SettingsPage({ state }: { state: PanelState }) {
           </SettingRow>
         </div>
       </Section>
-      <Section title={t("settings.updates")}>
+      <Section title={t("settings.about")}>
         <div class="card flush">
           <SettingRow title={t("settings.version", { version: s.version })} description={status ?? (s.updateReady ? t("settings.downloaded") : undefined)}>
             <button disabled={waiting} onClick={check}>
               {waiting ? t("common.pleaseWait") : t("settings.check")}
             </button>
-          </SettingRow>
-          <SettingRow title={t("settings.beta")} hint={t("settings.betaHint")}>
-            <Switch checked={s.receiveBeta} label={t("settings.beta")} onChange={(v) => run({ type: "update.beta", enabled: v })} />
           </SettingRow>
           {s.updateReady && (
             <SettingRow title={t("settings.ready")}>
@@ -148,12 +151,14 @@ export function SettingsPage({ state }: { state: PanelState }) {
               </button>
             </SettingRow>
           )}
-        </div>
-      </Section>
-      <Section title={t("settings.feedback")}>
-        <div class="card flush">
-          <SettingRow title={t("settings.issues")} hint={t("settings.issuesHint")}>
+          <SettingRow title={t("settings.beta")} hint={t("settings.betaHint")}>
+            <Switch checked={s.receiveBeta} label={t("settings.beta")} onChange={(v) => run({ type: "update.beta", enabled: v })} />
+          </SettingRow>
+          <SettingRow title={t("settings.issues")}>
             <button onClick={openIssuePage}>{t("settings.open")}</button>
+          </SettingRow>
+          <SettingRow title={t("settings.logs")}>
+            <button onClick={() => run({ type: "logs.open" })}>{t("settings.open")}</button>
           </SettingRow>
         </div>
       </Section>
@@ -205,19 +210,25 @@ function SignupInvites() {
         </p>
       )}
       {items && items.length > 0 && (
-        <ul class="list">
+        <ul class="card flush list-card">
           {items.map((i) => (
-            <li key={i.code} class="list-row compact">
+            <li key={i.code} class={i.used ? "card-row used" : "card-row"}>
+              <span class="kind-tile" aria-hidden="true">
+                <Icon name="link" />
+              </span>
               <div class="row-main">
-                <p class="row-title">
-                  <button type="button" class="code-copy" title={t("signup.copy")} aria-label={t("signup.copyName", { code: i.code })} onClick={() => run({ type: "signupInvites.copy", code: i.code }, t("signup.copied"))}>{i.code}</button>
-                </p>
+                <p class="row-title invite-code selectable">{i.code}</p>
                 <p class="sub">{i.text}</p>
               </div>
               {!i.used && (
-                <button class="subtle danger" aria-label={t("signup.revokeName", { code: i.code })} onClick={() => revoke(i.code)}>
-                  {t("signup.revoke")}
-                </button>
+                <>
+                  <button class="icon-button" title={t("signup.copy")} aria-label={t("signup.copyName", { code: i.code })} onClick={() => run({ type: "signupInvites.copy", code: i.code }, t("signup.copied"))}>
+                    <Icon name="copy" />
+                  </button>
+                  <button class="subtle danger" aria-label={t("signup.revokeName", { code: i.code })} onClick={() => revoke(i.code)}>
+                    {t("signup.revoke")}
+                  </button>
+                </>
               )}
             </li>
           ))}

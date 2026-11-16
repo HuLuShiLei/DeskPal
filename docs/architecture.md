@@ -134,7 +134,7 @@ flowchart LR
 | 方向 | 消息 |
 |---|---|
 | 宿主 → 页面 | `state`（完整的 `PanelState`，变化后最多每 200 毫秒推一次）、`result{id, ok, error, data}`、`dialog{id, kind, message}`、`login{userName, notice}`（不带服务器地址，登录页不显示也不能修改，地址只在 `settings.json` 的 `serverUrl`） |
-| 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`presence.pause / correct / resetCorrection`、`rules.set / delete`、`stats.query / app / export / import / clear / noTitle.add / noTitle.remove`、`settings.autoStart / topmost / shareUsage / theme / closeAction / language`、`update.check / beta / restart`、`changelog.seen`、`auth.login / register / logout` |
+| 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`presence.pause / correct / resetCorrection`、`rules.set / delete`、`stats.query / app / export / import / clear / noTitle.add / noTitle.remove`、`settings.autoStart / topmost / shareUsage / theme / closeAction / language`、`update.check / beta / restart`、`changelog.seen`、`logs.open`、`auth.login / register / logout` |
 | 页面 → 宿主，不回复 | `ready`、`dialog.answer{dialogId, ok}`、`window.minimize`、`window.close` |
 
 `PanelState` 由 `PanelStateBuilder` 在 Client.Core 里生成，界面上的文字（连接状态、空提示、识别方式（悬停问号显示）、待提交状态、我的分类、待归类）都在 C# 里算好。状态页不显示「房间成员看到」，页面只负责显示。页面写「房间」，不写 Room。`PanelFixtureTests` 把几组样例按中文、英文各序列化一份到 `web/src/mock/fixtures/` 和 `fixtures/en/`，不一致就失败，改了 `PanelState` 或文案后用 `DESKPAL_UPDATE_FIXTURES=1` 运行测试更新。

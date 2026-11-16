@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 设置页的账号显示头像；更新和反馈合并为「关于」，可以打开日志文件夹；注册邀请码改为卡片列表
+  en: The account in Settings shows an avatar. Updates and feedback are grouped under About, where you can open the log folder. Signup invite codes are shown as a card list
+
 - 分类页可以按类别筛选，并直接修改类别；待归类也显示在这里，选好类别即保存
   en: On the Rules page you can filter by category and change a category in place. Unclassified apps appear there too, and choosing a category saves it
 

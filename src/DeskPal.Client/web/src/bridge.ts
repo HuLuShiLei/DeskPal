@@ -301,6 +301,7 @@ export type Command =
   | { type: "update.beta"; enabled: boolean }
   | { type: "update.restart" }
   | { type: "changelog.seen" }
+  | { type: "logs.open" }
   | { type: "auth.login"; userName: string; password: string }
   | { type: "signupInvites.list" }
   | { type: "signupInvites.create" }
