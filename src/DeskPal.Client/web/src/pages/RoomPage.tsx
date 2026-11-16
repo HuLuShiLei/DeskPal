@@ -1,8 +1,8 @@
 import { useState } from "preact/hooks";
-import type { PanelState, PrivacyLevel, RoomItem } from "../bridge";
-import { useHost } from "../host";
+import type { MemberItem, PanelState, PrivacyLevel, RoomItem } from "../bridge";
+import { StatusBadge, useHost } from "../host";
 import { t } from "../i18n";
-import { Avatar, Icon, Section, SettingRow, Switch } from "../ui";
+import { Avatar, categoryTone, Icon, MoreMenu, RoomBadge, roomTone, Section, SettingRow, Switch, type MenuEntry } from "../ui";
 
 export function RoomPage({ state }: { state: PanelState }) {
   const { ask, run } = useHost();
@@ -45,39 +45,50 @@ export function RoomPage({ state }: { state: PanelState }) {
           </p>
         ) : (
           <>
-            <ul class="list" role="listbox" aria-label={t("room.list")}>
-              {state.rooms.map((r) => (
-                <li key={r.id}>
-                  <button
-                    class="list-row selectable-row"
-                    role="option"
-                    aria-selected={r.id === state.selectedRoomId}
-                    onClick={() => r.id !== state.selectedRoomId && run({ type: "room.select", roomId: r.id })}
-                  >
-                    <div class="row-main">
-                      <p class="row-title">
-                        {r.name}
-                        {r.isOwner && <span class="badge">{t("common.owner")}</span>}
-                      </p>
-                    </div>
-                    <span class="row-meta">
-                      {t("room.memberCount", { count: r.memberCount, max: r.maxMembers })}
-                    </span>
-                  </button>
-                </li>
-              ))}
+            <ul class="card flush list-card" role="listbox" aria-label={t("room.list")}>
+              {state.rooms.map((r) => {
+                const selected = r.id === state.selectedRoomId;
+                return (
+                  <li key={r.id}>
+                    <button class="card-row selectable-row" role="option" aria-selected={selected} onClick={() => !selected && run({ type: "room.select", roomId: r.id })}>
+                      <RoomBadge id={r.id} name={r.name} />
+                      <div class="row-main">
+                        <p class="row-title">
+                          <span class="row-name">{r.name}</span>
+                          {r.isOwner && <span class="badge">{t("common.owner")}</span>}
+                        </p>
+                        <RoomCounts room={r} />
+                      </div>
+                      {selected && <Icon name="check" class="row-check" />}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
-            <p class="section-note">
-              {room
-                ? t("room.oneAtATime")
-                : t("room.empty")}
-            </p>
+            <p class="section-note">{room ? t("room.oneAtATime") : t("room.empty")}</p>
           </>
         )}
       </Section>
       {room && <RoomDetail state={state} room={room} />}
       {room && state.privacy && <Privacy key={room.id + JSON.stringify(state.privacy.rows)} state={state} room={room} />}
     </>
+  );
+}
+
+function RoomCounts({ room }: { room: RoomItem }) {
+  return (
+    <p class="sub room-counts">
+      <span>
+        <Icon name="people" />
+        {t("room.memberCount", { count: room.memberCount, max: room.maxMembers })}
+      </span>
+      {room.onlineCount != null && (
+        <span>
+          <span class="online-dot" />
+          {t("app.onlineCount", { count: room.onlineCount })}
+        </span>
+      )}
+    </p>
   );
 }
 
@@ -103,24 +114,6 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
     });
     if (a.ok) await run({ type: "room.transfer", roomId: room.id, userId: a.selected }, t("room.transferred"));
   };
-  const kick = async (userId: string, name: string) => {
-    const a = await ask({
-      title: t("room.kickTitle"),
-      message: t("room.kickMessage", { name }),
-      okText: t("room.kick"),
-      danger: true,
-    });
-    if (a.ok) await run({ type: "room.kick", roomId: room.id, userId }, t("room.kicked"));
-  };
-  const block = async (userId: string, name: string) => {
-    const a = await ask({
-      title: t("room.blockTitle"),
-      message: t("room.blockMessage", { name }),
-      okText: t("room.block"),
-      danger: true,
-    });
-    if (a.ok) await run({ type: "member.block", roomId: room.id, userId }, t("room.blocked"));
-  };
   const leave = async () => {
     const a = await ask({
       title: t("room.leaveTitle"),
@@ -141,69 +134,99 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
   };
 
   return (
-    <Section
-      title={t("room.title", { name: room.name })}
-      aside={
-        room.isOwner && (
-          <button class="icon-button" onClick={rename} title={t("room.renameTitle")} aria-label={t("room.renameTitle")}>
-            <Icon name="edit" />
-          </button>
-        )
-      }
-    >
-      <ul class="list">
-        <li class="list-row compact">
-          <Avatar name={state.me.displayName} tone={state.me.view.tone} />
-          <div class="row-main">
-            <p class="row-title">
-              {t("common.me", { name: state.me.displayName })}{room.isOwner && <span class="badge">{t("common.owner")}</span>}
-            </p>
-          </div>
-        </li>
-        {others.map((m) => (
-          <li key={m.userId} class="list-row compact">
-            <Avatar name={m.name} tone={m.view.tone} />
+    <>
+      <Section title={t("room.current")}>
+        <div class={`card room-hero tv-${roomTone(room.id)}`}>
+          <div class="room-hero-head">
+            <RoomBadge id={room.id} name={room.name} size="large" />
             <div class="row-main">
-              <p class="row-title">
-                {m.name}
-                {m.isOwner && <span class="badge">{t("common.owner")}</span>}
+              <p class="row-title room-hero-name">
+                <span class="row-name">{room.name}</span>
+                {room.isOwner && <span class="badge">{t("common.owner")}</span>}
+                {room.isOwner && (
+                  <button class="icon-button" onClick={rename} title={t("room.renameTitle")} aria-label={t("room.renameTitle")}>
+                    <Icon name="edit" />
+                  </button>
+                )}
               </p>
+              <RoomCounts room={room} />
             </div>
-            {m.blocked ? (
-              <button class="subtle" aria-label={t("room.unblockName", { name: m.name })} onClick={() => run({ type: "member.unblock", roomId: room.id, userId: m.userId }, t("room.unblocked"))}>
-                {t("room.unblock")}
+          </div>
+          <div class="toolbar">
+            <button class="primary" onClick={invite}>
+              <Icon name="link" />
+              {t("room.invite")}
+            </button>
+            {room.isOwner && others.length > 0 && <button onClick={transfer}>{t("room.transferTitle")}</button>}
+            <span class="spacer" />
+            {room.isOwner ? (
+              <button class="subtle danger" onClick={dissolve}>
+                {t("room.dissolveTitle")}
               </button>
             ) : (
-              <button class="subtle" aria-label={t("room.blockName", { name: m.name })} onClick={() => block(m.userId, m.name)}>
-                {t("room.block")}
+              <button class="subtle danger" onClick={leave}>
+                {t("room.leaveTitle")}
               </button>
             )}
-            {room.isOwner && (
-              <button class="subtle danger" aria-label={t("room.kickName", { name: m.name })} onClick={() => kick(m.userId, m.name)}>
-                {t("room.kick")}
-              </button>
-            )}
+          </div>
+        </div>
+      </Section>
+      <Section title={t("status.members")}>
+        <ul class="card flush list-card">
+          <li class="card-row">
+            <Avatar name={state.me.displayName} tone={state.me.view.tone} />
+            <div class="row-main">
+              <p class="row-title">
+                <span class="row-name">{t("common.me", { name: state.me.displayName })}</span>
+                {room.isOwner && <span class="badge">{t("common.owner")}</span>}
+              </p>
+              <div>
+                <StatusBadge view={state.me.view} />
+              </div>
+            </div>
           </li>
-        ))}
-      </ul>
-      <div class="toolbar">
-        <button class="primary" onClick={invite}>
-          <Icon name="link" />
-          {t("room.invite")}
-        </button>
-        {room.isOwner && others.length > 0 && <button onClick={transfer}>{t("room.transferTitle")}</button>}
-        <span class="spacer" />
-        {room.isOwner ? (
-          <button class="subtle danger" onClick={dissolve}>
-            {t("room.dissolveTitle")}
-          </button>
-        ) : (
-          <button class="subtle danger" onClick={leave}>
-            {t("room.leaveTitle")}
-          </button>
-        )}
+          {others.map((m) => (
+            <MemberRow key={m.userId} room={room} member={m} />
+          ))}
+        </ul>
+      </Section>
+    </>
+  );
+}
+
+function MemberRow({ room, member: m }: { room: RoomItem; member: MemberItem }) {
+  const { ask, run } = useHost();
+
+  const kick = async () => {
+    const a = await ask({ title: t("room.kickTitle"), message: t("room.kickMessage", { name: m.name }), okText: t("room.kick"), danger: true });
+    if (a.ok) await run({ type: "room.kick", roomId: room.id, userId: m.userId }, t("room.kicked"));
+  };
+  const block = async () => {
+    const a = await ask({ title: t("room.blockTitle"), message: t("room.blockMessage", { name: m.name }), okText: t("room.block"), danger: true });
+    if (a.ok) await run({ type: "member.block", roomId: room.id, userId: m.userId }, t("room.blocked"));
+  };
+
+  const items: MenuEntry[] = [
+    m.blocked
+      ? { label: t("room.unblock"), icon: "block", onSelect: () => void run({ type: "member.unblock", roomId: room.id, userId: m.userId }, t("room.unblocked")) }
+      : { label: t("room.block"), icon: "block", onSelect: () => void block() },
+  ];
+  if (room.isOwner) items.push({ label: t("room.kickTitle"), icon: "remove", danger: true, onSelect: () => void kick() });
+
+  return (
+    <li class={m.online ? "card-row" : "card-row offline"}>
+      <Avatar name={m.name} tone={m.view.tone} />
+      <div class="row-main">
+        <p class="row-title">
+          <span class="row-name">{m.name}</span>
+          {m.isOwner && <span class="badge">{t("common.owner")}</span>}
+        </p>
+        <div>
+          <StatusBadge view={m.view} />
+        </div>
       </div>
-    </Section>
+      <MoreMenu label={t("room.manageName", { name: m.name })} items={items} />
+    </li>
   );
 }
 
@@ -241,6 +264,7 @@ function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
         <p class="card-note">{t("privacy.note", { name: room.name })}</p>
         {privacy.rows.map((r) => (
           <div key={r.category} class="setting-row">
+            <span class={`status-dot tv-${categoryTone(r.category)}`} aria-hidden="true" />
             <div class="setting-text">
               <p class="setting-title">{r.name}</p>
             </div>

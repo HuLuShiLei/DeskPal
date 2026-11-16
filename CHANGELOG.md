@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 房间页改为整块卡片：当前房间单独成卡，成员显示实时状态，屏蔽和踢出收进菜单
+  en: The Rooms page uses one card per list. The current room has its own card, members show their live status, and block and kick are in a menu
+
 - 首页「我的状态」中，自己的名字不再带「（我）」
   en: Your name in My status no longer includes "(you)"
 

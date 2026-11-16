@@ -1,6 +1,6 @@
 import type { ComponentChildren, RefObject } from "preact";
 import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
-import type { Bridge, PresenceView } from "./bridge";
+import type { Bridge, PresenceView, Tone } from "./bridge";
 import { t } from "./i18n";
 
 // Segoe Fluent Icons（Windows 11）/ Segoe MDL2 Assets（Windows 10）里的字形。
@@ -31,6 +31,10 @@ const glyphs = {
   search: "\uE721",
   pin: "\uE718",
   pinned: "\uE841",
+  more: "\uE712",
+  block: "\uE8F8",
+  remove: "\uE738",
+  check: "\uE73E",
 } as const;
 
 export type IconName = keyof typeof glyphs;
@@ -215,17 +219,102 @@ export function Avatar({ name, tone }: { name: string; tone: PresenceView["tone"
 
 const roomTones = ["work", "chat", "relax", "game", "browse", "other"] as const;
 
-/** 房间的首字母方块。颜色按房间 id 固定，同一个房间在哪里都是同一种颜色；不传 id 表示无房间。 */
-export function RoomBadge({ id, name, size }: { id?: string; name?: string; size?: "small" }) {
-  const cls = size ? `room-badge ${size}` : "room-badge";
-  if (!id) return <span class={`${cls} empty`} aria-hidden="true" />;
+/** 房间的颜色按 id 固定，同一个房间在哪里都是同一种颜色。 */
+export function roomTone(id: string): Tone {
   let hash = 0;
   for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) | 0;
-  const tone = roomTones[Math.abs(hash) % roomTones.length];
+  return roomTones[Math.abs(hash) % roomTones.length];
+}
+
+/** 分类的颜色，和统计页的类别图例一致（StatsViewBuilder.CategoryLegend）。 */
+export function categoryTone(category: string): Tone {
+  const tones: Record<string, Tone> = { Work: "work", Communication: "chat", Video: "relax", Game: "game", Browsing: "browse" };
+  return tones[category] ?? "other";
+}
+
+/** 房间的首字母方块。不传 id 表示无房间。 */
+export function RoomBadge({ id, name, size }: { id?: string; name?: string; size?: "small" | "large" }) {
+  const cls = size ? `room-badge ${size}` : "room-badge";
+  if (!id) return <span class={`${cls} empty`} aria-hidden="true" />;
   return (
-    <span class={`${cls} tv-${tone}`} aria-hidden="true">
+    <span class={`${cls} tv-${roomTone(id)}`} aria-hidden="true">
       {Array.from(name?.trim() ?? "")[0]?.toUpperCase() ?? "?"}
     </span>
+  );
+}
+
+/** 点到 root 外面、按 Esc 或窗口失焦时关闭弹出的菜单。 */
+function useDismiss(open: boolean, close: () => void, root: RefObject<HTMLElement>) {
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (!root.current?.contains(e.target as Node)) close();
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    window.addEventListener("blur", close);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("blur", close);
+    };
+  }, [open]);
+}
+
+export type MenuEntry = { label: string; icon?: IconName; danger?: boolean; onSelect: () => void };
+
+/** 行尾的「更多」按钮。菜单用 fixed 定位、和按钮右对齐，避免被滚动区域裁切；滚动时收起。 */
+export function MoreMenu({ label, items }: { label: string; items: MenuEntry[] }) {
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const close = () => setOpen(false);
+  useDismiss(open, close, root);
+
+  useLayoutEffect(() => {
+    const anchor = button.current?.getBoundingClientRect();
+    const popup = menu.current;
+    if (!open || !anchor || !popup) return;
+    const margin = 8;
+    const left = Math.max(margin, Math.min(anchor.right - popup.offsetWidth, window.innerWidth - margin - popup.offsetWidth));
+    const below = anchor.bottom + 4;
+    const above = anchor.top - 4 - popup.offsetHeight;
+    popup.style.left = `${left}px`;
+    popup.style.top = `${below + popup.offsetHeight > window.innerHeight - margin && above >= margin ? above : below}px`;
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    window.addEventListener("scroll", close, true);
+    return () => window.removeEventListener("scroll", close, true);
+  }, [open]);
+
+  return (
+    <div class="menu-root" ref={root}>
+      <button ref={button} class="icon-button" aria-haspopup="menu" aria-expanded={open} aria-label={label} title={t("common.more")} onClick={() => setOpen(!open)}>
+        <Icon name="more" />
+      </button>
+      {open && (
+        <div class="flyout context-menu" role="menu" aria-label={label} ref={menu}>
+          {items.map((item) => (
+            <button
+              key={item.label}
+              role="menuitem"
+              class={item.danger ? "menu-item danger" : "menu-item"}
+              onClick={() => {
+                close();
+                item.onSelect();
+              }}
+            >
+              <span class="menu-icon">{item.icon && <Icon name={item.icon} />}</span>
+              <span class="menu-text">{item.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -233,23 +322,7 @@ export function RoomBadge({ id, name, size }: { id?: string; name?: string; size
 export function Flyout({ label, button, header, children }: { label: string; button: ComponentChildren; header?: string; children: (close: () => void) => ComponentChildren }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (!root.current?.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    const onBlur = () => setOpen(false);
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    window.addEventListener("blur", onBlur);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-      window.removeEventListener("blur", onBlur);
-    };
-  }, [open]);
+  useDismiss(open, () => setOpen(false), root);
 
   return (
     <div class="flyout-root" ref={root}>

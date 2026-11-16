@@ -564,3 +564,39 @@ button.hint-button:active:not(:disabled) { background: var(--pressed); color: va
 .stats-facts div { min-width: 0; }
 .stats-facts dt { font-size: 12px; color: var(--muted); }
 .stats-facts dd { margin: 0; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* ---- 整块卡片里的列表（房间、成员、分类），和设置页一样用分隔线，不用一行一个边框 ---- */
+.list-card { list-style: none; margin: 0; overflow: hidden; }
+.list-card > li { min-width: 0; }
+.card-row {
+  width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; justify-content: flex-start;
+  min-height: 52px; padding: 8px 10px 8px 14px; border: none; border-radius: 0; background: transparent;
+}
+button.card-row:hover:not(:disabled) { background: var(--hover); }
+button.card-row:active:not(:disabled) { background: var(--pressed); color: inherit; }
+button.card-row.selectable-row[aria-selected=true]:hover:not(:disabled) { background: var(--accent-soft); }
+.card-row .row-main { gap: 3px; }
+.card-row.offline .avatar { opacity: 0.6; }
+.card-row.offline .row-title { color: var(--muted); }
+.card-row.offline .status-badge { color: var(--muted); background: var(--hover); }
+.row-check { color: var(--accent); margin-right: 4px; }
+
+.room-counts { display: flex; align-items: center; gap: 12px; }
+.room-counts > span { display: inline-flex; align-items: center; gap: 5px; }
+.room-counts .icon { font-size: 12px; }
+.room-badge.large { width: 44px; height: 44px; border-radius: 12px; font-size: 18px; }
+.card.room-hero {
+  gap: 12px; padding: 14px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--tv) 12%, var(--surface-strong)), var(--surface-strong) 55%);
+  border-color: color-mix(in srgb, var(--tv) 22%, var(--line));
+}
+.room-hero-head { display: flex; align-items: center; gap: 12px; }
+.room-hero .row-main { gap: 4px; }
+.room-hero-name { font-size: 16px; font-weight: 600; }
+.room-hero-name .icon-button { width: 26px; height: 26px; min-height: 26px; margin-left: 4px; }
+
+/* 行尾「更多」菜单：位置由脚本按按钮算好。 */
+.menu-root { flex: none; }
+.flyout.context-menu { position: fixed; top: 0; left: 0; transform: none; min-width: 148px; animation: menu-in 0.12s cubic-bezier(0.2, 0, 0, 1); }
+@keyframes menu-in { from { opacity: 0; transform: translateY(-4px); } }
+.context-menu .menu-item { min-height: 32px; }
+.menu-item.danger .menu-icon { color: inherit; }
