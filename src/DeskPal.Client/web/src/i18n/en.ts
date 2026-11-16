@@ -207,6 +207,8 @@ export const en: Record<keyof typeof zh, string> = {
   "stats.byState": "Status",
   "stats.byCategory": "Category",
   "stats.byTitle": "Title",
+  "stats.clickToReclassify": "Click to change category",
+  "stats.reclassifyMessage": "Recorded usage stats also show the new category, including for room members. Applies in every room and on every computer.",
   "stats.prev": "Previous",
   "stats.next": "Next",
   "stats.today": "Today",

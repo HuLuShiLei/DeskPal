@@ -64,7 +64,7 @@ public static class UsageAggregator
                 var midnight = LocalMidnight(date, zone);
                 var startSecond = (int)(start - midnight).TotalSeconds;
                 var endSecond = (int)(end - midnight).TotalSeconds;
-                spans.Add(new UsageSpan(startSecond, endSecond, segment.State));
+                spans.Add(new UsageSpan(startSecond, endSecond, segment.State, segment.Category));
                 if (!UsageStates.Counts(segment.State))
                 {
                     continue;
@@ -123,7 +123,7 @@ public static class UsageAggregator
         var joined = new List<UsageSpan>();
         foreach (var span in spans.OrderBy(s => s.Start))
         {
-            if (joined.Count > 0 && joined[^1] is var last && last.State == span.State && span.Start - last.End <= JoinGapSeconds)
+            if (joined.Count > 0 && joined[^1] is var last && last.State == span.State && last.Category == span.Category && span.Start - last.End <= JoinGapSeconds)
             {
                 joined[^1] = last with { End = Math.Max(last.End, span.End) };
             }

@@ -36,6 +36,9 @@
   <data name="State_UsingApp" xml:space="preserve">
     <value>Using {0}</value>
   </data>
+  <data name="State_UsingOtherApp" xml:space="preserve">
+    <value>Using another app</value>
+  </data>
   <data name="State_Browsing" xml:space="preserve">
     <value>Browsing the web</value>
   </data>
@@ -249,8 +252,14 @@
   <data name="Legend_Chat" xml:space="preserve">
     <value>Chat</value>
   </data>
-  <data name="Legend_Relax" xml:space="preserve">
-    <value>Break</value>
+  <data name="Legend_Video" xml:space="preserve">
+    <value>Video</value>
+  </data>
+  <data name="Legend_Game" xml:space="preserve">
+    <value>Games</value>
+  </data>
+  <data name="Legend_VideoOrGame" xml:space="preserve">
+    <value>Video or games</value>
   </data>
   <data name="Legend_Browse" xml:space="preserve">
     <value>Web</value>
@@ -305,9 +314,6 @@
   </data>
   <data name="Stats_TopTitles" xml:space="preserve">
     <value>Top titles</value>
-  </data>
-  <data name="Stats_YesterdayTotal" xml:space="preserve">
-    <value>Yesterday: {0}</value>
   </data>
   <data name="Compare_DaySame" xml:space="preserve">
     <value>Same as the day before</value>

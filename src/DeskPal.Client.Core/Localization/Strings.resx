@@ -36,6 +36,9 @@
   <data name="State_UsingApp" xml:space="preserve">
     <value>正在使用 {0}</value>
   </data>
+  <data name="State_UsingOtherApp" xml:space="preserve">
+    <value>正在使用其他应用</value>
+  </data>
   <data name="State_Browsing" xml:space="preserve">
     <value>正在浏览网页</value>
   </data>
@@ -249,8 +252,14 @@
   <data name="Legend_Chat" xml:space="preserve">
     <value>聊天</value>
   </data>
-  <data name="Legend_Relax" xml:space="preserve">
-    <value>放松</value>
+  <data name="Legend_Video" xml:space="preserve">
+    <value>视频</value>
+  </data>
+  <data name="Legend_Game" xml:space="preserve">
+    <value>游戏</value>
+  </data>
+  <data name="Legend_VideoOrGame" xml:space="preserve">
+    <value>视频或游戏</value>
   </data>
   <data name="Legend_Browse" xml:space="preserve">
     <value>浏览网页</value>
@@ -305,9 +314,6 @@
   </data>
   <data name="Stats_TopTitles" xml:space="preserve">
     <value>使用最多的标题</value>
-  </data>
-  <data name="Stats_YesterdayTotal" xml:space="preserve">
-    <value>昨天全天 {0}</value>
   </data>
   <data name="Compare_DaySame" xml:space="preserve">
     <value>和前一天差不多</value>

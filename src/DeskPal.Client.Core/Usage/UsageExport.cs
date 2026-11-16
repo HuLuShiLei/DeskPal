@@ -17,9 +17,11 @@ public sealed record UsageExport(
     public const long MaxFileBytes = 100L * 1024 * 1024;
 }
 
-public sealed record ExportedSegment(Guid DeviceId, DateTimeOffset Start, DateTimeOffset End, PresenceState State, ActivityCategory Category, string? App, string? Title);
+/// <param name="Process">Missing in files from older versions.</param>
+/// <param name="BaseCategory">Missing in files from older versions.</param>
+public sealed record ExportedSegment(Guid DeviceId, DateTimeOffset Start, DateTimeOffset End, PresenceState State, ActivityCategory Category, string? App, string? Title, string? Process = null, ActivityCategory? BaseCategory = null);
 
-public sealed record ExportedRollup(Guid DeviceId, DateOnly Date, PresenceState State, ActivityCategory Category, string? App, string? Title, long Seconds);
+public sealed record ExportedRollup(Guid DeviceId, DateOnly Date, PresenceState State, ActivityCategory Category, string? App, string? Title, long Seconds, string? Process = null, ActivityCategory? BaseCategory = null);
 
 /// <summary>Someone in a room viewed my stats. Kept on this computer for <see cref="SqliteUsageStore.ViewsKeptFor"/>.</summary>
 public sealed record StatsViewRecord(Guid RoomId, string RoomName, Guid ViewerId, string ViewerName, DateTimeOffset At);

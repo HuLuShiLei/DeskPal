@@ -7,7 +7,7 @@
     "title": "Wed, Nov 11 (today)",
     "totalLabel": "Usage",
     "total": "5 h",
-    "compare": "Yesterday: 8 h 20 min",
+    "compare": null,
     "summary": "Away 40 min",
     "canPrev": true,
     "canNext": false,
@@ -25,8 +25,8 @@
         "hidden": false
       },
       {
-        "key": "relax",
-        "name": "Break",
+        "key": "video",
+        "name": "Video",
         "tone": "relax",
         "hidden": false
       }
@@ -129,7 +129,7 @@
         "date": null,
         "parts": [
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 1200
           }
         ]
@@ -144,7 +144,7 @@
             "seconds": 1800
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 1200
           }
         ]
@@ -246,7 +246,7 @@
         "start": 45600,
         "end": 48000,
         "tone": "relax",
-        "tip": "12:40–13:20 Break · 40 min"
+        "tip": "12:40–13:20 Video · 40 min"
       },
       {
         "start": 48600,
@@ -262,15 +262,17 @@
         "tone": "work",
         "time": "4 h 5 min",
         "share": 1,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
-        "name": "Break",
+        "name": "Video",
         "sub": null,
         "tone": "relax",
         "time": "40 min",
         "share": 0.163,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Chat",
@@ -278,7 +280,8 @@
         "tone": "chat",
         "time": "15 min",
         "share": 0.061,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       }
     ],
     "rankingTitle": "By status",
@@ -293,7 +296,7 @@
     "title": "Wed, Nov 11 (today)",
     "totalLabel": "Usage",
     "total": "5 h",
-    "compare": "Yesterday: 8 h 20 min",
+    "compare": null,
     "summary": "Away 40 min",
     "canPrev": true,
     "canNext": false,
@@ -311,8 +314,8 @@
         "hidden": false
       },
       {
-        "key": "relax",
-        "name": "Break",
+        "key": "video",
+        "name": "Video",
         "tone": "relax",
         "hidden": false
       }
@@ -415,7 +418,7 @@
         "date": null,
         "parts": [
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 1200
           }
         ]
@@ -430,7 +433,7 @@
             "seconds": 1800
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 1200
           }
         ]
@@ -532,7 +535,7 @@
         "start": 45600,
         "end": 48000,
         "tone": "relax",
-        "tip": "12:40–13:20 Break · 40 min"
+        "tip": "12:40–13:20 Video · 40 min"
       },
       {
         "start": 48600,
@@ -548,15 +551,17 @@
         "tone": "work",
         "time": "4 h 5 min",
         "share": 1,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
-        "name": "Break",
+        "name": "Video",
         "sub": null,
         "tone": "relax",
         "time": "40 min",
         "share": 0.163,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Chat",
@@ -564,7 +569,8 @@
         "tone": "chat",
         "time": "15 min",
         "share": 0.061,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       }
     ],
     "rankingTitle": "By status",
@@ -579,7 +585,7 @@
     "title": "Wed, Nov 11 (today)",
     "totalLabel": "Usage",
     "total": "5 h",
-    "compare": "Yesterday: 8 h 20 min",
+    "compare": null,
     "summary": "Away 40 min",
     "canPrev": true,
     "canNext": false,
@@ -818,7 +824,7 @@
         "start": 45600,
         "end": 48000,
         "tone": "relax",
-        "tip": "12:40–13:20 Break · 40 min"
+        "tip": "12:40–13:20 Video · 40 min"
       },
       {
         "start": 48600,
@@ -834,7 +840,13 @@
         "tone": "work",
         "time": "2 h 35 min",
         "share": 1,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "cursor",
+          "name": "Cursor",
+          "category": "Work"
+        }
       },
       {
         "name": "Visual Studio Code",
@@ -842,7 +854,13 @@
         "tone": "work",
         "time": "1 h 30 min",
         "share": 0.581,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "code",
+          "name": "Visual Studio Code",
+          "category": "Work"
+        }
       },
       {
         "name": "哔哩哔哩",
@@ -850,7 +868,13 @@
         "tone": "relax",
         "time": "40 min",
         "share": 0.258,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "bilibili",
+          "name": "哔哩哔哩",
+          "category": "Video"
+        }
       },
       {
         "name": "微信",
@@ -858,7 +882,13 @@
         "tone": "chat",
         "time": "15 min",
         "share": 0.097,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "weixin",
+          "name": "微信",
+          "category": "Communication"
+        }
       }
     ],
     "rankingTitle": "Top apps and sites",
@@ -873,293 +903,7 @@
     "title": "Wed, Nov 11 (today)",
     "totalLabel": "Usage",
     "total": "5 h",
-    "compare": "Yesterday: 8 h 20 min",
-    "summary": "Away 40 min",
-    "canPrev": true,
-    "canNext": false,
-    "legend": [
-      {
-        "key": "Video",
-        "name": "Video",
-        "tone": "relax",
-        "hidden": false
-      },
-      {
-        "key": "hidden-work",
-        "name": "Work (category hidden)",
-        "tone": "work",
-        "hidden": true
-      },
-      {
-        "key": "hidden-chat",
-        "name": "Chat (category hidden)",
-        "tone": "chat",
-        "hidden": true
-      }
-    ],
-    "bars": [
-      {
-        "label": "0",
-        "tip": "0:00–1:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "1:00–2:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "2:00–3:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "3:00–4:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "4:00–5:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "5:00–6:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "6",
-        "tip": "6:00–7:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "7:00–8:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "8:00–9:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "9:00–10:00 · 50 min",
-        "date": null,
-        "parts": [
-          {
-            "key": "hidden-work",
-            "seconds": 3000
-          }
-        ]
-      },
-      {
-        "label": "",
-        "tip": "10:00–11:00 · 1 h",
-        "date": null,
-        "parts": [
-          {
-            "key": "hidden-work",
-            "seconds": 2700
-          },
-          {
-            "key": "hidden-chat",
-            "seconds": 900
-          }
-        ]
-      },
-      {
-        "label": "",
-        "tip": "11:00–12:00 · 1 h",
-        "date": null,
-        "parts": [
-          {
-            "key": "hidden-work",
-            "seconds": 3600
-          }
-        ]
-      },
-      {
-        "label": "12",
-        "tip": "12:00–13:00 · 20 min",
-        "date": null,
-        "parts": [
-          {
-            "key": "Video",
-            "seconds": 1200
-          }
-        ]
-      },
-      {
-        "label": "",
-        "tip": "13:00–14:00 · 50 min",
-        "date": null,
-        "parts": [
-          {
-            "key": "hidden-work",
-            "seconds": 1800
-          },
-          {
-            "key": "Video",
-            "seconds": 1200
-          }
-        ]
-      },
-      {
-        "label": "",
-        "tip": "14:00–15:00 · 1 h",
-        "date": null,
-        "parts": [
-          {
-            "key": "hidden-work",
-            "seconds": 3600
-          }
-        ]
-      },
-      {
-        "label": "",
-        "tip": "15:00–16:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "16:00–17:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "17:00–18:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "18",
-        "tip": "18:00–19:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "19:00–20:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "20:00–21:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "21:00–22:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "22:00–23:00 · 0 min",
-        "date": null,
-        "parts": []
-      },
-      {
-        "label": "",
-        "tip": "23:00–24:00 · 0 min",
-        "date": null,
-        "parts": []
-      }
-    ],
-    "barMax": 3600,
-    "barMaxLabel": "1 h",
-    "timeline": [
-      {
-        "start": 33000,
-        "end": 38400,
-        "tone": "work",
-        "tip": "9:10–10:40 Work · 1 h 30 min"
-      },
-      {
-        "start": 38400,
-        "end": 39300,
-        "tone": "chat",
-        "tip": "10:40–10:55 Chat · 15 min"
-      },
-      {
-        "start": 39300,
-        "end": 43200,
-        "tone": "work",
-        "tip": "10:55–12:00 Work · 1 h 5 min"
-      },
-      {
-        "start": 43200,
-        "end": 45600,
-        "tone": "away",
-        "tip": "12:00–12:40 Away · 40 min"
-      },
-      {
-        "start": 45600,
-        "end": 48000,
-        "tone": "relax",
-        "tip": "12:40–13:20 Break · 40 min"
-      },
-      {
-        "start": 48600,
-        "end": 54000,
-        "tone": "work",
-        "tip": "13:30–15:00 Work · 1 h 30 min"
-      }
-    ],
-    "ranking": [
-      {
-        "name": "Work (category hidden)",
-        "sub": null,
-        "tone": "work",
-        "time": "4 h 5 min",
-        "share": 1,
-        "hidden": true
-      },
-      {
-        "name": "哔哩哔哩",
-        "sub": "Video",
-        "tone": "relax",
-        "time": "40 min",
-        "share": 0.163,
-        "hidden": false
-      },
-      {
-        "name": "Chat (category hidden)",
-        "sub": null,
-        "tone": "chat",
-        "time": "15 min",
-        "share": 0.061,
-        "hidden": true
-      }
-    ],
-    "rankingTitle": "Top apps and sites",
-    "note": "Bob shares the last 7 days. Some categories are status only.",
-    "empty": null
-  },
-  "Day-Title": {
-    "scale": "Day",
-    "granularity": "Title",
-    "anchor": "2026-11-11",
-    "owner": null,
-    "title": "Wed, Nov 11 (today)",
-    "totalLabel": "Usage",
-    "total": "5 h",
-    "compare": "Yesterday: 8 h 20 min",
+    "compare": null,
     "summary": "Away 40 min",
     "canPrev": true,
     "canNext": false,
@@ -1398,7 +1142,7 @@
         "start": 45600,
         "end": 48000,
         "tone": "relax",
-        "tip": "12:40–13:20 Break · 40 min"
+        "tip": "12:40–13:20 Video · 40 min"
       },
       {
         "start": 48600,
@@ -1409,80 +1153,67 @@
     ],
     "ranking": [
       {
-        "name": "plan.md - idea1 - Cursor",
-        "sub": "Cursor · Work",
+        "name": "Work",
+        "sub": null,
         "tone": "work",
-        "time": "1 h 30 min",
+        "time": "4 h 5 min",
         "share": 1,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
-        "name": "architecture.md - docs",
-        "sub": "Visual Studio Code · Work",
-        "tone": "work",
-        "time": "1 h 30 min",
-        "share": 1,
-        "hidden": false
-      },
-      {
-        "name": "StatsPage.tsx - idea1 - Cursor",
-        "sub": "Cursor · Work",
-        "tone": "work",
-        "time": "1 h 5 min",
-        "share": 0.722,
-        "hidden": false
-      },
-      {
-        "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
-        "sub": "哔哩哔哩 · Video",
+        "name": "哔哩哔哩",
+        "sub": "Video",
         "tone": "relax",
         "time": "40 min",
-        "share": 0.444,
-        "hidden": false
+        "share": 0.163,
+        "hidden": false,
+        "rule": null
       },
       {
-        "name": "项目群",
-        "sub": "微信 · Chat",
+        "name": "Chat",
+        "sub": null,
         "tone": "chat",
         "time": "15 min",
-        "share": 0.167,
-        "hidden": false
+        "share": 0.061,
+        "hidden": false,
+        "rule": null
       }
     ],
-    "rankingTitle": "Top titles",
-    "note": null,
+    "rankingTitle": "Top apps and sites",
+    "note": "Bob shares the last 7 days. Some categories are status only.",
     "empty": null
   },
-  "member-Day-Title": {
+  "Day-Title": {
     "scale": "Day",
     "granularity": "Title",
     "anchor": "2026-11-11",
-    "owner": "Bob",
+    "owner": null,
     "title": "Wed, Nov 11 (today)",
     "totalLabel": "Usage",
     "total": "5 h",
-    "compare": "Yesterday: 8 h 20 min",
+    "compare": null,
     "summary": "Away 40 min",
     "canPrev": true,
     "canNext": false,
     "legend": [
       {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
         "key": "Video",
         "name": "Video",
         "tone": "relax",
         "hidden": false
-      },
-      {
-        "key": "hidden-work",
-        "name": "Work (category hidden)",
-        "tone": "work",
-        "hidden": true
-      },
-      {
-        "key": "hidden-chat",
-        "name": "Chat (category hidden)",
-        "tone": "chat",
-        "hidden": true
       }
     ],
     "bars": [
@@ -1546,7 +1277,7 @@
         "date": null,
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 3000
           }
         ]
@@ -1557,11 +1288,11 @@
         "date": null,
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 2700
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 900
           }
         ]
@@ -1572,7 +1303,7 @@
         "date": null,
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 3600
           }
         ]
@@ -1594,7 +1325,7 @@
         "date": null,
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 1800
           },
           {
@@ -1609,7 +1340,7 @@
         "date": null,
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 3600
           }
         ]
@@ -1700,7 +1431,7 @@
         "start": 45600,
         "end": 48000,
         "tone": "relax",
-        "tip": "12:40–13:20 Break · 40 min"
+        "tip": "12:40–13:20 Video · 40 min"
       },
       {
         "start": 48600,
@@ -1711,12 +1442,345 @@
     ],
     "ranking": [
       {
-        "name": "Work (category hidden)",
+        "name": "plan.md - idea1 - Cursor",
+        "sub": "Cursor · Work",
+        "tone": "work",
+        "time": "1 h 30 min",
+        "share": 1,
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "cursor",
+          "name": "Cursor",
+          "category": "Work"
+        }
+      },
+      {
+        "name": "architecture.md - docs",
+        "sub": "Visual Studio Code · Work",
+        "tone": "work",
+        "time": "1 h 30 min",
+        "share": 1,
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "code",
+          "name": "Visual Studio Code",
+          "category": "Work"
+        }
+      },
+      {
+        "name": "StatsPage.tsx - idea1 - Cursor",
+        "sub": "Cursor · Work",
+        "tone": "work",
+        "time": "1 h 5 min",
+        "share": 0.722,
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "cursor",
+          "name": "Cursor",
+          "category": "Work"
+        }
+      },
+      {
+        "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
+        "sub": "哔哩哔哩 · Video",
+        "tone": "relax",
+        "time": "40 min",
+        "share": 0.444,
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "bilibili",
+          "name": "哔哩哔哩",
+          "category": "Video"
+        }
+      },
+      {
+        "name": "项目群",
+        "sub": "微信 · Chat",
+        "tone": "chat",
+        "time": "15 min",
+        "share": 0.167,
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "weixin",
+          "name": "微信",
+          "category": "Communication"
+        }
+      }
+    ],
+    "rankingTitle": "Top titles",
+    "note": null,
+    "empty": null
+  },
+  "member-Day-Title": {
+    "scale": "Day",
+    "granularity": "Title",
+    "anchor": "2026-11-11",
+    "owner": "Bob",
+    "title": "Wed, Nov 11 (today)",
+    "totalLabel": "Usage",
+    "total": "5 h",
+    "compare": null,
+    "summary": "Away 40 min",
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 2700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 min",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 h",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 Work · 1 h 30 min"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 Chat · 15 min"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 Work · 1 h 5 min"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 Away · 40 min"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 Video · 40 min"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 Work · 1 h 30 min"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "Work",
         "sub": null,
         "tone": "work",
         "time": "4 h 5 min",
         "share": 1,
-        "hidden": true
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "哔哩哔哩",
@@ -1724,15 +1788,17 @@
         "tone": "relax",
         "time": "40 min",
         "share": 0.163,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
-        "name": "Chat (category hidden)",
+        "name": "Chat",
         "sub": null,
         "tone": "chat",
         "time": "15 min",
         "share": 0.061,
-        "hidden": true
+        "hidden": false,
+        "rule": null
       }
     ],
     "rankingTitle": "Top titles",
@@ -1765,9 +1831,15 @@
         "hidden": false
       },
       {
-        "key": "relax",
-        "name": "Break",
+        "key": "video",
+        "name": "Video",
         "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "game",
+        "name": "Games",
+        "tone": "game",
         "hidden": false
       },
       {
@@ -1798,8 +1870,12 @@
             "seconds": 2100
           },
           {
-            "key": "relax",
-            "seconds": 7800
+            "key": "video",
+            "seconds": 2400
+          },
+          {
+            "key": "game",
+            "seconds": 5400
           },
           {
             "key": "other",
@@ -1825,7 +1901,7 @@
             "seconds": 1500
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 2400
           },
           {
@@ -1852,7 +1928,7 @@
             "seconds": 900
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 2400
           }
         ]
@@ -1892,15 +1968,26 @@
         "tone": "work",
         "time": "16 h 35 min",
         "share": 1,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
-        "name": "Break",
+        "name": "Video",
         "sub": null,
         "tone": "relax",
-        "time": "3 h 30 min",
-        "share": 0.211,
-        "hidden": false
+        "time": "2 h",
+        "share": 0.121,
+        "hidden": false,
+        "rule": null
+      },
+      {
+        "name": "Games",
+        "sub": null,
+        "tone": "game",
+        "time": "1 h 30 min",
+        "share": 0.09,
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Chat",
@@ -1908,7 +1995,8 @@
         "tone": "chat",
         "time": "1 h 15 min",
         "share": 0.075,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Other",
@@ -1916,7 +2004,8 @@
         "tone": "other",
         "time": "1 h",
         "share": 0.06,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Web",
@@ -1924,7 +2013,8 @@
         "tone": "browse",
         "time": "40 min",
         "share": 0.04,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       }
     ],
     "rankingTitle": "By status",
@@ -1957,9 +2047,15 @@
         "hidden": false
       },
       {
-        "key": "relax",
-        "name": "Break",
+        "key": "video",
+        "name": "Video",
         "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "game",
+        "name": "Games",
+        "tone": "game",
         "hidden": false
       },
       {
@@ -1990,8 +2086,12 @@
             "seconds": 2100
           },
           {
-            "key": "relax",
-            "seconds": 7800
+            "key": "video",
+            "seconds": 2400
+          },
+          {
+            "key": "game",
+            "seconds": 5400
           },
           {
             "key": "other",
@@ -2017,7 +2117,7 @@
             "seconds": 1500
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 2400
           },
           {
@@ -2044,7 +2144,7 @@
             "seconds": 900
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 2400
           }
         ]
@@ -2084,15 +2184,26 @@
         "tone": "work",
         "time": "16 h 35 min",
         "share": 1,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
-        "name": "Break",
+        "name": "Video",
         "sub": null,
         "tone": "relax",
-        "time": "3 h 30 min",
-        "share": 0.211,
-        "hidden": false
+        "time": "2 h",
+        "share": 0.121,
+        "hidden": false,
+        "rule": null
+      },
+      {
+        "name": "Games",
+        "sub": null,
+        "tone": "game",
+        "time": "1 h 30 min",
+        "share": 0.09,
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Chat",
@@ -2100,7 +2211,8 @@
         "tone": "chat",
         "time": "1 h 15 min",
         "share": 0.075,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Other",
@@ -2108,7 +2220,8 @@
         "tone": "other",
         "time": "1 h",
         "share": 0.06,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Web",
@@ -2116,7 +2229,8 @@
         "tone": "browse",
         "time": "40 min",
         "share": 0.04,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       }
     ],
     "rankingTitle": "By status",
@@ -2286,7 +2400,13 @@
         "tone": "work",
         "time": "11 h 5 min",
         "share": 1,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "cursor",
+          "name": "Cursor",
+          "category": "Work"
+        }
       },
       {
         "name": "Visual Studio Code",
@@ -2294,7 +2414,13 @@
         "tone": "work",
         "time": "5 h 30 min",
         "share": 0.496,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "code",
+          "name": "Visual Studio Code",
+          "category": "Work"
+        }
       },
       {
         "name": "哔哩哔哩",
@@ -2302,7 +2428,13 @@
         "tone": "relax",
         "time": "2 h",
         "share": 0.18,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "bilibili",
+          "name": "哔哩哔哩",
+          "category": "Video"
+        }
       },
       {
         "name": "原神",
@@ -2310,7 +2442,13 @@
         "tone": "game",
         "time": "1 h 30 min",
         "share": 0.135,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "yuanshen",
+          "name": "原神",
+          "category": "Game"
+        }
       },
       {
         "name": "微信",
@@ -2318,7 +2456,13 @@
         "tone": "chat",
         "time": "1 h 15 min",
         "share": 0.113,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "weixin",
+          "name": "微信",
+          "category": "Communication"
+        }
       },
       {
         "name": "XMind",
@@ -2326,7 +2470,13 @@
         "tone": "other",
         "time": "1 h",
         "share": 0.09,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "xmind",
+          "name": "XMind",
+          "category": "Other"
+        }
       },
       {
         "name": "知乎",
@@ -2334,7 +2484,13 @@
         "tone": "browse",
         "time": "40 min",
         "share": 0.06,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Domain",
+          "pattern": "zhihu.com",
+          "name": "知乎",
+          "category": "Browsing"
+        }
       }
     ],
     "rankingTitle": "Top apps and sites",
@@ -2354,6 +2510,18 @@
     "canPrev": true,
     "canNext": false,
     "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
       {
         "key": "Video",
         "name": "Video",
@@ -2377,18 +2545,6 @@
         "name": "Other",
         "tone": "other",
         "hidden": false
-      },
-      {
-        "key": "hidden-work",
-        "name": "Work (category hidden)",
-        "tone": "work",
-        "hidden": true
-      },
-      {
-        "key": "hidden-chat",
-        "name": "Chat (category hidden)",
-        "tone": "chat",
-        "hidden": true
       }
     ],
     "bars": [
@@ -2398,11 +2554,11 @@
         "date": "2026-11-09",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
@@ -2429,11 +2585,11 @@
         "date": "2026-11-10",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
@@ -2456,11 +2612,11 @@
         "date": "2026-11-11",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 14700
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
@@ -2499,12 +2655,13 @@
     "timeline": [],
     "ranking": [
       {
-        "name": "Work (category hidden)",
+        "name": "Work",
         "sub": null,
         "tone": "work",
         "time": "16 h 35 min",
         "share": 1,
-        "hidden": true
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "哔哩哔哩",
@@ -2512,7 +2669,8 @@
         "tone": "relax",
         "time": "2 h",
         "share": 0.121,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "原神",
@@ -2520,15 +2678,17 @@
         "tone": "game",
         "time": "1 h 30 min",
         "share": 0.09,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
-        "name": "Chat (category hidden)",
+        "name": "Chat",
         "sub": null,
         "tone": "chat",
         "time": "1 h 15 min",
         "share": 0.075,
-        "hidden": true
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "XMind",
@@ -2536,7 +2696,8 @@
         "tone": "other",
         "time": "1 h",
         "share": 0.06,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "知乎",
@@ -2544,7 +2705,8 @@
         "tone": "browse",
         "time": "40 min",
         "share": 0.04,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       }
     ],
     "rankingTitle": "Top apps and sites",
@@ -2714,7 +2876,13 @@
         "tone": "work",
         "time": "8 h 20 min",
         "share": 1,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "cursor",
+          "name": "Cursor",
+          "category": "Work"
+        }
       },
       {
         "name": "architecture.md - docs",
@@ -2722,7 +2890,13 @@
         "tone": "work",
         "time": "5 h 30 min",
         "share": 0.66,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "code",
+          "name": "Visual Studio Code",
+          "category": "Work"
+        }
       },
       {
         "name": "StatsPage.tsx - idea1 - Cursor",
@@ -2730,7 +2904,13 @@
         "tone": "work",
         "time": "2 h 45 min",
         "share": 0.33,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "cursor",
+          "name": "Cursor",
+          "category": "Work"
+        }
       },
       {
         "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
@@ -2738,7 +2918,13 @@
         "tone": "relax",
         "time": "2 h",
         "share": 0.24,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "bilibili",
+          "name": "哔哩哔哩",
+          "category": "Video"
+        }
       },
       {
         "name": "深境螺旋",
@@ -2746,7 +2932,13 @@
         "tone": "game",
         "time": "1 h 30 min",
         "share": 0.18,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "yuanshen",
+          "name": "原神",
+          "category": "Game"
+        }
       },
       {
         "name": "项目群",
@@ -2754,7 +2946,13 @@
         "tone": "chat",
         "time": "1 h 15 min",
         "share": 0.15,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "weixin",
+          "name": "微信",
+          "category": "Communication"
+        }
       },
       {
         "name": "使用统计方案",
@@ -2762,7 +2960,13 @@
         "tone": "other",
         "time": "1 h",
         "share": 0.12,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "xmind",
+          "name": "XMind",
+          "category": "Other"
+        }
       },
       {
         "name": "如何评价手写 SVG 图表",
@@ -2770,7 +2974,13 @@
         "tone": "browse",
         "time": "40 min",
         "share": 0.08,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Domain",
+          "pattern": "zhihu.com",
+          "name": "知乎",
+          "category": "Browsing"
+        }
       }
     ],
     "rankingTitle": "Top titles",
@@ -2790,6 +3000,18 @@
     "canPrev": true,
     "canNext": false,
     "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
       {
         "key": "Video",
         "name": "Video",
@@ -2813,18 +3035,6 @@
         "name": "Other",
         "tone": "other",
         "hidden": false
-      },
-      {
-        "key": "hidden-work",
-        "name": "Work (category hidden)",
-        "tone": "work",
-        "hidden": true
-      },
-      {
-        "key": "hidden-chat",
-        "name": "Chat (category hidden)",
-        "tone": "chat",
-        "hidden": true
       }
     ],
     "bars": [
@@ -2834,11 +3044,11 @@
         "date": "2026-11-09",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
@@ -2865,11 +3075,11 @@
         "date": "2026-11-10",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
@@ -2892,11 +3102,11 @@
         "date": "2026-11-11",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 14700
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
@@ -2935,12 +3145,13 @@
     "timeline": [],
     "ranking": [
       {
-        "name": "Work (category hidden)",
+        "name": "Work",
         "sub": null,
         "tone": "work",
         "time": "16 h 35 min",
         "share": 1,
-        "hidden": true
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "哔哩哔哩",
@@ -2948,7 +3159,8 @@
         "tone": "relax",
         "time": "2 h",
         "share": 0.121,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "深境螺旋",
@@ -2956,15 +3168,17 @@
         "tone": "game",
         "time": "1 h 30 min",
         "share": 0.09,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
-        "name": "Chat (category hidden)",
+        "name": "Chat",
         "sub": null,
         "tone": "chat",
         "time": "1 h 15 min",
         "share": 0.075,
-        "hidden": true
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "XMind",
@@ -2972,7 +3186,8 @@
         "tone": "other",
         "time": "1 h",
         "share": 0.06,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "知乎",
@@ -2980,7 +3195,8 @@
         "tone": "browse",
         "time": "40 min",
         "share": 0.04,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       }
     ],
     "rankingTitle": "Top titles",
@@ -3013,9 +3229,15 @@
         "hidden": false
       },
       {
-        "key": "relax",
-        "name": "Break",
+        "key": "video",
+        "name": "Video",
         "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "game",
+        "name": "Games",
+        "tone": "game",
         "hidden": false
       },
       {
@@ -3038,8 +3260,12 @@
         "date": "2026-11-01",
         "parts": [
           {
-            "key": "relax",
-            "seconds": 18600
+            "key": "video",
+            "seconds": 7800
+          },
+          {
+            "key": "game",
+            "seconds": 10800
           },
           {
             "key": "browse",
@@ -3061,7 +3287,7 @@
             "seconds": 900
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 2400
           },
           {
@@ -3088,8 +3314,12 @@
             "seconds": 2100
           },
           {
-            "key": "relax",
-            "seconds": 7800
+            "key": "video",
+            "seconds": 2400
+          },
+          {
+            "key": "game",
+            "seconds": 5400
           },
           {
             "key": "other",
@@ -3115,7 +3345,7 @@
             "seconds": 1500
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 2400
           },
           {
@@ -3142,8 +3372,12 @@
             "seconds": 900
           },
           {
-            "key": "relax",
-            "seconds": 7800
+            "key": "video",
+            "seconds": 2400
+          },
+          {
+            "key": "game",
+            "seconds": 5400
           },
           {
             "key": "other",
@@ -3169,7 +3403,7 @@
             "seconds": 2100
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 2400
           },
           {
@@ -3188,8 +3422,12 @@
         "date": "2026-11-07",
         "parts": [
           {
-            "key": "relax",
-            "seconds": 18600
+            "key": "video",
+            "seconds": 7800
+          },
+          {
+            "key": "game",
+            "seconds": 10800
           },
           {
             "key": "browse",
@@ -3203,8 +3441,12 @@
         "date": "2026-11-08",
         "parts": [
           {
-            "key": "relax",
-            "seconds": 18000
+            "key": "video",
+            "seconds": 7200
+          },
+          {
+            "key": "game",
+            "seconds": 10800
           },
           {
             "key": "browse",
@@ -3226,8 +3468,12 @@
             "seconds": 2100
           },
           {
-            "key": "relax",
-            "seconds": 7800
+            "key": "video",
+            "seconds": 2400
+          },
+          {
+            "key": "game",
+            "seconds": 5400
           },
           {
             "key": "other",
@@ -3253,7 +3499,7 @@
             "seconds": 1500
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 2400
           },
           {
@@ -3280,7 +3526,7 @@
             "seconds": 900
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 2400
           }
         ]
@@ -3410,15 +3656,26 @@
         "tone": "work",
         "time": "48 h 40 min",
         "share": 1,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
-        "name": "Break",
+        "name": "Games",
+        "sub": null,
+        "tone": "game",
+        "time": "13 h 30 min",
+        "share": 0.277,
+        "hidden": false,
+        "rule": null
+      },
+      {
+        "name": "Video",
         "sub": null,
         "tone": "relax",
-        "time": "25 h 10 min",
-        "share": 0.517,
-        "hidden": false
+        "time": "11 h 40 min",
+        "share": 0.24,
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Web",
@@ -3426,7 +3683,8 @@
         "tone": "browse",
         "time": "5 h 40 min",
         "share": 0.116,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Other",
@@ -3434,7 +3692,8 @@
         "tone": "other",
         "time": "3 h 30 min",
         "share": 0.072,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Chat",
@@ -3442,7 +3701,8 @@
         "tone": "chat",
         "time": "3 h 20 min",
         "share": 0.068,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       }
     ],
     "rankingTitle": "By status",
@@ -3475,9 +3735,15 @@
         "hidden": false
       },
       {
-        "key": "relax",
-        "name": "Break",
+        "key": "video",
+        "name": "Video",
         "tone": "relax",
+        "hidden": false
+      },
+      {
+        "key": "game",
+        "name": "Games",
+        "tone": "game",
         "hidden": false
       },
       {
@@ -3532,8 +3798,12 @@
             "seconds": 900
           },
           {
-            "key": "relax",
-            "seconds": 7800
+            "key": "video",
+            "seconds": 2400
+          },
+          {
+            "key": "game",
+            "seconds": 5400
           },
           {
             "key": "other",
@@ -3559,7 +3829,7 @@
             "seconds": 2100
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 2400
           },
           {
@@ -3578,8 +3848,12 @@
         "date": "2026-11-07",
         "parts": [
           {
-            "key": "relax",
-            "seconds": 18600
+            "key": "video",
+            "seconds": 7800
+          },
+          {
+            "key": "game",
+            "seconds": 10800
           },
           {
             "key": "browse",
@@ -3593,8 +3867,12 @@
         "date": "2026-11-08",
         "parts": [
           {
-            "key": "relax",
-            "seconds": 18000
+            "key": "video",
+            "seconds": 7200
+          },
+          {
+            "key": "game",
+            "seconds": 10800
           },
           {
             "key": "browse",
@@ -3616,8 +3894,12 @@
             "seconds": 2100
           },
           {
-            "key": "relax",
-            "seconds": 7800
+            "key": "video",
+            "seconds": 2400
+          },
+          {
+            "key": "game",
+            "seconds": 5400
           },
           {
             "key": "other",
@@ -3643,7 +3925,7 @@
             "seconds": 1500
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 2400
           },
           {
@@ -3670,7 +3952,7 @@
             "seconds": 900
           },
           {
-            "key": "relax",
+            "key": "video",
             "seconds": 2400
           }
         ]
@@ -3800,15 +4082,26 @@
         "tone": "work",
         "time": "29 h 25 min",
         "share": 1,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
-        "name": "Break",
+        "name": "Games",
+        "sub": null,
+        "tone": "game",
+        "time": "9 h",
+        "share": 0.306,
+        "hidden": false,
+        "rule": null
+      },
+      {
+        "name": "Video",
         "sub": null,
         "tone": "relax",
-        "time": "16 h 30 min",
-        "share": 0.561,
-        "hidden": false
+        "time": "7 h 30 min",
+        "share": 0.255,
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Web",
@@ -3816,7 +4109,8 @@
         "tone": "browse",
         "time": "3 h 30 min",
         "share": 0.119,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Chat",
@@ -3824,7 +4118,8 @@
         "tone": "chat",
         "time": "2 h 5 min",
         "share": 0.071,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "Other",
@@ -3832,7 +4127,8 @@
         "tone": "other",
         "time": "2 h",
         "share": 0.068,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       }
     ],
     "rankingTitle": "By status",
@@ -4292,7 +4588,13 @@
         "tone": "work",
         "time": "33 h 10 min",
         "share": 1,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "cursor",
+          "name": "Cursor",
+          "category": "Work"
+        }
       },
       {
         "name": "Visual Studio Code",
@@ -4300,7 +4602,13 @@
         "tone": "work",
         "time": "15 h 30 min",
         "share": 0.467,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "code",
+          "name": "Visual Studio Code",
+          "category": "Work"
+        }
       },
       {
         "name": "原神",
@@ -4308,7 +4616,13 @@
         "tone": "game",
         "time": "13 h 30 min",
         "share": 0.407,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "yuanshen",
+          "name": "原神",
+          "category": "Game"
+        }
       },
       {
         "name": "哔哩哔哩",
@@ -4316,7 +4630,13 @@
         "tone": "relax",
         "time": "11 h 40 min",
         "share": 0.352,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "bilibili",
+          "name": "哔哩哔哩",
+          "category": "Video"
+        }
       },
       {
         "name": "知乎",
@@ -4324,7 +4644,13 @@
         "tone": "browse",
         "time": "5 h 40 min",
         "share": 0.171,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Domain",
+          "pattern": "zhihu.com",
+          "name": "知乎",
+          "category": "Browsing"
+        }
       },
       {
         "name": "XMind",
@@ -4332,7 +4658,13 @@
         "tone": "other",
         "time": "3 h 30 min",
         "share": 0.106,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "xmind",
+          "name": "XMind",
+          "category": "Other"
+        }
       },
       {
         "name": "微信",
@@ -4340,7 +4672,13 @@
         "tone": "chat",
         "time": "3 h 20 min",
         "share": 0.101,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "weixin",
+          "name": "微信",
+          "category": "Communication"
+        }
       }
     ],
     "rankingTitle": "Top apps and sites",
@@ -4360,6 +4698,18 @@
     "canPrev": false,
     "canNext": false,
     "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
       {
         "key": "Video",
         "name": "Video",
@@ -4383,18 +4733,6 @@
         "name": "Other",
         "tone": "other",
         "hidden": false
-      },
-      {
-        "key": "hidden-work",
-        "name": "Work (category hidden)",
-        "tone": "work",
-        "hidden": true
-      },
-      {
-        "key": "hidden-chat",
-        "name": "Chat (category hidden)",
-        "tone": "chat",
-        "hidden": true
       }
     ],
     "bars": [
@@ -4428,11 +4766,11 @@
         "date": "2026-11-05",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 24300
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
@@ -4459,11 +4797,11 @@
         "date": "2026-11-06",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
@@ -4524,11 +4862,11 @@
         "date": "2026-11-09",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
@@ -4555,11 +4893,11 @@
         "date": "2026-11-10",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
@@ -4582,11 +4920,11 @@
         "date": "2026-11-11",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 14700
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
@@ -4715,12 +5053,13 @@
     "timeline": [],
     "ranking": [
       {
-        "name": "Work (category hidden)",
+        "name": "Work",
         "sub": null,
         "tone": "work",
         "time": "29 h 25 min",
         "share": 1,
-        "hidden": true
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "原神",
@@ -4728,7 +5067,8 @@
         "tone": "game",
         "time": "9 h",
         "share": 0.306,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "哔哩哔哩",
@@ -4736,7 +5076,8 @@
         "tone": "relax",
         "time": "7 h 30 min",
         "share": 0.255,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "知乎",
@@ -4744,15 +5085,17 @@
         "tone": "browse",
         "time": "3 h 30 min",
         "share": 0.119,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
-        "name": "Chat (category hidden)",
+        "name": "Chat",
         "sub": null,
         "tone": "chat",
         "time": "2 h 5 min",
         "share": 0.071,
-        "hidden": true
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "XMind",
@@ -4760,7 +5103,8 @@
         "tone": "other",
         "time": "2 h",
         "share": 0.068,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       }
     ],
     "rankingTitle": "Top apps and sites",
@@ -5220,7 +5564,13 @@
         "tone": "work",
         "time": "25 h 50 min",
         "share": 1,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "cursor",
+          "name": "Cursor",
+          "category": "Work"
+        }
       },
       {
         "name": "architecture.md - docs",
@@ -5228,7 +5578,13 @@
         "tone": "work",
         "time": "15 h 30 min",
         "share": 0.6,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "code",
+          "name": "Visual Studio Code",
+          "category": "Work"
+        }
       },
       {
         "name": "深境螺旋",
@@ -5236,7 +5592,13 @@
         "tone": "game",
         "time": "13 h 30 min",
         "share": 0.523,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "yuanshen",
+          "name": "原神",
+          "category": "Game"
+        }
       },
       {
         "name": "【4K】猫猫合集：一只橘猫从早到晚的完整一天，附带三只小猫的成长记录和彩蛋",
@@ -5244,7 +5606,13 @@
         "tone": "relax",
         "time": "11 h 40 min",
         "share": 0.452,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "bilibili",
+          "name": "哔哩哔哩",
+          "category": "Video"
+        }
       },
       {
         "name": "StatsPage.tsx - idea1 - Cursor",
@@ -5252,7 +5620,13 @@
         "tone": "work",
         "time": "7 h 20 min",
         "share": 0.284,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "cursor",
+          "name": "Cursor",
+          "category": "Work"
+        }
       },
       {
         "name": "使用统计方案",
@@ -5260,7 +5634,13 @@
         "tone": "other",
         "time": "3 h 30 min",
         "share": 0.135,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "xmind",
+          "name": "XMind",
+          "category": "Other"
+        }
       },
       {
         "name": "项目群",
@@ -5268,7 +5648,13 @@
         "tone": "chat",
         "time": "3 h 20 min",
         "share": 0.129,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Process",
+          "pattern": "weixin",
+          "name": "微信",
+          "category": "Communication"
+        }
       },
       {
         "name": "如何评价这个周末",
@@ -5276,7 +5662,13 @@
         "tone": "browse",
         "time": "3 h 20 min",
         "share": 0.129,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Domain",
+          "pattern": "zhihu.com",
+          "name": "知乎",
+          "category": "Browsing"
+        }
       },
       {
         "name": "如何评价手写 SVG 图表",
@@ -5284,7 +5676,13 @@
         "tone": "browse",
         "time": "2 h 20 min",
         "share": 0.09,
-        "hidden": false
+        "hidden": false,
+        "rule": {
+          "kind": "Domain",
+          "pattern": "zhihu.com",
+          "name": "知乎",
+          "category": "Browsing"
+        }
       }
     ],
     "rankingTitle": "Top titles",
@@ -5304,6 +5702,18 @@
     "canPrev": false,
     "canNext": false,
     "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
       {
         "key": "Video",
         "name": "Video",
@@ -5327,18 +5737,6 @@
         "name": "Other",
         "tone": "other",
         "hidden": false
-      },
-      {
-        "key": "hidden-work",
-        "name": "Work (category hidden)",
-        "tone": "work",
-        "hidden": true
-      },
-      {
-        "key": "hidden-chat",
-        "name": "Chat (category hidden)",
-        "tone": "chat",
-        "hidden": true
       }
     ],
     "bars": [
@@ -5372,11 +5770,11 @@
         "date": "2026-11-05",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 24300
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
@@ -5403,11 +5801,11 @@
         "date": "2026-11-06",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
@@ -5468,11 +5866,11 @@
         "date": "2026-11-09",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 21900
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 2100
           },
           {
@@ -5499,11 +5897,11 @@
         "date": "2026-11-10",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 23100
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 1500
           },
           {
@@ -5526,11 +5924,11 @@
         "date": "2026-11-11",
         "parts": [
           {
-            "key": "hidden-work",
+            "key": "Work",
             "seconds": 14700
           },
           {
-            "key": "hidden-chat",
+            "key": "Communication",
             "seconds": 900
           },
           {
@@ -5659,12 +6057,13 @@
     "timeline": [],
     "ranking": [
       {
-        "name": "Work (category hidden)",
+        "name": "Work",
         "sub": null,
         "tone": "work",
         "time": "29 h 25 min",
         "share": 1,
-        "hidden": true
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "深境螺旋",
@@ -5672,7 +6071,8 @@
         "tone": "game",
         "time": "9 h",
         "share": 0.306,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "哔哩哔哩",
@@ -5680,7 +6080,8 @@
         "tone": "relax",
         "time": "7 h 30 min",
         "share": 0.255,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "知乎",
@@ -5688,15 +6089,17 @@
         "tone": "browse",
         "time": "3 h 30 min",
         "share": 0.119,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       },
       {
-        "name": "Chat (category hidden)",
+        "name": "Chat",
         "sub": null,
         "tone": "chat",
         "time": "2 h 5 min",
         "share": 0.071,
-        "hidden": true
+        "hidden": false,
+        "rule": null
       },
       {
         "name": "XMind",
@@ -5704,7 +6107,8 @@
         "tone": "other",
         "time": "2 h",
         "share": 0.068,
-        "hidden": false
+        "hidden": false,
+        "rule": null
       }
     ],
     "rankingTitle": "Top titles",

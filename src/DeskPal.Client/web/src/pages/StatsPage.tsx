@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import type { NoTitleKind, PanelState, StatsGranularity, StatsScale, StatsView } from "../bridge";
+import type { NoTitleKind, PanelState, StatsGranularity, StatsRankItem, StatsScale, StatsView } from "../bridge";
 import { Bars, Legend, Ranking, Timeline } from "../components/charts";
 import { useHost } from "../host";
 import { t, type MessageKey } from "../i18n";
@@ -29,7 +29,8 @@ function shift(date: string, scale: StatsScale, step: number) {
 }
 
 export function StatsPage({ state, target, onTarget }: { state: PanelState; target: StatsTarget; onTarget: (t: StatsTarget) => void }) {
-  const { bridge } = useHost();
+  const { bridge, ask, run } = useHost();
+  const [revision, setRevision] = useState(0);
   const [scale, setScale] = useState<StatsScale>("Day");
   const [granularity, setGranularity] = useState<StatsGranularity>("Category");
   const [date, setDate] = useState<string | null>(null);
@@ -59,10 +60,24 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
     // 看自己的今天时，每分钟刷新一次。
     const timer = userId === null ? setInterval(() => void query(), 60_000) : undefined;
     return () => clearInterval(timer);
-  }, [scale, granularity, date, userId]);
+  }, [scale, granularity, date, userId, revision]);
 
   const anchor = view?.anchor ?? date;
   const go = (step: number) => anchor && setDate(shift(anchor, scale, step));
+
+  const reclassify = async (item: StatsRankItem) => {
+    const rule = item.rule;
+    if (!rule) return;
+    const a = await ask({
+      title: t("rule.ask", { name: item.name }),
+      message: t("stats.reclassifyMessage"),
+      select: { options: state.correction.options, initial: rule.category },
+      okText: t("common.save"),
+    });
+    if (!a.ok || a.selected === rule.category) return;
+    const result = await run({ type: "rules.set", kind: rule.kind, pattern: rule.pattern, name: rule.name, category: a.selected }, t("common.saved"));
+    if (result.ok) setRevision((r) => r + 1);
+  };
 
   return (
     <>
@@ -129,14 +144,14 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
           </p>
         )}
         {!view && !error && <p class="loading">{target ? t("stats.requesting", { name: target.name }) : t("stats.reading")}</p>}
-        {view && <Report view={view} onPick={(d) => (setScale("Day"), setDate(d))} busy={loading} />}
+        {view && <Report view={view} onPick={(d) => (setScale("Day"), setDate(d))} onReclassify={(item) => void reclassify(item)} busy={loading} />}
       </Section>
       {!target && state.usage && <UsageSettings usage={state.usage} />}
     </>
   );
 }
 
-function Report({ view, onPick, busy }: { view: StatsView; onPick: (date: string) => void; busy: boolean }) {
+function Report({ view, onPick, onReclassify, busy }: { view: StatsView; onPick: (date: string) => void; onReclassify: (item: StatsRankItem) => void; busy: boolean }) {
   return (
     <div class={busy ? "stats-report busy" : "stats-report"} aria-busy={busy}>
       {view.note && (
@@ -162,7 +177,7 @@ function Report({ view, onPick, busy }: { view: StatsView; onPick: (date: string
           {view.ranking.length > 0 && (
             <div class="card">
               <p class="card-label">{view.rankingTitle}</p>
-              <Ranking items={view.ranking} />
+              <Ranking items={view.ranking} onPick={onReclassify} />
             </div>
           )}
         </>

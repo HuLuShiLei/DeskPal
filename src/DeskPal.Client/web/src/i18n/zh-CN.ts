@@ -205,6 +205,8 @@ export const zh = {
   "stats.byState": "状态",
   "stats.byCategory": "类别",
   "stats.byTitle": "标题",
+  "stats.clickToReclassify": "点击修改分类",
+  "stats.reclassifyMessage": "已记录的使用统计也按新类别显示，房间成员查看时同样如此。适用于所有房间和电脑。",
   "stats.prev": "上一段",
   "stats.next": "下一段",
   "stats.today": "回到今天",

@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Usage;
+using DeskPal.Shared.Api;
 using DeskPal.Shared.Presence;
 using DeskPal.Shared.Stats;
 
@@ -191,9 +192,9 @@ public class UsageTests : IDisposable
 
         var shown = StatsFilter.Apply(UsageAggregator.Build(segments, [], Day, Day, Zone), profile);
 
-        Assert.DoesNotContain(shown.Days, d => d.Category == ActivityCategory.Work);
-        Assert.Contains(shown.Days, d => d is { State: PresenceState.Working, Category: ActivityCategory.None, Seconds: 3600 });
+        Assert.Contains(shown.Days, d => d is { State: PresenceState.Working, Category: ActivityCategory.Work, Seconds: 3600 });
         Assert.DoesNotContain(shown.Apps.Concat(shown.Titles), i => i.App == "Cursor" || i.Title == "secret.md");
+        Assert.Contains(shown.Apps, a => a is { Category: ActivityCategory.Work, App: null, Seconds: 3600 });
         Assert.Contains(shown.Apps, a => a.App == "哔哩哔哩");
         Assert.DoesNotContain(shown.Titles, t => t.Title == "猫");
         Assert.Contains(shown.Titles, t => t.Title == "深渊");
@@ -233,7 +234,7 @@ public class UsageTests : IDisposable
 
         Assert.Equal("11 月 11 日 星期三（今天）", view.Title);
         Assert.Equal(("使用时长", "1 小时 30 分钟"), (view.TotalLabel, view.Total));
-        Assert.Equal("昨天全天 1 小时", view.Compare);
+        Assert.Null(view.Compare);
         Assert.Equal("比前一天多 30 分钟", StatsViewBuilder.Build(report, StatsScale.Day, StatsGranularity.Category, Day, Day.AddDays(1)).Compare);
         Assert.Null(StatsViewBuilder.Build(report with { PreviousSeconds = 0 }, StatsScale.Day, StatsGranularity.Category, Day, Day).Compare);
         Assert.Equal("暂离 10 分钟", view.Summary);
@@ -282,8 +283,99 @@ public class UsageTests : IDisposable
 
         Assert.Equal("Bob 公开了最近 1 天的统计。部分类别仅公开了状态。部分类别未公开标题，仅显示应用名。", view.Note);
         Assert.False(view.CanPrev);
-        Assert.Contains(view.Ranking, r => r is { Name: "工作（未公开类别）", Hidden: true });
+        Assert.Contains(view.Ranking, r => r is { Name: "工作", Sub: null, Hidden: false });
         Assert.Contains(view.Ranking, r => r.Name == "哔哩哔哩");
+    }
+
+    [Fact]
+    public void Personal_rules_reclassify_history_when_it_is_read()
+    {
+        UsageSegment[] segments =
+        [
+            new(At(9, 0), At(10, 0), PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "猫猫合集", "chrome"),
+            new(At(10, 0), At(11, 0), PresenceState.Slacking, ActivityCategory.Game, "Sumire", null, "sumire", ActivityCategory.Other),
+            new(At(11, 0), At(12, 0), PresenceState.Browsing, ActivityCategory.Browsing, "github.com", "PR", "chrome"),
+            new(At(12, 0), At(13, 0), PresenceState.Browsing, ActivityCategory.Browsing, "bilibili.com", "旧记录"),
+        ];
+        var rules = new UsageReclassifier(
+        [
+            new UserRuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Video, "bilibili.com", DateTimeOffset.UnixEpoch),
+        ]);
+
+        var read = segments.Select(rules.Apply).ToList();
+
+        Assert.Equal((PresenceState.Slacking, ActivityCategory.Video), (read[0].State, read[0].Category));
+        Assert.Equal((PresenceState.Other, ActivityCategory.Other), (read[1].State, read[1].Category));
+        Assert.Same(segments[2], read[2]);
+        Assert.Equal(ActivityCategory.Video, read[3].Category);
+
+        var report = UsageAggregator.Build(read, [], Day, Day, Zone);
+        Assert.Equal(2 * 3600, report.Days.Where(d => d.Category == ActivityCategory.Video).Sum(d => d.Seconds));
+    }
+
+    [Fact]
+    public void Recorder_keeps_the_open_segment_while_the_browser_address_is_read()
+    {
+        var writer = new FakeWriter();
+        var recorder = new UsageRecorder(writer, Zone);
+        var github = new LocalPresence(PresenceState.Browsing, ActivityCategory.Browsing, "github.com", "PR");
+        var bilibili = new LocalPresence(PresenceState.Slacking, ActivityCategory.Video, "bilibili.com", "猫猫合集");
+
+        recorder.Record(github, At(9, 0), "chrome", baseCategory: ActivityCategory.Browsing);
+        recorder.Record(github with { Detail = "猫猫合集" }, At(9, 0, 5), "chrome", hold: true);
+        recorder.Record(bilibili, At(9, 0, 6), "chrome", baseCategory: ActivityCategory.Browsing);
+        recorder.Record(bilibili, At(9, 0, 10), "chrome", baseCategory: ActivityCategory.Browsing);
+        recorder.Flush();
+
+        Assert.Equal([("github.com", At(9, 0), At(9, 0, 6)), ("bilibili.com", At(9, 0, 6), At(9, 0, 10))], writer.Rows.Select(r => (r.App, r.Start, r.End)));
+        Assert.Equal(("chrome", (ActivityCategory?)null, ActivityCategory.Browsing), (writer.Rows[0].Process, writer.Rows[0].BaseCategory, writer.Rows[1].BaseCategory!.Value));
+
+        writer = new FakeWriter();
+        recorder = new UsageRecorder(writer, Zone);
+        recorder.Record(github, At(9, 0), "chrome");
+        for (var s = 1; s <= 8; s++)
+        {
+            recorder.Record(github with { Detail = "新标签页" }, At(9, 0, s), "chrome", hold: true);
+        }
+
+        recorder.Flush();
+        Assert.Equal(["PR", "新标签页"], writer.Rows.Select(r => r.Title));
+        Assert.Equal(At(9, 0, 6), writer.Rows[1].Start);
+    }
+
+    [Fact]
+    public void Store_keeps_the_process_and_the_category_without_personal_rules()
+    {
+        using var store = NewStore();
+        store.Add(new UsageSegment(At(9, 0), At(10, 0), PresenceState.Slacking, ActivityCategory.Game, "Sumire", null, "sumire", ActivityCategory.Other));
+        store.Add(new UsageSegment(At(10, 0), At(11, 0), PresenceState.Working, ActivityCategory.Work, "Cursor", null));
+
+        var rows = store.Segments(At(0, 0), At(0, 0, dayOffset: 1));
+
+        Assert.Equal([("sumire", ActivityCategory.Other), (null, null)], rows.Select(r => (r.Process, r.BaseCategory)));
+        Assert.Equal("sumire", store.ProcessesByApp(At(0, 0), At(0, 0, dayOffset: 1))["Sumire"]);
+    }
+
+    [Fact]
+    public void State_view_tells_video_from_games_and_my_rows_can_be_reclassified()
+    {
+        UsageSegment[] segments =
+        [
+            new(At(9, 0), At(10, 0), PresenceState.Slacking, ActivityCategory.Video, "bilibili.com", "猫"),
+            new(At(10, 0), At(11, 0), PresenceState.Slacking, ActivityCategory.Game, "最终幻想XIV", null),
+        ];
+        var report = UsageAggregator.Build(segments, [], Day, Day, Zone);
+        StatsRuleTarget? Targets(string app) => app == "bilibili.com" ? new StatsRuleTarget("Domain", "bilibili.com", app) : null;
+
+        var state = StatsViewBuilder.Build(report, StatsScale.Day, StatsGranularity.State, Day, Day, targetOf: Targets);
+        Assert.Equal(["video", "game"], state.Legend.Select(l => l.Key));
+        Assert.Equal(["relax", "game"], state.Timeline.Select(t => t.Tone));
+        Assert.Equal(["视频", "游戏"], state.Ranking.Select(r => r.Name));
+
+        var apps = StatsViewBuilder.Build(report, StatsScale.Day, StatsGranularity.Category, Day, Day, targetOf: Targets);
+        Assert.Equal(new StatsRuleTarget("Domain", "bilibili.com", "bilibili.com", "Video"), apps.Ranking.Single(r => r.Name == "bilibili.com").Rule);
+        Assert.Null(apps.Ranking.Single(r => r.Name == "最终幻想XIV").Rule);
+        Assert.All(StatsViewBuilder.Build(report, StatsScale.Day, StatsGranularity.Category, Day, Day, "Bob", Targets).Ranking, r => Assert.Null(r.Rule));
     }
 
     private SqliteUsageStore NewStore()

@@ -42,7 +42,7 @@ public static class PresenceFormatter
             PresenceState.Away => Strings.State_Away,
             PresenceState.Working or PresenceState.Meeting => Strings.State_Working,
             PresenceState.Communicating => Strings.State_Chatting,
-            PresenceState.Other => app is null ? Strings.State_Working : UiLanguage.Format(Strings.State_UsingApp, app),
+            PresenceState.Other => app is null ? Strings.State_UsingOtherApp : UiLanguage.Format(Strings.State_UsingApp, app),
             PresenceState.Slacking => SlackingLabel(snapshot.Category),
             PresenceState.Browsing => Strings.State_Browsing,
             _ => snapshot.State.ToString(),

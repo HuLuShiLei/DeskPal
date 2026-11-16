@@ -27,7 +27,8 @@ public sealed record UsageReport(
 /// <param name="Hour">0 to 23 for hourly totals, -1 for daily totals.</param>
 public sealed record UsageTotal(DateOnly Date, int Hour, PresenceState State, ActivityCategory Category, long Seconds);
 
-public sealed record UsageSpan(int Start, int End, PresenceState State);
+/// <param name="Category">Video and game are told apart on the timeline. None from older versions, and for away and locked time.</param>
+public sealed record UsageSpan(int Start, int End, PresenceState State, ActivityCategory Category = ActivityCategory.None);
 
 /// <param name="Category">None when the owner shows only the state for this category.</param>
 /// <param name="App">null when the app is not shared or not known.</param>

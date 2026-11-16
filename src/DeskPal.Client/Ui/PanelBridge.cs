@@ -605,6 +605,7 @@ public sealed class PanelBridge
                 return CommandResult.Success;
             }
 
+
             case "settings.language":
             {
                 var language = UiLanguage.Normalize(c.String("language"));
@@ -688,8 +689,8 @@ public sealed class PanelBridge
 
         if (c.OptionalString("userId") is null)
         {
-            var mine = await Task.Run(() => _usage.Report(range.From, to, (previous.From, previous.To)));
-            return new CommandResult(true, Data: StatsViewBuilder.Build(mine, scale, granularity, anchor, today));
+            var (mine, targets) = await Task.Run(() => (_usage.Report(range.From, to, (previous.From, previous.To)), _usage.RuleTargets(range.From, to)));
+            return new CommandResult(true, Data: StatsViewBuilder.Build(mine, scale, granularity, anchor, today, targetOf: targets));
         }
 
         var userId = c.Guid("userId");

@@ -141,7 +141,7 @@ public sealed class PresenceCoordinator : BackgroundService
             var actual = _settings.Paused ? PresenceResolver.Resolve(Snapshot, Classification, paused: false) : Local;
             var foreground = Snapshot.Foreground;
             var domain = foreground?.IsBrowser == true && Snapshot.BrowserDomain is { Length: > 0 } host ? RulePattern.NormalizeHost(host) : null;
-            _usage.Recorder.Record(ready ? actual : null, now, foreground?.ProcessName, domain);
+            _usage.Recorder.Record(ready ? actual : null, now, foreground?.ProcessName, domain, Classification.Default, Snapshot.DomainPending);
         }
 
         if (deadline is { } due)

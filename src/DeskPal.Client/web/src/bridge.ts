@@ -168,10 +168,21 @@ export interface StatsView {
   barMaxLabel: string;
   /** 只有日视图有：从零点起的秒数。 */
   timeline: { start: number; end: number; tone: Tone; tip: string }[];
-  ranking: { name: string; sub: string | null; tone: Tone; time: string; share: number; hidden: boolean }[];
+  ranking: StatsRankItem[];
   rankingTitle: string;
   note: string | null;
   empty: string | null;
+}
+
+export interface StatsRankItem {
+  name: string;
+  sub: string | null;
+  tone: Tone;
+  time: string;
+  share: number;
+  hidden: boolean;
+  /** 只在自己的应用、标题排行上有：点击后用 rules.set 修改分类，历史统计按新分类显示。 */
+  rule: { kind: RuleKind; pattern: string; name: string; category: string } | null;
 }
 
 export type DialogKind = "confirm" | "info" | "warning";

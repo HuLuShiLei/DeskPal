@@ -59,17 +59,35 @@ public sealed class RuleSet
                 return byDomain;
             }
 
-            var title = foreground.WindowTitle.ToLowerInvariant();
-            foreach (var (keyword, rule) in _titleKeywords)
+            if (MatchTitle(foreground.WindowTitle) is { } byTitle)
             {
-                if (title.Contains(keyword, StringComparison.Ordinal))
-                {
-                    return rule;
-                }
+                return byTitle;
             }
         }
 
-        return _processes.GetValueOrDefault(RulePattern.Normalize(RuleKind.Process, foreground.ProcessName));
+        return MatchProcess(foreground.ProcessName);
+    }
+
+    public RuleDto? MatchProcess(string process) => _processes.GetValueOrDefault(RulePattern.Normalize(RuleKind.Process, process));
+
+    /// <summary>First title keyword contained in the title, ignoring case.</summary>
+    public RuleDto? MatchTitle(string? title)
+    {
+        if (string.IsNullOrEmpty(title))
+        {
+            return null;
+        }
+
+        var lower = title.ToLowerInvariant();
+        foreach (var (keyword, rule) in _titleKeywords)
+        {
+            if (lower.Contains(keyword, StringComparison.Ordinal))
+            {
+                return rule;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>Most specific suffix wins: for "live.bilibili.com" try the full host first, then "bilibili.com".</summary>

@@ -1,7 +1,10 @@
 using System.IO;
 using System.Text.Json;
+using DeskPal.Client.Core.Classification;
+using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Usage;
 using DeskPal.Shared;
+using DeskPal.Shared.Api;
 using DeskPal.Shared.Stats;
 using Microsoft.Extensions.Logging;
 
@@ -19,12 +22,15 @@ public sealed class UsageService : IDisposable
     private readonly SqliteUsageStore _db;
     private readonly Timer _compact;
     private IReadOnlyList<StatsViewRecord> _views = [];
+    private volatile UsageReclassifier _reclassifier = UsageReclassifier.None;
 
-    public UsageService(AppSettings settings, SettingsStore store, ILogger<UsageService> logger)
+    public UsageService(AppSettings settings, SettingsStore store, PersonalRules personalRules, ILogger<UsageService> logger)
     {
         _settings = settings;
         _store = store;
         _logger = logger;
+        _reclassifier = new UsageReclassifier(personalRules.Rules);
+        personalRules.Changed += () => _reclassifier = new UsageReclassifier(personalRules.Rules);
         if (settings.DeviceId == Guid.Empty)
         {
             settings.DeviceId = Guid.NewGuid();
@@ -61,11 +67,15 @@ public sealed class UsageService : IDisposable
         return previous is { } p ? report with { PreviousSeconds = UsageAggregator.ActiveSeconds(Build(p.From, p.To)) } : report;
     }
 
+    /// <summary>The retention or the no-title rules changed, here or from another computer through sync.</summary>
+    public event Action? SettingsChanged;
+
     public void SetRetention(int days)
     {
         _settings.UsageRetentionDays = days;
         _store.Save(_settings);
         Compact();
+        SettingsChanged?.Invoke();
     }
 
     public void SetNoTitleRules(List<NoTitleRule> rules)
@@ -73,6 +83,7 @@ public sealed class UsageService : IDisposable
         _settings.NoTitleRules = rules;
         _store.Save(_settings);
         Recorder.SetNoTitleRules(rules);
+        SettingsChanged?.Invoke();
     }
 
     public void Export(string path)
@@ -128,12 +139,31 @@ public sealed class UsageService : IDisposable
         _db.Dispose();
     }
 
+    /// <summary>The personal rule a ranking row of the range would be saved against: the domain for sites, the process for apps.</summary>
+    public Func<string, StatsRuleTarget?> RuleTargets(DateOnly from, DateOnly to)
+    {
+        var zone = TimeZoneInfo.Local;
+        var processes = _db.ProcessesByApp(UsageAggregator.LocalMidnight(from, zone), UsageAggregator.LocalMidnight(to.AddDays(1), zone));
+        return app =>
+        {
+            var process = processes.GetValueOrDefault(app);
+            if (process is null || Browsers.IsBrowser(process))
+            {
+                var host = RulePattern.NormalizeHost(app);
+                return host == app && host.Contains('.') ? new StatsRuleTarget(nameof(RuleKind.Domain), host, app) : null;
+            }
+
+            return new StatsRuleTarget(nameof(RuleKind.Process), RulePattern.Normalize(RuleKind.Process, process), app);
+        };
+    }
+
     private UsageReport Build(DateOnly from, DateOnly to)
     {
         var zone = TimeZoneInfo.Local;
+        var reclassifier = _reclassifier;
         return UsageAggregator.Build(
-            _db.Segments(UsageAggregator.LocalMidnight(from, zone), UsageAggregator.LocalMidnight(to.AddDays(1), zone)),
-            _db.Rollups(from, to),
+            _db.Segments(UsageAggregator.LocalMidnight(from, zone), UsageAggregator.LocalMidnight(to.AddDays(1), zone)).Select(reclassifier.Apply),
+            _db.Rollups(from, to).Select(reclassifier.Apply),
             from,
             to,
             zone);

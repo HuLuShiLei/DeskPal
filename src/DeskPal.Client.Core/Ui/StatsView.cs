@@ -78,4 +78,10 @@ public sealed record StatsPart(string Key, long Seconds);
 public sealed record StatsSpanView(int Start, int End, string Tone, string Tip);
 
 /// <param name="Share">Width of the bar, 0 to 1, relative to the first item.</param>
-public sealed record StatsRankItem(string Name, string? Sub, string Tone, string Time, double Share, bool Hidden = false);
+/// <param name="Rule">Set on my own app and title rows whose process or domain is known; clicking changes their category.</param>
+public sealed record StatsRankItem(string Name, string? Sub, string Tone, string Time, double Share, bool Hidden = false, StatsRuleTarget? Rule = null);
+
+/// <summary>A personal rule the page saves with rules.set, and the category the row has now.</summary>
+/// <param name="Kind">Process or Domain.</param>
+/// <param name="Name">App name as recorded, saved as the rule's name.</param>
+public sealed record StatsRuleTarget(string Kind, string Pattern, string Name, string Category = "");

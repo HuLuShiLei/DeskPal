@@ -81,12 +81,23 @@ export function Legend({ legend }: { legend: StatsView["legend"] }) {
   );
 }
 
-/** 排行：名称、所属应用或类别、横向占比条和时长。 */
-export function Ranking({ items }: { items: StatsView["ranking"] }) {
+/** 排行：名称、所属应用或类别、横向占比条和时长。带 rule 的行可以点击修改分类。 */
+export function Ranking({ items, onPick }: { items: StatsView["ranking"]; onPick?: (item: StatsView["ranking"][number]) => void }) {
   return (
     <ol class="stats-ranking">
-      {items.map((item, i) => (
-        <li key={i} title={item.sub ? `${item.name}\n${item.sub}` : item.name}>
+      {items.map((item, i) => {
+        const pick = item.rule && onPick ? () => onPick(item) : undefined;
+        const tip = [item.name, item.sub, pick && t("stats.clickToReclassify")].filter(Boolean).join("\n");
+        return (
+        <li
+          key={i}
+          title={tip}
+          class={pick ? "pickable" : undefined}
+          role={pick ? "button" : undefined}
+          tabIndex={pick ? 0 : undefined}
+          onClick={pick}
+          onKeyDown={pick && ((e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), pick()))}
+        >
           <div class="stats-rank-text">
             <span class="stats-rank-name">{item.name}</span>
             {item.sub && <span class="stats-rank-sub">{item.sub}</span>}
@@ -96,7 +107,8 @@ export function Ranking({ items }: { items: StatsView["ranking"] }) {
             <span class={item.hidden ? "hidden-part" : undefined} style={{ width: `${Math.max(item.share * 100, 1)}%`, background: `var(--tone-${item.tone})` }} />
           </span>
         </li>
-      ))}
+        );
+      })}
     </ol>
   );
 }

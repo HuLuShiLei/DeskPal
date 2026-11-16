@@ -486,6 +486,8 @@ button.hint-button:active:not(:disabled) { background: var(--pressed); color: va
 .stats-swatch { width: 10px; height: 10px; border-radius: 3px; }
 .stats-ranking { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
 .stats-ranking li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: baseline; }
+.stats-ranking li.pickable { cursor: pointer; margin: -4px -6px; padding: 4px 6px; border-radius: var(--radius); }
+.stats-ranking li.pickable:hover { background: var(--hover); }
 .stats-rank-text { min-width: 0; display: flex; align-items: baseline; gap: 8px; }
 .stats-rank-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .stats-rank-sub { flex: none; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--faint); }

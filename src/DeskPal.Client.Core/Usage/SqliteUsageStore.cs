@@ -34,7 +34,9 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 State TEXT NOT NULL,
                 Category TEXT NOT NULL,
                 App TEXT NULL,
-                Title TEXT NULL);
+                Title TEXT NULL,
+                Process TEXT NULL,
+                BaseCategory TEXT NULL);
             CREATE UNIQUE INDEX IF NOT EXISTS IX_Segments_Device_Start ON Segments (DeviceId, StartAt);
             CREATE INDEX IF NOT EXISTS IX_Segments_Start ON Segments (StartAt);
             CREATE TABLE IF NOT EXISTS DailyRollups (
@@ -44,8 +46,10 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 Category TEXT NOT NULL,
                 App TEXT NOT NULL,
                 Title TEXT NOT NULL,
+                Process TEXT NOT NULL DEFAULT '',
+                BaseCategory TEXT NOT NULL DEFAULT '',
                 Seconds INTEGER NOT NULL,
-                PRIMARY KEY (DeviceId, Date, State, Category, App, Title));
+                PRIMARY KEY (DeviceId, Date, State, Category, App, Title, Process, BaseCategory));
             CREATE TABLE IF NOT EXISTS StatsViews (
                 RoomId TEXT NOT NULL,
                 RoomName TEXT NOT NULL,
@@ -54,6 +58,10 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 At INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS SyncDays (
                 Date TEXT PRIMARY KEY,
+                Hash TEXT NULL,
+                Revision INTEGER NOT NULL);
+            CREATE TABLE IF NOT EXISTS SyncSettings (
+                Id INTEGER PRIMARY KEY CHECK (Id = 1),
                 Hash TEXT NULL,
                 Revision INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS FolderWritten (
@@ -65,6 +73,47 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 Stamp TEXT NOT NULL,
                 PRIMARY KEY (DeviceId, Date));
             """);
+        Upgrade();
+    }
+
+    /// <summary>Databases written before process and base category were kept get the new columns.</summary>
+    private void Upgrade()
+    {
+        if (!HasColumn("Segments", "Process"))
+        {
+            Execute("ALTER TABLE Segments ADD COLUMN Process TEXT NULL; ALTER TABLE Segments ADD COLUMN BaseCategory TEXT NULL;");
+        }
+
+        if (!HasColumn("DailyRollups", "Process"))
+        {
+            // The primary key changes, which SQLite can only do by copying the table.
+            Execute("""
+                BEGIN;
+                CREATE TABLE DailyRollupsNew (
+                    DeviceId TEXT NOT NULL,
+                    Date TEXT NOT NULL,
+                    State TEXT NOT NULL,
+                    Category TEXT NOT NULL,
+                    App TEXT NOT NULL,
+                    Title TEXT NOT NULL,
+                    Process TEXT NOT NULL DEFAULT '',
+                    BaseCategory TEXT NOT NULL DEFAULT '',
+                    Seconds INTEGER NOT NULL,
+                    PRIMARY KEY (DeviceId, Date, State, Category, App, Title, Process, BaseCategory));
+                INSERT INTO DailyRollupsNew (DeviceId, Date, State, Category, App, Title, Seconds)
+                    SELECT DeviceId, Date, State, Category, App, Title, Seconds FROM DailyRollups;
+                DROP TABLE DailyRollups;
+                ALTER TABLE DailyRollupsNew RENAME TO DailyRollups;
+                COMMIT;
+                """);
+        }
+    }
+
+    private bool HasColumn(string table, string column)
+    {
+        using var cmd = Command($"SELECT COUNT(*) FROM pragma_table_info('{table}') WHERE name = $column");
+        cmd.Parameters.AddWithValue("$column", column);
+        return (long)cmd.ExecuteScalar()! > 0;
     }
 
     /// <summary>This computer. Segments and totals recorded here carry it.</summary>
@@ -75,13 +124,14 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         lock (_lock)
         {
             using var cmd = Command("""
-                INSERT INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title)
-                VALUES ($device, $start, $end, $state, $category, $app, $title)
+                INSERT INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory)
+                VALUES ($device, $start, $end, $state, $category, $app, $title, $process, $base)
                 ON CONFLICT (DeviceId, StartAt) DO UPDATE SET EndAt = excluded.EndAt, State = excluded.State,
-                    Category = excluded.Category, App = excluded.App, Title = excluded.Title
+                    Category = excluded.Category, App = excluded.App, Title = excluded.Title,
+                    Process = excluded.Process, BaseCategory = excluded.BaseCategory
                 RETURNING Id
                 """);
-            BindSegment(cmd, _deviceId, segment.Start, segment.End, segment.State, segment.Category, segment.App, segment.Title);
+            BindSegment(cmd, _deviceId, segment.Start, segment.End, segment.State, segment.Category, segment.App, segment.Title, segment.Process, segment.BaseCategory);
             return (long)cmd.ExecuteScalar()!;
         }
     }
@@ -102,7 +152,7 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
     {
         lock (_lock)
         {
-            using var cmd = Command("SELECT StartAt, EndAt, State, Category, App, Title FROM Segments WHERE StartAt < $to AND EndAt > $from ORDER BY StartAt");
+            using var cmd = Command("SELECT StartAt, EndAt, State, Category, App, Title, Process, BaseCategory FROM Segments WHERE StartAt < $to AND EndAt > $from ORDER BY StartAt");
             cmd.Parameters.AddWithValue("$from", from.ToUnixTimeMilliseconds());
             cmd.Parameters.AddWithValue("$to", to.ToUnixTimeMilliseconds());
             using var reader = cmd.ExecuteReader();
@@ -115,10 +165,35 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                     Enum.Parse<PresenceState>(reader.GetString(2)),
                     Enum.Parse<ActivityCategory>(reader.GetString(3)),
                     reader.IsDBNull(4) ? null : reader.GetString(4),
-                    reader.IsDBNull(5) ? null : reader.GetString(5)));
+                    reader.IsDBNull(5) ? null : reader.GetString(5),
+                    reader.IsDBNull(6) ? null : reader.GetString(6),
+                    ParseCategory(reader.IsDBNull(7) ? null : reader.GetString(7))));
             }
 
             return list;
+        }
+    }
+
+    /// <summary>For each app name recorded in the range, the process it was recorded with the longest. Older records without a process are left out.</summary>
+    public IReadOnlyDictionary<string, string> ProcessesByApp(DateTimeOffset from, DateTimeOffset to)
+    {
+        lock (_lock)
+        {
+            using var cmd = Command("""
+                SELECT App, Process, SUM(EndAt - StartAt) AS Total FROM Segments
+                WHERE StartAt < $to AND EndAt > $from AND App IS NOT NULL AND Process IS NOT NULL
+                GROUP BY App, Process ORDER BY Total DESC
+                """);
+            cmd.Parameters.AddWithValue("$from", from.ToUnixTimeMilliseconds());
+            cmd.Parameters.AddWithValue("$to", to.ToUnixTimeMilliseconds());
+            using var reader = cmd.ExecuteReader();
+            var processes = new Dictionary<string, string>(StringComparer.Ordinal);
+            while (reader.Read())
+            {
+                processes.TryAdd(reader.GetString(0), reader.GetString(1));
+            }
+
+            return processes;
         }
     }
 
@@ -126,7 +201,7 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
     {
         lock (_lock)
         {
-            using var cmd = Command("SELECT Date, State, Category, App, Title, Seconds FROM DailyRollups WHERE Date >= $from AND Date <= $to");
+            using var cmd = Command("SELECT Date, State, Category, App, Title, Seconds, Process, BaseCategory FROM DailyRollups WHERE Date >= $from AND Date <= $to");
             cmd.Parameters.AddWithValue("$from", DateText(from));
             cmd.Parameters.AddWithValue("$to", DateText(to));
             using var reader = cmd.ExecuteReader();
@@ -139,7 +214,9 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                     Enum.Parse<ActivityCategory>(reader.GetString(2)),
                     NullIfEmpty(reader.GetString(3)),
                     NullIfEmpty(reader.GetString(4)),
-                    reader.GetInt64(5)));
+                    reader.GetInt64(5),
+                    NullIfEmpty(reader.GetString(6)),
+                    ParseCategory(reader.GetString(7))));
             }
 
             return list;
@@ -154,8 +231,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         {
             var cutoff = LocalMidnight(keepFrom).ToUnixTimeMilliseconds();
             using var tx = _db.BeginTransaction();
-            var totals = new Dictionary<(string Device, string Date, string State, string Category, string App, string Title), long>();
-            using (var select = Command("SELECT DeviceId, StartAt, EndAt, State, Category, App, Title FROM Segments WHERE StartAt < $cutoff"))
+            var totals = new Dictionary<(string Device, string Date, string State, string Category, string App, string Title, string Process, string Base), long>();
+            using (var select = Command("SELECT DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory FROM Segments WHERE StartAt < $cutoff"))
             {
                 select.Parameters.AddWithValue("$cutoff", cutoff);
                 using var reader = select.ExecuteReader();
@@ -165,17 +242,18 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                     var seconds = (reader.GetInt64(2) - reader.GetInt64(1)) / 1000;
                     var date = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(start, _zone).DateTime);
                     var key = (reader.GetString(0), DateText(date), reader.GetString(3), reader.GetString(4),
-                        reader.IsDBNull(5) ? "" : reader.GetString(5), reader.IsDBNull(6) ? "" : reader.GetString(6));
+                        reader.IsDBNull(5) ? "" : reader.GetString(5), reader.IsDBNull(6) ? "" : reader.GetString(6),
+                        reader.IsDBNull(7) ? "" : reader.GetString(7), reader.IsDBNull(8) ? "" : reader.GetString(8));
                     totals[key] = totals.GetValueOrDefault(key) + seconds;
                 }
             }
 
-            foreach (var ((device, date, state, category, app, title), seconds) in totals)
+            foreach (var ((device, date, state, category, app, title, process, baseCategory), seconds) in totals)
             {
                 using var insert = Command("""
-                    INSERT INTO DailyRollups (DeviceId, Date, State, Category, App, Title, Seconds)
-                    VALUES ($device, $date, $state, $category, $app, $title, $seconds)
-                    ON CONFLICT (DeviceId, Date, State, Category, App, Title) DO UPDATE SET Seconds = Seconds + excluded.Seconds
+                    INSERT INTO DailyRollups (DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Seconds)
+                    VALUES ($device, $date, $state, $category, $app, $title, $process, $base, $seconds)
+                    ON CONFLICT (DeviceId, Date, State, Category, App, Title, Process, BaseCategory) DO UPDATE SET Seconds = Seconds + excluded.Seconds
                     """);
                 insert.Parameters.AddWithValue("$device", device);
                 insert.Parameters.AddWithValue("$date", date);
@@ -183,6 +261,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 insert.Parameters.AddWithValue("$category", category);
                 insert.Parameters.AddWithValue("$app", app);
                 insert.Parameters.AddWithValue("$title", title);
+                insert.Parameters.AddWithValue("$process", process);
+                insert.Parameters.AddWithValue("$base", baseCategory);
                 insert.Parameters.AddWithValue("$seconds", seconds);
                 insert.ExecuteNonQuery();
             }
@@ -255,8 +335,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
     {
         lock (_lock)
         {
-            using var segments = Command("SELECT DeviceId, StartAt, EndAt, State, Category, App, Title FROM Segments ORDER BY StartAt");
-            using var rollups = Command("SELECT DeviceId, Date, State, Category, App, Title, Seconds FROM DailyRollups ORDER BY Date");
+            using var segments = Command($"SELECT {SegmentColumns} FROM Segments ORDER BY StartAt");
+            using var rollups = Command($"SELECT {RollupColumns} FROM DailyRollups ORDER BY Date");
             return new UsageExport(UsageExport.CurrentVersion, _deviceId, now, ReadSegments(segments), ReadRollups(rollups));
         }
     }
@@ -270,16 +350,16 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
     {
         lock (_lock)
         {
-            using var segments = Command("""
-                SELECT DeviceId, StartAt, EndAt, State, Category, App, Title FROM Segments
+            using var segments = Command($"""
+                SELECT {SegmentColumns} FROM Segments
                 WHERE StartAt >= $from AND StartAt < $to AND ($device IS NULL OR DeviceId = $device) ORDER BY StartAt, DeviceId
                 """);
             segments.Parameters.AddWithValue("$from", LocalMidnight(date).ToUnixTimeMilliseconds());
             segments.Parameters.AddWithValue("$to", LocalMidnight(date.AddDays(1)).ToUnixTimeMilliseconds());
             segments.Parameters.AddWithValue("$device", (object?)device?.ToString() ?? DBNull.Value);
-            using var rollups = Command("""
-                SELECT DeviceId, Date, State, Category, App, Title, Seconds FROM DailyRollups
-                WHERE Date = $date AND ($device IS NULL OR DeviceId = $device) ORDER BY DeviceId, State, Category, App, Title
+            using var rollups = Command($"""
+                SELECT {RollupColumns} FROM DailyRollups
+                WHERE Date = $date AND ($device IS NULL OR DeviceId = $device) ORDER BY DeviceId, State, Category, App, Title, Process, BaseCategory
                 """);
             rollups.Parameters.AddWithValue("$date", DateText(date));
             rollups.Parameters.AddWithValue("$device", (object?)device?.ToString() ?? DBNull.Value);
@@ -350,12 +430,37 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         }
     }
 
+    /// <summary>What was last uploaded or downloaded of the synced settings; null when nothing yet.</summary>
+    public SyncMark? SyncSettingsMark()
+    {
+        lock (_lock)
+        {
+            using var cmd = Command("SELECT Hash, Revision FROM SyncSettings WHERE Id = 1");
+            using var reader = cmd.ExecuteReader();
+            return reader.Read() ? new SyncMark(reader.IsDBNull(0) ? null : reader.GetString(0), reader.GetInt64(1)) : null;
+        }
+    }
+
+    public void SetSyncSettingsMark(SyncMark mark)
+    {
+        lock (_lock)
+        {
+            using var cmd = Command("""
+                INSERT INTO SyncSettings (Id, Hash, Revision) VALUES (1, $hash, $revision)
+                ON CONFLICT (Id) DO UPDATE SET Hash = excluded.Hash, Revision = excluded.Revision
+                """);
+            cmd.Parameters.AddWithValue("$hash", (object?)mark.Hash ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("$revision", mark.Revision);
+            cmd.ExecuteNonQuery();
+        }
+    }
+
     /// <summary>Forgets what was synced with the server, after sync was turned off or on again.</summary>
     public void ResetSync()
     {
         lock (_lock)
         {
-            Execute("DELETE FROM SyncDays;");
+            Execute("DELETE FROM SyncDays; DELETE FROM SyncSettings;");
         }
     }
 
@@ -508,10 +613,10 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
             }
 
             using var cmd = Command("""
-                INSERT OR IGNORE INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title)
-                VALUES ($device, $start, $end, $state, $category, $app, $title)
+                INSERT OR IGNORE INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory)
+                VALUES ($device, $start, $end, $state, $category, $app, $title, $process, $base)
                 """);
-            BindSegment(cmd, s.DeviceId, s.Start, s.End, s.State, s.Category, s.App, s.Title);
+            BindSegment(cmd, s.DeviceId, s.Start, s.End, s.State, s.Category, s.App, s.Title, s.Process, s.BaseCategory);
             segments += cmd.ExecuteNonQuery();
         }
 
@@ -524,8 +629,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
             }
 
             using var cmd = Command("""
-                INSERT OR IGNORE INTO DailyRollups (DeviceId, Date, State, Category, App, Title, Seconds)
-                VALUES ($device, $date, $state, $category, $app, $title, $seconds)
+                INSERT OR IGNORE INTO DailyRollups (DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Seconds)
+                VALUES ($device, $date, $state, $category, $app, $title, $process, $base, $seconds)
                 """);
             cmd.Parameters.AddWithValue("$device", r.DeviceId.ToString());
             cmd.Parameters.AddWithValue("$date", DateText(r.Date));
@@ -533,6 +638,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
             cmd.Parameters.AddWithValue("$category", r.Category.ToString());
             cmd.Parameters.AddWithValue("$app", r.App ?? "");
             cmd.Parameters.AddWithValue("$title", r.Title ?? "");
+            cmd.Parameters.AddWithValue("$process", r.Process ?? "");
+            cmd.Parameters.AddWithValue("$base", r.BaseCategory?.ToString() ?? "");
             cmd.Parameters.AddWithValue("$seconds", r.Seconds);
             rollups += cmd.ExecuteNonQuery();
         }
@@ -554,7 +661,11 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         return new DateTimeOffset(local, _zone.GetUtcOffset(local));
     }
 
-    private static void BindSegment(SqliteCommand cmd, Guid device, DateTimeOffset start, DateTimeOffset end, PresenceState state, ActivityCategory category, string? app, string? title)
+    private const string SegmentColumns = "DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory";
+
+    private const string RollupColumns = "DeviceId, Date, State, Category, App, Title, Seconds, Process, BaseCategory";
+
+    private static void BindSegment(SqliteCommand cmd, Guid device, DateTimeOffset start, DateTimeOffset end, PresenceState state, ActivityCategory category, string? app, string? title, string? process, ActivityCategory? baseCategory)
     {
         cmd.Parameters.AddWithValue("$device", device.ToString());
         cmd.Parameters.AddWithValue("$start", start.ToUnixTimeMilliseconds());
@@ -563,7 +674,12 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         cmd.Parameters.AddWithValue("$category", category.ToString());
         cmd.Parameters.AddWithValue("$app", (object?)app ?? DBNull.Value);
         cmd.Parameters.AddWithValue("$title", (object?)title ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("$process", (object?)process ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("$base", (object?)baseCategory?.ToString() ?? DBNull.Value);
     }
+
+    private static ActivityCategory? ParseCategory(string? text) =>
+        Enum.TryParse<ActivityCategory>(text, out var category) ? category : null;
 
     private SqliteCommand Command(string sql)
     {
@@ -591,7 +707,9 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 Enum.Parse<PresenceState>(reader.GetString(3)),
                 Enum.Parse<ActivityCategory>(reader.GetString(4)),
                 reader.IsDBNull(5) ? null : reader.GetString(5),
-                reader.IsDBNull(6) ? null : reader.GetString(6)));
+                reader.IsDBNull(6) ? null : reader.GetString(6),
+                reader.IsDBNull(7) ? null : reader.GetString(7),
+                ParseCategory(reader.IsDBNull(8) ? null : reader.GetString(8))));
         }
 
         return segments;
@@ -610,7 +728,9 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 Enum.Parse<ActivityCategory>(reader.GetString(3)),
                 NullIfEmpty(reader.GetString(4)),
                 NullIfEmpty(reader.GetString(5)),
-                reader.GetInt64(6)));
+                reader.GetInt64(6),
+                NullIfEmpty(reader.GetString(7)),
+                ParseCategory(reader.GetString(8))));
         }
 
         return rollups;

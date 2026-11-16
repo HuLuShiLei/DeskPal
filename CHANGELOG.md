@@ -8,6 +8,12 @@
 
 ## 0.1.2
 
+- 统计按状态查看时，视频和游戏分开显示
+  en: Usage stats by status show video and games separately
+- 统计里可以更改某个应用或网站的分类，过去的记录也会按新的分类显示
+  en: You can change how an app or a site is categorized in Usage stats. Past records follow the new category
+- 查看今天的统计时，不再和昨天比较
+  en: Today's usage stats are no longer compared with yesterday
 - 浏览器里正在播放的视频记为在看视频。全屏游戏不再因为别处正在播放视频而被记成在看视频
   en: A video playing in the browser counts as watching a video. A full-screen game is no longer counted as a video because something else is playing
 - 使用统计可以用 PIN 码加密后同步到服务器，在其他电脑上登录并输入 PIN 码后即可同步；关闭同步时立即删除服务器上的数据

@@ -101,13 +101,26 @@ public static class StatsSamples
             };
             foreach (var granularity in Enum.GetValues<StatsGranularity>())
             {
-                views[$"{scale}-{granularity}"] = StatsViewBuilder.Build(mine, scale, granularity, Today, Today);
+                views[$"{scale}-{granularity}"] = StatsViewBuilder.Build(mine, scale, granularity, Today, Today, targetOf: Target);
                 views[$"member-{scale}-{granularity}"] = StatsViewBuilder.Build(bob, scale, granularity, Today, Today, "Bob");
             }
         }
 
         return views;
     }
+
+    private static readonly Dictionary<string, StatsRuleTarget> Targets = new()
+    {
+        ["哔哩哔哩"] = new("Process", "bilibili", "哔哩哔哩"),
+        ["原神"] = new("Process", "yuanshen", "原神"),
+        ["知乎"] = new("Domain", "zhihu.com", "知乎"),
+        ["Cursor"] = new("Process", "cursor", "Cursor"),
+        ["微信"] = new("Process", "weixin", "微信"),
+        ["Visual Studio Code"] = new("Process", "code", "Visual Studio Code"),
+        ["XMind"] = new("Process", "xmind", "XMind"),
+    };
+
+    private static StatsRuleTarget? Target(string app) => Targets.GetValueOrDefault(app);
 
     private static DateTimeOffset At(DateOnly day, int minute) =>
         new DateTimeOffset(day.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).AddMinutes(minute);
