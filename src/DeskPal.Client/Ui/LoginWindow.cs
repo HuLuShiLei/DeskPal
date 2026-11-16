@@ -92,6 +92,11 @@ public sealed class LoginWindow : Window
             _settings.ShareUsage = response.ShareUsage;
             _settings.IsAdmin = response.IsAdmin;
             _settings.SetToken(response.Token);
+            if (IdleSync.Apply(_settings, response.IdleMinutes))
+            {
+                await _api.SetIdleMinutesAsync(_settings.IdleMinutes);
+            }
+
             _store.Save(_settings);
             return CommandResult.Success;
         }

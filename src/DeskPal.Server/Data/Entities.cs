@@ -32,6 +32,8 @@ public sealed class User
     public byte[]? StatsSyncSettings { get; set; }
     public long? StatsSyncSettingsRevision { get; set; }
 
+    /// <summary>Minutes without input before the status becomes away. null until set on any computer; one of <see cref="AccountIdle.MinuteOptions"/>.</summary>
+    public int? IdleMinutes { get; set; }
 }
 
 /// <summary>One day of a user's usage stats, encrypted on the user's computer. Only kept while the user has sync on.</summary>

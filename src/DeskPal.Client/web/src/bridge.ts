@@ -118,6 +118,8 @@ export interface PanelState {
     language: Language;
     /** 服务器把这个账号列为管理员，设置页显示注册邀请码。 */
     isAdmin: boolean;
+    /** 无操作超过这么多分钟后显示暂离。 */
+    idleMinutes: number;
   };
   myRules: MyRuleItem[];
   unclassified: UnclassifiedItem[];
@@ -235,6 +237,7 @@ export type Command =
   | { type: "settings.theme"; theme: "system" | "light" | "dark" }
   | { type: "settings.closeAction"; action: "ask" | "minimize" | "tray" }
   | { type: "settings.language"; language: Language }
+  | { type: "settings.idleMinutes"; minutes: number }
   | { type: "update.check" }
   | { type: "update.beta"; enabled: boolean }
   | { type: "update.restart" }

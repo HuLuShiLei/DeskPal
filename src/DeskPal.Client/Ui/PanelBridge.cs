@@ -129,7 +129,8 @@ public sealed class PanelBridge
             NormalizeTheme(_settings.Theme),
             NormalizeCloseAction(_settings.CloseAction),
             UiLanguage.Normalize(_settings.Language),
-            _settings.IsAdmin),
+            _settings.IsAdmin,
+            AccountIdle.Normalize(_settings.IdleMinutes)),
         WhatsNew = _whatsNew.Pending,
         Pinned = _pins.Users,
         Now = DateTimeOffset.UtcNow,
@@ -605,6 +606,19 @@ public sealed class PanelBridge
                 return CommandResult.Success;
             }
 
+            case "settings.idleMinutes":
+            {
+                var minutes = c.Args.TryGetProperty("minutes", out var m) && m.ValueKind == JsonValueKind.Number ? m.GetInt32() : 0;
+                if (!AccountIdle.IsAllowed(minutes))
+                {
+                    return CommandResult.Fail(ApiErrorText.Describe(ApiErrorCodes.IdleMinutesInvalid)!);
+                }
+
+                await _api.SetIdleMinutesAsync(minutes);
+                _settings.IdleMinutes = minutes;
+                _store.Save(_settings);
+                return CommandResult.Success;
+            }
 
             case "settings.language":
             {

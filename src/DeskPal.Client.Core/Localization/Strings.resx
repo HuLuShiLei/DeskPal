@@ -745,6 +745,9 @@
   <data name="ApiError_statsSync_invalid" xml:space="preserve">
     <value>同步数据无效</value>
   </data>
+  <data name="ApiError_prefs_idleMinutes" xml:space="preserve">
+    <value>暂离时长只能是 1、5、10、15 或 30 分钟</value>
+  </data>
   <data name="ApiError_statsSync_dayTooLarge" xml:space="preserve">
     <value>某一天的使用统计超过 {limit} MB，该日未能同步。</value>
   </data>

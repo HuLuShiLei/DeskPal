@@ -132,6 +132,24 @@ public sealed class StatsSyncEndpointTests : IClassFixture<StatsSyncEndpointTest
         Assert.Null((await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Get, Base, null, alice.Token)).SettingsRevision);
     }
 
+    [Fact]
+    public async Task Away_time_follows_the_account_and_rejects_other_values()
+    {
+        var http = _factory.CreateClient();
+        var alice = await RegisterAsync(http, "alice");
+        Assert.Null(alice.IdleMinutes);
+        Assert.Null((await SendAsync<AuthResponse>(http, HttpMethod.Get, "/api/me", null, alice.Token)).IdleMinutes);
+
+        await ExpectErrorAsync(http, HttpMethod.Put, "/api/me/idle-minutes", new SetIdleMinutesRequest(7), alice.Token, HttpStatusCode.BadRequest, ApiErrorCodes.IdleMinutesInvalid);
+        using (var saved = await RawAsync(http, HttpMethod.Put, "/api/me/idle-minutes", new SetIdleMinutesRequest(15), alice.Token))
+        {
+            Assert.Equal(HttpStatusCode.NoContent, saved.StatusCode);
+        }
+
+        Assert.Equal(15, (await SendAsync<AuthResponse>(http, HttpMethod.Get, "/api/me", null, alice.Token)).IdleMinutes);
+        var again = await SendAsync<AuthResponse>(http, HttpMethod.Post, "/api/auth/login", new LoginRequest(alice.UserName, "password123"), null);
+        Assert.Equal(15, again.IdleMinutes);
+    }
 
     private static UploadStatsDayRequest Upload(byte[] data) => new(Convert.ToBase64String(data));
 

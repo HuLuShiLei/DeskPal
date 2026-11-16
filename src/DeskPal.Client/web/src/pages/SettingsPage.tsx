@@ -102,6 +102,19 @@ export function SettingsPage({ state }: { state: PanelState }) {
               <option value="dark">{t("settings.dark")}</option>
             </select>
           </SettingRow>
+          <SettingRow title={t("settings.idle")} hint={t("settings.idleHint")}>
+            <select
+              aria-label={t("settings.idle")}
+              value={s.idleMinutes}
+              onChange={(e) => void run({ type: "settings.idleMinutes", minutes: Number(e.currentTarget.value) })}
+            >
+              {[1, 5, 10, 15, 30].map((minutes) => (
+                <option key={minutes} value={minutes}>
+                  {t("settings.minutes", { minutes })}
+                </option>
+              ))}
+            </select>
+          </SettingRow>
           <SettingRow title={t("settings.language")} hint={t("settings.languageHint")}>
             <select aria-label={t("settings.language")} value={s.language} onChange={(e) => run({ type: "settings.language", language: e.currentTarget.value as Language })}>
               <option value="system">{t("settings.followSystem")}</option>

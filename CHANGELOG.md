@@ -16,6 +16,8 @@
   en: Today's usage stats are no longer compared with yesterday
 - 浏览器里正在播放的视频记为在看视频。全屏游戏不再因为别处正在播放视频而被记成在看视频
   en: A video playing in the browser counts as watching a video. A full-screen game is no longer counted as a video because something else is playing
+- 设置里可以选择暂离的时间，并在其他电脑登录后保持一致
+  en: You can choose how soon you are shown as away, and that choice follows the account
 - 开启同步到服务器后，不记录标题和详细记录保留时长也跟随账号
   en: With sync to the server on, the titles you leave unrecorded and how long detailed records are kept follow the account too
 - 使用统计可以用 PIN 码加密后同步到服务器，在其他电脑上登录并输入 PIN 码后即可同步；关闭同步时立即删除服务器上的数据

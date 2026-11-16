@@ -7,9 +7,12 @@ public sealed record LoginRequest(string UserName, string Password);
 
 /// <param name="ShareUsage">null until the user has answered whether to share usage data.</param>
 /// <param name="IsAdmin">Listed in the server's Auth:AdminUserNames; may create signup invites.</param>
-public sealed record AuthResponse(string Token, Guid UserId, string UserName, string DisplayName, bool? ShareUsage = null, bool IsAdmin = false);
+/// <param name="IdleMinutes">null until the account has chosen one. One of <see cref="AccountIdle.MinuteOptions"/>.</param>
+public sealed record AuthResponse(string Token, Guid UserId, string UserName, string DisplayName, bool? ShareUsage = null, bool IsAdmin = false, int? IdleMinutes = null);
 
 public sealed record UpdateDisplayNameRequest(string DisplayName);
+
+public sealed record SetIdleMinutesRequest(int Minutes);
 
 /// <summary>
 /// Body of a failed request. The server sends no text the user reads: the client turns <paramref name="Code"/> into a message in its own language.

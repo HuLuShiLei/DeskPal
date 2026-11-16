@@ -24,6 +24,9 @@ public sealed class ApiClient(AppSettings settings)
 
     public Task<AuthResponse> MeAsync() => SendAsync<AuthResponse>(HttpMethod.Get, "/api/me");
 
+    public Task SetIdleMinutesAsync(int minutes) =>
+        SendAsync<object?>(HttpMethod.Put, "/api/me/idle-minutes", new SetIdleMinutesRequest(minutes));
+
     public Task<AuthResponse> UpdateDisplayNameAsync(string displayName) =>
         SendAsync<AuthResponse>(HttpMethod.Put, "/api/me/displayName", new UpdateDisplayNameRequest(displayName));
 

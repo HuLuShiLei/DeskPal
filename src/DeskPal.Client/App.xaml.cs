@@ -114,7 +114,19 @@ public partial class App : Application
                 settings.DisplayName = me.DisplayName;
                 settings.ShareUsage = me.ShareUsage;
                 settings.IsAdmin = me.IsAdmin;
+                var uploadIdle = IdleSync.Apply(settings, me.IdleMinutes);
                 store.Save(settings);
+                if (uploadIdle)
+                {
+                    try
+                    {
+                        await api.SetIdleMinutesAsync(settings.IdleMinutes);
+                    }
+                    catch (ApiException ex)
+                    {
+                        logs.Write("WRN", "DeskPal", $"Saving away time failed ({ex.Status})");
+                    }
+                }
                 logs.Write("INF", "DeskPal", "Saved session restored");
                 return true;
             }

@@ -191,7 +191,8 @@
     "theme": "system",
     "closeAction": "ask",
     "language": "system",
-    "isAdmin": true
+    "isAdmin": true,
+    "idleMinutes": 5
   },
   "myRules": [
     {

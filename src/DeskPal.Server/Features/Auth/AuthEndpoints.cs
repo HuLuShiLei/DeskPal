@@ -87,7 +87,7 @@ public static partial class AuthEndpoints
             await db.SaveChangesAsync();
             sessions.Set(user.Id, user.SessionId);
             await notifier.SessionReplacedAsync(user.Id);
-            return Results.Ok(new AuthResponse(tokens.Create(user), user.Id, user.UserName, user.DisplayName, user.ShareUsage, options.Value.IsAdmin(user.UserName)));
+            return Results.Ok(Profile(user, tokens.Create(user), options.Value.IsAdmin(user.UserName)));
         });
 
         app.MapGet("/api/me", async (HttpContext ctx, DeskPalDbContext db, IOptions<AuthOptions> options) =>
@@ -95,7 +95,29 @@ public static partial class AuthEndpoints
             var user = await db.Users.FindAsync(ctx.User.GetUserId());
             return user is null
                 ? Fail(401, ApiErrorCodes.AccountMissing)
-                : Results.Ok(new AuthResponse("", user.Id, user.UserName, user.DisplayName, user.ShareUsage, options.Value.IsAdmin(user.UserName)));
+                : Results.Ok(Profile(user, "", options.Value.IsAdmin(user.UserName)));
+        }).RequireAuthorization();
+
+        app.MapPut("/api/me/idle-minutes", async (SetIdleMinutesRequest req, HttpContext ctx, DeskPalDbContext db) =>
+        {
+            if (!AccountIdle.IsAllowed(req.Minutes))
+            {
+                return Fail(400, ApiErrorCodes.IdleMinutesInvalid);
+            }
+
+            var user = await db.Users.FindAsync(ctx.User.GetUserId());
+            if (user is null)
+            {
+                return Fail(401, ApiErrorCodes.AccountMissing);
+            }
+
+            if (user.IdleMinutes != req.Minutes)
+            {
+                user.IdleMinutes = req.Minutes;
+                await db.SaveChangesAsync();
+            }
+
+            return Results.NoContent();
         }).RequireAuthorization();
 
         app.MapPut("/api/me/displayName", async (UpdateDisplayNameRequest req, HttpContext ctx, DeskPalDbContext db, RoomService rooms, RoomNotifier notifier, IOptions<AuthOptions> options) =>
@@ -119,7 +141,7 @@ public static partial class AuthEndpoints
                 await notifier.MemberRenamedAsync(user.Id, await rooms.GetRoomIdsForUserAsync(user.Id));
             }
 
-            return Results.Ok(new AuthResponse("", user.Id, user.UserName, user.DisplayName, user.ShareUsage, options.Value.IsAdmin(user.UserName)));
+            return Results.Ok(Profile(user, "", options.Value.IsAdmin(user.UserName)));
         }).RequireAuthorization();
 
         var admin = app.MapGroup("/api/admin/signup-invites").RequireAuthorization().AddEndpointFilter(async (ctx, next) =>
@@ -138,6 +160,9 @@ public static partial class AuthEndpoints
             return result.IsSuccess ? Results.NoContent() : result.ToHttp();
         });
     }
+
+    private static AuthResponse Profile(User user, string token, bool isAdmin) =>
+        new(token, user.Id, user.UserName, user.DisplayName, user.ShareUsage, isAdmin, user.IdleMinutes);
 
     private const string InvalidDisplayName = ApiErrorCodes.DisplayNameInvalid;
 

@@ -165,7 +165,8 @@
     "theme": "system",
     "closeAction": "ask",
     "language": "system",
-    "isAdmin": false
+    "isAdmin": false,
+    "idleMinutes": 5
   },
   "myRules": [],
   "unclassified": [],

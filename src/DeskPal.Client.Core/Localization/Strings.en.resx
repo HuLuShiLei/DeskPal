@@ -745,6 +745,9 @@ Restart DeskPal after installing it.</value>
   <data name="ApiError_statsSync_invalid" xml:space="preserve">
     <value>Invalid sync data</value>
   </data>
+  <data name="ApiError_prefs_idleMinutes" xml:space="preserve">
+    <value>Away time must be 1, 5, 10, 15, or 30 minutes</value>
+  </data>
   <data name="ApiError_statsSync_dayTooLarge" xml:space="preserve">
     <value>One day of usage stats exceeds {limit} MB and was not synced.</value>
   </data>
