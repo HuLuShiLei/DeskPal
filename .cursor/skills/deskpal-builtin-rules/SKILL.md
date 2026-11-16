@@ -28,7 +28,8 @@ description: 维护 DeskPal 内置分类规则库 builtin-rules.json：新增或
 
 ## 分类口径
 
-- `Work`：IDE、Office、设计工具、开发和办公 SaaS，以及企业微信、钉钉、飞书、Slack、Teams、邮箱、会议软件。
+- `Work`：IDE、Office、设计工具、开发和办公 SaaS，以及企业微信、钉钉、飞书、Slack、Teams、Outlook、会议软件。
+- `Other`：工作和日常生活都常用、对大多数人说不准算哪类的应用，写规则只为显示友好名称：远程桌面（向日葵、ToDesk、远程桌面连接等）、虚拟机和安卓模拟器、文件资源管理器、Everything、记事本、PDF 阅读器、AI 助手、翻译、笔记软件、个人邮箱（QQ 邮箱、网易邮箱、Gmail、Foxmail、网易邮箱大师、Thunderbird）、剪映，以及 Steam 等游戏平台客户端。不要因为“也能用来工作”就归为 `Work`。
 - `Meeting`：不再产生。枚举保留，收到时显示为“工作中”。规则库版本 2 起没有这个类别的规则。
 - `Music`、`Shopping`、`Social`、`News`、`Reading`：不再产生。枚举保留。规则库版本 3 起没有这些类别。购物、社交网站、新闻、阅读并进“正在浏览网页”；音乐和阅读客户端显示为“正在使用 XX”。
 - `Communication`：微信、QQ、TIM、Telegram、WhatsApp、Skype 等个人聊天，显示为“在聊天”。

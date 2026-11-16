@@ -8,6 +8,8 @@
 
 ## 0.1.2
 
+- 远程桌面、虚拟机、安卓模拟器、PDF 阅读器、AI 助手、笔记软件、个人邮箱等工作和生活都常用的应用，不再默认算作工作中或在玩游戏，改为显示正在使用该应用
+  en: Apps used for both work and personal life, such as remote desktop, virtual machines, Android emulators, PDF readers, AI assistants, note apps, and personal email, no longer count as working or gaming by default. They show the app name instead
 - 统计按状态查看时，视频和游戏分开显示
   en: Usage stats by status show video and games separately
 - 统计里可以更改某个应用或网站的分类，过去的记录也会按新的分类显示

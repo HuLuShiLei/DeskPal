@@ -42,7 +42,23 @@ public class BuiltinRulesTests
     }
 
     [Theory]
-    [InlineData("mail.qq.com", ActivityCategory.Work)]
+    [InlineData("sunloginclient")]
+    [InlineData("mstsc")]
+    [InlineData("vmware")]
+    [InlineData("mumuplayer")]
+    [InlineData("explorer")]
+    [InlineData("obsidian")]
+    [InlineData("doubao")]
+    [InlineData("foxmail")]
+    public void Apps_used_both_for_work_and_daily_life_are_other(string process)
+    {
+        var rule = Rules.Match(TestData.App(process))!;
+        Assert.Equal(ActivityCategory.Other, rule.Category);
+        Assert.NotNull(rule.Name);
+    }
+
+    [Theory]
+    [InlineData("outlook.office.com", ActivityCategory.Work)]
     [InlineData("teams.microsoft.com", ActivityCategory.Work)]
     [InlineData("meeting.tencent.com", ActivityCategory.Work)]
     [InlineData("wx.qq.com", ActivityCategory.Communication)]

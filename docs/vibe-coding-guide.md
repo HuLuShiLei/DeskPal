@@ -24,7 +24,7 @@ Cursor 会自动读取 `AGENTS.md` 和 `.cursor/rules/` 里匹配当前文件的
 
 > 按 skill deskpal-add-signal 加摄像头占用信号，先只在本机识别里显示，不改变状态。
 
-> 按 skill deskpal-builtin-rules 把“语雀”“Notion”加成 Work，把“虎扑”加成 Social。
+> 按 skill deskpal-builtin-rules 把“语雀”加成 Work，把“虎扑”加成 Social。
 
 **修 bug**
 

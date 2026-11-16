@@ -1,5 +1,5 @@
 {
-    "version": 5,
+    "version": 6,
     "rules": [
         {
             "kind": "Process",
@@ -94,7 +94,7 @@
         {
             "kind": "Process",
             "pattern": "notepad",
-            "category": "Work",
+            "category": "Other",
             "name": "记事本",
             "names": {
                 "en": "Notepad"
@@ -151,7 +151,7 @@
         {
             "kind": "Process",
             "pattern": "onenote",
-            "category": "Work",
+            "category": "Other",
             "name": "OneNote"
         },
         {
@@ -175,13 +175,13 @@
         {
             "kind": "Process",
             "pattern": "acrobat",
-            "category": "Work",
+            "category": "Other",
             "name": "Acrobat"
         },
         {
             "kind": "Process",
             "pattern": "acrord32",
-            "category": "Work",
+            "category": "Other",
             "name": "Acrobat Reader"
         },
         {
@@ -289,19 +289,19 @@
         {
             "kind": "Process",
             "pattern": "obsidian",
-            "category": "Work",
+            "category": "Other",
             "name": "Obsidian"
         },
         {
             "kind": "Process",
             "pattern": "notion",
-            "category": "Work",
+            "category": "Other",
             "name": "Notion"
         },
         {
             "kind": "Process",
             "pattern": "mstsc",
-            "category": "Work",
+            "category": "Other",
             "name": "远程桌面",
             "names": {
                 "en": "Remote Desktop"
@@ -310,13 +310,13 @@
         {
             "kind": "Process",
             "pattern": "vmware",
-            "category": "Work",
+            "category": "Other",
             "name": "VMware"
         },
         {
             "kind": "Process",
             "pattern": "virtualbox",
-            "category": "Work",
+            "category": "Other",
             "name": "VirtualBox"
         },
         {
@@ -370,7 +370,7 @@
         {
             "kind": "Process",
             "pattern": "explorer",
-            "category": "Work",
+            "category": "Other",
             "name": "文件资源管理器",
             "names": {
                 "en": "File Explorer"
@@ -379,7 +379,7 @@
         {
             "kind": "Process",
             "pattern": "everything",
-            "category": "Work",
+            "category": "Other",
             "name": "Everything"
         },
         {
@@ -460,13 +460,13 @@
         {
             "kind": "Process",
             "pattern": "foxmail",
-            "category": "Work",
+            "category": "Other",
             "name": "Foxmail"
         },
         {
             "kind": "Process",
             "pattern": "thunderbird",
-            "category": "Work",
+            "category": "Other",
             "name": "Thunderbird"
         },
         {
@@ -724,7 +724,7 @@
         {
             "kind": "Process",
             "pattern": "foxitpdfreader",
-            "category": "Work",
+            "category": "Other",
             "name": "Foxit PDF Reader"
         },
         {
@@ -736,13 +736,13 @@
         {
             "kind": "Process",
             "pattern": "sumatrapdf",
-            "category": "Work",
+            "category": "Other",
             "name": "SumatraPDF"
         },
         {
             "kind": "Process",
             "pattern": "pdfxedit",
-            "category": "Work",
+            "category": "Other",
             "name": "PDF-XChange Editor"
         },
         {
@@ -754,19 +754,19 @@
         {
             "kind": "Process",
             "pattern": "logseq",
-            "category": "Work",
+            "category": "Other",
             "name": "Logseq"
         },
         {
             "kind": "Process",
             "pattern": "joplin",
-            "category": "Work",
+            "category": "Other",
             "name": "Joplin"
         },
         {
             "kind": "Process",
             "pattern": "siyuan",
-            "category": "Work",
+            "category": "Other",
             "name": "思源笔记",
             "names": {
                 "en": "SiYuan"
@@ -775,7 +775,7 @@
         {
             "kind": "Process",
             "pattern": "youdaonote",
-            "category": "Work",
+            "category": "Other",
             "name": "有道云笔记",
             "names": {
                 "en": "Youdao Note"
@@ -784,7 +784,7 @@
         {
             "kind": "Process",
             "pattern": "evernote",
-            "category": "Work",
+            "category": "Other",
             "name": "Evernote"
         },
         {
@@ -796,7 +796,7 @@
         {
             "kind": "Process",
             "pattern": "youdaodict",
-            "category": "Work",
+            "category": "Other",
             "name": "有道翻译",
             "names": {
                 "en": "Youdao Translate"
@@ -805,13 +805,13 @@
         {
             "kind": "Process",
             "pattern": "deepl",
-            "category": "Work",
+            "category": "Other",
             "name": "DeepL"
         },
         {
             "kind": "Process",
             "pattern": "mailmaster",
-            "category": "Work",
+            "category": "Other",
             "name": "网易邮箱大师",
             "names": {
                 "en": "NetEase Mail Master"
@@ -820,19 +820,19 @@
         {
             "kind": "Process",
             "pattern": "chatgpt",
-            "category": "Work",
+            "category": "Other",
             "name": "ChatGPT"
         },
         {
             "kind": "Process",
             "pattern": "claude",
-            "category": "Work",
+            "category": "Other",
             "name": "Claude"
         },
         {
             "kind": "Process",
             "pattern": "doubao",
-            "category": "Work",
+            "category": "Other",
             "name": "豆包",
             "names": {
                 "en": "Doubao"
@@ -865,7 +865,7 @@
         {
             "kind": "Process",
             "pattern": "jianyingpro",
-            "category": "Work",
+            "category": "Other",
             "name": "剪映",
             "names": {
                 "en": "CapCut"
@@ -874,7 +874,7 @@
         {
             "kind": "Process",
             "pattern": "capcut",
-            "category": "Work",
+            "category": "Other",
             "name": "CapCut"
         },
         {
@@ -964,13 +964,13 @@
         {
             "kind": "Process",
             "pattern": "todesk",
-            "category": "Work",
+            "category": "Other",
             "name": "ToDesk"
         },
         {
             "kind": "Process",
             "pattern": "sunloginclient",
-            "category": "Work",
+            "category": "Other",
             "name": "向日葵",
             "names": {
                 "en": "Sunlogin"
@@ -979,31 +979,31 @@
         {
             "kind": "Process",
             "pattern": "anydesk",
-            "category": "Work",
+            "category": "Other",
             "name": "AnyDesk"
         },
         {
             "kind": "Process",
             "pattern": "teamviewer",
-            "category": "Work",
+            "category": "Other",
             "name": "TeamViewer"
         },
         {
             "kind": "Process",
             "pattern": "rustdesk",
-            "category": "Work",
+            "category": "Other",
             "name": "RustDesk"
         },
         {
             "kind": "Process",
             "pattern": "vmconnect",
-            "category": "Work",
+            "category": "Other",
             "name": "Hyper-V"
         },
         {
             "kind": "Process",
             "pattern": "msrdc",
-            "category": "Work",
+            "category": "Other",
             "name": "远程桌面",
             "names": {
                 "en": "Remote Desktop"
@@ -1768,7 +1768,7 @@
         {
             "kind": "Process",
             "pattern": "mumuplayer",
-            "category": "Game",
+            "category": "Other",
             "name": "MuMu 模拟器",
             "names": {
                 "en": "MuMu Player"
@@ -1777,7 +1777,7 @@
         {
             "kind": "Process",
             "pattern": "dnplayer",
-            "category": "Game",
+            "category": "Other",
             "name": "雷电模拟器",
             "names": {
                 "en": "LDPlayer"
@@ -1786,7 +1786,7 @@
         {
             "kind": "Process",
             "pattern": "hd-player",
-            "category": "Game",
+            "category": "Other",
             "name": "BlueStacks"
         },
         {
@@ -2026,7 +2026,7 @@
         {
             "kind": "Domain",
             "pattern": "notion.so",
-            "category": "Work",
+            "category": "Other",
             "name": "Notion"
         },
         {
@@ -2038,31 +2038,31 @@
         {
             "kind": "Domain",
             "pattern": "chatgpt.com",
-            "category": "Work",
+            "category": "Other",
             "name": "ChatGPT"
         },
         {
             "kind": "Domain",
             "pattern": "claude.ai",
-            "category": "Work",
+            "category": "Other",
             "name": "Claude"
         },
         {
             "kind": "Domain",
             "pattern": "kimi.com",
-            "category": "Work",
+            "category": "Other",
             "name": "Kimi"
         },
         {
             "kind": "Domain",
             "pattern": "kimi.moonshot.cn",
-            "category": "Work",
+            "category": "Other",
             "name": "Kimi"
         },
         {
             "kind": "Domain",
             "pattern": "doubao.com",
-            "category": "Work",
+            "category": "Other",
             "name": "豆包",
             "names": {
                 "en": "Doubao"
@@ -2071,13 +2071,13 @@
         {
             "kind": "Domain",
             "pattern": "deepseek.com",
-            "category": "Work",
+            "category": "Other",
             "name": "DeepSeek"
         },
         {
             "kind": "Domain",
             "pattern": "tongyi.aliyun.com",
-            "category": "Work",
+            "category": "Other",
             "name": "通义",
             "names": {
                 "en": "Tongyi"
@@ -2209,7 +2209,7 @@
         {
             "kind": "Domain",
             "pattern": "translate.google.com",
-            "category": "Work",
+            "category": "Other",
             "name": "Google 翻译",
             "names": {
                 "en": "Google Translate"
@@ -2218,7 +2218,7 @@
         {
             "kind": "Domain",
             "pattern": "fanyi.baidu.com",
-            "category": "Work",
+            "category": "Other",
             "name": "百度翻译",
             "names": {
                 "en": "Baidu Translate"
@@ -2227,7 +2227,7 @@
         {
             "kind": "Domain",
             "pattern": "deepl.com",
-            "category": "Work",
+            "category": "Other",
             "name": "DeepL"
         },
         {
@@ -2242,7 +2242,7 @@
         {
             "kind": "Domain",
             "pattern": "mail.qq.com",
-            "category": "Work",
+            "category": "Other",
             "name": "QQ 邮箱",
             "names": {
                 "en": "QQ Mail"
@@ -2251,7 +2251,7 @@
         {
             "kind": "Domain",
             "pattern": "mail.163.com",
-            "category": "Work",
+            "category": "Other",
             "name": "网易邮箱",
             "names": {
                 "en": "NetEase Mail"
@@ -2266,13 +2266,13 @@
         {
             "kind": "Domain",
             "pattern": "outlook.live.com",
-            "category": "Work",
+            "category": "Other",
             "name": "Outlook"
         },
         {
             "kind": "Domain",
             "pattern": "mail.google.com",
-            "category": "Work",
+            "category": "Other",
             "name": "Gmail"
         },
         {
