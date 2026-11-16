@@ -5,8 +5,8 @@ using Microsoft.Data.Sqlite;
 namespace DeskPal.Client.Core.Usage;
 
 /// <summary>
-/// Usage history of one account on this computer, in a local SQLite file. Raw segments are kept for the retention
-/// period; older days are folded into per-day totals that are kept indefinitely.
+/// Usage history of one account on this computer, in a local SQLite file. Raw segments are kept indefinitely. Per-day
+/// totals hold days that older versions or other computers folded.
 /// </summary>
 public sealed class SqliteUsageStore : IUsageWriter, IDisposable
 {
@@ -282,6 +282,17 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
 
             tx.Commit();
             return folded;
+        }
+    }
+
+    /// <summary>Drops view records older than <see cref="ViewsKeptFor"/>. Segments are kept.</summary>
+    public void PruneViews(DateTimeOffset now)
+    {
+        lock (_lock)
+        {
+            using var views = Command("DELETE FROM StatsViews WHERE At < $before");
+            views.Parameters.AddWithValue("$before", (now - ViewsKeptFor).ToUnixTimeMilliseconds());
+            views.ExecuteNonQuery();
         }
     }
 

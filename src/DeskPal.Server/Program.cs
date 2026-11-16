@@ -90,6 +90,11 @@ using (var scope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
     var rulesPath = Path.Combine(AppContext.BaseDirectory, "Features", "Rules", "builtin-rules.json");
     await BuiltinRuleSeeder.SeedAsync(db, rulesPath, app.Logger);
+    var unlisted = await scope.ServiceProvider.GetRequiredService<StatsSyncService>().DisableUnlistedAsync();
+    if (unlisted > 0)
+    {
+        app.Logger.LogInformation("Turned off usage stats sync for {Count} accounts not in StatsSync:AllowedUserNames", unlisted);
+    }
 }
 
 app.UseAuthentication();

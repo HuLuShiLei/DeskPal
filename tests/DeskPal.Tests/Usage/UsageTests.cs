@@ -159,6 +159,21 @@ public class UsageTests : IDisposable
     }
 
     [Fact]
+    public void Pruning_drops_old_view_records_and_keeps_every_segment()
+    {
+        using var store = NewStore();
+        store.Add(new UsageSegment(At(9, 0, dayOffset: -400), At(9, 30, dayOffset: -400), PresenceState.Working, ActivityCategory.Work, "Cursor", "a.md"));
+        store.AddView(new StatsViewRecord(Guid.NewGuid(), "房间", Guid.NewGuid(), "Bob", At(9, 0, dayOffset: -8)));
+        store.AddView(new StatsViewRecord(Guid.NewGuid(), "房间", Guid.NewGuid(), "Carol", At(9, 0)));
+
+        store.PruneViews(At(12, 0));
+
+        Assert.Equal("a.md", Assert.Single(store.Segments(At(0, 0, dayOffset: -400), At(0, 0, dayOffset: -399))).Title);
+        Assert.Empty(store.Rollups(Day.AddDays(-400), Day));
+        Assert.Equal(["Carol"], store.Views(At(0, 0, dayOffset: -30)).Select(v => v.ViewerName));
+    }
+
+    [Fact]
     public void Importing_the_same_export_twice_counts_once()
     {
         using var source = NewStore();

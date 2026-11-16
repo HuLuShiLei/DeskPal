@@ -229,29 +229,60 @@ public sealed class StatsSyncTests : IDisposable
     public async Task Stats_settings_follow_the_account_and_the_account_wins_on_unlock()
     {
         var server = new FakeServer();
-        var settingsA = new FakeSettings { Current = new([new NoTitleRule(NoTitleKind.App, "招商银行")], 30) };
+        var settingsA = new FakeSettings { Current = new([new NoTitleRule(NoTitleKind.App, "招商银行")]) };
         var syncA = new StatsSync(NewStore(), server, new FakeKeys(), () => Day, Cheap, settingsA);
         await syncA.EnableAsync(Pin);
         await syncA.SyncAsync(allDays: false);
         Assert.Equal(1, server.SettingsUploads);
         Assert.DoesNotContain("招商银行", Encoding.UTF8.GetString(server.Settings!.Value.Data));
 
-        var settingsB = new FakeSettings { Current = new([], 365) };
+        var settingsB = new FakeSettings { Current = new([]) };
         var syncB = new StatsSync(NewStore(), server, new FakeKeys(), () => Day, Cheap, settingsB);
         await syncB.UnlockAsync(Pin);
         await syncB.SyncAsync(allDays: false);
-        Assert.Equal((30, "招商银行"), (settingsB.Current.RetentionDays, settingsB.Current.NoTitleRules.Single().Pattern));
+        Assert.Equal("招商银行", settingsB.Current.NoTitleRules.Single().Pattern);
         Assert.Equal(1, server.SettingsUploads);
 
-        settingsB.Current = settingsB.Current with { RetentionDays = 180 };
+        settingsB.Current = new([new NoTitleRule(NoTitleKind.Title, "病历")]);
         await syncB.SyncAsync(allDays: false);
         await syncA.SyncAsync(allDays: false);
         await syncA.SyncAsync(allDays: false);
-        Assert.Equal(180, settingsA.Current.RetentionDays);
+        Assert.Equal("病历", settingsA.Current.NoTitleRules.Single().Pattern);
         Assert.Equal(2, server.SettingsUploads);
 
         await syncA.DisableAsync();
         Assert.Null(server.Settings);
+    }
+
+    [Fact]
+    public void Settings_from_older_versions_with_a_retention_are_read()
+    {
+        var older = """{"noTitleRules":[{"kind":"App","pattern":"招商银行"}],"retentionDays":90}""";
+        var settings = System.Text.Json.JsonSerializer.Deserialize<SyncedStatsSettings>(older, DeskPal.Shared.DeskPalJson.Options)!;
+        Assert.Equal("招商银行", settings.NoTitleRules.Single().Pattern);
+    }
+
+    [Fact]
+    public async Task Removed_from_the_list_drops_the_key_and_keeps_the_stats_here()
+    {
+        var server = new FakeServer();
+        var keys = new FakeKeys();
+        var store = NewStore();
+        store.Add(Work(9, "a.md"));
+        var sync = new StatsSync(store, server, keys, () => Day, Cheap);
+        Assert.False(sync.Allowed);
+        await sync.SyncAsync(allDays: false);
+        Assert.True(sync.Allowed);
+        await sync.EnableAsync(Pin);
+        await sync.SyncAsync(allDays: true);
+
+        server.RemoveFromList();
+        await sync.SyncAsync(allDays: false);
+
+        Assert.False(sync.Allowed);
+        Assert.Equal(StatsSyncMode.Off, sync.Mode);
+        Assert.Null(keys.Load());
+        Assert.Single(store.Segments(At(0), At(0, 0, 1)));
     }
 
     private SqliteUsageStore NewStore()
@@ -315,9 +346,20 @@ public sealed class StatsSyncTests : IDisposable
         public (long Revision, byte[] Data)? Settings { get; private set; }
         public int SettingsUploads { get; private set; }
 
+        public bool Allowed { get; set; } = true;
+
         public Task<StatsSyncStatusDto> GetStatusAsync() => Task.FromResult(Enabled
-            ? new StatsSyncStatusDto(true, Salt, KeyCheck, Days.OrderBy(d => d.Key).Select(d => new StatsSyncDayInfo(d.Key, d.Value.Revision)).ToList(), Settings?.Revision)
-            : new StatsSyncStatusDto(false, null, null, []));
+            ? new StatsSyncStatusDto(true, Salt, KeyCheck, Days.OrderBy(d => d.Key).Select(d => new StatsSyncDayInfo(d.Key, d.Value.Revision)).ToList(), Settings?.Revision, Allowed)
+            : new StatsSyncStatusDto(false, null, null, [], Allowed: Allowed));
+
+        /// <summary>What the server does at start for an account no longer in the list.</summary>
+        public void RemoveFromList()
+        {
+            Allowed = false;
+            (Enabled, Salt, KeyCheck) = (false, null, null);
+            Days.Clear();
+            Settings = null;
+        }
 
         public Task<long> UploadSettingsAsync(byte[] data)
         {

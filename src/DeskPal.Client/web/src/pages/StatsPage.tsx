@@ -361,19 +361,6 @@ function UsageSettings({ usage }: { usage: NonNullable<PanelState["usage"]> }) {
             ))}
           </div>
         )}
-        <SettingRow title={t("usage.retention")} hint={t("usage.retentionHint")}>
-          <select
-            aria-label={t("usage.retentionLabel")}
-            value={usage.retentionDays}
-            onChange={(e) => void run({ type: "stats.retention", days: Number(e.currentTarget.value) })}
-          >
-            {usage.retentionOptions.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.name}
-              </option>
-            ))}
-          </select>
-        </SettingRow>
         <SettingRow title={t("usage.transfer")} hint={t("usage.transferHint")}>
           <button onClick={() => void transfer("stats.export")}>{t("usage.export")}</button>
           <button onClick={() => void transfer("stats.import")}>{t("usage.import")}</button>
@@ -395,7 +382,7 @@ function UsageSettings({ usage }: { usage: NonNullable<PanelState["usage"]> }) {
               ) : folderOn && !synced ? (
                 t("sync.folderOn")
               ) : (
-                (sync.error ?? (synced ? t("sync.settingsSynced") : undefined))
+                (sync.error ?? (synced ? t("sync.noTitleSynced") : undefined))
               )
             }
           >

@@ -292,7 +292,7 @@
     <value>Some categories omit titles and show the app name.</value>
   </data>
   <data name="Stats_NoTimeline" xml:space="preserve">
-    <value>Past the retention period. Only the daily total is kept.</value>
+    <value>Only the daily total is available for this day.</value>
   </data>
   <data name="Stats_EmptyMine" xml:space="preserve">
     <value>Nothing recorded. DeskPal records usage only while it is running.</value>
@@ -362,9 +362,6 @@
   </data>
   <data name="WhatsNew_CountSince" xml:space="preserve">
     <value>{1} changes since {0}</value>
-  </data>
-  <data name="Import_TooLarge" xml:space="preserve">
-    <value>The file is larger than 100 MB and cannot be imported.</value>
   </data>
   <data name="Import_NotExport" xml:space="preserve">
     <value>This is not a usage file exported by DeskPal.</value>
@@ -462,9 +459,6 @@ Restart DeskPal after installing it.</value>
   </data>
   <data name="Error_StatsDays" xml:space="preserve">
     <value>Choose 1, 3, 7 or 30 days</value>
-  </data>
-  <data name="Error_Retention" xml:space="preserve">
-    <value>Invalid retention period</value>
   </data>
   <data name="Error_NoTitleKind" xml:space="preserve">
     <value>Invalid type</value>
@@ -748,10 +742,7 @@ Restart DeskPal after installing it.</value>
   <data name="ApiError_prefs_idleMinutes" xml:space="preserve">
     <value>Away time must be 1, 5, 10, 15, or 30 minutes</value>
   </data>
-  <data name="ApiError_statsSync_dayTooLarge" xml:space="preserve">
-    <value>One day of usage stats exceeds {limit} MB and was not synced.</value>
-  </data>
-  <data name="ApiError_statsSync_quotaExceeded" xml:space="preserve">
-    <value>The server copy has reached the {limit} MB limit. New records are not synced. Shorten the retention period and try again.</value>
+  <data name="ApiError_statsSync_notAllowed" xml:space="preserve">
+    <value>Server sync isn't available for this account</value>
   </data>
 </root>

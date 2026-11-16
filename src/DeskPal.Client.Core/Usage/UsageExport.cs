@@ -12,9 +12,6 @@ public sealed record UsageExport(
     IReadOnlyList<ExportedRollup> Rollups)
 {
     public const int CurrentVersion = 1;
-
-    /// <summary>Larger files are refused before reading.</summary>
-    public const long MaxFileBytes = 100L * 1024 * 1024;
 }
 
 /// <param name="Process">Missing in files from older versions.</param>

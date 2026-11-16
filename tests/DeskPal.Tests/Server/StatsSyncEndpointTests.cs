@@ -1,9 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
+using DeskPal.Server.Data;
+using DeskPal.Server.Features.Stats;
 using DeskPal.Shared;
 using DeskPal.Shared.Api;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace DeskPal.Tests.Server;
 
@@ -19,11 +24,12 @@ public sealed class StatsSyncEndpointTests : IClassFixture<StatsSyncEndpointTest
     public async Task Days_are_stored_as_sent_and_only_for_the_own_account()
     {
         var http = _factory.CreateClient();
-        var alice = await RegisterAsync(http, "alice");
-        var bob = await RegisterAsync(http, "bob");
+        var alice = await RegisterListedAsync(http, "sync-days");
+        var bob = await RegisterListedAsync(http, "sync-bob");
 
         var off = await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Get, Base, null, alice.Token);
         Assert.False(off.Enabled);
+        Assert.True(off.Allowed);
         await ExpectErrorAsync(http, HttpMethod.Put, $"{Base}/days/2026-11-11", Upload([1, 2, 3]), alice.Token, HttpStatusCode.Conflict, ApiErrorCodes.StatsSyncNotEnabled);
 
         await ExpectErrorAsync(http, HttpMethod.Put, Base, new EnableStatsSyncRequest("", "check"), alice.Token, HttpStatusCode.BadRequest, ApiErrorCodes.StatsSyncInvalid);
@@ -61,7 +67,7 @@ public sealed class StatsSyncEndpointTests : IClassFixture<StatsSyncEndpointTest
     public async Task Turning_off_deletes_every_day()
     {
         var http = _factory.CreateClient();
-        var alice = await RegisterAsync(http, "alice");
+        var alice = await RegisterListedAsync(http, "sync-off");
         await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Put, Base, new EnableStatsSyncRequest("salt-a", "check-a"), alice.Token);
         await SendAsync<StatsSyncDayInfo>(http, HttpMethod.Put, $"{Base}/days/2026-11-11", Upload([2]), alice.Token);
         using (var disabled = await RawAsync(http, HttpMethod.Delete, Base, null, alice.Token))
@@ -70,7 +76,7 @@ public sealed class StatsSyncEndpointTests : IClassFixture<StatsSyncEndpointTest
         }
 
         var afterOff = await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Get, Base, null, alice.Token);
-        Assert.Equal(new StatsSyncStatusDto(false, null, null, []), afterOff with { Days = [] });
+        Assert.Equal(new StatsSyncStatusDto(false, null, null, [], Allowed: true), afterOff with { Days = [] });
         Assert.Empty(afterOff.Days);
         using (var gone = await RawAsync(http, HttpMethod.Get, $"{Base}/days/2026-11-11", null, alice.Token))
         {
@@ -84,29 +90,70 @@ public sealed class StatsSyncEndpointTests : IClassFixture<StatsSyncEndpointTest
     }
 
     [Fact]
-    public async Task Size_limits_reject_the_upload_with_the_limit()
+    public async Task A_day_over_the_old_limit_is_accepted()
     {
         var http = _factory.CreateClient();
-        var alice = await RegisterAsync(http, "alice");
+        var alice = await RegisterListedAsync(http, "sync-size");
         await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Put, Base, new EnableStatsSyncRequest("salt-a", "check-a"), alice.Token);
-        var big = new byte[700 * 1024];
+        var big = new byte[1024 * 1024 + 1];
 
-        var tooLarge = await ExpectErrorAsync(http, HttpMethod.Put, $"{Base}/days/2026-11-11", Upload(new byte[1024 * 1024 + 1]), alice.Token, HttpStatusCode.RequestEntityTooLarge, ApiErrorCodes.StatsSyncDayTooLarge);
-        Assert.Equal("1", tooLarge.Args!["limit"]);
+        await SendAsync<StatsSyncDayInfo>(http, HttpMethod.Put, $"{Base}/days/2026-11-11", Upload(big), alice.Token);
+        await SendAsync<StatsSyncDayInfo>(http, HttpMethod.Put, $"{Base}/days/2026-11-12", Upload(big), alice.Token);
 
-        await SendAsync<StatsSyncDayInfo>(http, HttpMethod.Put, $"{Base}/days/2026-11-01", Upload(big), alice.Token);
-        await SendAsync<StatsSyncDayInfo>(http, HttpMethod.Put, $"{Base}/days/2026-11-02", Upload(big), alice.Token);
-        var full = await ExpectErrorAsync(http, HttpMethod.Put, $"{Base}/days/2026-11-03", Upload(big), alice.Token, HttpStatusCode.RequestEntityTooLarge, ApiErrorCodes.StatsSyncQuotaExceeded);
-        Assert.Equal("2", full.Args!["limit"]);
+        Assert.Equal(2, (await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Get, Base, null, alice.Token)).Days.Count);
+    }
 
-        await SendAsync<StatsSyncDayInfo>(http, HttpMethod.Put, $"{Base}/days/2026-11-02", Upload(big), alice.Token);
+    [Fact]
+    public async Task Accounts_not_listed_cannot_use_sync()
+    {
+        var http = _factory.CreateClient();
+        var carol = await RegisterAsync(http, "carol");
+
+        var status = await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Get, Base, null, carol.Token);
+        Assert.Equal(new StatsSyncStatusDto(false, null, null, [], Allowed: false), status with { Days = [] });
+        await ExpectErrorAsync(http, HttpMethod.Put, Base, new EnableStatsSyncRequest("salt-c", "check-c"), carol.Token, HttpStatusCode.Forbidden, ApiErrorCodes.StatsSyncNotAllowed);
+        await ExpectErrorAsync(http, HttpMethod.Put, $"{Base}/days/2026-11-11", Upload([1]), carol.Token, HttpStatusCode.Forbidden, ApiErrorCodes.StatsSyncNotAllowed);
+        await ExpectErrorAsync(http, HttpMethod.Put, $"{Base}/settings", new UploadStatsSettingsRequest(Convert.ToBase64String([1])), carol.Token, HttpStatusCode.Forbidden, ApiErrorCodes.StatsSyncNotAllowed);
+        using (var missing = await RawAsync(http, HttpMethod.Get, $"{Base}/days/2026-11-11", null, carol.Token))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+        }
+    }
+
+    [Fact]
+    public async Task Accounts_removed_from_the_list_are_turned_off_and_their_copy_deleted()
+    {
+        var http = _factory.CreateClient();
+        var gone = await RegisterListedAsync(http, "sync-gone");
+        var kept = await RegisterListedAsync(http, "sync-kept");
+        foreach (var user in new[] { gone, kept })
+        {
+            await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Put, Base, new EnableStatsSyncRequest("salt", "check"), user.Token);
+            await SendAsync<StatsSyncDayInfo>(http, HttpMethod.Put, $"{Base}/days/2026-11-11", Upload([1]), user.Token);
+            await SendAsync<StatsSyncSettingsInfo>(http, HttpMethod.Put, $"{Base}/settings", new UploadStatsSettingsRequest(Convert.ToBase64String([2])), user.Token);
+        }
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DeskPalDbContext>();
+            var options = Options.Create(new StatsSyncOptions { AllowedUserNames = "sync-days,sync-bob,sync-off,sync-size,sync-settings,sync-kept" });
+            Assert.Equal(1, await new StatsSyncService(db, TimeProvider.System, options).DisableUnlistedAsync());
+            var user = await db.Users.AsNoTracking().SingleAsync(u => u.UserName == "sync-gone");
+            Assert.Equal((false, null, null, null), (user.StatsSyncEnabled, user.StatsSyncSalt, user.StatsSyncKeyCheck, user.StatsSyncSettings));
+            Assert.False(await db.StatsSyncDays.AnyAsync(d => d.UserId == gone.UserId));
+        }
+
+        var keptStatus = await SendAsync<StatsSyncStatusDto>(http, HttpMethod.Get, Base, null, kept.Token);
+        Assert.True(keptStatus.Enabled);
+        Assert.Single(keptStatus.Days);
+        Assert.NotNull(keptStatus.SettingsRevision);
     }
 
     [Fact]
     public async Task Settings_are_kept_while_sync_is_on()
     {
         var http = _factory.CreateClient();
-        var alice = await RegisterAsync(http, "alice");
+        var alice = await RegisterListedAsync(http, "sync-settings");
         var settings = new UploadStatsSettingsRequest(Convert.ToBase64String([7, 8]));
         await ExpectErrorAsync(http, HttpMethod.Put, $"{Base}/settings", settings, alice.Token, HttpStatusCode.Conflict, ApiErrorCodes.StatsSyncNotEnabled);
 
@@ -165,6 +212,10 @@ public sealed class StatsSyncEndpointTests : IClassFixture<StatsSyncEndpointTest
     private static Task<AuthResponse> RegisterAsync(HttpClient http, string name) =>
         SendAsync<AuthResponse>(http, HttpMethod.Post, "/api/auth/register", new RegisterRequest($"{name}{Guid.NewGuid():N}"[..20], name, "password123"), null);
 
+    /// <param name="userName">One of the names in <see cref="ServerFactory"/>'s StatsSync:AllowedUserNames, each used by one test.</param>
+    private static Task<AuthResponse> RegisterListedAsync(HttpClient http, string userName) =>
+        SendAsync<AuthResponse>(http, HttpMethod.Post, "/api/auth/register", new RegisterRequest(userName, userName, "password123"), null);
+
     private static async Task<T> SendAsync<T>(HttpClient http, HttpMethod method, string path, object? body, string? token)
     {
         using var response = await RawAsync(http, method, path, body, token);
@@ -196,8 +247,7 @@ public sealed class StatsSyncEndpointTests : IClassFixture<StatsSyncEndpointTest
         {
             builder.UseEnvironment("Development");
             builder.UseSetting("ConnectionStrings:Default", $"Data Source={_dbPath};Pooling=False");
-            builder.UseSetting("StatsSync:MaxDayMegabytes", "1");
-            builder.UseSetting("StatsSync:MaxTotalMegabytes", "2");
+            builder.UseSetting("StatsSync:AllowedUserNames", " Sync-Days, sync-bob,sync-off ,SYNC-SIZE,sync-settings,, sync-gone,sync-kept");
         }
 
         protected override void Dispose(bool disposing)

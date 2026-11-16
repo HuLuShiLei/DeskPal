@@ -127,13 +127,11 @@ export interface PanelState {
   whatsNew: { title: string; summary: string; sections: { version: string; items: string[] }[] } | null;
   /** 我自己的使用统计设置。 */
   usage: {
-    retentionDays: number;
-    retentionOptions: { value: number; name: string }[];
     /** 不记录标题的应用和网站。 */
     noTitleRules: { kind: NoTitleKind; pattern: string; label: string }[];
     /** 最近 7 天查看过我的统计的人，最新的在前。 */
     viewers: { name: string; room: string; when: string }[];
-    /** 同步到服务器。needsPin：其他电脑开启的，这台电脑还要输入 PIN 码；error：上次同步失败、用户可以处理的原因。 */
+    /** 同步到服务器，账号不在服务器名单里时为 null。needsPin：其他电脑开启的，这台电脑还要输入 PIN 码；error：上次同步失败、用户可以处理的原因。 */
     sync: { enabled: boolean; needsPin: boolean; error: string | null } | null;
     /** 同步文件夹。和同步到服务器只能开启一种。unavailable：已开启，但文件夹暂时无法访问。 */
     folder: { enabled: boolean; path: string | null; unavailable: boolean } | null;
@@ -214,7 +212,6 @@ export type Command =
   | { type: "stats.folder.choose" }
   | { type: "stats.folder.enable"; path: string; pin: string }
   | { type: "stats.folder.stop" }
-  | { type: "stats.retention"; days: number }
   | { type: "stats.noTitle.add"; kind: NoTitleKind; pattern: string }
   | { type: "stats.noTitle.remove"; kind: NoTitleKind; pattern: string }
   | { type: "room.transfer"; roomId: string; userId: string }

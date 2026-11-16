@@ -110,7 +110,7 @@ flowchart LR
 
 | 窗口 | 文件 | 内容 |
 |---|---|---|
-| 面板 | `Ui/PanelWindow.cs`、`Ui/PanelBridge.cs` | 标题栏中间是房间切换菜单。左侧导航五页：状态（我的状态、房间成员、待归类；公开了使用统计的成员行右侧有统计按钮）、统计（自己和房间成员的使用统计，以及查看记录、不记录标题、保留时长、导入导出、同步到服务器、同步文件夹、清除）、房间（列表、创建和加入、改名、邀请码、屏蔽成员、转让、退出、解散、隐私设置、公开使用统计）、分类（我的分类，可按应用、网站、类别搜索，修改和删除）、设置（账号和退出登录、开机自启、窗口置顶、关闭窗口时、夜间模式、分享使用数据、测试版、检查更新、问题与建议）。默认 420×680，可以拖动边框调整，最小 400×480，不能最大化；内容最宽 640px 居中。第一次打开时停靠在屏幕右下角。关闭按钮默认弹出选择：最小化，或最小化到系统托盘，可勾选不再提示；设置里可以改成每次询问、最小化或最小化到系统托盘。托盘菜单只有「打开 DeskPal」和「退出」 |
+| 面板 | `Ui/PanelWindow.cs`、`Ui/PanelBridge.cs` | 标题栏中间是房间切换菜单。左侧导航五页：状态（我的状态、房间成员、待归类；公开了使用统计的成员行右侧有统计按钮）、统计（自己和房间成员的使用统计，以及查看记录、不记录标题、导入导出、同步到服务器（只对名单内账号显示）、同步文件夹、清除）、房间（列表、创建和加入、改名、邀请码、屏蔽成员、转让、退出、解散、隐私设置、公开使用统计）、分类（我的分类，可按应用、网站、类别搜索，修改和删除）、设置（账号和退出登录、开机自启、窗口置顶、关闭窗口时、夜间模式、分享使用数据、测试版、检查更新、问题与建议）。默认 420×680，可以拖动边框调整，最小 400×480，不能最大化；内容最宽 640px 居中。第一次打开时停靠在屏幕右下角。关闭按钮默认弹出选择：最小化，或最小化到系统托盘，可勾选不再提示；设置里可以改成每次询问、最小化或最小化到系统托盘。托盘菜单只有「打开 DeskPal」和「退出」 |
 | 登录 | `Ui/LoginWindow.cs` | 登录和注册。在 Room、Hub 等服务启动之前显示，所以是单独的窗口 |
 | 置顶小卡片 | `Ui/MemberCards.cs`、`Ui/MemberCardWindow.cs`、`PinnedMembers`（Client.Core） | 状态页成员行的大头针把该成员置顶到桌面，每人一张 280×84 的卡片（`index.html?page=card`），人数不限。卡片总在最前，不显示在任务栏，不抢焦点；从屏幕右上角往下排，整张可以拖动，双击打开面板，点 × 取消置顶。内容是头像、名字、已持续多久、状态标签，应用名和详情合成一行（C# 算好放在 `card` 消息里）。置顶只存在内存里，属于置顶时所在的房间：切换房间、选「无房间」、该成员退出、被踢出或被我屏蔽时移除，再进入也不恢复，重启后也没有 |
 
@@ -134,7 +134,7 @@ flowchart LR
 | 方向 | 消息 |
 |---|---|
 | 宿主 → 页面 | `state`（完整的 `PanelState`，变化后最多每 200 毫秒推一次）、`result{id, ok, error, data}`、`dialog{id, kind, message}`、`login{userName, notice}`（不带服务器地址，登录页不显示也不能修改，地址只在 `settings.json` 的 `serverUrl`） |
-| 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`presence.pause / correct / resetCorrection`、`rules.set / delete`、`stats.query / export / import / clear / retention / noTitle.add / noTitle.remove`、`settings.autoStart / topmost / shareUsage / theme / closeAction / language`、`update.check / beta / restart`、`changelog.seen`、`auth.login / register / logout` |
+| 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`presence.pause / correct / resetCorrection`、`rules.set / delete`、`stats.query / export / import / clear / noTitle.add / noTitle.remove`、`settings.autoStart / topmost / shareUsage / theme / closeAction / language`、`update.check / beta / restart`、`changelog.seen`、`auth.login / register / logout` |
 | 页面 → 宿主，不回复 | `ready`、`dialog.answer{dialogId, ok}`、`window.minimize`、`window.close` |
 
 `PanelState` 由 `PanelStateBuilder` 在 Client.Core 里生成，界面上的文字（连接状态、空提示、识别方式（悬停问号显示）、待提交状态、我的分类、待归类）都在 C# 里算好。状态页不显示「房间成员看到」，页面只负责显示。页面写「房间」，不写 Room。`PanelFixtureTests` 把几组样例按中文、英文各序列化一份到 `web/src/mock/fixtures/` 和 `fixtures/en/`，不一致就失败，改了 `PanelState` 或文案后用 `DESKPAL_UPDATE_FIXTURES=1` 运行测试更新。
@@ -146,8 +146,8 @@ flowchart LR
 在本机记录和计算。默认 Server 不保存；用户在统计页打开「同步到服务器」后，Server 保存一份用 PIN 码加密的副本，见下文「同步到服务器」。也可以改用「同步文件夹」，通过用户自己的网盘或同步工具在电脑之间同步，Server 不参与，见下文「同步文件夹」。两种同步只能开启一种，开启任一种时不能清除全部统计。
 
 - 记录：`PresenceCoordinator` 每次判定后交给 `UsageRecorder`（Client.Core）。状态、类别、应用、标题任一变化就开始新的片段；两次判定间隔超过 30 秒时中间不计；跨过本地零点时切开。暂停分享时按没有暂停时的判定记录。暂离、锁屏只记状态。标题最长 200 个字符，标题等于应用名时不记标题。「不记录标题」的规则（`NoTitleRule`）分四种：应用名（和状态页一致）、进程名（按 `RulePattern` 去掉 `.exe`）、网址（按域名，子域名也算；浏览器只拿得到域名，拿不到路径）、标题关键词（窗口标题、网页标题、媒体标题包含即算），命中时只记类别和名称。
-- 存储：`SqliteUsageStore`，每个账号一个文件 `%APPDATA%\DeskPal\usage\<userId>.db`，不加密。表 `Segments`（片段，`DeviceId + StartAt` 唯一）、`DailyRollups`（过期日期的按天汇总）、`StatsViews`（谁查看过，保留 7 天）、`SyncDays`（同步到服务器的每天哈希和版本号）、`FolderWritten`（写入同步文件夹的每天哈希）、`FolderRead`（读过的其他电脑文件的大小和修改时间）。正在进行的片段每分钟写一次结束时间。`UsageService` 每 6 小时把超过保留天数（默认 90）的片段折成按天汇总。
-- 导入导出：JSON（`UsageExport`，`schemaVersion` 1，上限 100 MB），导出全部片段和汇总，导入时按 `DeviceId + StartAt` 去重。
+- 存储：`SqliteUsageStore`，每个账号一个文件 `%APPDATA%\DeskPal\usage\<userId>.db`，不加密。表 `Segments`（片段，`DeviceId + StartAt` 唯一）、`DailyRollups`（旧版本或其他电脑按保留时长折叠过的日期的按天汇总）、`StatsViews`（谁查看过，保留 7 天）、`SyncDays`（同步到服务器的每天哈希和版本号）、`FolderWritten`（写入同步文件夹的每天哈希）、`FolderRead`（读过的其他电脑文件的大小和修改时间）。正在进行的片段每分钟写一次结束时间。片段一直保留，不再折叠；`UsageService` 每 6 小时调用 `PruneViews`，只删除 7 天前的查看记录。
+- 导入导出：JSON（`UsageExport`，`schemaVersion` 1，不限文件大小，导入时整个文件读进内存），导出全部片段和汇总，导入时按 `DeviceId + StartAt` 去重。
 - 显示：`UsageAggregator` 把片段汇总成 `UsageReport`（每天、每小时、时间轴、应用排行、标题排行），`StatsViewBuilder` 再按范围和细粒度生成页面要画的 `StatsView`，文字都在 C# 里算好。页面用手写 SVG 和 CSS 画时间轴、堆叠柱、图例和排行。
 - 查看房间成员：成员在房间隐私设置里打开「公开使用统计」后，其他人通过 `stats.request` 向本人的客户端请求。请求带一次性的 ECDH P-256 公钥；本人的客户端检查自己当前进入的就是这个房间、请求方是成员且没有被屏蔽，把范围截到公开的天数，用 `StatsFilter` 按该房间每个类别的隐私级别降级，再用 AES-GCM 加密（密钥由 ECDH 结果经 SHA-256 派生，`RequestId` 作为附加数据，内容先 Brotli 压缩）后回复 `stats.response`。请求 30 秒没有回复就提示对方不在线或不在这个房间。双方都把结果缓存 60 秒。
 
@@ -158,8 +158,9 @@ flowchart LR
 - 加密：开启时用户设置 8 位数字 PIN 码，和登录密码无关，不提供找回和修改。`StatsSyncCrypto`（Client.Core）用 Argon2id（64 MB、3 次迭代、并行 4，每个账号一个随机盐）派生 256 位密钥。盐字符串 `argon2id$m=65536,t=3,p=4$<base64>` 带着参数，以后可以调高。每天的数据是 `ExportDay` 输出的 JSON，gzip 后用 AES-GCM 加密（版本字节 1 + 12 字节 nonce + 16 字节 tag + 密文）。Server 保存盐和校验值（用密钥加密的固定文本），客户端用它判断 PIN 码是否正确；Server 不接触 PIN 码和密钥。密钥用 DPAPI（当前用户）保存在 `usage\<userId>.sync-key`，之后不再询问。
 - 版本号：Server 每收到一次上传，把该账号的 `Users.StatsSyncRevision` 加 1，写进这一天。客户端在使用统计库的 `SyncDays` 表记录每天的内容哈希（`ExportDay` 明文的 SHA-256）和已知版本号。`ExportDay` 是确定的（设备号、导出时间固定，按顺序输出），同样的内容在每台电脑上哈希相同。
 - 一次同步（`StatsSync.SyncAsync`）：先取状态；Server 已关闭时删除本机密钥，回到「关」；没有密钥或盐变了（在别处关闭后用新 PIN 码重新开启）时删除本机密钥，等待输入 PIN 码。然后下载 Server 版本号比本机已知版本号新的日期，用 `SqliteUsageStore.MergeDay` 合并：这一天里出现的每台其他电脑，本机库里它这一天的片段和汇总整份换成下载的内容，本机自己记录的不动。这样另一台电脑上还在变长的片段会跟着变长，另一台电脑把过期片段折成按天汇总后也不会同时留下片段和汇总而翻倍。然后把这一天的标记设为下载内容的哈希和版本号。任何一天下载失败，这一轮不上传。最后上传哈希和标记不同的日期，以及本机标记过、Server 上已经没有的日期。
-- 时机：`StatsSyncService`（客户端后台服务）启动时检查全部日期，之后每 10 分钟检查今天和昨天。开启、输入 PIN 码、导入、折叠过期片段后检查全部日期。退出程序时同步一次。退出登录时先同步（最多 5 秒）再删除本机密钥。
-- 限制：单日密文最大 `StatsSync:MaxDayMegabytes`（默认 2），每个账号合计 `StatsSync:MaxTotalMegabytes`（默认 100），超出返回 413，统计页的同步行显示原因，其他日期继续同步。
+- 时机：`StatsSyncService`（客户端后台服务）启动时检查全部日期，之后每 10 分钟检查今天和昨天。开启、输入 PIN 码、导入、清除后检查全部日期。退出程序时同步一次。退出登录时先同步（最多 5 秒）再删除本机密钥。
+- 限制：不检查单日大小，也不限制每个账号的合计大小。
+- 名单：`StatsSync:AllowedUserNames`（Stack 变量 `DESKPAL_STATS_SYNC_USERS`），逗号分隔的用户名，不区分大小写，默认为空。`GET /api/me/stats-sync` 返回 `Allowed`，客户端只在为 true 时显示「同步到服务器」（第一次取到状态之前不显示）。名单外的账号开启、上传一天、上传设置返回 403 `statsSync.notAllowed`，下载返回 404，状态里 `Enabled` 为 false。Server 启动时 `StatsSyncService.DisableUnlistedAsync` 对名单外、仍开启的账号逐个调用关闭（删除每天的密文、统计设置、盐和校验值）；客户端下次同步看到已关闭，删除本机密钥。
 - 同步开启时不能清除全部统计：页面提示先关闭同步，`stats.clear` 同样拒绝。关闭同步时 Server 上的副本已经删除，之后的清除只影响本机。
 - 同步文件夹开启时，开关不可用，`stats.sync.enable` 拒绝。
 
@@ -172,7 +173,7 @@ flowchart LR
 - 只写自己：每台电脑只写自己 `deviceId` 目录下的文件，按每天内容的哈希判断是否要写；先写 `.tmp` 再替换，同步工具不会拿到写了一半的文件。不会有两台电脑写同一个文件，同步工具不会产生冲突副本。
 - 读取：遍历其他 `deviceId` 目录，只处理名称严格是 `yyyy-MM-dd.dps` 的文件（忽略冲突副本和 `.tmp`），按大小和修改时间判断是否变化。读到后用 `ReplaceDay` 把本机库里那台电脑这一天的数据整份换成文件内容。解密、解压、解析失败（同步工具还没复制完整）时跳过，下一轮再试。
 - 状态：所选文件夹不存在或读写出错时显示「文件夹暂时无法访问」，恢复后自动继续。`key.json` 不见了或盐变了（用户删除「DeskPal」目录后重新设置了 PIN 码）时，这台电脑停止同步，回到「未开启」。
-- 时机：`FolderSyncService`（客户端后台服务）和同步到服务器相同：启动时写全部日期，之后每 10 分钟写今天和昨天，导入、折叠过期片段、开启后写全部日期，退出程序时再同步一次。每一轮先读后写。
+- 时机：`FolderSyncService`（客户端后台服务）和同步到服务器相同：启动时写全部日期，之后每 10 分钟写今天和昨天，导入、清除、开启后写全部日期，退出程序时再同步一次。每一轮先读后写。
 - 停止：只停止读写，删除 `usage\<userId>.folder-sync` 和读写标记，不删除文件夹里的任何文件。退出登录时先同步一次（最多 5 秒）再停止，重新登录后要再次选择文件夹并输入 PIN 码。
 - 同步到服务器开启时，「选择文件夹」不可用，`stats.folder.choose`、`stats.folder.enable` 拒绝；开启时不能清除全部统计。
 
@@ -202,11 +203,11 @@ flowchart LR
 | DELETE | `/api/me/rules?kind=&pattern=` | 删除一条个人分类，返回 204 |
 | PUT | `/api/me/sharing` | 是否分享使用数据（`SetSharingRequest`）；关闭时删除已上报的未识别应用 |
 | POST | `/api/me/usage` | 上报今天的未识别应用（`UsageReportRequest`，最多 50 个，只收应用）。没有同意分享时返回 403 |
-| GET | `/api/me/stats-sync` | 使用统计同步的状态（`StatsSyncStatusDto`）：是否开启、盐、校验值、每天的版本号。关闭时盐和校验值为空，日期列表为空 |
-| PUT | `/api/me/stats-sync` | 开启同步（`EnableStatsSyncRequest`：盐、校验值，各最长 200 个字符，为空或超长返回 400 `statsSync.invalid`）。已开启返回 409 `statsSync.alreadyEnabled` |
+| GET | `/api/me/stats-sync` | 使用统计同步的状态（`StatsSyncStatusDto`）：是否开启、盐、校验值、每天的版本号、`Allowed`（是否在名单里）。关闭或不在名单里时盐和校验值为空，日期列表为空 |
+| PUT | `/api/me/stats-sync` | 开启同步（`EnableStatsSyncRequest`：盐、校验值，各最长 200 个字符，为空或超长返回 400 `statsSync.invalid`）。不在名单里返回 403 `statsSync.notAllowed`；已开启返回 409 `statsSync.alreadyEnabled` |
 | DELETE | `/api/me/stats-sync` | 关闭同步，在同一个事务里删除全部日期、盐和校验值，返回 204 |
-| PUT | `/api/me/stats-sync/days/{date}` | 上传一天的密文（`UploadStatsDayRequest`，base64），返回 `StatsSyncDayInfo`（日期、新版本号）。未开启返回 409 `statsSync.notEnabled`；不是 base64 或为空返回 400 `statsSync.invalid`；超过单日或合计上限返回 413 `statsSync.dayTooLarge` / `statsSync.quotaExceeded`（参数 `limit`，单位 MB） |
-| GET | `/api/me/stats-sync/days/{date}` | 下载一天的密文（`StatsSyncDayDto`）。不存在或未开启返回 404 |
+| PUT | `/api/me/stats-sync/days/{date}` | 上传一天的密文（`UploadStatsDayRequest`，base64），返回 `StatsSyncDayInfo`（日期、新版本号）。不在名单里返回 403 `statsSync.notAllowed`；未开启返回 409 `statsSync.notEnabled`；不是 base64 或为空返回 400 `statsSync.invalid`。不检查单日大小，合计大小也不限制。上传统计设置（`PUT /api/me/stats-sync/settings`）同样先检查名单 |
+| GET | `/api/me/stats-sync/days/{date}` | 下载一天的密文（`StatsSyncDayDto`）。不存在、未开启或不在名单里返回 404 |
 
 | GET | `/api/rooms` | 我加入的 Room。`blocked` 只列出我自己屏蔽的、仍在房间里的成员，不会出现别人的屏蔽记录 |
 | POST | `/api/rooms` | 创建 Room（每人最多拥有 `MaxOwnedRoomsPerUser` 个） |
@@ -270,7 +271,7 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 
 | 文件 | 内容 |
 |---|---|
-| `settings.json` | Server 地址（默认 `https://deskpal.hafuhafu.cn:36443`，界面上不显示也不能修改，联调时只能改这里）、当前用户、DPAPI 加密的 token、选中的 Room、是否为无房间（`noRoom`）、空闲和防抖参数、暂停分享、是否加入测试版（`includePrerelease`，空则沿用安装渠道）、是否分享使用数据（`shareUsage`，以 Server 为准）、关闭按钮（`closeAction`：`ask`、`minimize`、`tray`）、本机设备号（`deviceId`，写进统计片段）、统计保留天数（`usageRetentionDays`）、不记录标题的规则（`noTitleRules`，每条是 `kind` + `pattern`） |
+| `settings.json` | Server 地址（默认 `https://deskpal.hafuhafu.cn:36443`，界面上不显示也不能修改，联调时只能改这里）、当前用户、DPAPI 加密的 token、选中的 Room、是否为无房间（`noRoom`）、空闲和防抖参数、暂停分享、是否加入测试版（`includePrerelease`，空则沿用安装渠道）、是否分享使用数据（`shareUsage`，以 Server 为准）、关闭按钮（`closeAction`：`ask`、`minimize`、`tray`）、本机设备号（`deviceId`，写进统计片段）、不记录标题的规则（`noTitleRules`，每条是 `kind` + `pattern`） |
 | `usage\<userId>.db` | 使用统计（SQLite），见「使用统计」。卸载不删除，可以在统计页清除 |
 | `usage\<userId>.sync-key` | 同步到服务器的盐和密钥（JSON，密钥用 DPAPI 加密）。关闭同步、发现已在别处关闭或 PIN 码已更换、退出登录时删除 |
 | `usage\<userId>.folder-sync` | 同步文件夹的路径、盐和密钥（JSON，密钥用 DPAPI 加密）。停止同步、发现文件夹已重新设置、退出登录时删除 |

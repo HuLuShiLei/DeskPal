@@ -2,6 +2,7 @@ using System.Text.Json;
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Ui;
+using DeskPal.Client.Core.Usage;
 using DeskPal.Shared;
 using DeskPal.Shared.Presence;
 
@@ -205,6 +206,17 @@ public class PanelStateBuilderTests
         input = input with { Settings = input.Settings with { UpdateActivity = "正在下载新版本 0.2.0（40%）" } };
 
         Assert.Equal("正在下载新版本 0.2.0（40%）", PanelStateBuilder.Build(input).Settings.UpdateActivity);
+    }
+
+    [Fact]
+    public void Server_sync_shows_only_for_listed_accounts_and_the_folder_always()
+    {
+        var listed = PanelStateBuilder.Build(PanelSamples.Default() with { SyncMode = StatsSyncMode.On }).Usage!;
+        Assert.Equal(new UsageSyncView(true, false), listed.Sync);
+
+        var unlisted = PanelStateBuilder.Build(PanelSamples.Default() with { SyncAllowed = false }).Usage!;
+        Assert.Null(unlisted.Sync);
+        Assert.NotNull(unlisted.Folder);
     }
 
     [Fact]

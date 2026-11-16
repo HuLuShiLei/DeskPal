@@ -42,10 +42,13 @@ public sealed record PanelInput
     public IReadOnlyCollection<Guid> Pinned { get; init; } = [];
     public required DateTimeOffset Now { get; init; }
 
-    /// <summary>Days raw usage segments are kept; null hides the usage section.</summary>
-    public int? UsageRetentionDays { get; init; }
+    /// <summary>false hides the usage section.</summary>
+    public bool ShowUsage { get; init; }
     public IReadOnlyList<NoTitleRule> NoTitleRules { get; init; } = [];
     public IReadOnlyList<StatsViewRecord> StatsViews { get; init; } = [];
+
+    /// <summary>The account may use server sync; false hides it.</summary>
+    public bool SyncAllowed { get; init; }
     public StatsSyncMode SyncMode { get; init; }
     public string? SyncError { get; init; }
     public FolderSyncMode FolderMode { get; init; }
@@ -85,11 +88,9 @@ public static class PanelStateBuilder
                 .Select(a => new UnclassifiedItem(a.Kind, a.Pattern, a.DisplayName, UiLanguage.Format(Strings.Panel_UsedToday, PresenceFormatter.Duration(input.Now - a.Today, input.Now))))
                 .ToList(),
             input.WhatsNew,
-            input.UsageRetentionDays is { } retention ? Usage(input, retention) : null,
+            input.ShowUsage ? Usage(input) : null,
             UiLanguage.Current);
     }
-
-    public static IReadOnlyList<int> RetentionOptions { get; } = [30, 90, 180, 365];
 
     private static string NoTitleLabel(NoTitleRule rule) => UiLanguage.Format(rule.Kind switch
     {
@@ -99,14 +100,12 @@ public static class PanelStateBuilder
         _ => Strings.NoTitle_Title,
     }, rule.Pattern);
 
-    private static UsageView Usage(PanelInput input, int retention) => new(
-        retention,
-        RetentionOptions.Select(d => new Option<int>(d, PresenceFormatter.Days(d))).ToList(),
+    private static UsageView Usage(PanelInput input) => new(
         input.NoTitleRules.Select(r => new NoTitleItem(r.Kind, r.Pattern, NoTitleLabel(r))).ToList(),
         input.StatsViews
             .Select(v => new StatsViewerItem(v.ViewerName, v.RoomName, When(v.At, input.Now, input.Zone)))
             .ToList(),
-        new UsageSyncView(input.SyncMode != StatsSyncMode.Off, input.SyncMode == StatsSyncMode.NeedsPin, input.SyncMode == StatsSyncMode.Off ? null : input.SyncError),
+        input.SyncAllowed ? new UsageSyncView(input.SyncMode != StatsSyncMode.Off, input.SyncMode == StatsSyncMode.NeedsPin, input.SyncMode == StatsSyncMode.Off ? null : input.SyncError) : null,
         new UsageFolderView(input.FolderMode != FolderSyncMode.Off, input.FolderMode == FolderSyncMode.Off ? null : input.FolderPath, input.FolderMode == FolderSyncMode.Unavailable));
 
     private static string When(DateTimeOffset at, DateTimeOffset now, TimeZoneInfo zone)

@@ -134,9 +134,10 @@ public sealed class PanelBridge
         WhatsNew = _whatsNew.Pending,
         Pinned = _pins.Users,
         Now = DateTimeOffset.UtcNow,
-        UsageRetentionDays = _settings.UsageRetentionDays,
+        ShowUsage = true,
         NoTitleRules = _settings.NoTitleRules,
         StatsViews = _usage.RecentViews,
+        SyncAllowed = _sync.Allowed,
         SyncMode = _sync.Mode,
         SyncError = _sync.Error,
         FolderMode = _folder.Mode,
@@ -383,18 +384,6 @@ public sealed class PanelBridge
             case "stats.folder.stop":
                 await _folder.DisableAsync();
                 return CommandResult.Success;
-
-            case "stats.retention":
-            {
-                var days = c.Args.TryGetProperty("days", out var d) && d.ValueKind == JsonValueKind.Number ? d.GetInt32() : 0;
-                if (!PanelStateBuilder.RetentionOptions.Contains(days))
-                {
-                    return CommandResult.Fail(Strings.Error_Retention);
-                }
-
-                await Task.Run(() => _usage.SetRetention(days));
-                return CommandResult.Success;
-            }
 
             case "stats.noTitle.add":
             {

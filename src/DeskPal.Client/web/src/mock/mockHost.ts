@@ -50,7 +50,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
   if (state.usage && (syncSample === "folder" || syncSample === "unavailable")) {
     state.usage.folder = { enabled: true, path: folderPath, unavailable: syncSample === "unavailable" };
   } else if (state.usage && syncSample) {
-    const error = syncSample === "error" ? L("服务器上的使用统计已达 100 MB 上限，新记录暂未同步。请缩短保留时长后重试。", "The server copy has reached the 100 MB limit. New records are not synced. Shorten the retention period and try again.") : null;
+    const error = syncSample === "error" ? L("同步失败，将自动重试。", "Sync failed and will try again.") : null;
     state.usage.sync = { enabled: true, needsPin: syncSample === "pin", error };
   }
   const fail = params.has("fail");
@@ -191,9 +191,6 @@ export function createMockTransport(params: URLSearchParams): Transport {
         break;
       case "stats.folder.stop":
         if (state.usage) state.usage.folder = { enabled: false, path: null, unavailable: false };
-        break;
-      case "stats.retention":
-        if (state.usage) state.usage.retentionDays = m.days as number;
         break;
       case "stats.noTitle.add": {
         const kind = m.kind as NoTitleKind;

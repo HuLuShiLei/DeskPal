@@ -292,7 +292,7 @@
     <value>部分类别未公开标题，仅显示应用名。</value>
   </data>
   <data name="Stats_NoTimeline" xml:space="preserve">
-    <value>已超过保留天数，仅保留当天总时长，没有时间轴。</value>
+    <value>这一天只有总时长，没有时间轴。</value>
   </data>
   <data name="Stats_EmptyMine" xml:space="preserve">
     <value>此时间段没有记录。仅在 DeskPal 运行时记录。</value>
@@ -362,9 +362,6 @@
   </data>
   <data name="WhatsNew_CountSince" xml:space="preserve">
     <value>相较于 {0}，共 {1} 项更新</value>
-  </data>
-  <data name="Import_TooLarge" xml:space="preserve">
-    <value>文件超过 100 MB，不能导入。</value>
   </data>
   <data name="Import_NotExport" xml:space="preserve">
     <value>不是 DeskPal 导出的使用统计文件。</value>
@@ -462,9 +459,6 @@
   </data>
   <data name="Error_StatsDays" xml:space="preserve">
     <value>可查看天数只能是 1、3、7 或 30 天</value>
-  </data>
-  <data name="Error_Retention" xml:space="preserve">
-    <value>保留天数不正确</value>
   </data>
   <data name="Error_NoTitleKind" xml:space="preserve">
     <value>类型不正确</value>
@@ -748,10 +742,7 @@
   <data name="ApiError_prefs_idleMinutes" xml:space="preserve">
     <value>暂离时长只能是 1、5、10、15 或 30 分钟</value>
   </data>
-  <data name="ApiError_statsSync_dayTooLarge" xml:space="preserve">
-    <value>某一天的使用统计超过 {limit} MB，该日未能同步。</value>
-  </data>
-  <data name="ApiError_statsSync_quotaExceeded" xml:space="preserve">
-    <value>服务器上的使用统计已达 {limit} MB 上限，新记录暂未同步。请缩短保留时长后重试。</value>
+  <data name="ApiError_statsSync_notAllowed" xml:space="preserve">
+    <value>当前账号无法使用同步到服务器</value>
   </data>
 </root>

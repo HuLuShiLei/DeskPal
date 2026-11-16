@@ -11,7 +11,7 @@ public sealed class StatsSyncService(DeskPalDbContext db, TimeProvider time, IOp
 {
     private const int MaxTextLength = 200;
 
-    /// <summary>A few hundred no-title rules and the retention, encrypted. Far more than the panel lets anyone add.</summary>
+    /// <summary>A few hundred no-title rules, encrypted. Far more than the panel lets anyone add.</summary>
     private const int MaxSettingsBytes = 64 * 1024;
 
     public async Task<StatsSyncStatusDto> GetStatusAsync(Guid userId)
@@ -28,6 +28,11 @@ public sealed class StatsSyncService(DeskPalDbContext db, TimeProvider time, IOp
         }
 
         var user = await db.Users.SingleAsync(u => u.Id == userId);
+        if (!options.Value.IsAllowed(user.UserName))
+        {
+            return ServiceResult<StatsSyncStatusDto>.Fail(StatusCodes.Status403Forbidden, ApiErrorCodes.StatsSyncNotAllowed);
+        }
+
         if (user.StatsSyncEnabled)
         {
             return ServiceResult<StatsSyncStatusDto>.Fail(StatusCodes.Status409Conflict, ApiErrorCodes.StatsSyncAlreadyEnabled);
@@ -58,9 +63,28 @@ public sealed class StatsSyncService(DeskPalDbContext db, TimeProvider time, IOp
         await tx.CommitAsync();
     }
 
+    /// <summary>Turns sync off, deleting the stored copy, for every account that has it on but is no longer allowed.</summary>
+    /// <returns>Number of accounts turned off.</returns>
+    public async Task<int> DisableUnlistedAsync()
+    {
+        var enabled = await db.Users.AsNoTracking().Where(u => u.StatsSyncEnabled).Select(u => new { u.Id, u.UserName }).ToListAsync();
+        var unlisted = enabled.Where(u => !options.Value.IsAllowed(u.UserName)).Select(u => u.Id).ToList();
+        foreach (var userId in unlisted)
+        {
+            await DisableAsync(userId);
+        }
+
+        return unlisted.Count;
+    }
+
     public async Task<ServiceResult<StatsSyncDayInfo>> UploadAsync(Guid userId, DateOnly date, UploadStatsDayRequest req)
     {
         var user = await db.Users.SingleAsync(u => u.Id == userId);
+        if (!options.Value.IsAllowed(user.UserName))
+        {
+            return ServiceResult<StatsSyncDayInfo>.Fail(StatusCodes.Status403Forbidden, ApiErrorCodes.StatsSyncNotAllowed);
+        }
+
         if (!user.StatsSyncEnabled)
         {
             return ServiceResult<StatsSyncDayInfo>.Fail(StatusCodes.Status409Conflict, ApiErrorCodes.StatsSyncNotEnabled);
@@ -81,18 +105,6 @@ public sealed class StatsSyncService(DeskPalDbContext db, TimeProvider time, IOp
             return ServiceResult<StatsSyncDayInfo>.Fail(StatusCodes.Status400BadRequest, ApiErrorCodes.StatsSyncInvalid);
         }
 
-        var limits = options.Value;
-        if (data.Length > Megabytes(limits.MaxDayMegabytes))
-        {
-            return ServiceResult<StatsSyncDayInfo>.Fail(StatusCodes.Status413PayloadTooLarge, ApiErrorCodes.StatsSyncDayTooLarge, limits.MaxDayMegabytes);
-        }
-
-        var others = await db.StatsSyncDays.Where(d => d.UserId == userId && d.Date != date).SumAsync(d => (long)d.Data.Length);
-        if (others + data.Length > Megabytes(limits.MaxTotalMegabytes))
-        {
-            return ServiceResult<StatsSyncDayInfo>.Fail(StatusCodes.Status413PayloadTooLarge, ApiErrorCodes.StatsSyncQuotaExceeded, limits.MaxTotalMegabytes);
-        }
-
         var day = await db.StatsSyncDays.SingleOrDefaultAsync(d => d.UserId == userId && d.Date == date);
         if (day is null)
         {
@@ -111,14 +123,19 @@ public sealed class StatsSyncService(DeskPalDbContext db, TimeProvider time, IOp
     /// <returns>null when sync is off or the day is not stored.</returns>
     public async Task<StatsSyncDayDto?> DownloadAsync(Guid userId, DateOnly date)
     {
-        var enabled = await db.Users.Where(u => u.Id == userId).Select(u => u.StatsSyncEnabled).SingleAsync();
-        var day = enabled ? await db.StatsSyncDays.AsNoTracking().SingleOrDefaultAsync(d => d.UserId == userId && d.Date == date) : null;
+        var user = await db.Users.AsNoTracking().Where(u => u.Id == userId).Select(u => new { u.UserName, u.StatsSyncEnabled }).SingleAsync();
+        var day = user.StatsSyncEnabled && options.Value.IsAllowed(user.UserName) ? await db.StatsSyncDays.AsNoTracking().SingleOrDefaultAsync(d => d.UserId == userId && d.Date == date) : null;
         return day is null ? null : new StatsSyncDayDto(day.Date, day.Revision, Convert.ToBase64String(day.Data));
     }
 
     public async Task<ServiceResult<StatsSyncSettingsInfo>> UploadSettingsAsync(Guid userId, UploadStatsSettingsRequest req)
     {
         var user = await db.Users.SingleAsync(u => u.Id == userId);
+        if (!options.Value.IsAllowed(user.UserName))
+        {
+            return ServiceResult<StatsSyncSettingsInfo>.Fail(StatusCodes.Status403Forbidden, ApiErrorCodes.StatsSyncNotAllowed);
+        }
+
         if (!user.StatsSyncEnabled)
         {
             return ServiceResult<StatsSyncSettingsInfo>.Fail(StatusCodes.Status409Conflict, ApiErrorCodes.StatsSyncNotEnabled);
@@ -150,7 +167,7 @@ public sealed class StatsSyncService(DeskPalDbContext db, TimeProvider time, IOp
     public async Task<StatsSyncSettingsDto?> DownloadSettingsAsync(Guid userId)
     {
         var user = await db.Users.AsNoTracking().SingleAsync(u => u.Id == userId);
-        return user is { StatsSyncEnabled: true, StatsSyncSettings: { } data, StatsSyncSettingsRevision: { } revision }
+        return user is { StatsSyncEnabled: true, StatsSyncSettings: { } data, StatsSyncSettingsRevision: { } revision } && options.Value.IsAllowed(user.UserName)
             ? new StatsSyncSettingsDto(revision, Convert.ToBase64String(data))
             : null;
     }
@@ -158,19 +175,18 @@ public sealed class StatsSyncService(DeskPalDbContext db, TimeProvider time, IOp
 
     private async Task<StatsSyncStatusDto> StatusAsync(User user)
     {
-        if (!user.StatsSyncEnabled)
+        var allowed = options.Value.IsAllowed(user.UserName);
+        if (!user.StatsSyncEnabled || !allowed)
         {
-            return new StatsSyncStatusDto(false, null, null, []);
+            return new StatsSyncStatusDto(false, null, null, [], Allowed: allowed);
         }
 
         var days = await db.StatsSyncDays.Where(d => d.UserId == user.Id)
             .OrderBy(d => d.Date)
             .Select(d => new StatsSyncDayInfo(d.Date, d.Revision))
             .ToListAsync();
-        return new StatsSyncStatusDto(true, user.StatsSyncSalt, user.StatsSyncKeyCheck, days, user.StatsSyncSettingsRevision);
+        return new StatsSyncStatusDto(true, user.StatsSyncSalt, user.StatsSyncKeyCheck, days, user.StatsSyncSettingsRevision, Allowed: true);
     }
 
     private static bool Valid(string? text) => !string.IsNullOrWhiteSpace(text) && text.Length <= MaxTextLength;
-
-    private static long Megabytes(int value) => value * 1024L * 1024L;
 }

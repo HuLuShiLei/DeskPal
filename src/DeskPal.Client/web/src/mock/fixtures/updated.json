@@ -247,25 +247,6 @@
     ]
   },
   "usage": {
-    "retentionDays": 90,
-    "retentionOptions": [
-      {
-        "value": 30,
-        "name": "30 天"
-      },
-      {
-        "value": 90,
-        "name": "90 天"
-      },
-      {
-        "value": 180,
-        "name": "180 天"
-      },
-      {
-        "value": 365,
-        "name": "365 天"
-      }
-    ],
     "noTitleRules": [
       {
         "kind": "App",

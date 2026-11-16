@@ -44,7 +44,10 @@ public sealed class StatsSyncService : BackgroundService
 
     public StatsSyncMode Mode => _sync.Mode;
 
-    /// <summary>Why the last sync failed, when it was a server limit the user can act on.</summary>
+    /// <inheritdoc cref="StatsSync.Allowed"/>
+    public bool Allowed => _sync.Allowed;
+
+    /// <summary>Last sync error shown on the stats page, if any.</summary>
     public string? Error { get; private set; }
 
     /// <inheritdoc cref="StatsSync.EnableAsync"/>
@@ -130,11 +133,6 @@ public sealed class StatsSyncService : BackgroundService
             await _sync.SyncAsync(allDays);
             SetError(null);
         }
-        catch (ApiException ex) when (ex.Status == 413)
-        {
-            SetError(ex.Message);
-            _logger.LogWarning("Usage stats sync hit the server limit");
-        }
         catch (ApiException ex)
         {
             _allDays |= allDays;
@@ -202,10 +200,10 @@ public sealed class StatsSyncService : BackgroundService
         }
     }
 
-    /// <summary>Which titles are not recorded and how long details are kept; nothing else of <see cref="AppSettings"/> follows the account.</summary>
+    /// <summary>Which titles are not recorded; nothing else of <see cref="AppSettings"/> follows the account.</summary>
     private sealed class SettingsSource(UsageService usage, AppSettings settings) : IStatsSettingsSource
     {
-        public SyncedStatsSettings Read() => new(settings.NoTitleRules.ToList(), settings.UsageRetentionDays);
+        public SyncedStatsSettings Read() => new(settings.NoTitleRules.ToList());
 
         public void Apply(SyncedStatsSettings synced)
         {
@@ -221,11 +219,6 @@ public sealed class StatsSyncService : BackgroundService
             if (!rules.SequenceEqual(settings.NoTitleRules))
             {
                 usage.SetNoTitleRules(rules);
-            }
-
-            if (PanelStateBuilder.RetentionOptions.Contains(synced.RetentionDays) && synced.RetentionDays != settings.UsageRetentionDays)
-            {
-                usage.SetRetention(synced.RetentionDays);
             }
         }
     }

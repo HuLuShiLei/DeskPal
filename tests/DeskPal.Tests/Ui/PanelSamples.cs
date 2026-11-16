@@ -88,7 +88,8 @@ public static class PanelSamples
             Settings = Settings with { IsAdmin = true },
             Pinned = [Bob],
             Now = Now,
-            UsageRetentionDays = 90,
+            ShowUsage = true,
+            SyncAllowed = true,
             NoTitleRules = [new(NoTitleKind.App, "招商银行"), new(NoTitleKind.Domain, "cmbchina.com"), new(NoTitleKind.Title, "病历")],
             StatsViews =
             [

@@ -27,7 +27,7 @@ public interface IStatsSyncApi
 }
 
 /// <summary>The stats settings that follow the account while sync is on. Everything else stays on each computer.</summary>
-public sealed record SyncedStatsSettings(IReadOnlyList<NoTitleRule> NoTitleRules, int RetentionDays);
+public sealed record SyncedStatsSettings(IReadOnlyList<NoTitleRule> NoTitleRules);
 
 /// <summary>Reads and changes the stats settings of this computer.</summary>
 public interface IStatsSettingsSource
@@ -102,6 +102,9 @@ public sealed class StatsSync
 
     /// <summary>Last known state. Starts from the stored key and is corrected by the next <see cref="SyncAsync"/>.</summary>
     public StatsSyncMode Mode { get; private set; }
+
+    /// <summary>The account may use server sync, from the last status read; false until then.</summary>
+    public bool Allowed { get; private set; }
 
     /// <summary>Reads the server state; when on, downloads newer days and uploads changed ones.</summary>
     /// <param name="allDays">Check every local day, not only today and yesterday.</param>
@@ -236,6 +239,12 @@ public sealed class StatsSync
     /// <returns>Whether this computer can sync now.</returns>
     private bool Apply(StatsSyncStatusDto status)
     {
+        if (Allowed != status.Allowed)
+        {
+            Allowed = status.Allowed;
+            Changed?.Invoke();
+        }
+
         if (!status.Enabled)
         {
             if (_key is not null)

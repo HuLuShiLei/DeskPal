@@ -8,6 +8,14 @@
 
 ## 0.1.2
 
+- 去掉「保留时长」，使用统计的时间轴和标题一直保留，不再只留每天的总时长
+  en: "Keep details for" has been removed. The timeline and titles in usage stats are kept, not just the daily totals
+- 同步到服务器暂时只对部分账号开放。其他账号已开启的同步已关闭，服务器上的数据已删除，本机数据保留
+  en: Server sync is now available to some accounts only. For other accounts, sync has been turned off and the server copy deleted. Data on this computer is kept
+- 同步到服务器不再限制使用统计的总大小，也不限制每一天的大小
+  en: Server sync no longer limits the total size of usage stats, or the size of a single day
+- 导入使用统计不再限制文件大小
+  en: Importing usage stats no longer limits the file size
 - 远程桌面、虚拟机、安卓模拟器、PDF 阅读器、AI 助手、笔记软件、个人邮箱等工作和生活都常用的应用，不再默认算作工作中或在玩游戏，改为显示正在使用该应用
   en: Apps used for both work and personal life, such as remote desktop, virtual machines, Android emulators, PDF readers, AI assistants, note apps, and personal email, no longer count as working or gaming by default. They show the app name instead
 - 统计按状态查看时，视频和游戏分开显示
@@ -20,8 +28,8 @@
   en: A video playing in the browser counts as watching a video. A full-screen game is no longer counted as a video because something else is playing
 - 设置里可以选择暂离的时间，并在其他电脑登录后保持一致
   en: You can choose how soon you are shown as away, and that choice follows the account
-- 开启同步到服务器后，不记录标题和详细记录保留时长也跟随账号
-  en: With sync to the server on, the titles you leave unrecorded and how long detailed records are kept follow the account too
+- 开启同步到服务器后，不记录标题也跟随账号
+  en: With sync to the server on, the titles you leave unrecorded follow the account too
 - 使用统计可以用 PIN 码加密后同步到服务器，在其他电脑上登录并输入 PIN 码后即可同步；关闭同步时立即删除服务器上的数据
   en: Usage stats can be encrypted with a PIN and synced to the server. Sign in on another computer and enter the PIN to sync there. Turning sync off deletes the server copy immediately
 - 使用统计也可以通过网盘等同步工具在电脑之间同步：选择一个同步文件夹，文件用 PIN 码加密，服务器不保存这些数据

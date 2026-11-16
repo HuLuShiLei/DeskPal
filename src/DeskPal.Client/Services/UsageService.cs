@@ -13,14 +13,14 @@ namespace DeskPal.Client.Services;
 /// <summary>My usage history on this computer: recording, queries, import and export. One database file per account.</summary>
 public sealed class UsageService : IDisposable
 {
-    private static readonly TimeSpan CompactEvery = TimeSpan.FromHours(6);
+    private static readonly TimeSpan PruneEvery = TimeSpan.FromHours(6);
     private static readonly JsonSerializerOptions ExportOptions = new(DeskPalJson.Options) { WriteIndented = true };
 
     private readonly AppSettings _settings;
     private readonly SettingsStore _store;
     private readonly ILogger<UsageService> _logger;
     private readonly SqliteUsageStore _db;
-    private readonly Timer _compact;
+    private readonly Timer _prune;
     private IReadOnlyList<StatsViewRecord> _views = [];
     private volatile UsageReclassifier _reclassifier = UsageReclassifier.None;
 
@@ -40,14 +40,14 @@ public sealed class UsageService : IDisposable
         _db = new SqliteUsageStore(Path.Combine(SettingsStore.Directory, "usage", $"{settings.UserId:N}.db"), settings.DeviceId);
         Recorder = new UsageRecorder(_db);
         Recorder.SetNoTitleRules(settings.NoTitleRules);
-        _compact = new Timer(_ => Compact(), null, TimeSpan.FromSeconds(30), CompactEvery);
+        _prune = new Timer(_ => PruneViews(), null, TimeSpan.FromSeconds(30), PruneEvery);
         LoadViews();
     }
 
     /// <summary>Raised when the view records change.</summary>
     public event Action? Changed;
 
-    /// <summary>Raised when past days may have changed: import, folding old days, clearing.</summary>
+    /// <summary>Raised when past days may have changed: import, clearing.</summary>
     public event Action? DaysChanged;
 
     public UsageRecorder Recorder { get; }
@@ -67,16 +67,8 @@ public sealed class UsageService : IDisposable
         return previous is { } p ? report with { PreviousSeconds = UsageAggregator.ActiveSeconds(Build(p.From, p.To)) } : report;
     }
 
-    /// <summary>The retention or the no-title rules changed, here or from another computer through sync.</summary>
+    /// <summary>The no-title rules changed, here or from another computer through sync.</summary>
     public event Action? SettingsChanged;
-
-    public void SetRetention(int days)
-    {
-        _settings.UsageRetentionDays = days;
-        _store.Save(_settings);
-        Compact();
-        SettingsChanged?.Invoke();
-    }
 
     public void SetNoTitleRules(List<NoTitleRule> rules)
     {
@@ -93,14 +85,9 @@ public sealed class UsageService : IDisposable
         JsonSerializer.Serialize(file, _db.Export(DateTimeOffset.UtcNow), ExportOptions);
     }
 
-    /// <exception cref="InvalidDataException">The file is too large or not a usage export.</exception>
+    /// <exception cref="InvalidDataException">The file is not a usage export.</exception>
     public ImportResult Import(string path)
     {
-        if (new FileInfo(path).Length > UsageExport.MaxFileBytes)
-        {
-            throw new InvalidDataException(Strings.Import_TooLarge);
-        }
-
         UsageExport? data;
         try
         {
@@ -113,7 +100,6 @@ public sealed class UsageService : IDisposable
         }
 
         var result = _db.Import(data ?? throw new InvalidDataException(Strings.Import_Empty));
-        Compact();
         DaysChanged?.Invoke();
         return result;
     }
@@ -134,7 +120,7 @@ public sealed class UsageService : IDisposable
 
     public void Dispose()
     {
-        _compact.Dispose();
+        _prune.Dispose();
         Recorder.Flush();
         _db.Dispose();
     }
@@ -169,22 +155,16 @@ public sealed class UsageService : IDisposable
             zone);
     }
 
-    private void Compact()
+    private void PruneViews()
     {
         try
         {
-            var folded = _db.Compact(Today.AddDays(1 - _settings.UsageRetentionDays), DateTimeOffset.UtcNow);
-            if (folded > 0)
-            {
-                _logger.LogInformation("Folded {Count} usage segments into daily totals", folded);
-                DaysChanged?.Invoke();
-            }
-
+            _db.PruneViews(DateTimeOffset.UtcNow);
             LoadViews();
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Compacting usage failed");
+            _logger.LogWarning(ex, "Pruning stats views failed");
         }
     }
 

@@ -46,9 +46,6 @@ public sealed class AppSettings
     /// <summary>Identifies this computer in exported usage files, so importing them twice does not count twice.</summary>
     public Guid DeviceId { get; set; }
 
-    /// <summary>Days raw usage segments are kept; older days keep only per-day totals.</summary>
-    public int UsageRetentionDays { get; set; } = 90;
-
     /// <summary>Apps, processes, sites and title keywords whose titles are never recorded in the usage stats.</summary>
     public List<NoTitleRule> NoTitleRules { get; set; } = [];
 

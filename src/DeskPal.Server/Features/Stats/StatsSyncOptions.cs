@@ -2,9 +2,10 @@ namespace DeskPal.Server.Features.Stats;
 
 public sealed class StatsSyncOptions
 {
-    /// <summary>Largest encrypted day accepted.</summary>
-    public int MaxDayMegabytes { get; set; } = 2;
+    /// <summary>Comma-separated user names that may use server sync. Set from StatsSync__AllowedUserNames; empty allows nobody.</summary>
+    public string AllowedUserNames { get; set; } = "";
 
-    /// <summary>Largest total of all days of one account.</summary>
-    public int MaxTotalMegabytes { get; set; } = 100;
+    public bool IsAllowed(string userName) =>
+        AllowedUserNames.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Any(n => string.Equals(n, userName, StringComparison.OrdinalIgnoreCase));
 }
