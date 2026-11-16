@@ -187,7 +187,7 @@ function MyStatus({ state }: { state: PanelState }) {
           <Avatar name={me.displayName} tone={me.view.tone} />
           <div class="row-main">
             <div class="row-title">
-              <span class="row-name">{t("common.me", { name: me.displayName })}</span>
+              <span class="row-name">{me.displayName}</span>
               {me.pending ? (
                 <Pending pending={me.pending} source={me.source} />
               ) : (

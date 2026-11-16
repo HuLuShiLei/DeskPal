@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 首页「我的状态」中，自己的名字不再带「（我）」
+  en: Your name in My status no longer includes "(you)"
+
 - 检查更新过于频繁时，提示几点后可以再试，到时间之前不再检查；5 分钟内重复检查直接显示上次的结果
   en: If update checks are too frequent, DeskPal tells you when to try again and waits until then. Checking again within 5 minutes shows the last result
 
