@@ -1,5 +1,5 @@
 {
-    "version": 4,
+    "version": 5,
     "rules": [
         {
             "kind": "Process",
@@ -507,6 +507,42 @@
         },
         {
             "kind": "Process",
+            "pattern": "line",
+            "category": "Communication",
+            "name": "LINE"
+        },
+        {
+            "kind": "Process",
+            "pattern": "signal",
+            "category": "Communication",
+            "name": "Signal"
+        },
+        {
+            "kind": "Process",
+            "pattern": "kakaotalk",
+            "category": "Communication",
+            "name": "KakaoTalk"
+        },
+        {
+            "kind": "Process",
+            "pattern": "viber",
+            "category": "Communication",
+            "name": "Viber"
+        },
+        {
+            "kind": "Process",
+            "pattern": "element",
+            "category": "Communication",
+            "name": "Element"
+        },
+        {
+            "kind": "Process",
+            "pattern": "kook",
+            "category": "Communication",
+            "name": "KOOK"
+        },
+        {
+            "kind": "Process",
             "pattern": "zoom",
             "category": "Work",
             "name": "Zoom"
@@ -531,6 +567,453 @@
             "pattern": "ciscocollabhost",
             "category": "Work",
             "name": "Webex"
+        },
+        {
+            "kind": "Process",
+            "pattern": "zed",
+            "category": "Work",
+            "name": "Zed"
+        },
+        {
+            "kind": "Process",
+            "pattern": "phpstorm64",
+            "category": "Work",
+            "name": "PhpStorm"
+        },
+        {
+            "kind": "Process",
+            "pattern": "rubymine64",
+            "category": "Work",
+            "name": "RubyMine"
+        },
+        {
+            "kind": "Process",
+            "pattern": "eclipse",
+            "category": "Work",
+            "name": "Eclipse"
+        },
+        {
+            "kind": "Process",
+            "pattern": "hbuilderx",
+            "category": "Work",
+            "name": "HBuilderX"
+        },
+        {
+            "kind": "Process",
+            "pattern": "wechatdevtools",
+            "category": "Work",
+            "name": "微信开发者工具",
+            "names": {
+                "en": "WeChat DevTools"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "emeditor",
+            "category": "Work",
+            "name": "EmEditor"
+        },
+        {
+            "kind": "Process",
+            "pattern": "gvim",
+            "category": "Work",
+            "name": "gVim"
+        },
+        {
+            "kind": "Process",
+            "pattern": "unity",
+            "category": "Work",
+            "name": "Unity"
+        },
+        {
+            "kind": "Process",
+            "pattern": "unrealeditor",
+            "category": "Work",
+            "name": "Unreal Editor"
+        },
+        {
+            "kind": "Process",
+            "pattern": "alacritty",
+            "category": "Work",
+            "name": "Alacritty"
+        },
+        {
+            "kind": "Process",
+            "pattern": "wezterm-gui",
+            "category": "Work",
+            "name": "WezTerm"
+        },
+        {
+            "kind": "Process",
+            "pattern": "tabby",
+            "category": "Work",
+            "name": "Tabby"
+        },
+        {
+            "kind": "Process",
+            "pattern": "termius",
+            "category": "Work",
+            "name": "Termius"
+        },
+        {
+            "kind": "Process",
+            "pattern": "securecrt",
+            "category": "Work",
+            "name": "SecureCRT"
+        },
+        {
+            "kind": "Process",
+            "pattern": "mintty",
+            "category": "Work",
+            "name": "Git Bash"
+        },
+        {
+            "kind": "Process",
+            "pattern": "conemu64",
+            "category": "Work",
+            "name": "ConEmu"
+        },
+        {
+            "kind": "Process",
+            "pattern": "heidisql",
+            "category": "Work",
+            "name": "HeidiSQL"
+        },
+        {
+            "kind": "Process",
+            "pattern": "mongodbcompass",
+            "category": "Work",
+            "name": "MongoDB Compass"
+        },
+        {
+            "kind": "Process",
+            "pattern": "insomnia",
+            "category": "Work",
+            "name": "Insomnia"
+        },
+        {
+            "kind": "Process",
+            "pattern": "bruno",
+            "category": "Work",
+            "name": "Bruno"
+        },
+        {
+            "kind": "Process",
+            "pattern": "fiddler",
+            "category": "Work",
+            "name": "Fiddler"
+        },
+        {
+            "kind": "Process",
+            "pattern": "wireshark",
+            "category": "Work",
+            "name": "Wireshark"
+        },
+        {
+            "kind": "Process",
+            "pattern": "charles",
+            "category": "Work",
+            "name": "Charles"
+        },
+        {
+            "kind": "Process",
+            "pattern": "mspub",
+            "category": "Work",
+            "name": "Publisher"
+        },
+        {
+            "kind": "Process",
+            "pattern": "foxitpdfreader",
+            "category": "Work",
+            "name": "Foxit PDF Reader"
+        },
+        {
+            "kind": "Process",
+            "pattern": "foxitpdfeditor",
+            "category": "Work",
+            "name": "Foxit PDF Editor"
+        },
+        {
+            "kind": "Process",
+            "pattern": "sumatrapdf",
+            "category": "Work",
+            "name": "SumatraPDF"
+        },
+        {
+            "kind": "Process",
+            "pattern": "pdfxedit",
+            "category": "Work",
+            "name": "PDF-XChange Editor"
+        },
+        {
+            "kind": "Process",
+            "pattern": "draw.io",
+            "category": "Work",
+            "name": "draw.io"
+        },
+        {
+            "kind": "Process",
+            "pattern": "logseq",
+            "category": "Work",
+            "name": "Logseq"
+        },
+        {
+            "kind": "Process",
+            "pattern": "joplin",
+            "category": "Work",
+            "name": "Joplin"
+        },
+        {
+            "kind": "Process",
+            "pattern": "siyuan",
+            "category": "Work",
+            "name": "思源笔记",
+            "names": {
+                "en": "SiYuan"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "youdaonote",
+            "category": "Work",
+            "name": "有道云笔记",
+            "names": {
+                "en": "Youdao Note"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "evernote",
+            "category": "Work",
+            "name": "Evernote"
+        },
+        {
+            "kind": "Process",
+            "pattern": "zotero",
+            "category": "Work",
+            "name": "Zotero"
+        },
+        {
+            "kind": "Process",
+            "pattern": "youdaodict",
+            "category": "Work",
+            "name": "有道翻译",
+            "names": {
+                "en": "Youdao Translate"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "deepl",
+            "category": "Work",
+            "name": "DeepL"
+        },
+        {
+            "kind": "Process",
+            "pattern": "mailmaster",
+            "category": "Work",
+            "name": "网易邮箱大师",
+            "names": {
+                "en": "NetEase Mail Master"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "chatgpt",
+            "category": "Work",
+            "name": "ChatGPT"
+        },
+        {
+            "kind": "Process",
+            "pattern": "claude",
+            "category": "Work",
+            "name": "Claude"
+        },
+        {
+            "kind": "Process",
+            "pattern": "doubao",
+            "category": "Work",
+            "name": "豆包",
+            "names": {
+                "en": "Doubao"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "lm studio",
+            "category": "Work",
+            "name": "LM Studio"
+        },
+        {
+            "kind": "Process",
+            "pattern": "indesign",
+            "category": "Work",
+            "name": "InDesign"
+        },
+        {
+            "kind": "Process",
+            "pattern": "lightroom",
+            "category": "Work",
+            "name": "Lightroom"
+        },
+        {
+            "kind": "Process",
+            "pattern": "resolve",
+            "category": "Work",
+            "name": "DaVinci Resolve"
+        },
+        {
+            "kind": "Process",
+            "pattern": "jianyingpro",
+            "category": "Work",
+            "name": "剪映",
+            "names": {
+                "en": "CapCut"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "capcut",
+            "category": "Work",
+            "name": "CapCut"
+        },
+        {
+            "kind": "Process",
+            "pattern": "blender",
+            "category": "Work",
+            "name": "Blender"
+        },
+        {
+            "kind": "Process",
+            "pattern": "cinema 4d",
+            "category": "Work",
+            "name": "Cinema 4D"
+        },
+        {
+            "kind": "Process",
+            "pattern": "3dsmax",
+            "category": "Work",
+            "name": "3ds Max"
+        },
+        {
+            "kind": "Process",
+            "pattern": "maya",
+            "category": "Work",
+            "name": "Maya"
+        },
+        {
+            "kind": "Process",
+            "pattern": "acad",
+            "category": "Work",
+            "name": "AutoCAD"
+        },
+        {
+            "kind": "Process",
+            "pattern": "sldworks",
+            "category": "Work",
+            "name": "SolidWorks"
+        },
+        {
+            "kind": "Process",
+            "pattern": "revit",
+            "category": "Work",
+            "name": "Revit"
+        },
+        {
+            "kind": "Process",
+            "pattern": "sketchup",
+            "category": "Work",
+            "name": "SketchUp"
+        },
+        {
+            "kind": "Process",
+            "pattern": "rhino",
+            "category": "Work",
+            "name": "Rhino"
+        },
+        {
+            "kind": "Process",
+            "pattern": "coreldrw",
+            "category": "Work",
+            "name": "CorelDRAW"
+        },
+        {
+            "kind": "Process",
+            "pattern": "inkscape",
+            "category": "Work",
+            "name": "Inkscape"
+        },
+        {
+            "kind": "Process",
+            "pattern": "krita",
+            "category": "Work",
+            "name": "Krita"
+        },
+        {
+            "kind": "Process",
+            "pattern": "matlab",
+            "category": "Work",
+            "name": "MATLAB"
+        },
+        {
+            "kind": "Process",
+            "pattern": "rstudio",
+            "category": "Work",
+            "name": "RStudio"
+        },
+        {
+            "kind": "Process",
+            "pattern": "todesk",
+            "category": "Work",
+            "name": "ToDesk"
+        },
+        {
+            "kind": "Process",
+            "pattern": "sunloginclient",
+            "category": "Work",
+            "name": "向日葵",
+            "names": {
+                "en": "Sunlogin"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "anydesk",
+            "category": "Work",
+            "name": "AnyDesk"
+        },
+        {
+            "kind": "Process",
+            "pattern": "teamviewer",
+            "category": "Work",
+            "name": "TeamViewer"
+        },
+        {
+            "kind": "Process",
+            "pattern": "rustdesk",
+            "category": "Work",
+            "name": "RustDesk"
+        },
+        {
+            "kind": "Process",
+            "pattern": "vmconnect",
+            "category": "Work",
+            "name": "Hyper-V"
+        },
+        {
+            "kind": "Process",
+            "pattern": "msrdc",
+            "category": "Work",
+            "name": "远程桌面",
+            "names": {
+                "en": "Remote Desktop"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "welink",
+            "category": "Work",
+            "name": "WeLink"
         },
         {
             "kind": "Process",
@@ -594,26 +1077,131 @@
         },
         {
             "kind": "Process",
+            "pattern": "mpv",
+            "category": "Video",
+            "name": "mpv"
+        },
+        {
+            "kind": "Process",
+            "pattern": "mpc-be64",
+            "category": "Video",
+            "name": "MPC-BE"
+        },
+        {
+            "kind": "Process",
+            "pattern": "mpc-be",
+            "category": "Video",
+            "name": "MPC-BE"
+        },
+        {
+            "kind": "Process",
+            "pattern": "mpc-hc",
+            "category": "Video",
+            "name": "MPC-HC"
+        },
+        {
+            "kind": "Process",
+            "pattern": "potplayer64",
+            "category": "Video",
+            "name": "PotPlayer"
+        },
+        {
+            "kind": "Process",
+            "pattern": "potplayer",
+            "category": "Video",
+            "name": "PotPlayer"
+        },
+        {
+            "kind": "Process",
+            "pattern": "plex",
+            "category": "Video",
+            "name": "Plex"
+        },
+        {
+            "kind": "Process",
+            "pattern": "plex htpc",
+            "category": "Video",
+            "name": "Plex HTPC"
+        },
+        {
+            "kind": "Process",
+            "pattern": "jellyfinmediaplayer",
+            "category": "Video",
+            "name": "Jellyfin"
+        },
+        {
+            "kind": "Process",
+            "pattern": "kodi",
+            "category": "Video",
+            "name": "Kodi"
+        },
+        {
+            "kind": "Process",
+            "pattern": "qqplayer",
+            "category": "Video",
+            "name": "QQ影音",
+            "names": {
+                "en": "QQPlayer"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "smplayer",
+            "category": "Video",
+            "name": "SMPlayer"
+        },
+        {
+            "kind": "Process",
+            "pattern": "kmplayer",
+            "category": "Video",
+            "name": "KMPlayer"
+        },
+        {
+            "kind": "Process",
+            "pattern": "gom",
+            "category": "Video",
+            "name": "GOM Player"
+        },
+        {
+            "kind": "Process",
+            "pattern": "video.ui",
+            "category": "Video",
+            "name": "电影和电视",
+            "names": {
+                "en": "Movies & TV"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "哔哩哔哩",
+            "category": "Video",
+            "name": "哔哩哔哩",
+            "names": {
+                "en": "Bilibili"
+            }
+        },
+        {
+            "kind": "Process",
             "pattern": "steam",
-            "category": "Game",
+            "category": "Other",
             "name": "Steam"
         },
         {
             "kind": "Process",
             "pattern": "steamwebhelper",
-            "category": "Game",
+            "category": "Other",
             "name": "Steam"
         },
         {
             "kind": "Process",
             "pattern": "epicgameslauncher",
-            "category": "Game",
+            "category": "Other",
             "name": "Epic Games"
         },
         {
             "kind": "Process",
             "pattern": "wegame",
-            "category": "Game",
+            "category": "Other",
             "name": "WeGame"
         },
         {
@@ -664,8 +1252,50 @@
         {
             "kind": "Process",
             "pattern": "battle.net",
-            "category": "Game",
+            "category": "Other",
             "name": "Battle.net"
+        },
+        {
+            "kind": "Process",
+            "pattern": "eadesktop",
+            "category": "Other",
+            "name": "EA app"
+        },
+        {
+            "kind": "Process",
+            "pattern": "ubisoftconnect",
+            "category": "Other",
+            "name": "Ubisoft Connect"
+        },
+        {
+            "kind": "Process",
+            "pattern": "upc",
+            "category": "Other",
+            "name": "Ubisoft Connect"
+        },
+        {
+            "kind": "Process",
+            "pattern": "galaxyclient",
+            "category": "Other",
+            "name": "GOG Galaxy"
+        },
+        {
+            "kind": "Process",
+            "pattern": "riotclientservices",
+            "category": "Other",
+            "name": "Riot Client"
+        },
+        {
+            "kind": "Process",
+            "pattern": "xboxpcapp",
+            "category": "Other",
+            "name": "Xbox"
+        },
+        {
+            "kind": "Process",
+            "pattern": "playnite.desktopapp",
+            "category": "Other",
+            "name": "Playnite"
         },
         {
             "kind": "Process",
@@ -723,6 +1353,441 @@
             "names": {
                 "en": "PUBG: BATTLEGROUNDS"
             }
+        },
+        {
+            "kind": "Process",
+            "pattern": "ffxiv_dx11",
+            "category": "Game",
+            "name": "最终幻想XIV",
+            "names": {
+                "en": "FINAL FANTASY XIV"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "ffxiv",
+            "category": "Game",
+            "name": "最终幻想XIV",
+            "names": {
+                "en": "FINAL FANTASY XIV"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "minecraft.windows",
+            "category": "Game",
+            "name": "Minecraft"
+        },
+        {
+            "kind": "Process",
+            "pattern": "eldenring",
+            "category": "Game",
+            "name": "艾尔登法环",
+            "names": {
+                "en": "ELDEN RING"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "sekiro",
+            "category": "Game",
+            "name": "只狼",
+            "names": {
+                "en": "Sekiro"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "gta5",
+            "category": "Game",
+            "name": "GTA V"
+        },
+        {
+            "kind": "Process",
+            "pattern": "rdr2",
+            "category": "Game",
+            "name": "荒野大镖客 2",
+            "names": {
+                "en": "Red Dead Redemption 2"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "cyberpunk2077",
+            "category": "Game",
+            "name": "赛博朋克 2077",
+            "names": {
+                "en": "Cyberpunk 2077"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "witcher3",
+            "category": "Game",
+            "name": "巫师 3",
+            "names": {
+                "en": "The Witcher 3"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "bg3",
+            "category": "Game",
+            "name": "博德之门 3",
+            "names": {
+                "en": "Baldur's Gate 3"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "bg3_dx11",
+            "category": "Game",
+            "name": "博德之门 3",
+            "names": {
+                "en": "Baldur's Gate 3"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "zenlesszonezero",
+            "category": "Game",
+            "name": "绝区零",
+            "names": {
+                "en": "Zenless Zone Zero"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "bh3",
+            "category": "Game",
+            "name": "崩坏3",
+            "names": {
+                "en": "Honkai Impact 3rd"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "narakabladepoint",
+            "category": "Game",
+            "name": "永劫无间",
+            "names": {
+                "en": "NARAKA: BLADEPOINT"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "r5apex",
+            "category": "Game",
+            "name": "Apex 英雄",
+            "names": {
+                "en": "Apex Legends"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "fortniteclient-win64-shipping",
+            "category": "Game",
+            "name": "Fortnite"
+        },
+        {
+            "kind": "Process",
+            "pattern": "rocketleague",
+            "category": "Game",
+            "name": "Rocket League"
+        },
+        {
+            "kind": "Process",
+            "pattern": "valorant-win64-shipping",
+            "category": "Game",
+            "name": "VALORANT"
+        },
+        {
+            "kind": "Process",
+            "pattern": "crossfire",
+            "category": "Game",
+            "name": "穿越火线",
+            "names": {
+                "en": "CrossFire"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "dnf",
+            "category": "Game",
+            "name": "地下城与勇士",
+            "names": {
+                "en": "Dungeon & Fighter"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "worldoftanks",
+            "category": "Game",
+            "name": "坦克世界",
+            "names": {
+                "en": "World of Tanks"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "eurotrucks2",
+            "category": "Game",
+            "name": "欧洲卡车模拟 2",
+            "names": {
+                "en": "Euro Truck Simulator 2"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "terraria",
+            "category": "Game",
+            "name": "泰拉瑞亚",
+            "names": {
+                "en": "Terraria"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "stardew valley",
+            "category": "Game",
+            "name": "星露谷物语",
+            "names": {
+                "en": "Stardew Valley"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "factorio",
+            "category": "Game",
+            "name": "Factorio"
+        },
+        {
+            "kind": "Process",
+            "pattern": "hollow_knight",
+            "category": "Game",
+            "name": "空洞骑士",
+            "names": {
+                "en": "Hollow Knight"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "palworld-win64-shipping",
+            "category": "Game",
+            "name": "幻兽帕鲁",
+            "names": {
+                "en": "Palworld"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "monsterhunterworld",
+            "category": "Game",
+            "name": "怪物猎人：世界",
+            "names": {
+                "en": "Monster Hunter: World"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "monsterhunterrise",
+            "category": "Game",
+            "name": "怪物猎人：崛起",
+            "names": {
+                "en": "Monster Hunter Rise"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "monsterhunterwilds",
+            "category": "Game",
+            "name": "怪物猎人：荒野",
+            "names": {
+                "en": "Monster Hunter Wilds"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "hades",
+            "category": "Game",
+            "name": "Hades"
+        },
+        {
+            "kind": "Process",
+            "pattern": "civilizationvi",
+            "category": "Game",
+            "name": "文明 VI",
+            "names": {
+                "en": "Civilization VI"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "eu4",
+            "category": "Game",
+            "name": "欧陆风云 IV",
+            "names": {
+                "en": "Europa Universalis IV"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "hoi4",
+            "category": "Game",
+            "name": "钢铁雄心 IV",
+            "names": {
+                "en": "Hearts of Iron IV"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "stellaris",
+            "category": "Game",
+            "name": "群星",
+            "names": {
+                "en": "Stellaris"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "ck3",
+            "category": "Game",
+            "name": "王国风云 3",
+            "names": {
+                "en": "Crusader Kings III"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "sc2_x64",
+            "category": "Game",
+            "name": "星际争霸 II",
+            "names": {
+                "en": "StarCraft II"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "diablo iv",
+            "category": "Game",
+            "name": "暗黑破坏神 IV",
+            "names": {
+                "en": "Diablo IV"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "lostark",
+            "category": "Game",
+            "name": "失落的方舟",
+            "names": {
+                "en": "Lost Ark"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "helldivers2",
+            "category": "Game",
+            "name": "绝地潜兵 2",
+            "names": {
+                "en": "HELLDIVERS 2"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "osu!",
+            "category": "Game",
+            "name": "osu!"
+        },
+        {
+            "kind": "Process",
+            "pattern": "rainbowsix",
+            "category": "Game",
+            "name": "彩虹六号：围攻",
+            "names": {
+                "en": "Rainbow Six Siege"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "destiny2",
+            "category": "Game",
+            "name": "命运 2",
+            "names": {
+                "en": "Destiny 2"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "warframe.x64",
+            "category": "Game",
+            "name": "星际战甲",
+            "names": {
+                "en": "Warframe"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "among us",
+            "category": "Game",
+            "name": "Among Us"
+        },
+        {
+            "kind": "Process",
+            "pattern": "phasmophobia",
+            "category": "Game",
+            "name": "Phasmophobia"
+        },
+        {
+            "kind": "Process",
+            "pattern": "lethal company",
+            "category": "Game",
+            "name": "Lethal Company"
+        },
+        {
+            "kind": "Process",
+            "pattern": "valheim",
+            "category": "Game",
+            "name": "英灵神殿",
+            "names": {
+                "en": "Valheim"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "rustclient",
+            "category": "Game",
+            "name": "Rust"
+        },
+        {
+            "kind": "Process",
+            "pattern": "geforcenow",
+            "category": "Game",
+            "name": "GeForce NOW"
+        },
+        {
+            "kind": "Process",
+            "pattern": "mumuplayer",
+            "category": "Game",
+            "name": "MuMu 模拟器",
+            "names": {
+                "en": "MuMu Player"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "dnplayer",
+            "category": "Game",
+            "name": "雷电模拟器",
+            "names": {
+                "en": "LDPlayer"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "hd-player",
+            "category": "Game",
+            "name": "BlueStacks"
         },
         {
             "kind": "Domain",

@@ -31,6 +31,17 @@ public class BuiltinRulesTests
     }
 
     [Theory]
+    [InlineData("ffxiv_dx11", ActivityCategory.Game)]
+    [InlineData("steam", ActivityCategory.Other)]
+    [InlineData("steamwebhelper", ActivityCategory.Other)]
+    [InlineData("PotPlayer64", ActivityCategory.Video)]
+    [InlineData("Plex", ActivityCategory.Video)]
+    public void Launchers_are_other_and_games_and_players_are_known(string process, ActivityCategory expected)
+    {
+        Assert.Equal(expected, Rules.Match(TestData.App(process))!.Category);
+    }
+
+    [Theory]
     [InlineData("mail.qq.com", ActivityCategory.Work)]
     [InlineData("teams.microsoft.com", ActivityCategory.Work)]
     [InlineData("meeting.tencent.com", ActivityCategory.Work)]
