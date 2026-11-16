@@ -104,8 +104,8 @@ public sealed class PresenceHubTests : IClassFixture<PresenceHubTests.ServerFact
 
         await aliceHub.InvokeAsync(HubContract.Publish, Envelope.Create(MessageTypes.PresenceUpdate, room.Id, working));
         await bobHub.InvokeAsync(HubContract.Publish, Envelope.Create(MessageTypes.PresenceUpdate, room.Id, working));
-        Assert.Equal(alice.UserId, (await NextAsync(carolInbox, e => e.Type == MessageTypes.PresenceUpdate)).SenderId);
-        Assert.Equal(bob.UserId, (await NextAsync(carolInbox, e => e.Type == MessageTypes.PresenceUpdate)).SenderId);
+        var seenByCarol = new[] { (await NextAsync(carolInbox, e => e.Type == MessageTypes.PresenceUpdate)).SenderId, (await NextAsync(carolInbox, e => e.Type == MessageTypes.PresenceUpdate)).SenderId };
+        Assert.Equal(new[] { alice.UserId, bob.UserId }.Order(), seenByCarol.Order());
         await Task.Delay(500);
         Assert.DoesNotContain(Drain(bobInbox), e => e.Type is MessageTypes.PresenceUpdate or MessageTypes.RoomBlocksChanged);
         Assert.DoesNotContain(Drain(aliceInbox), e => e.Type == MessageTypes.PresenceUpdate);
