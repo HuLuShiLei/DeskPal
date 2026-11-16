@@ -405,24 +405,55 @@ button.hint-button:active:not(:disabled) { background: var(--pressed); color: va
 
 /* ---- 标题栏的房间切换 ---- */
 .flyout-root { position: relative; -webkit-app-region: no-drag; app-region: no-drag; min-width: 0; }
-.flyout-button { min-height: 26px; padding: 2px 8px 2px 10px; max-width: 220px; background: var(--hover); border-color: transparent; }
-.flyout-button:hover:not(:disabled) { background: var(--pressed); }
-.flyout-label { overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
-.chevron { font-size: 9px; color: var(--muted); }
+.flyout-button {
+  min-height: 28px; padding: 2px 10px 2px 4px; gap: 8px; min-width: 140px; max-width: min(240px, 100%); border-radius: 999px; justify-content: flex-start;
+  background: var(--hover); border: 1px solid var(--line);
+  transition: background 0.12s, border-color 0.12s;
+}
+.flyout-button:hover:not(:disabled) { background: var(--pressed); border-color: var(--line-strong); }
+.flyout-button[aria-expanded=true] { background: var(--pressed); border-color: var(--line-strong); }
+.flyout-label { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; font-size: 12px; font-weight: 600; }
+.flyout-meta { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.online-dot { width: 6px; height: 6px; border-radius: 50%; background: #13a10e; }
+.chevron { font-size: 9px; color: var(--muted); transition: transform 0.15s ease; }
+.flyout-button[aria-expanded=true] .chevron { transform: rotate(180deg); }
 .flyout {
   position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); z-index: 30;
-  min-width: 220px; max-width: 300px; padding: 4px; border-radius: var(--radius-lg);
-  background: var(--surface-strong); border: 1px solid var(--line); box-shadow: var(--shadow);
-  display: grid; animation: flyout-in 0.12s ease-out;
+  width: max-content; min-width: 232px; max-width: 300px; padding: 6px; border-radius: var(--radius-lg);
+  background: var(--surface-strong); border: 1px solid var(--line-strong); box-shadow: var(--shadow);
+  display: grid; gap: 2px; transform-origin: top center; animation: flyout-in 0.14s cubic-bezier(0.2, 0, 0, 1);
 }
-@keyframes flyout-in { from { opacity: 0; transform: translate(-50%, -4px); } to { opacity: 1; transform: translateX(-50%); } }
-.menu-item { justify-content: flex-start; border: none; background: transparent; min-height: 32px; padding: 4px 10px 4px 6px; gap: 8px; }
+@keyframes flyout-in { from { opacity: 0; transform: translate(-50%, -6px) scale(0.97); } to { opacity: 1; transform: translateX(-50%); } }
+.menu-header { padding: 4px 10px 6px; font-size: 11px; color: var(--faint); }
+.menu-item {
+  position: relative; justify-content: flex-start; border: none; background: transparent;
+  min-height: 36px; padding: 4px 10px 4px 8px; gap: 10px;
+}
 .menu-item:hover:not(:disabled) { background: var(--hover); }
-.menu-check { width: 18px; display: inline-flex; justify-content: center; color: var(--accent); }
-.menu-check .icon { font-size: 12px; }
+.menu-item:active:not(:disabled) { background: var(--pressed); color: inherit; }
+.menu-item[aria-checked=true] { background: var(--accent-soft); }
+.menu-item[aria-checked=true]:hover:not(:disabled) { background: color-mix(in srgb, var(--accent-soft), var(--accent) 6%); }
+.menu-item[aria-checked=true]::before {
+  content: ""; position: absolute; left: 0; top: 50%; width: 3px; height: 16px; margin-top: -8px;
+  border-radius: 2px; background: var(--accent);
+}
+.menu-item[aria-checked=true] .menu-text { font-weight: 600; }
+.menu-icon { width: 24px; display: inline-flex; justify-content: center; color: var(--muted); }
 .menu-text { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; }
-.menu-meta { font-size: 11px; color: var(--faint); }
-.menu-sep { border: none; border-top: 1px solid var(--line); margin: 4px 2px; }
+.menu-meta {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted);
+  background: var(--hover); border-radius: 999px; padding: 1px 7px; font-variant-numeric: tabular-nums;
+}
+.menu-meta .icon { font-size: 11px; }
+.menu-sep { border: none; border-top: 1px solid var(--line); margin: 4px 4px; }
+
+.room-badge {
+  width: 24px; height: 24px; border-radius: 7px; flex: none; display: grid; place-items: center;
+  font: 600 12px/1 "Segoe UI", "Microsoft YaHei UI", sans-serif;
+}
+.room-badge[class*="tv-"] { background: color-mix(in srgb, var(--tv) 22%, transparent); color: color-mix(in srgb, var(--tv) 85%, var(--text)); }
+.room-badge.small { width: 20px; height: 20px; border-radius: 999px; font-size: 10px; }
+.room-badge.empty { border: 1px dashed var(--line-strong); }
 
 /* ---- 对话框和提示 ---- */
 .backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3); display: grid; place-items: center; padding: 20px; z-index: 40; animation: fade-in 0.12s; }

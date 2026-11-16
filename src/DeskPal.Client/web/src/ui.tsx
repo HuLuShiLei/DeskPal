@@ -213,8 +213,24 @@ export function Avatar({ name, tone }: { name: string; tone: PresenceView["tone"
   );
 }
 
+const roomTones = ["work", "chat", "relax", "game", "browse", "other"] as const;
+
+/** 房间的首字母方块。颜色按房间 id 固定，同一个房间在哪里都是同一种颜色；不传 id 表示无房间。 */
+export function RoomBadge({ id, name, size }: { id?: string; name?: string; size?: "small" }) {
+  const cls = size ? `room-badge ${size}` : "room-badge";
+  if (!id) return <span class={`${cls} empty`} aria-hidden="true" />;
+  let hash = 0;
+  for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) | 0;
+  const tone = roomTones[Math.abs(hash) % roomTones.length];
+  return (
+    <span class={`${cls} tv-${tone}`} aria-hidden="true">
+      {Array.from(name?.trim() ?? "")[0]?.toUpperCase() ?? "?"}
+    </span>
+  );
+}
+
 /** 点击后弹出的菜单，用于标题栏的房间切换。 */
-export function Flyout({ label, button, children }: { label: string; button: ComponentChildren; children: (close: () => void) => ComponentChildren }) {
+export function Flyout({ label, button, header, children }: { label: string; button: ComponentChildren; header?: string; children: (close: () => void) => ComponentChildren }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
 
@@ -242,7 +258,8 @@ export function Flyout({ label, button, children }: { label: string; button: Com
         <Icon name="chevronDown" class="chevron" />
       </button>
       {open && (
-        <div class="flyout" role="menu">
+        <div class="flyout" role="menu" aria-label={label}>
+          {header && <div class="menu-header">{header}</div>}
           {children(() => setOpen(false))}
         </div>
       )}

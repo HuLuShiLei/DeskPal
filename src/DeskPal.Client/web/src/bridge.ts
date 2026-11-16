@@ -33,6 +33,8 @@ export interface RoomItem {
   isOwner: boolean;
   memberCount: number;
   maxMembers: number;
+  /** 当前房间的在线人数（含自己）；其他房间和未连接时为 null。 */
+  onlineCount: number | null;
 }
 
 export interface MemberItem {

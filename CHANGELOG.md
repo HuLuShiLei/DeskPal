@@ -8,6 +8,8 @@
 
 ## 0.1.2
 
+- 标题栏的房间切换显示房间色块和在线人数，菜单里用色块标出当前房间
+  en: The room switcher in the title bar shows a color badge and how many people are online, and the menu marks the current room with its badge
 - 左侧导航的「状态」改名为「首页」，并更换了「首页」和「房间」的图标
   en: In the left navigation, Status is now Home, with new icons for Home and Rooms
 - 识别为「其他」的应用改为显示「其他活动」，应用名显示在下一行，和工作中、在聊天等状态的排版一致

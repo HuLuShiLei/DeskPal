@@ -35,6 +35,7 @@ export const en: Record<keyof typeof zh, string> = {
   "app.noticeTitle": "DeskPal",
   "app.switchRoom": "Switch room",
   "app.noRoom": "No room",
+  "app.onlineCount": "{count} online",
   "app.manageRooms": "Manage rooms",
   "sharing.title": "Improve categories",
   "sharing.message": "Your categories are saved on the server and apply on every computer.\n\nIf you agree, this is also uploaded to improve the defaults:\n· Unrecognized desktop apps: process name, product name, and minutes per day\n· Categories you set for desktop apps\n\nWindow titles, web addresses, media titles, and exact times are not uploaded. A result is added only when many people agree. You can turn this off in Settings.",

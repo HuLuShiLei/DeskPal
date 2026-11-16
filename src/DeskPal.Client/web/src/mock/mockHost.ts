@@ -123,12 +123,12 @@ export function createMockTransport(params: URLSearchParams): Transport {
         );
         break;
       case "room.create":
-        state.rooms.push({ id: crypto.randomUUID(), name: m.name as string, isOwner: true, memberCount: 1, maxMembers: 20 });
+        state.rooms.push({ id: crypto.randomUUID(), name: m.name as string, isOwner: true, memberCount: 1, maxMembers: 20, onlineCount: null });
         state.selectedRoomId = state.rooms.at(-1)!.id;
         break;
       case "room.join":
         if (m.code === "00000000") return { ok: false, error: L("邀请码无效或已过期", "The invite code is invalid or has expired") };
-        state.rooms.push({ id: crypto.randomUUID(), name: L("加入的房间", "Joined room"), isOwner: false, memberCount: 2, maxMembers: 20 });
+        state.rooms.push({ id: crypto.randomUUID(), name: L("加入的房间", "Joined room"), isOwner: false, memberCount: 2, maxMembers: 20, onlineCount: null });
         break;
       case "room.rename": {
         const r = room(m.roomId);

@@ -9,7 +9,7 @@ import { StatusPage } from "./pages/StatusPage";
 import { setLocale, t, type MessageKey } from "./i18n";
 import { askSharing } from "./sharing";
 import { applyTheme } from "./theme";
-import { Flyout, Icon, TitleBar, type IconName } from "./ui";
+import { Flyout, Icon, RoomBadge, TitleBar, type IconName } from "./ui";
 
 const tabs: { id: Tab; name: MessageKey; icon: IconName }[] = [
   { id: "status", name: "tab.status", icon: "home" },
@@ -181,7 +181,22 @@ function RoomSwitcher({ state, onManage }: { state: PanelState; onManage: () => 
   const { run } = useHost();
   const current = state.rooms.find((r) => r.id === state.selectedRoomId);
   return (
-    <Flyout label={t("app.switchRoom")} button={<span class="flyout-label">{current?.name ?? t("app.noRoom")}</span>}>
+    <Flyout
+      label={t("app.switchRoom")}
+      header={t("app.switchRoom")}
+      button={
+        <>
+          <RoomBadge id={current?.id} name={current?.name} size="small" />
+          <span class="flyout-label">{current?.name ?? t("app.noRoom")}</span>
+          {current?.onlineCount != null && (
+            <span class="flyout-meta">
+              <span class="online-dot" />
+              {t("app.onlineCount", { count: current.onlineCount })}
+            </span>
+          )}
+        </>
+      }
+    >
       {(close) => (
         <>
           {state.rooms.map((r) => (
@@ -195,9 +210,10 @@ function RoomSwitcher({ state, onManage }: { state: PanelState; onManage: () => 
                 if (r.id !== state.selectedRoomId) void run({ type: "room.select", roomId: r.id });
               }}
             >
-              <span class="menu-check">{r.id === state.selectedRoomId && <Icon name="accept" />}</span>
+              <RoomBadge id={r.id} name={r.name} />
               <span class="menu-text">{r.name}</span>
               <span class="menu-meta">
+                <Icon name="people" />
                 {r.memberCount}/{r.maxMembers}
               </span>
             </button>
@@ -211,7 +227,7 @@ function RoomSwitcher({ state, onManage }: { state: PanelState; onManage: () => 
               if (state.selectedRoomId) void run({ type: "room.select", roomId: null });
             }}
           >
-            <span class="menu-check">{!state.selectedRoomId && <Icon name="accept" />}</span>
+            <RoomBadge />
             <span class="menu-text">{t("app.noRoom")}</span>
           </button>
           <hr class="menu-sep" />
@@ -223,7 +239,7 @@ function RoomSwitcher({ state, onManage }: { state: PanelState; onManage: () => 
               onManage();
             }}
           >
-            <span class="menu-check">
+            <span class="menu-icon">
               <Icon name="settings" />
             </span>
             <span class="menu-text">{t("app.manageRooms")}</span>

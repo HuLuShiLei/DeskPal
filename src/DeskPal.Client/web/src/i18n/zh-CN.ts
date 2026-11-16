@@ -33,6 +33,7 @@ export const zh = {
   "app.noticeTitle": "提示",
   "app.switchRoom": "切换房间",
   "app.noRoom": "无房间",
+  "app.onlineCount": "{count} 人在线",
   "app.manageRooms": "管理房间",
   "sharing.title": "帮助改进默认分类",
   "sharing.message": "分类会保存到服务器，并在所有电脑上生效。\n\n若同意，还会上传以下内容，用于改进默认分类：\n· 未识别的桌面应用：进程名、产品名、每天的使用分钟数\n· 你为桌面应用设置的分类\n\n不上传窗口标题、网址、媒体标题和具体时间。多人结果一致后才会加入默认分类。可在「设置」中关闭。",

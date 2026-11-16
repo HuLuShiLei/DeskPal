@@ -65,6 +65,7 @@ public static class PanelStateBuilder
     {
         var room = input.SelectedRoom;
         var members = room is null ? [] : Members(input, room);
+        int? online = input.Connection == ConnectionStatus.Connected ? 1 + members.Count(m => m.Online) : null;
         string? emptyHint = room is not null
             ? members.Count == 0 ? Strings.Panel_NoMembers : null
             : Strings.Panel_NoRoom;
@@ -72,7 +73,7 @@ public static class PanelStateBuilder
         return new PanelState(
             Connection(input.Connection),
             Me(input, room),
-            input.Rooms.Select(r => new RoomItem(r.Id, r.Name, r.OwnerId == input.MyUserId, r.Members.Count, r.MaxMembers)).ToList(),
+            input.Rooms.Select(r => new RoomItem(r.Id, r.Name, r.OwnerId == input.MyUserId, r.Members.Count, r.MaxMembers, r.Id == room?.Id ? online : null)).ToList(),
             room?.Id,
             emptyHint,
             members,

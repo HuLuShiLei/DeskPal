@@ -137,6 +137,19 @@ public class PanelStateBuilderTests
     }
 
     [Fact]
+    public void Selected_room_counts_online_members_with_me_and_skips_blocked()
+    {
+        var state = PanelStateBuilder.Build(PanelSamples.Default());
+        Assert.Equal([2, null], state.Rooms.Select(r => r.OnlineCount));
+
+        var blocked = PanelStateBuilder.Build(PanelSamples.Default() with { SelectedRoom = PanelSamples.OwnedRoom with { Blocked = [PanelSamples.Bob] } });
+        Assert.Equal(1, blocked.Rooms[0].OnlineCount);
+
+        var offline = PanelStateBuilder.Build(PanelSamples.Default() with { Connection = ConnectionStatus.Reconnecting });
+        Assert.All(offline.Rooms, r => Assert.Null(r.OnlineCount));
+    }
+
+    [Fact]
     public void Without_room_shows_hint_and_no_privacy()
     {
         var state = PanelStateBuilder.Build(PanelSamples.NoRoom());

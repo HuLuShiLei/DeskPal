@@ -48,7 +48,8 @@ public sealed record MeView(
 /// <param name="TotalSeconds">The full stable interval, for the progress bar.</param>
 public sealed record PendingView(PresenceView View, int RemainingMs, int TotalSeconds, string? Full = null);
 
-public sealed record RoomItem(Guid Id, string Name, bool IsOwner, int MemberCount, int MaxMembers);
+/// <param name="OnlineCount">Online members of the selected room, me included; null for other rooms and while not connected.</param>
+public sealed record RoomItem(Guid Id, string Name, bool IsOwner, int MemberCount, int MaxMembers, int? OnlineCount = null);
 
 /// <param name="Pinned">Shown as a card on the desktop.</param>
 /// <param name="Blocked">I blocked this member: neither of us sees the other's presence. The member is not told.</param>
