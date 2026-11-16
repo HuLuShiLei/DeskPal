@@ -214,15 +214,21 @@ public sealed class PanelBridge
                 return CommandResult.Success;
             }
 
+            case "room.inviteGet":
+                return new CommandResult(true, Data: new { code = (await _api.GetInviteAsync(c.Guid("roomId"))).Code });
+
+            case "room.inviteCopy":
+            {
+                var code = (await _api.GetInviteAsync(c.Guid("roomId"))).Code;
+                Clipboard.SetText(code);
+                return new CommandResult(true, Data: new { code });
+            }
+
             case "room.invite":
             {
                 var invite = await _api.CreateInviteAsync(c.Guid("roomId"));
                 Clipboard.SetText(invite.Code);
-                return new CommandResult(true, Data: new
-                {
-                    code = invite.Code,
-                    message = UiLanguage.Format(Strings.Room_InviteCopied, UiLanguage.Format(Strings.Date_MonthDayTime, invite.ExpiresAt.LocalDateTime)),
-                });
+                return new CommandResult(true, Data: new { code = invite.Code });
             }
 
             case "room.privacy":

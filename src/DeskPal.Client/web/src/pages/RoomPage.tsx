@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import type { MemberItem, PanelState, PrivacyLevel, RoomItem } from "../bridge";
 import { StatusBadge, useHost } from "../host";
 import { t } from "../i18n";
@@ -100,11 +100,6 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
     const a = await ask({ title: t("room.renameTitle"), input: { initial: room.name, maxLength: 30, required: true }, okText: t("common.save") });
     if (a.ok && a.text !== room.name) await run({ type: "room.rename", roomId: room.id, name: a.text }, t("common.renamed"));
   };
-  const invite = async () => {
-    const r = await run({ type: "room.invite", roomId: room.id });
-    const data = r.data as { code: string; message: string } | undefined;
-    if (r.ok && data) await ask({ title: t("room.inviteTitle"), highlight: data.code, message: data.message, okText: t("common.gotIt"), cancelText: null });
-  };
   const transfer = async () => {
     const a = await ask({
       title: t("room.transferTitle"),
@@ -152,11 +147,8 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
               <RoomCounts room={room} />
             </div>
           </div>
+          <InviteCode room={room} />
           <div class="toolbar">
-            <button class="primary" onClick={invite}>
-              <Icon name="link" />
-              {t("room.invite")}
-            </button>
             {room.isOwner && others.length > 0 && <button onClick={transfer}>{t("room.transferTitle")}</button>}
             <span class="spacer" />
             {room.isOwner ? (
@@ -191,6 +183,56 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
         </ul>
       </Section>
     </>
+  );
+}
+
+/** 邀请码不在 PanelState 里：打开房间页或切换房间时向宿主要一次。复制时宿主会再向服务器取最新的，其他人刚重新生成过也不会复制到旧码。 */
+function InviteCode({ room }: { room: RoomItem }) {
+  const { ask, run, bridge } = useHost();
+  const [code, setCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    let current = true;
+    setCode(null);
+    void bridge.request({ type: "room.inviteGet", roomId: room.id }).then((r) => {
+      if (current && r.ok) setCode((r.data as { code: string }).code);
+    });
+    return () => {
+      current = false;
+    };
+  }, [room.id]);
+
+  const copy = async () => {
+    const r = await run({ type: "room.inviteCopy", roomId: room.id }, t("room.inviteCopied"));
+    if (r.ok) setCode((r.data as { code: string }).code);
+  };
+  const renew = async () => {
+    const a = await ask({ title: t("room.renewTitle"), message: t("room.renewMessage"), okText: t("room.renew"), danger: true });
+    if (!a.ok) return;
+    const r = await run({ type: "room.invite", roomId: room.id }, t("room.renewed"));
+    if (r.ok) setCode((r.data as { code: string }).code);
+  };
+
+  if (code === null) return null;
+  return (
+    <div class="invite-box">
+      <div class="invite-row">
+        <div class="invite-main">
+          <p class="invite-label">{t("room.inviteTitle")}</p>
+          <p class="invite-value selectable">{code}</p>
+        </div>
+        <button onClick={copy} aria-label={t("room.inviteCopyName")}>
+          <Icon name="copy" />
+          {t("room.inviteCopy")}
+        </button>
+        {room.isOwner && (
+          <button class="icon-button" onClick={renew} title={t("room.renewTitle")} aria-label={t("room.renewTitle")}>
+            <Icon name="refresh" />
+          </button>
+        )}
+      </div>
+      <p class="invite-hint">{t("room.inviteHint")}</p>
+    </div>
   );
 }
 

@@ -77,6 +77,9 @@ export function createMockTransport(params: URLSearchParams): Transport {
     { code: "P4W8N2KD", used: false, text: L("11 月 13 日 17:40 生成", "Created Nov 13, 17:40") },
     { code: "H3T9R6VB", used: true, text: L("Bob（bob）于 11 月 12 日 09:15 注册", "Used by Bob (bob) on Nov 12, 09:15") },
   ];
+  const newCode = () => Array.from({ length: 8 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
+  const roomInvites = new Map<string, string>(state.selectedRoomId ? [[state.selectedRoomId, "K7Q2M9XA"]] : []);
+  const inviteOf = (roomId: string) => roomInvites.get(roomId) ?? roomInvites.set(roomId, newCode()).get(roomId)!;
 
   async function handle(m: Incoming): Promise<CommandResult> {
     if (fail) return { ok: false, error: L("服务器暂时不可用，请稍后再试", "The server is temporarily unavailable. Try again later.") };
@@ -92,7 +95,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "signupInvites.list":
         return { ok: true, error: null, data: signupInvites };
       case "signupInvites.create": {
-        const code = Array.from({ length: 8 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
+        const code = newCode();
         signupInvites = [{ code, used: false, text: L("刚刚生成", "Created just now") }, ...signupInvites];
         return {
           ok: true,
@@ -127,7 +130,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
         state.selectedRoomId = state.rooms.at(-1)!.id;
         break;
       case "room.join":
-        if (m.code === "00000000") return { ok: false, error: L("邀请码无效或已过期", "The invite code is invalid or has expired") };
+        if (m.code === "00000000") return { ok: false, error: L("邀请码无效", "The invite code is invalid") };
         state.rooms.push({ id: crypto.randomUUID(), name: L("加入的房间", "Joined room"), isOwner: false, memberCount: 2, maxMembers: 20, onlineCount: null });
         break;
       case "room.rename": {
@@ -136,18 +139,20 @@ export function createMockTransport(params: URLSearchParams): Transport {
         r.name = m.name as string;
         break;
       }
-      case "room.invite":
-        return {
-          ok: true,
-          error: null,
-          data: {
-            code: "K7Q2M9XA",
-            message: L(
-              "邀请码已复制，11 月 12 日 15:00 前有效。重新生成后旧邀请码失效，被踢出的成员可使用新邀请码加入。",
-              "Invite code copied. Valid until Nov 12, 15:00. A new code replaces the old one. Removed members can rejoin with the new code.",
-            ),
-          },
-        };
+      case "room.inviteGet":
+        return { ok: true, error: null, data: { code: inviteOf(m.roomId as string) } };
+      case "room.inviteCopy": {
+        const code = inviteOf(m.roomId as string);
+        void navigator.clipboard.writeText(code).catch(() => {});
+        return { ok: true, error: null, data: { code } };
+      }
+      case "room.invite": {
+        if (!room(m.roomId)?.isOwner) return { ok: false, error: L("只有所有者可以生成邀请码", "Only the owner can create invite codes") };
+        const code = newCode();
+        roomInvites.set(m.roomId as string, code);
+        void navigator.clipboard.writeText(code).catch(() => {});
+        return { ok: true, error: null, data: { code } };
+      }
       case "room.privacy": {
         const levels = m.levels as Record<string, PrivacyLevel>;
         state.privacy?.rows.forEach((row) => (row.level = levels[row.category] ?? row.level));

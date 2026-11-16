@@ -28,7 +28,7 @@ public sealed record RenameRoomRequest(string Name);
 
 public sealed record JoinRoomRequest(string Code);
 
-public sealed record InviteDto(string Code, DateTimeOffset ExpiresAt);
+public sealed record InviteDto(string Code);
 
 public sealed record TransferOwnerRequest(Guid NewOwnerUserId);
 

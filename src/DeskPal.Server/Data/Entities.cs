@@ -86,13 +86,13 @@ public sealed class RoomBlock
     public DateTimeOffset CreatedAt { get; set; }
 }
 
+/// <summary>One per room, created with the room. Valid until the owner generates a new one or the room is dissolved.</summary>
 public sealed class RoomInvite
 {
     public Guid Id { get; set; }
     public Guid RoomId { get; set; }
     public required string Code { get; set; }
     public Guid CreatedBy { get; set; }
-    public DateTimeOffset ExpiresAt { get; set; }
 }
 
 /// <summary>Required to register when Auth:RequireSignupInvite is on. Registers one account, never expires, admins can revoke it while unused.</summary>

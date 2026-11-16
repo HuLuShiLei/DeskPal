@@ -39,6 +39,7 @@ public static class ApiErrorCodes
     public const string RoomTransferTarget = "room.transferTarget";
     public const string RoomOwnerOnlyRename = "room.ownerOnlyRename";
     public const string RoomOwnerOnlyDissolve = "room.ownerOnlyDissolve";
+    public const string RoomOwnerOnlyInvite = "room.ownerOnlyInvite";
     public const string RoomStatsDaysInvalid = "room.statsDaysInvalid";
     public const string RoomCannotBlockSelf = "room.cannotBlockSelf";
 

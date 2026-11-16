@@ -559,9 +559,6 @@
   <data name="Room_Kicked" xml:space="preserve">
     <value>你已被移出该房间，需要使用新的邀请码才能再次加入。</value>
   </data>
-  <data name="Room_InviteCopied" xml:space="preserve">
-    <value>邀请码已复制，{0} 前有效。重新生成后旧邀请码失效，被踢出的成员可使用新邀请码加入。</value>
-  </data>
   <data name="SignupInvite_Copied" xml:space="preserve">
     <value>注册邀请码已复制。一个注册邀请码只能注册一个账号，不会过期，没用之前可以在设置里作废。</value>
   </data>
@@ -671,7 +668,7 @@
     <value>每个用户最多创建 {limit} 个房间</value>
   </data>
   <data name="ApiError_room_inviteInvalid" xml:space="preserve">
-    <value>邀请码无效或已过期</value>
+    <value>邀请码无效</value>
   </data>
   <data name="ApiError_room_alreadyMember" xml:space="preserve">
     <value>你已经是该房间的成员</value>
@@ -705,6 +702,9 @@
   </data>
   <data name="ApiError_room_ownerOnlyDissolve" xml:space="preserve">
     <value>只有所有者可以解散房间</value>
+  </data>
+  <data name="ApiError_room_ownerOnlyInvite" xml:space="preserve">
+    <value>只有所有者可以生成邀请码</value>
   </data>
   <data name="ApiError_room_statsDaysInvalid" xml:space="preserve">
     <value>可查看天数只能是 1、3、7 或 30 天</value>

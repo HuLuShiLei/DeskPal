@@ -45,7 +45,7 @@ public sealed class DeskPalDbContext(DbContextOptions<DeskPalDbContext> options)
         b.Entity<RoomInvite>(e =>
         {
             e.HasIndex(x => x.Code).IsUnique();
-            e.HasIndex(x => x.RoomId);
+            e.HasIndex(x => x.RoomId).IsUnique();
             e.HasOne<Room>().WithMany().HasForeignKey(x => x.RoomId).OnDelete(DeleteBehavior.Cascade);
         });
 

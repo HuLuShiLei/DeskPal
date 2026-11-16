@@ -36,7 +36,6 @@ SQLite 数据库在 Docker 卷 `deskpal-data` 里（容器内 `/data/deskpal.db`
 
 - `Rooms__MaxOwnedRoomsPerUser`：每人最多创建的 Room 数，默认 5。
 - `Rooms__MaxMembersPerRoom`：每个房间的人数上限，默认 20。已有房间在列出或有人加入时改成这个数。
-- `Rooms__InviteLifetimeHours`：邀请码有效期，默认 24 小时。
 - `Rules__MinUsers`：一个应用至少有几个账号设置过个人分类或上报过，才进入候选，默认 5。
 - `Rules__MinAgreement`：个人分类里占比最高的类别至少占多少，才算多人一致，默认 0.8。
 - `Rules__MinAccountAgeDays`：注册满几天的账号才计票，默认 3。

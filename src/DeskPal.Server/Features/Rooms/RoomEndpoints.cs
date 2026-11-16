@@ -41,6 +41,9 @@ public static class RoomEndpoints
             return Results.Ok(result.Value.Room);
         });
 
+        group.MapGet("/{roomId:guid}/invite", async (Guid roomId, HttpContext ctx, RoomService rooms) =>
+            (await rooms.GetInviteAsync(ctx.User.GetUserId(), roomId)).ToHttp());
+
         group.MapPost("/{roomId:guid}/invites", async (Guid roomId, HttpContext ctx, RoomService rooms) =>
             (await rooms.CreateInviteAsync(ctx.User.GetUserId(), roomId)).ToHttp());
 

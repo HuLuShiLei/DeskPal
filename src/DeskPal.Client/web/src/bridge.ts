@@ -259,6 +259,8 @@ export type Command =
   | { type: "room.create"; name: string }
   | { type: "room.join"; code: string }
   | { type: "room.rename"; roomId: string; name: string }
+  | { type: "room.inviteGet"; roomId: string }
+  | { type: "room.inviteCopy"; roomId: string }
   | { type: "room.invite"; roomId: string }
   | { type: "room.privacy"; roomId: string; levels: Record<string, PrivacyLevel> }
   | { type: "room.shareStats"; roomId: string; enabled: boolean; days: number }

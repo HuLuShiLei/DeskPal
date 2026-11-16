@@ -37,6 +37,7 @@ public sealed class PresenceHubTests : IClassFixture<PresenceHubTests.ServerFact
         var room = await PostAsync<RoomDto>(http, "/api/rooms", new CreateRoomRequest("Home"), alice.Token);
         var invite = await PostAsync<InviteDto>(http, $"/api/rooms/{room.Id}/invites", new { }, alice.Token);
         await PostAsync<RoomDto>(http, "/api/rooms/join", new JoinRoomRequest(invite.Code), bob.Token);
+        Assert.Equal(invite.Code, (await GetAsync<InviteDto>(http, $"/api/rooms/{room.Id}/invite", bob.Token)).Code);
 
         var (aliceHub, _) = await ConnectAsync(alice.Token);
         var (bobHub, bobInbox) = await ConnectAsync(bob.Token);

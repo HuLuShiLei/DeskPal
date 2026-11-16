@@ -23,7 +23,7 @@ public sealed class RoomServiceTests : IDisposable
         _connection.Open();
         _db = new DeskPalDbContext(new DbContextOptionsBuilder<DeskPalDbContext>().UseSqlite(_connection).Options);
         _db.Database.EnsureCreated();
-        _rooms = new RoomService(_db, _time, Options.Create(new RoomOptions { MaxOwnedRoomsPerUser = 2, MaxMembersPerRoom = 20, InviteLifetimeHours = 24 }));
+        _rooms = new RoomService(_db, _time, Options.Create(new RoomOptions { MaxOwnedRoomsPerUser = 2, MaxMembersPerRoom = 20 }));
         _alice = AddUser("alice");
         _bob = AddUser("bob");
         _carol = AddUser("carol");
@@ -65,7 +65,7 @@ public sealed class RoomServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Invite_expires_and_regenerating_invalidates_the_old_code()
+    public async Task Invite_does_not_expire_and_regenerating_invalidates_the_old_code()
     {
         var room = (await _rooms.CreateAsync(_alice, "Home")).Value!;
         var first = (await _rooms.CreateInviteAsync(_alice, room.Id)).Value!;
@@ -73,8 +73,42 @@ public sealed class RoomServiceTests : IDisposable
 
         Assert.Equal(404, (await _rooms.JoinAsync(_bob, first.Code)).Status);
 
-        _time.Now = _time.Now.AddHours(25);
-        Assert.Equal(404, (await _rooms.JoinAsync(_bob, second.Code)).Status);
+        _time.Now = _time.Now.AddDays(365);
+        Assert.True((await _rooms.JoinAsync(_bob, second.Code)).IsSuccess);
+    }
+
+    [Fact]
+    public async Task Members_see_the_current_invite_and_only_the_owner_regenerates_it()
+    {
+        var room = (await _rooms.CreateAsync(_alice, "Home")).Value!;
+        var invite = (await _rooms.GetInviteAsync(_alice, room.Id)).Value!;
+        Assert.True((await _rooms.JoinAsync(_bob, invite.Code)).IsSuccess);
+
+        Assert.Equal(invite.Code, (await _rooms.GetInviteAsync(_alice, room.Id)).Value!.Code);
+        Assert.Equal(invite.Code, (await _rooms.GetInviteAsync(_bob, room.Id)).Value!.Code);
+        Assert.Equal(404, (await _rooms.GetInviteAsync(_carol, room.Id)).Status);
+
+        var denied = await _rooms.CreateInviteAsync(_bob, room.Id);
+        Assert.Equal(403, denied.Status);
+        Assert.Equal(ApiErrorCodes.RoomOwnerOnlyInvite, denied.Error);
+        Assert.Equal(404, (await _rooms.CreateInviteAsync(_carol, room.Id)).Status);
+        Assert.Equal(invite.Code, (await _rooms.GetInviteAsync(_bob, room.Id)).Value!.Code);
+    }
+
+    [Fact]
+    public async Task A_room_without_a_code_gets_one_on_viewing_and_keeps_kick_bans()
+    {
+        var room = await CreateFullRoomAsync();
+        await _rooms.KickAsync(_alice, room, _bob);
+        _db.RoomInvites.RemoveRange(_db.RoomInvites);
+        await _db.SaveChangesAsync();
+
+        var code = (await _rooms.GetInviteAsync(_alice, room)).Value!.Code;
+
+        Assert.Equal(code, (await _db.RoomInvites.SingleAsync()).Code);
+        Assert.Equal(code, (await _rooms.GetInviteAsync(_alice, room)).Value!.Code);
+        Assert.Equal(403, (await _rooms.JoinAsync(_bob, code)).Status);
+        Assert.True((await _rooms.JoinAsync(_carol, code)).IsSuccess);
     }
 
     [Fact]
@@ -213,7 +247,7 @@ public sealed class RoomServiceTests : IDisposable
         stored.MaxMembers = 8;
         await _db.SaveChangesAsync();
 
-        var capped = new RoomService(_db, _time, Options.Create(new RoomOptions { MaxMembersPerRoom = 3, InviteLifetimeHours = 24 }));
+        var capped = new RoomService(_db, _time, Options.Create(new RoomOptions { MaxMembersPerRoom = 3 }));
         var invite = (await capped.CreateInviteAsync(_alice, room.Id)).Value!;
         Assert.Equal(3, (await capped.ListForUserAsync(_alice)).Single().MaxMembers);
         Assert.True((await capped.JoinAsync(_bob, invite.Code)).IsSuccess);

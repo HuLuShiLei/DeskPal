@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 每个房间创建时就有邀请码，在房间页的「当前房间」中可以查看和复制。邀请码不再过期，只有所有者可以重新生成，重新生成后旧邀请码失效。
+  en: Every room gets an invite code when it is created, shown under Current room on the Rooms page, ready to copy. Invite codes no longer expire. Only the owner can create a new one, which replaces the old code.
+
 - Claude 和 Codex 显示为工作中。
   en: Claude and Codex now show as Working.
 

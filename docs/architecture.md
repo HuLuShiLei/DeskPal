@@ -213,7 +213,8 @@ flowchart LR
 
 | GET | `/api/rooms` | 我加入的 Room。`blocked` 只列出我自己屏蔽的、仍在房间里的成员，不会出现别人的屏蔽记录 |
 | POST | `/api/rooms` | 创建 Room（每人最多拥有 `MaxOwnedRoomsPerUser` 个） |
-| POST | `/api/rooms/{id}/invites` | 生成邀请码，旧邀请码失效，24 小时过期。同时删除踢出记录，被踢出的人可以用新邀请码加入 |
+| GET | `/api/rooms/{id}/invite` | 成员查看当前邀请码（`InviteDto`）；不是成员返回 404。房间没有邀请码时（升级前创建的，或旧邀请码已过期）当场生成一个，不删除踢出记录 |
+| POST | `/api/rooms/{id}/invites` | 所有者生成邀请码，旧邀请码失效；邀请码不过期。同时删除踢出记录，被踢出的人可以用新邀请码加入。其他成员返回 403 `room.ownerOnlyInvite` |
 | POST | `/api/rooms/join` | 用邀请码加入（人数上限 `MaxMembersPerRoom`，默认 20）。被踢出且邀请码尚未更新时返回 403 |
 | POST | `/api/rooms/{id}/leave` | 退出；所有者退出返回 409。退出后可以用邀请码再次加入 |
 | POST | `/api/rooms/{id}/kick` | 所有者踢出成员（`KickMemberRequest`）。对方从房间列表消失。生成新邀请码后可以再加入 |
@@ -254,7 +255,7 @@ flowchart LR
 | `Users` | Id、UserName（唯一）、DisplayName、PasswordHash（PBKDF2）、CreatedAt、ShareUsage（空表示还没问过）、SessionId（当前登录的会话，空表示升级后还没登录过）、StatsSyncEnabled、StatsSyncSalt、StatsSyncKeyCheck、StatsSyncRevision（使用统计同步，见「同步到服务器」） |
 | `Rooms` | Id、Name、OwnerId、MaxMembers、CreatedAt |
 | `RoomMembers` | RoomId + UserId、Role、JoinedAt、PrivacyProfileJson（为空时用默认值） |
-| `RoomInvites` | Code、RoomId、CreatedBy、ExpiresAt |
+| `RoomInvites` | Code（唯一）、RoomId（唯一）、CreatedBy。每个房间一条，创建房间时生成，所有者重新生成时替换，不过期 |
 | `SignupInvites` | Code（唯一）、CreatedBy、CreatedAt、UsedBy、UsedAt、RevokedAt。注册邀请码，一个码注册一个账号，不过期 |
 | `RoomBans` | RoomId + UserId、BannedBy、BannedAt。生成新邀请码时删除，被踢出的人即可用新邀请码加入 |
 | `RoomBlocks` | RoomId + BlockerId + BlockedId、CreatedAt。成员之间的屏蔽，退出房间后保留，解散房间时级联删除 |

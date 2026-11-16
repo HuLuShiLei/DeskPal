@@ -64,20 +64,44 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         };
         room.Members.Add(new RoomMember { RoomId = room.Id, UserId = userId, Role = RoomRole.Owner, JoinedAt = now, PrivacyProfileJson = StateOnlyPrivacy() });
         db.Rooms.Add(room);
+        db.RoomInvites.Add(await NewInviteAsync(room.Id, userId));
         await db.SaveChangesAsync();
         return ServiceResult<RoomDto>.Ok((await GetDtoAsync(room.Id, userId))!);
     }
 
-    public async Task<ServiceResult<InviteDto>> CreateInviteAsync(Guid userId, Guid roomId)
+    /// <summary>Rooms without a code (created before codes came with the room, or whose code expired under the old rules) get one here. Kick bans stay.</summary>
+    public async Task<ServiceResult<InviteDto>> GetInviteAsync(Guid userId, Guid roomId)
     {
-        if (!await IsMemberAsync(userId, roomId))
+        var room = await db.Rooms.FindAsync(roomId);
+        if (room is null || !await IsMemberAsync(userId, roomId))
         {
             return ServiceResult<InviteDto>.Fail(404, NotMember);
         }
 
-        db.RoomInvites.RemoveRange(db.RoomInvites.Where(i => i.RoomId == roomId));
-        db.RoomBans.RemoveRange(db.RoomBans.Where(b => b.RoomId == roomId));
+        if (await CurrentCodeAsync(roomId) is { } code)
+        {
+            return ServiceResult<InviteDto>.Ok(new InviteDto(code));
+        }
 
+        var invite = await NewInviteAsync(roomId, room.OwnerId);
+        db.RoomInvites.Add(invite);
+        try
+        {
+            await db.SaveChangesAsync();
+            return ServiceResult<InviteDto>.Ok(new InviteDto(invite.Code));
+        }
+        catch (DbUpdateException)
+        {
+            db.Entry(invite).State = EntityState.Detached;
+            return ServiceResult<InviteDto>.Ok(new InviteDto((await CurrentCodeAsync(roomId))!));
+        }
+    }
+
+    private Task<string?> CurrentCodeAsync(Guid roomId) =>
+        db.RoomInvites.Where(i => i.RoomId == roomId).Select(i => i.Code).FirstOrDefaultAsync();
+
+    private async Task<RoomInvite> NewInviteAsync(Guid roomId, Guid createdBy)
+    {
         string code;
         do
         {
@@ -85,24 +109,36 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         }
         while (await db.RoomInvites.AnyAsync(i => i.Code == code));
 
-        var invite = new RoomInvite
+        return new RoomInvite { Id = Guid.NewGuid(), RoomId = roomId, Code = code, CreatedBy = createdBy };
+    }
+
+    /// <summary>Replaces the current code and lifts kick bans, so kicked members can rejoin with the new code.</summary>
+    public async Task<ServiceResult<InviteDto>> CreateInviteAsync(Guid userId, Guid roomId)
+    {
+        var room = await db.Rooms.FindAsync(roomId);
+        if (room is null || !await IsMemberAsync(userId, roomId))
         {
-            Id = Guid.NewGuid(),
-            RoomId = roomId,
-            Code = code,
-            CreatedBy = userId,
-            ExpiresAt = time.GetUtcNow().AddHours(_options.InviteLifetimeHours),
-        };
+            return ServiceResult<InviteDto>.Fail(404, NotMember);
+        }
+
+        if (room.OwnerId != userId)
+        {
+            return ServiceResult<InviteDto>.Fail(403, ApiErrorCodes.RoomOwnerOnlyInvite);
+        }
+
+        db.RoomInvites.RemoveRange(db.RoomInvites.Where(i => i.RoomId == roomId));
+        db.RoomBans.RemoveRange(db.RoomBans.Where(b => b.RoomId == roomId));
+        var invite = await NewInviteAsync(roomId, userId);
         db.RoomInvites.Add(invite);
         await db.SaveChangesAsync();
-        return ServiceResult<InviteDto>.Ok(new InviteDto(invite.Code, invite.ExpiresAt));
+        return ServiceResult<InviteDto>.Ok(new InviteDto(invite.Code));
     }
 
     public async Task<ServiceResult<RoomDto>> JoinAsync(Guid userId, string? code)
     {
         code = code?.Trim().ToUpperInvariant() ?? "";
         var invite = await db.RoomInvites.SingleOrDefaultAsync(i => i.Code == code);
-        if (invite is null || invite.ExpiresAt <= time.GetUtcNow())
+        if (invite is null)
         {
             return ServiceResult<RoomDto>.Fail(404, ApiErrorCodes.RoomInviteInvalid);
         }

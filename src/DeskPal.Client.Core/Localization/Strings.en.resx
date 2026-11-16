@@ -559,9 +559,6 @@ Restart DeskPal after installing it.</value>
   <data name="Room_Kicked" xml:space="preserve">
     <value>You were removed from this room. You can rejoin with a new invite code.</value>
   </data>
-  <data name="Room_InviteCopied" xml:space="preserve">
-    <value>Invite code copied. Valid until {0}. A new code replaces the old one. Removed members can rejoin with the new code.</value>
-  </data>
   <data name="SignupInvite_Copied" xml:space="preserve">
     <value>Signup invite code copied. Each code registers one account and does not expire. You can revoke it in Settings until it is used.</value>
   </data>
@@ -671,7 +668,7 @@ Restart DeskPal after installing it.</value>
     <value>You can own at most {limit} rooms</value>
   </data>
   <data name="ApiError_room_inviteInvalid" xml:space="preserve">
-    <value>The invite code is invalid or has expired</value>
+    <value>The invite code is invalid</value>
   </data>
   <data name="ApiError_room_alreadyMember" xml:space="preserve">
     <value>You are already a member of this room</value>
@@ -705,6 +702,9 @@ Restart DeskPal after installing it.</value>
   </data>
   <data name="ApiError_room_ownerOnlyDissolve" xml:space="preserve">
     <value>Only the owner can delete the room</value>
+  </data>
+  <data name="ApiError_room_ownerOnlyInvite" xml:space="preserve">
+    <value>Only the owner can create invite codes</value>
   </data>
   <data name="ApiError_room_statsDaysInvalid" xml:space="preserve">
     <value>Choose 1, 3, 7 or 30 days</value>

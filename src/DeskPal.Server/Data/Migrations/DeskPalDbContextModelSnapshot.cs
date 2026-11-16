@@ -147,9 +147,6 @@ namespace DeskPal.Server.Data.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid>("RoomId")
                         .HasColumnType("TEXT");
 
@@ -158,7 +155,8 @@ namespace DeskPal.Server.Data.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.HasIndex("RoomId");
+                    b.HasIndex("RoomId")
+                        .IsUnique();
 
                     b.ToTable("RoomInvites");
                 });
