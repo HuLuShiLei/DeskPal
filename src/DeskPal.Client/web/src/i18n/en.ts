@@ -47,7 +47,6 @@ export const en: Record<keyof typeof zh, string> = {
   "charts.bars": "Usage time chart",
   "status.mine": "My status",
   "status.members": "Members",
-  "status.membersCount": "Members ({count})",
   "status.dragToSort": "Drag to reorder",
   "status.viewStats": "View stats",
   "status.viewStatsOf": "View {name}'s usage stats",

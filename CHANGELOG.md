@@ -8,6 +8,8 @@
 
 ## 0.1.2
 
+- 首页的「房间成员」标题不再显示人数；「拖动可调整顺序」和「待归类」的说明收进标题旁的问号，悬停查看；「我的状态」去掉了问号，识别依据改为悬停状态时显示
+  en: The Members heading on Home no longer shows a count; the reorder tip and the Unclassified note moved into a ? next to the heading; in My status, hover the status to see how it was recognized
 - 标题栏的房间切换显示房间色块和在线人数，菜单里用色块标出当前房间
   en: The room switcher in the title bar shows a color badge and how many people are online, and the menu marks the current room with its badge
 - 左侧导航的「状态」改名为「首页」，并更换了「首页」和「房间」的图标

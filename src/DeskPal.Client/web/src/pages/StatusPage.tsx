@@ -10,9 +10,13 @@ export function StatusPage({ state, onViewStats }: { state: PanelState; onViewSt
     <>
       <MyStatus state={state} />
       <Section
-        title={room ? t("status.membersCount", { count: state.members.length }) : t("status.members")}
+        title={
+          <>
+            {t("status.members")}
+            {room && state.members.length > 1 && <Hint text={t("status.dragToSort")} />}
+          </>
+        }
         label={t("status.members")}
-        aside={room && state.members.length > 1 ? <span class="section-note">{t("status.dragToSort")}</span> : undefined}
       >
         {state.emptyHint && (
           <p class="infobar">
@@ -190,11 +194,10 @@ function MyStatus({ state }: { state: PanelState }) {
                 me.meta && <span class="row-meta">{me.meta}</span>
               )}
             </div>
-            <HoverTip text={me.full} class="me-presence">
+            <HoverTip text={[me.full, !me.pending && me.source].filter(Boolean).join("\n\n") || null} class="me-presence">
               <p class={`me-headline tv-${me.view.tone}`}>
                 <span class="status-dot" aria-hidden="true" />
                 <span>{me.view.headline}</span>
-                {me.source && !me.pending && <Hint text={me.source} />}
               </p>
               <PresenceDetail view={me.view} tip={false} />
             </HoverTip>
@@ -266,7 +269,15 @@ function Unclassified({ state }: { state: PanelState }) {
   };
 
   return (
-    <Section title={t("unclassified.title")} aside={<span class="section-note">{t("unclassified.note")}</span>}>
+    <Section
+      title={
+        <>
+          {t("unclassified.title")}
+          <Hint text={t("unclassified.note")} />
+        </>
+      }
+      label={t("unclassified.title")}
+    >
       <ul class="list">
         {state.unclassified.map((item) => (
           <li key={item.pattern} class="list-row compact">
