@@ -6,6 +6,7 @@ import { t } from "./i18n";
 // Segoe Fluent Icons（Windows 11）/ Segoe MDL2 Assets（Windows 10）里的字形。
 const glyphs = {
   people: "\uE716",
+  group: "\uE902",
   home: "\uE80F",
   settings: "\uE713",
   minimize: "\uE921",

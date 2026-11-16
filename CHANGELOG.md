@@ -8,6 +8,8 @@
 
 ## 0.1.2
 
+- 左侧导航的「状态」改名为「首页」，并更换了「首页」和「房间」的图标
+  en: In the left navigation, Status is now Home, with new icons for Home and Rooms
 - 识别为「其他」的应用改为显示「其他活动」，应用名显示在下一行，和工作中、在聊天等状态的排版一致
   en: Apps in the Other category now show "Other activity" with the app name on the next line, matching the layout of other statuses
 - 面板左上角改为 DeskPal 文字标志

@@ -12,9 +12,9 @@ import { applyTheme } from "./theme";
 import { Flyout, Icon, TitleBar, type IconName } from "./ui";
 
 const tabs: { id: Tab; name: MessageKey; icon: IconName }[] = [
-  { id: "status", name: "tab.status", icon: "people" },
+  { id: "status", name: "tab.status", icon: "home" },
   { id: "stats", name: "tab.stats", icon: "chart" },
-  { id: "room", name: "tab.room", icon: "home" },
+  { id: "room", name: "tab.room", icon: "group" },
   { id: "rules", name: "tab.rules", icon: "tag" },
   { id: "settings", name: "tab.settings", icon: "settings" },
 ];
