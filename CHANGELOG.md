@@ -6,7 +6,7 @@
 - 只改 CI、文档、测试，用户感受不到的，不写。
 - 客户端更新后，第一次打开面板时按界面语言显示还没看过的条目。看过与否按中文比对：改了中文会再显示一次，只改英文不会。
 
-## 0.1.2
+## 0.1.3
 
 - 首页的「房间成员」标题不再显示人数；「拖动可调整顺序」和「待归类」的说明收进标题旁的问号，悬停查看；「我的状态」去掉了问号，识别依据改为悬停状态时显示
   en: The Members heading on Home no longer shows a count; the reorder tip and the Unclassified note moved into a ? next to the heading; in My status, hover the status to see how it was recognized
@@ -18,6 +18,9 @@
   en: Apps in the Other category now show "Other activity" with the app name on the next line, matching the layout of other statuses
 - 面板左上角改为 DeskPal 文字标志
   en: The panel's top-left corner now shows the DeskPal wordmark
+
+## 0.1.2
+
 - 「其他」状态改用绿色，不再和离线一样是灰色；房间成员和自己的状态卡片按状态显示颜色，更容易一眼看出谁在做什么
   en: The Other status is now green instead of gray like Offline. Your status card and room members are colored by status, so you can tell at a glance what everyone is doing
 - 浅色模式改用柔和的浅灰底色，不再是纯白
