@@ -1,62 +1,71 @@
 name: 问题反馈
-description: 程序无法打开、状态显示不正确，或安装更新失败时使用。
+description: 程序无法启动、状态显示不正确，或安装、更新失败时使用。
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        请按各项说明填写。不需要提供日志。请勿填写密码。
+        提交前请先在「设置」中点击「检查更新」，确认问题在最新版本中仍然存在。
 
-        标题用一句话说明问题。例如：执行「检查更新」后提示下载失败。
+        Issue 对所有人公开。请勿填写密码或邀请码；截图前请遮挡其他房间成员的名称和窗口标题。
 
-  - type: textarea
-    id: what-happened
-    attributes:
-      label: 实际现象
-      description: 请描述界面上的结果。错误提示请按原文填写。
-      placeholder: |
-        执行「检查更新」后，窗口提示「下载更新失败」。
-        Room 成员状态显示为「离开」，与该成员当时的实际使用情况不符。
-    validations:
-      required: true
-
-  - type: textarea
-    id: what-you-did
-    attributes:
-      label: 操作过程
-      description: 请按顺序填写问题出现前的操作。
-      placeholder: |
-        1. 启动 DeskPal 并完成登录
-        2. 打开托盘菜单
-        3. 选择「检查更新」
-    validations:
-      required: true
-
-  - type: dropdown
-    id: how-often
-    attributes:
-      label: 是否可以再次出现
-      options:
-        - 每次都会出现
-        - 偶尔出现
-        - 只出现过一次
-        - 不确定
-    validations:
-      required: true
+        标题用一句话概括问题，例如：检查更新时提示「检查更新失败」。
 
   - type: dropdown
     id: area
     attributes:
       label: 问题类型
-      description: 请选择最接近的一项。
+      description: 选择最接近的一项。
       options:
-        - 无法打开或无法登录
-        - 无法看到对方，或对方无法看到我
-        - 状态显示不正确
-        - 「戳一下」没有反应
+        - 无法启动或无法登录
+        - 看不到房间成员，或房间成员看不到我
+        - 状态或分类不正确
+        - 使用统计
         - 安装或更新
-        - 窗口、托盘或开机自启
+        - 窗口、系统托盘或开机自启
         - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 实际结果
+      description: 描述出现的问题。界面上有错误提示时，请按原文填写。
+      placeholder: 在「设置」中点击「检查更新」后，提示「检查更新失败：……」。
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+      description: 描述正常情况下应有的结果。
+      placeholder: 提示当前已是最新版本，或开始下载新版本。
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 操作步骤
+      description: 按顺序列出问题出现前的操作。
+      placeholder: |
+        1. 启动 DeskPal 并登录
+        2. 打开「设置」
+        3. 点击「检查更新」
+    validations:
+      required: true
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: 出现频率
+      options:
+        - 每次都会出现
+        - 有时出现
+        - 只出现过一次
+        - 不确定
     validations:
       required: true
 
@@ -64,10 +73,10 @@ body:
     id: version
     attributes:
       label: 版本号
-      description: 版本号位于主窗口标题栏中 DeskPal 与连字符之间。标题为「DeskPal 0.1.1-dev.12 - 显示名」时，填写 0.1.1-dev.12。主窗口无法打开时，填写「无法打开」。
-      placeholder: 0.1.1-dev.12
+      description: 在「设置」中查看「当前版本」。程序无法启动时，填写安装包文件名中的版本号。
+      placeholder: 0.1.2-dev.15
     validations:
-      required: false
+      required: true
 
   - type: dropdown
     id: windows
@@ -81,11 +90,10 @@ body:
       required: true
 
   - type: input
-    id: account
+    id: username
     attributes:
-      label: 登录名
-      description: 用于对应反馈来源。可留空。请勿填写密码。
-      placeholder: 注册时填写的名称
+      label: 用户名
+      description: 用于查找服务器上的相关记录。不希望公开时可留空。
     validations:
       required: false
 
@@ -93,14 +101,23 @@ body:
     id: screenshot
     attributes:
       label: 截图
-      description: 如有错误提示或显示异常的界面，请将图片粘贴于此。可留空。
+      description: 可直接粘贴图片。可留空。
     validations:
       required: false
 
   - type: textarea
+    id: logs
+    attributes:
+      label: 日志
+      description: |
+        请将日志文件拖到此处上传。日志只记录进程名和状态类别，不记录窗口标题、网址、媒体标题和密码。
+        日志位于安装目录下的 logs 文件夹，默认是 %LocalAppData%\Programs\DeskPal\logs；找不到时查看 %APPDATA%\DeskPal\logs。运行时问题上传 deskpal.log，安装问题上传 setup.log。没有日志时填写「无」。
+    validations:
+      required: true
+  - type: textarea
     id: extra
     attributes:
       label: 补充说明
-      description: 可填写问题开始出现的时间、当时 Room 内的其他成员，以及已尝试的处理。可留空。
+      description: 例如问题开始出现的时间、所在房间的人数、已尝试的处理方法。可留空。
     validations:
       required: false

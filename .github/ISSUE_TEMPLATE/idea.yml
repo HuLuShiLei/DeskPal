@@ -1,37 +1,54 @@
 name: 功能建议
-description: 希望增加功能，或现有功能使用不便时使用。
+description: 建议增加新功能，或改进现有功能时使用。
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        请直接描述希望改进的地方。不需要提供实现方案。
+        请说明想解决的问题和期望的效果，不需要提供实现方案。
 
-        标题用一句话概括建议。例如：成员状态变为摸鱼时发送提醒。
+        标题用一句话概括建议，例如：房间成员开始看视频时发送通知。
 
-  - type: textarea
-    id: wish
+  - type: dropdown
+    id: area
     attributes:
-      label: 希望如何改进
-      description: 请描述希望 DeskPal 提供的结果。
-      placeholder: 成员状态变为摸鱼时，向本机发送提醒。
+      label: 相关功能
+      description: 选择最接近的一项。
+      options:
+        - 状态显示
+        - 房间
+        - 使用统计
+        - 分类
+        - 设置
+        - 安装和更新
+        - 新功能
+        - 其他
     validations:
       required: true
 
   - type: textarea
-    id: now
+    id: problem
     attributes:
-      label: 目前的不便之处
-      description: 可留空。
-      placeholder: 成员状态变化后，需要保持主窗口打开才能看到。
+      label: 现状
+      description: 目前哪里不方便，或缺少什么。可留空。
+      placeholder: 只有打开面板才能看到房间成员的状态变化。
     validations:
       required: false
 
   - type: textarea
-    id: when
+    id: proposal
     attributes:
-      label: 预期使用场景
-      description: 请描述一个具体使用场景。可留空。
-      placeholder: 工作时间内，成员开始浏览视频网站时收到提醒，无需持续查看主窗口。
+      label: 建议
+      description: 希望 DeskPal 怎样改进。
+      placeholder: 房间成员开始看视频或玩游戏时，在本机显示通知。可在「设置」中选择需要通知的状态。
+    validations:
+      required: true
+
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 使用场景
+      description: 举一个会用到这项功能的具体场景。可留空。
+      placeholder: 工作时面板最小化到系统托盘，仍能及时知道房间成员开始休息。
     validations:
       required: false
