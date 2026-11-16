@@ -174,18 +174,18 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         }
     }
 
-    /// <summary>For each app name recorded in the range, the process it was recorded with the longest. Older records without a process are left out.</summary>
-    public IReadOnlyDictionary<string, string> ProcessesByApp(DateTimeOffset from, DateTimeOffset to)
+    /// <summary>For each app name ever recorded with a process, the process it was recorded with the longest.</summary>
+    public IReadOnlyDictionary<string, string> ProcessesByApp()
     {
         lock (_lock)
         {
             using var cmd = Command("""
-                SELECT App, Process, SUM(EndAt - StartAt) AS Total FROM Segments
-                WHERE StartAt < $to AND EndAt > $from AND App IS NOT NULL AND Process IS NOT NULL
+                SELECT App, Process, SUM(Seconds) AS Total FROM (
+                    SELECT App, Process, (EndAt - StartAt) / 1000 AS Seconds FROM Segments WHERE App IS NOT NULL AND Process IS NOT NULL
+                    UNION ALL
+                    SELECT App, Process, Seconds FROM DailyRollups WHERE App <> '' AND Process <> '')
                 GROUP BY App, Process ORDER BY Total DESC
                 """);
-            cmd.Parameters.AddWithValue("$from", from.ToUnixTimeMilliseconds());
-            cmd.Parameters.AddWithValue("$to", to.ToUnixTimeMilliseconds());
             using var reader = cmd.ExecuteReader();
             var processes = new Dictionary<string, string>(StringComparer.Ordinal);
             while (reader.Read())

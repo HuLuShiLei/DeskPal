@@ -368,7 +368,51 @@ public class UsageTests : IDisposable
         var rows = store.Segments(At(0, 0), At(0, 0, dayOffset: 1));
 
         Assert.Equal([("sumire", ActivityCategory.Other), (null, null)], rows.Select(r => (r.Process, r.BaseCategory)));
-        Assert.Equal("sumire", store.ProcessesByApp(At(0, 0), At(0, 0, dayOffset: 1))["Sumire"]);
+        Assert.Equal("sumire", store.ProcessesByApp()["Sumire"]);
+    }
+
+    [Fact]
+    public void Processes_of_app_names_come_from_all_history_including_daily_totals()
+    {
+        using var store = NewStore();
+        store.Add(new UsageSegment(At(9, 0, dayOffset: -30), At(10, 0, dayOffset: -30), PresenceState.Slacking, ActivityCategory.Game, "Sumire", null, "sumire"));
+        store.Add(new UsageSegment(At(9, 0), At(9, 10), PresenceState.Working, ActivityCategory.Work, "Cursor", null, "cursor"));
+        store.Compact(Day, At(12, 0));
+
+        var processes = store.ProcessesByApp();
+
+        Assert.Equal("sumire", processes["Sumire"]);
+        Assert.Equal("cursor", processes["Cursor"]);
+    }
+
+    [Fact]
+    public void Every_app_name_of_my_stats_has_a_rule_target()
+    {
+        var processes = new Dictionary<string, string> { ["Cursor"] = "cursor", ["bilibili.com"] = "chrome", ["Google Chrome"] = "chrome" };
+        RuleDto[] rules =
+        [
+            new(RuleKind.Process, "explorer", ActivityCategory.Work, "文件资源管理器"),
+            new(RuleKind.Process, "qqnt", ActivityCategory.Communication, "QQ"),
+            new(RuleKind.Process, "qq", ActivityCategory.Communication, "QQ"),
+        ];
+        var targetOf = UsageRuleTargets.Create(processes, rules);
+
+        Assert.Equal(new StatsRuleTarget("Process", "cursor", "Cursor"), targetOf("Cursor"));
+        Assert.Equal(new StatsRuleTarget("Domain", "bilibili.com", "bilibili.com"), targetOf("bilibili.com"));
+        Assert.Equal(new StatsRuleTarget("Domain", "space.bilibili.com", "space.bilibili.com"), targetOf("space.bilibili.com"));
+        Assert.Null(targetOf("Google Chrome"));
+        Assert.Equal(new StatsRuleTarget("Process", "explorer", "文件资源管理器"), targetOf("文件资源管理器"));
+        Assert.Equal(new StatsRuleTarget("Process", "qqnt", "QQ"), targetOf("QQ"));
+        Assert.Equal(new StatsRuleTarget("Process", "probably stolen", "Probably Stolen"), targetOf("Probably Stolen"));
+    }
+
+    [Fact]
+    public void A_rule_saved_against_a_guessed_process_still_changes_records_without_a_process()
+    {
+        var reclassifier = new UsageReclassifier([new UserRuleDto(RuleKind.Process, "probably stolen", ActivityCategory.Work, "Probably Stolen", DateTimeOffset.UtcNow)]);
+
+        Assert.Equal((PresenceState.Working, ActivityCategory.Work), reclassifier.Apply(PresenceState.Slacking, ActivityCategory.Game, "Probably Stolen", null, null, null));
+        Assert.Equal((PresenceState.Slacking, ActivityCategory.Game), reclassifier.Apply(PresenceState.Slacking, ActivityCategory.Game, "Probably Stolen", null, "ProbablyStolen", null));
     }
 
     [Fact]

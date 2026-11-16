@@ -692,7 +692,7 @@ public sealed class PanelBridge
 
         if (c.OptionalString("userId") is null)
         {
-            var (mine, targets) = await Task.Run(() => (_usage.Report(range.From, to, (previous.From, previous.To)), _usage.RuleTargets(range.From, to)));
+            var (mine, targets) = await Task.Run(() => (_usage.Report(range.From, to, (previous.From, previous.To)), _usage.RuleTargets()));
             return new CommandResult(true, Data: StatsViewBuilder.Build(mine, scale, granularity, anchor, today, targetOf: targets));
         }
 

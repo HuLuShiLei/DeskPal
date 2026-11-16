@@ -22,13 +22,17 @@ public sealed class UsageService : IDisposable
     private readonly SqliteUsageStore _db;
     private readonly Timer _prune;
     private IReadOnlyList<StatsViewRecord> _views = [];
+    private readonly PersonalRules _personalRules;
+    private readonly BuiltinRuleCache _builtinRules;
     private volatile UsageReclassifier _reclassifier = UsageReclassifier.None;
 
-    public UsageService(AppSettings settings, SettingsStore store, PersonalRules personalRules, ILogger<UsageService> logger)
+    public UsageService(AppSettings settings, SettingsStore store, PersonalRules personalRules, BuiltinRuleCache builtinRules, ILogger<UsageService> logger)
     {
         _settings = settings;
         _store = store;
         _logger = logger;
+        _personalRules = personalRules;
+        _builtinRules = builtinRules;
         _reclassifier = new UsageReclassifier(personalRules.Rules);
         personalRules.Changed += () => _reclassifier = new UsageReclassifier(personalRules.Rules);
         if (settings.DeviceId == Guid.Empty)
@@ -125,22 +129,11 @@ public sealed class UsageService : IDisposable
         _db.Dispose();
     }
 
-    /// <summary>The personal rule a ranking row of the range would be saved against: the domain for sites, the process for apps.</summary>
-    public Func<string, StatsRuleTarget?> RuleTargets(DateOnly from, DateOnly to)
+    /// <summary>The personal rule a ranking row would be saved against: the domain for sites, the process for apps.</summary>
+    public Func<string, StatsRuleTarget?> RuleTargets()
     {
-        var zone = TimeZoneInfo.Local;
-        var processes = _db.ProcessesByApp(UsageAggregator.LocalMidnight(from, zone), UsageAggregator.LocalMidnight(to.AddDays(1), zone));
-        return app =>
-        {
-            var process = processes.GetValueOrDefault(app);
-            if (process is null || Browsers.IsBrowser(process))
-            {
-                var host = RulePattern.NormalizeHost(app);
-                return host == app && host.Contains('.') ? new StatsRuleTarget(nameof(RuleKind.Domain), host, app) : null;
-            }
-
-            return new StatsRuleTarget(nameof(RuleKind.Process), RulePattern.Normalize(RuleKind.Process, process), app);
-        };
+        var personal = _personalRules.Rules.OrderByDescending(r => r.UpdatedAt).Select(r => new RuleDto(r.Kind, r.Pattern, r.Category, r.Name));
+        return UsageRuleTargets.Create(_db.ProcessesByApp(), personal.Concat(_builtinRules.Load().Rules));
     }
 
     private UsageReport Build(DateOnly from, DateOnly to)

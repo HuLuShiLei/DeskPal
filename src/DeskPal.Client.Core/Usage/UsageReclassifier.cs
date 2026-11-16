@@ -83,6 +83,6 @@ public sealed class UsageReclassifier
         return process is null || byName.Kind != RuleKind.Process ? byName : null;
     }
 
-    private static bool IsHost(string? app) =>
+    internal static bool IsHost(string? app) =>
         app is { Length: > 0 } && !app.Contains(' ') && (app == "localhost" || (app.Contains('.') && RulePattern.NormalizeHost(app) == app));
 }
