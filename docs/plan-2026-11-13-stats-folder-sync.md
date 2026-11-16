@@ -89,7 +89,7 @@
 | 停止完成 | 已停止同步 | Syncing stopped |
 | 文件夹不可写 | 无法写入该文件夹，请选择其他文件夹。 | Can't write to this folder. Choose another one. |
 | 服务器同步已开启时选择文件夹 | 同步到服务器已开启，请先关闭。 | Server sync is on. Turn it off first. |
-| 统计页说明（同步文件夹开启时） | 数据保存至本地，并用 PIN 码加密后写入同步文件夹。传输时服务器将加密转发，您的数据不会保存至服务器。 | Data is stored locally and written to the sync folder, encrypted with your PIN. During transfer, the server encrypts and forwards it. Your data is not stored on the server. |
+| 统计页说明（同步文件夹开启时） | 数据保存至本地，并用 PIN 码加密后写入同步文件夹。传输时服务器将加密转发，你的数据不会保存至服务器。 | Data is stored locally and written to the sync folder, encrypted with your PIN. During transfer, the server encrypts and forwards it. Your data is not stored on the server. |
 | 开启时点击「清除」 | 同步文件夹开启时无法清除，请先停止同步。 | Stop the sync folder before clearing usage stats. |
 | CHANGELOG | 使用统计也可以通过网盘等同步工具在电脑之间同步：选择一个同步文件夹，文件用 PIN 码加密，服务器不保存这些数据 | Usage stats can also be synced through a cloud drive or sync app. Choose a sync folder; the files are encrypted with a PIN and the server doesn't store them |
 
