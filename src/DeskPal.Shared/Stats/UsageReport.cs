@@ -15,6 +15,10 @@ namespace DeskPal.Shared.Stats;
 /// <param name="SharedDays">How many recent days the owner shares. Only set on reports received from a room member.</param>
 /// <param name="WeekHours">Seconds per weekday and hour of the day over the range. Not sent to room members.</param>
 /// <param name="Bounds">First and last use of each day. Not sent to room members.</param>
+/// <param name="Today">The owner's date when the report was built.</param>
+/// <param name="Offset">The owner's UTC offset in minutes when the report was built.</param>
+/// <param name="Offsets">UTC offsets in minutes the segments of the range were recorded at. Days, hours and the timeline
+/// are in the local time of the recording, so a later change of time zone does not move them.</param>
 public sealed record UsageReport(
     DateOnly From,
     DateOnly To,
@@ -26,7 +30,10 @@ public sealed record UsageReport(
     IReadOnlyList<UsageTotal>? Previous = null,
     int? SharedDays = null,
     IReadOnlyList<UsageWeekHour>? WeekHours = null,
-    IReadOnlyList<UsageDayBounds>? Bounds = null);
+    IReadOnlyList<UsageDayBounds>? Bounds = null,
+    DateOnly? Today = null,
+    int? Offset = null,
+    IReadOnlyList<int>? Offsets = null);
 
 /// <param name="Hour">0 to 23 for hourly totals, -1 for daily totals.</param>
 public sealed record UsageTotal(DateOnly Date, int Hour, PresenceState State, ActivityCategory Category, long Seconds);

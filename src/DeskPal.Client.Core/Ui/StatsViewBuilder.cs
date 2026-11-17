@@ -43,7 +43,9 @@ public static class StatsViewBuilder
 
     /// <param name="owner">Name of the member the report came from; null for my own stats, whose ranking rows open the detail page.</param>
     /// <param name="filter">Legend key to show only; ignored when the range has no such category.</param>
-    public static StatsView Build(UsageReport report, StatsScale scale, StatsRankBy rankBy, DateOnly anchor, DateOnly today, string? owner = null, string? filter = null)
+    /// <param name="today">Today of whoever the stats belong to.</param>
+    /// <param name="myOffset">My UTC offset now in minutes, to say whose local time the page is in; null says nothing.</param>
+    public static StatsView Build(UsageReport report, StatsScale scale, StatsRankBy rankBy, DateOnly anchor, DateOnly today, string? owner = null, string? filter = null, int? myOffset = null)
     {
         var range = StatsRange.Of(scale, anchor);
         var stateLegend = StateLegend;
@@ -122,6 +124,11 @@ public static class StatsViewBuilder
             notes.Add(UiLanguage.Format(Strings.Stats_SharedDays, owner, PresenceFormatter.Days(shared)));
         }
 
+        if (myOffset is { } mine && Zone(report, owner, mine) is { } zone)
+        {
+            notes.Add(zone);
+        }
+
         var hiddenShown = rankBy switch
         {
             StatsRankBy.App => report.Apps.Any(a => a.App is null && Shown(KeyOf(a.State, a.Category))),
@@ -185,6 +192,42 @@ public static class StatsViewBuilder
     }
 
     public static string Duration(long seconds) => PresenceFormatter.Duration(seconds);
+
+    /// <summary>
+    /// Whose local time the page is in. Always said for a member; for my own stats only when part of the range was
+    /// recorded in another time zone.
+    /// </summary>
+    private static string? Zone(UsageReport report, string? owner, int myOffset)
+    {
+        var recorded = report.Offsets ?? [];
+        if (owner is null)
+        {
+            var other = recorded.Where(o => o != myOffset).ToList();
+            return other.Count == 0 ? null : UiLanguage.Format(Strings.Stats_MyOtherZones, string.Join(Strings.ListSeparator, other.Select(Utc)));
+        }
+
+        var current = report.Offset;
+        var offsets = recorded.Count > 0 ? recorded : current is { } c ? [c] : [];
+        if (offsets.Count == 0)
+        {
+            return null;
+        }
+
+        var text = offsets.Count == 1 ? UiLanguage.Format(Strings.Stats_ZoneCompared, Utc(offsets[0]), Relative(offsets[0] - myOffset)) : string.Join(Strings.ListSeparator, offsets.Select(Utc));
+        return UiLanguage.Format(offsets.All(o => o == current) ? Strings.Stats_PeerZone : Strings.Stats_PeerRecordedZone, owner, text);
+    }
+
+    /// <summary>"UTC+8", "UTC−5", "UTC+5:30".</summary>
+    internal static string Utc(int minutes)
+    {
+        var sign = minutes < 0 ? "\u2212" : "+";
+        var abs = Math.Abs(minutes);
+        return abs % 60 == 0 ? $"UTC{sign}{abs / 60}" : $"UTC{sign}{abs / 60}:{abs % 60:00}";
+    }
+
+    private static string Relative(int minutes) => minutes == 0
+        ? Strings.Zone_SameAsMine
+        : UiLanguage.Format(minutes > 0 ? Strings.Zone_AheadOfMe : Strings.Zone_BehindMe, Duration(Math.Abs(minutes) * 60L));
 
     /// <summary>Differences per category, as daily averages for a week or month like the total.</summary>
     private static List<StatsChange> Changes(

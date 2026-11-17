@@ -63,28 +63,33 @@ public sealed class UsageService : IDisposable
 
     public static DateOnly Today => DateOnly.FromDateTime(DateTime.Now);
 
+    /// <summary>This computer's UTC offset now, in minutes.</summary>
+    public static int Offset => (int)TimeZoneInfo.Local.GetUtcOffset(DateTimeOffset.UtcNow).TotalMinutes;
+
     /// <param name="previous">Range whose usage is compared with; null skips the comparison.</param>
     public UsageReport Report(DateOnly from, DateOnly to, (DateOnly From, DateOnly To)? previous = null)
     {
         Recorder.Flush();
-        var report = Build(from, to);
+        var report = Build(from, to) with { Today = Today, Offset = Offset };
         return previous is { } p ? report with { Previous = UsageAggregator.Totals(Build(p.From, p.To)) } : report;
     }
+
+    /// <summary>Nothing to show for days outside what is shared, with the date and offset to show other days by.</summary>
+    public static UsageReport Empty(DateOnly from, DateOnly to) => new(from, to, [], [], [], [], [], Today: Today, Offset: Offset);
 
     /// <param name="title">Only this title of the app; null for the whole app.</param>
     public UsageAppDetail AppDetail(DateOnly from, DateOnly to, string app, string? title)
     {
         Recorder.Flush();
-        var zone = TimeZoneInfo.Local;
         var reclassifier = _reclassifier;
+        var window = UsageAggregator.Window(from, to);
         return UsageAppDetail.Build(
-            _db.Segments(UsageAggregator.LocalMidnight(from, zone), UsageAggregator.LocalMidnight(to.AddDays(1), zone)).Select(reclassifier.Apply),
+            _db.Segments(window.From, window.To).Select(reclassifier.Apply),
             _db.Rollups(from, to).Select(reclassifier.Apply),
             app,
             title,
             from,
-            to,
-            zone);
+            to);
     }
 
     /// <summary>The no-title rules changed, here or from another computer through sync.</summary>
@@ -154,14 +159,13 @@ public sealed class UsageService : IDisposable
 
     private UsageReport Build(DateOnly from, DateOnly to)
     {
-        var zone = TimeZoneInfo.Local;
         var reclassifier = _reclassifier;
+        var window = UsageAggregator.Window(from, to, UsageAggregator.DayStartHour);
         return UsageAggregator.Build(
-            _db.Segments(UsageAggregator.LocalMidnight(from, zone), UsageAggregator.LocalMidnight(to.AddDays(1), zone).AddHours(UsageAggregator.DayStartHour)).Select(reclassifier.Apply),
+            _db.Segments(window.From, window.To).Select(reclassifier.Apply),
             _db.Rollups(from, to).Select(reclassifier.Apply),
             from,
-            to,
-            zone);
+            to);
     }
 
     private void PruneViews()

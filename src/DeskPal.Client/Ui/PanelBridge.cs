@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
@@ -33,6 +34,9 @@ public sealed class PanelBridge
     private readonly StatsExchange _stats;
     private readonly StatsSyncService _sync;
     private readonly FolderSyncService _folder;
+
+    /// <summary>UTC offset of each member whose stats I looked at, from their last answer.</summary>
+    private readonly ConcurrentDictionary<Guid, int> _peerOffsets = new();
 
     public PanelBridge(
         RoomState rooms,
@@ -720,16 +724,17 @@ public sealed class PanelBridge
         }
 
         var today = UsageService.Today;
-        var anchor = DateOnly.TryParseExact(c.String("date"), "yyyy-MM-dd", out var date) && date <= today ? date : today;
-        var range = StatsRange.Of(scale, anchor);
-        var previous = StatsRange.Previous(scale, anchor);
-        var to = range.To > today ? today : range.To;
+        var picked = DateOnly.TryParseExact(c.String("date"), "yyyy-MM-dd", out var date) ? date : (DateOnly?)null;
         var filter = c.OptionalString("filter");
 
         if (c.OptionalString("userId") is null)
         {
+            var anchor = picked is { } d && d <= today ? d : today;
+            var range = StatsRange.Of(scale, anchor);
+            var previous = StatsRange.Previous(scale, anchor);
+            var to = range.To > today ? today : range.To;
             var mine = await Task.Run(() => _usage.Report(range.From, to, (previous.From, previous.To)));
-            return new CommandResult(true, Data: StatsViewBuilder.Build(mine, scale, rankBy, anchor, today, filter: filter));
+            return new CommandResult(true, Data: StatsViewBuilder.Build(mine, scale, rankBy, anchor, today, filter: filter, myOffset: UsageService.Offset));
         }
 
         var userId = c.Guid("userId");
@@ -748,23 +753,47 @@ public sealed class PanelBridge
             return CommandResult.Fail(UiLanguage.Format(Strings.Error_MemberNotSharing, member.DisplayName));
         }
 
-        var first = today.AddDays(1 - member.StatsDays);
-        var from = range.From < first ? first : range.From;
-        if (from > to)
-        {
-            return CommandResult.Fail(UiLanguage.Format(Strings.Error_MemberSharedDays, member.DisplayName, PresenceFormatter.Days(member.StatsDays)));
-        }
-
+        // Days are the member's local days. Their date is known from an earlier answer; the first answer may show it
+        // differs from mine, and then the page is asked for again by their date.
+        var peerToday = _peerOffsets.TryGetValue(userId, out var known) ? TodayAt(known) : today;
         try
         {
-            var report = await _stats.RequestAsync(room.Id, userId, from, to, (previous.From, previous.To));
-            return new CommandResult(true, Data: StatsViewBuilder.Build(report, scale, rankBy, anchor, today, member.DisplayName, filter: filter));
+            for (var attempt = 0; ; attempt++)
+            {
+                var anchor = picked is { } d && d <= peerToday ? d : peerToday;
+                var range = StatsRange.Of(scale, anchor);
+                var previous = StatsRange.Previous(scale, anchor);
+                var to = range.To > peerToday ? peerToday : range.To;
+                var first = peerToday.AddDays(1 - member.StatsDays);
+                var from = range.From < first ? first : range.From;
+                if (from > to)
+                {
+                    return CommandResult.Fail(UiLanguage.Format(Strings.Error_MemberSharedDays, member.DisplayName, PresenceFormatter.Days(member.StatsDays)));
+                }
+
+                var report = await _stats.RequestAsync(room.Id, userId, from, to, (previous.From, previous.To));
+                if (report.Offset is { } offset)
+                {
+                    _peerOffsets[userId] = offset;
+                }
+
+                var answeredToday = report.Today ?? peerToday;
+                if (answeredToday != peerToday && attempt == 0)
+                {
+                    peerToday = answeredToday;
+                    continue;
+                }
+
+                return new CommandResult(true, Data: StatsViewBuilder.Build(report, scale, rankBy, anchor, answeredToday, member.DisplayName, filter, UsageService.Offset));
+            }
         }
         catch (StatsUnavailableException ex)
         {
             return CommandResult.Fail(ex.Message);
         }
     }
+
+    private static DateOnly TodayAt(int offsetMinutes) => DateOnly.FromDateTime(DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromMinutes(offsetMinutes)).DateTime);
 
     /// <summary>Detail page of one of my ranking rows; only for my own stats.</summary>
     private async Task<CommandResult> QueryAppStatsAsync(WebCommand c)

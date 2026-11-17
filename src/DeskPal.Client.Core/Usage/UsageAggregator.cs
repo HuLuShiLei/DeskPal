@@ -3,7 +3,10 @@ using DeskPal.Shared.Stats;
 
 namespace DeskPal.Client.Core.Usage;
 
-/// <summary>Sums segments and per-day totals into a <see cref="UsageReport"/> for a range of local days.</summary>
+/// <summary>
+/// Sums segments and per-day totals into a <see cref="UsageReport"/> for a range of local days. Each segment counts in
+/// the local time it was recorded at (<see cref="UsageSegment.Start"/>'s offset).
+/// </summary>
 public static class UsageAggregator
 {
     public const int TopCount = 20;
@@ -23,8 +26,7 @@ public static class UsageAggregator
         IEnumerable<UsageSegment> segments,
         IEnumerable<UsageRollup> rollups,
         DateOnly from,
-        DateOnly to,
-        TimeZoneInfo zone)
+        DateOnly to)
     {
         var single = from == to;
         var days = new Dictionary<(DateOnly, PresenceState, ActivityCategory), long>();
@@ -34,6 +36,7 @@ public static class UsageAggregator
         var spans = new List<UsageSpan>();
         var weekHours = new Dictionary<(DayOfWeek, int, PresenceState, ActivityCategory), long>();
         var bounds = new Dictionary<DateOnly, (int First, int Last)>();
+        var offsets = new SortedSet<int>();
 
         void Count(DateOnly date, PresenceState state, ActivityCategory category, string? app, string? title, long seconds)
         {
@@ -56,25 +59,26 @@ public static class UsageAggregator
         {
             if (UsageStates.Counts(segment.State) && segment.End > segment.Start)
             {
-                var day = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(segment.Start, zone).DateTime.AddHours(-DayStartHour));
+                var day = DateOnly.FromDateTime(segment.Start.DateTime.AddHours(-DayStartHour));
                 if (day >= from && day <= to)
                 {
-                    var midnight = LocalMidnight(day, zone);
+                    var midnight = LocalMidnight(day, segment.Start.Offset);
                     var first = (int)(segment.Start - midnight).TotalSeconds;
                     var last = (int)(segment.End - midnight).TotalSeconds;
                     bounds[day] = bounds.TryGetValue(day, out var b) ? (Math.Min(b.First, first), Math.Max(b.Last, last)) : (first, last);
                 }
             }
 
-            foreach (var (date, start, end) in SplitByDay(segment.Start, segment.End, zone))
+            foreach (var (date, start, end) in SplitByDay(segment.Start, segment.End))
             {
                 if (date < from || date > to)
                 {
                     continue;
                 }
 
+                offsets.Add((int)segment.Start.Offset.TotalMinutes);
                 Count(date, segment.State, segment.Category, segment.App, segment.Title, (long)(end - start).TotalSeconds);
-                var midnight = LocalMidnight(date, zone);
+                var midnight = LocalMidnight(date, segment.Start.Offset);
                 var startSecond = (int)(start - midnight).TotalSeconds;
                 var endSecond = (int)(end - midnight).TotalSeconds;
                 if (single)
@@ -118,8 +122,17 @@ public static class UsageAggregator
             apps.Select(a => new UsageItem(a.Key.Item1, a.Key.Item2, a.Key.Item3, null, a.Value)).OrderByDescending(a => a.Seconds).ToList(),
             titles.Select(t => new UsageItem(t.Key.Item1, t.Key.Item2, t.Key.Item3, t.Key.Item4, t.Value)).OrderByDescending(t => t.Seconds).ToList(),
             WeekHours: weekHours.Select(w => new UsageWeekHour(w.Key.Item1, w.Key.Item2, w.Key.Item3, w.Key.Item4, w.Value)).OrderBy(w => w.Day).ThenBy(w => w.Hour).ThenBy(w => w.State).ThenBy(w => w.Category).ToList(),
-            Bounds: bounds.Select(b => new UsageDayBounds(b.Key, b.Value.First, b.Value.Last)).OrderBy(b => b.Date).ToList());
+            Bounds: bounds.Select(b => new UsageDayBounds(b.Key, b.Value.First, b.Value.Last)).OrderBy(b => b.Date).ToList(),
+            Offsets: offsets.ToList());
     }
+
+    /// <summary>
+    /// Instants to read segments for local days <paramref name="from"/> to <paramref name="to"/>, whatever offset
+    /// they were recorded at (UTC−12 to UTC+14). Segments outside the days are left out by <see cref="Build"/>.
+    /// </summary>
+    /// <param name="extraHours">Hours after the last day to read as well.</param>
+    public static (DateTimeOffset From, DateTimeOffset To) Window(DateOnly from, DateOnly to, int extraHours = 0) =>
+        (LocalMidnight(from, TimeSpan.FromHours(14)), LocalMidnight(to.AddDays(1), TimeSpan.FromHours(-12)).AddHours(extraHours));
 
     /// <summary>Usage in the report, without away, locked and paused time.</summary>
     public static long ActiveSeconds(UsageReport report) => report.Days.Where(d => UsageStates.Counts(d.State)).Sum(d => d.Seconds);
@@ -133,18 +146,15 @@ public static class UsageAggregator
         .ThenBy(t => t.Category)
         .ToList();
 
-    public static DateTimeOffset LocalMidnight(DateOnly date, TimeZoneInfo zone)
-    {
-        var local = date.ToDateTime(TimeOnly.MinValue);
-        return new DateTimeOffset(local, zone.GetUtcOffset(local));
-    }
+    public static DateTimeOffset LocalMidnight(DateOnly date, TimeSpan offset) => new(date.ToDateTime(TimeOnly.MinValue), offset);
 
-    private static IEnumerable<(DateOnly Date, DateTimeOffset Start, DateTimeOffset End)> SplitByDay(DateTimeOffset start, DateTimeOffset end, TimeZoneInfo zone)
+    /// <summary>Pieces of one local day each, in the offset of <paramref name="start"/>.</summary>
+    internal static IEnumerable<(DateOnly Date, DateTimeOffset Start, DateTimeOffset End)> SplitByDay(DateTimeOffset start, DateTimeOffset end)
     {
         while (start < end)
         {
-            var date = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(start, zone).DateTime);
-            var next = LocalMidnight(date.AddDays(1), zone);
+            var date = DateOnly.FromDateTime(start.DateTime);
+            var next = LocalMidnight(date.AddDays(1), start.Offset);
             var pieceEnd = next < end ? next : end;
             yield return (date, start, pieceEnd);
             start = pieceEnd;

@@ -124,7 +124,7 @@ public class UsageTests : IDisposable
             new(At(9, 40), At(10, 10), PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫"),
         ];
 
-        var report = UsageAggregator.Build(segments, [], Day, Day, Zone);
+        var report = UsageAggregator.Build(segments, [], Day, Day);
 
         Assert.Equal(3600, UsageAggregator.ActiveSeconds(report));
         Assert.Equal(600, report.Days.Single(d => d.State == PresenceState.Away).Seconds);
@@ -150,7 +150,7 @@ public class UsageTests : IDisposable
         var yesterday = Day.AddDays(-1);
         Assert.Empty(store.Segments(At(0, 0, dayOffset: -1), At(0, 0)));
         Assert.Equal(3600, Assert.Single(store.Rollups(yesterday, yesterday)).Seconds);
-        var report = UsageAggregator.Build(store.Segments(At(0, 0, dayOffset: -1), At(0, 0)), store.Rollups(yesterday, yesterday), yesterday, yesterday, Zone);
+        var report = UsageAggregator.Build(store.Segments(At(0, 0, dayOffset: -1), At(0, 0)), store.Rollups(yesterday, yesterday), yesterday, yesterday);
         Assert.Equal(3600, UsageAggregator.ActiveSeconds(report));
         Assert.Empty(report.Timeline);
         Assert.Equal("a.md", Assert.Single(report.Titles).Title);
@@ -187,7 +187,7 @@ public class UsageTests : IDisposable
         Assert.Equal(new ImportResult(0, 0), target.Import(export));
         Assert.Throws<InvalidDataException>(() => target.Import(export with { SchemaVersion = 99 }));
 
-        var report = UsageAggregator.Build(target.Segments(At(0, 0, dayOffset: -100), At(0, 0, dayOffset: 1)), target.Rollups(Day.AddDays(-100), Day), Day.AddDays(-100), Day, Zone);
+        var report = UsageAggregator.Build(target.Segments(At(0, 0, dayOffset: -100), At(0, 0, dayOffset: 1)), target.Rollups(Day.AddDays(-100), Day), Day.AddDays(-100), Day);
         Assert.Equal(3600, UsageAggregator.ActiveSeconds(report));
     }
 
@@ -205,7 +205,7 @@ public class UsageTests : IDisposable
             Levels = { [ActivityCategory.Work] = PrivacyLevel.StateOnly, [ActivityCategory.Video] = PrivacyLevel.Category, [ActivityCategory.Game] = PrivacyLevel.Detail },
         };
 
-        var shown = StatsFilter.Apply(UsageAggregator.Build(segments, [], Day, Day, Zone), profile);
+        var shown = StatsFilter.Apply(UsageAggregator.Build(segments, [], Day, Day), profile);
 
         Assert.Contains(shown.Days, d => d is { State: PresenceState.Working, Category: ActivityCategory.Work, Seconds: 3600 });
         Assert.DoesNotContain(shown.Apps.Concat(shown.Titles), i => i.App == "Cursor" || i.Title == "secret.md");
@@ -218,7 +218,7 @@ public class UsageTests : IDisposable
     [Fact]
     public void Only_the_requester_key_opens_the_response()
     {
-        var report = UsageAggregator.Build([new UsageSegment(At(9, 0), At(9, 30), PresenceState.Working, ActivityCategory.Work, "Cursor", "a.md")], [], Day, Day, Zone);
+        var report = UsageAggregator.Build([new UsageSegment(At(9, 0), At(9, 30), PresenceState.Working, ActivityCategory.Work, "Cursor", "a.md")], [], Day, Day);
         using var requester = new StatsCrypto.RequestKey();
         using var other = new StatsCrypto.RequestKey();
         var requestId = Guid.NewGuid();
@@ -243,7 +243,7 @@ public class UsageTests : IDisposable
             new(At(10, 0), At(10, 10), PresenceState.Away, ActivityCategory.None, null, null),
             new(At(10, 10), At(10, 40), PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫"),
         ];
-        var report = UsageAggregator.Build(segments, [], Day, Day, Zone) with { Previous = [new(Day, -1, PresenceState.Working, ActivityCategory.Work, 3600)] };
+        var report = UsageAggregator.Build(segments, [], Day, Day) with { Previous = [new(Day, -1, PresenceState.Working, ActivityCategory.Work, 3600)] };
 
         var view = StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.App, Day, Day);
 
@@ -275,7 +275,7 @@ public class UsageTests : IDisposable
             new(At(9, 0, dayOffset: -2), At(11, 0, dayOffset: -2), PresenceState.Working, ActivityCategory.Work, "Cursor", "a.md"),
             new(At(9, 0), At(10, 0), PresenceState.Working, ActivityCategory.Work, "Cursor", "a.md"),
         ];
-        var report = UsageAggregator.Build(segments, [], monday, Day, Zone);
+        var report = UsageAggregator.Build(segments, [], monday, Day);
 
         var view = StatsViewBuilder.Build(report, StatsScale.Week, StatsRankBy.Category, Day, Day);
 
@@ -297,7 +297,7 @@ public class UsageTests : IDisposable
             new(At(10, 0), At(10, 30), PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫"),
         ];
         var profile = new PrivacyProfile { Levels = { [ActivityCategory.Work] = PrivacyLevel.StateOnly, [ActivityCategory.Video] = PrivacyLevel.Category } };
-        var report = StatsFilter.Apply(UsageAggregator.Build(segments, [], Day, Day, Zone), profile) with { SharedDays = 1 };
+        var report = StatsFilter.Apply(UsageAggregator.Build(segments, [], Day, Day), profile) with { SharedDays = 1 };
 
         var view = StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.Title, Day, Day, "Bob");
 
@@ -317,7 +317,7 @@ public class UsageTests : IDisposable
             new(At(10, 10), At(10, 40), PresenceState.Slacking, ActivityCategory.Game, "原神", null),
             new(At(20, 0), At(20, 20), PresenceState.Slacking, ActivityCategory.Game, "Steam", null),
         ];
-        var report = UsageAggregator.Build(segments, [], Day, Day, Zone) with { Previous = [new(Day, -1, PresenceState.Working, ActivityCategory.Work, 3600)] };
+        var report = UsageAggregator.Build(segments, [], Day, Day) with { Previous = [new(Day, -1, PresenceState.Working, ActivityCategory.Work, 3600)] };
 
         var all = StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.Category, Day, Day.AddDays(1));
         Assert.Equal([("工作", "Work"), ("游戏", "Game")], all.Ranking.Select(r => (r.Name, r.Filter)));
@@ -357,7 +357,7 @@ public class UsageTests : IDisposable
         Assert.Same(segments[2], read[2]);
         Assert.Equal(ActivityCategory.Video, read[3].Category);
 
-        var report = UsageAggregator.Build(read, [], Day, Day, Zone);
+        var report = UsageAggregator.Build(read, [], Day, Day);
         Assert.Equal(2 * 3600, report.Days.Where(d => d.Category == ActivityCategory.Video).Sum(d => d.Seconds));
     }
 
@@ -456,7 +456,7 @@ public class UsageTests : IDisposable
             new(At(9, 0), At(10, 0), PresenceState.Slacking, ActivityCategory.Video, "bilibili.com", "猫"),
             new(At(10, 0), At(11, 0), PresenceState.Slacking, ActivityCategory.Game, "最终幻想XIV", null),
         ];
-        var report = UsageAggregator.Build(segments, [], Day, Day, Zone);
+        var report = UsageAggregator.Build(segments, [], Day, Day);
 
         var state = StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.Category, Day, Day);
         Assert.Equal(["Video", "Game"], state.Legend.Select(l => l.Key));
@@ -484,7 +484,7 @@ public class UsageTests : IDisposable
             new(At(5, 0, dayOffset: 1), At(6, 0, dayOffset: 1), PresenceState.Working, ActivityCategory.Work, "Cursor", null),
         ];
 
-        var report = UsageAggregator.Build(segments, [], Day, Day, Zone);
+        var report = UsageAggregator.Build(segments, [], Day, Day);
 
         Assert.Equal(new UsageDayBounds(Day, (8 * 60 + 50) * 60, (25 * 60 + 20) * 60), Assert.Single(report.Bounds!));
         Assert.Equal(30 * 60 + 10 * 60 + 60 * 60, UsageAggregator.ActiveSeconds(report));
@@ -502,7 +502,7 @@ public class UsageTests : IDisposable
             new(At(21, 0), At(22, 0), PresenceState.Slacking, ActivityCategory.Game, "原神", null),
         ];
 
-        var week = StatsViewBuilder.Build(UsageAggregator.Build(segments, [], monday, Day, Zone), StatsScale.Week, StatsRankBy.App, Day, Day);
+        var week = StatsViewBuilder.Build(UsageAggregator.Build(segments, [], monday, Day), StatsScale.Week, StatsRankBy.App, Day, Day);
         Assert.Equal(["周一", "周二", "周三", "周四", "周五", "周六", "周日"], week.Rhythm!.Rows.Select(r => r.Label));
         Assert.Equal(3600, week.Rhythm.Rows[0].Cells[9].Seconds);
         Assert.Equal("周一 9:00–10:00 · 1 小时", week.Rhythm.Rows[0].Cells[9].Tip);
@@ -510,13 +510,13 @@ public class UsageTests : IDisposable
         Assert.Null(week.Rhythm.Tone);
         Assert.Equal("平均首次活动 15:00 · 平均最后活动 16:00", week.Bounds);
 
-        var games = StatsViewBuilder.Build(UsageAggregator.Build(segments, [], monday, Day, Zone), StatsScale.Week, StatsRankBy.App, Day, Day, filter: "Game");
+        var games = StatsViewBuilder.Build(UsageAggregator.Build(segments, [], monday, Day), StatsScale.Week, StatsRankBy.App, Day, Day, filter: "Game");
         Assert.Equal(0, games.Rhythm!.Rows[0].Cells[9].Seconds);
         Assert.Equal("game", games.Rhythm.Tone);
         Assert.Null(games.Bounds);
 
         var monthRange = StatsRange.Of(StatsScale.Month, Day);
-        var month = StatsViewBuilder.Build(UsageAggregator.Build(segments, [], monthRange.From, Day, Zone), StatsScale.Month, StatsRankBy.App, Day, Day);
+        var month = StatsViewBuilder.Build(UsageAggregator.Build(segments, [], monthRange.From, Day), StatsScale.Month, StatsRankBy.App, Day, Day);
         Assert.Equal(45 * 60, month.Rhythm!.Rows[0].Cells[9].Seconds);
         Assert.Equal("周一 9:00–10:00 · 平均 45 分钟", month.Rhythm.Rows[0].Cells[9].Tip);
     }
@@ -530,7 +530,7 @@ public class UsageTests : IDisposable
             new(At(9, 0, dayOffset: -2), At(15, 0, dayOffset: -2), PresenceState.Working, ActivityCategory.Work, "Cursor", null),
             new(At(20, 0), At(20, 3), PresenceState.Communicating, ActivityCategory.Communication, "微信", null),
         ];
-        var report = UsageAggregator.Build(segments, [], monday, Day, Zone) with
+        var report = UsageAggregator.Build(segments, [], monday, Day) with
         {
             Previous =
             [
@@ -547,7 +547,7 @@ public class UsageTests : IDisposable
     [Fact]
     public void Room_members_do_not_get_the_rhythm_or_first_and_last_use()
     {
-        var report = UsageAggregator.Build([new UsageSegment(At(9, 0), At(10, 0), PresenceState.Working, ActivityCategory.Work, "Cursor", null)], [], Day, Day, Zone)
+        var report = UsageAggregator.Build([new UsageSegment(At(9, 0), At(10, 0), PresenceState.Working, ActivityCategory.Work, "Cursor", null)], [], Day, Day)
             with { Previous = [new(Day, -1, PresenceState.Working, ActivityCategory.Work, 1800)] };
 
         var shown = StatsFilter.Apply(report, new PrivacyProfile());
@@ -571,7 +571,7 @@ public class UsageTests : IDisposable
             new(At(9, 0, dayOffset: -1), At(9, 30, dayOffset: -1), PresenceState.Working, ActivityCategory.Work, "Cursor", "a.md"),
         ];
 
-        var detail = UsageAppDetail.Build(segments, [], "Cursor", null, Day, Day, Zone);
+        var detail = UsageAppDetail.Build(segments, [], "Cursor", null, Day, Day);
 
         Assert.Equal((PresenceState.Working, ActivityCategory.Work), (detail.State, detail.Category));
         Assert.Equal(80 * 60 - 30, detail.Seconds);
@@ -588,11 +588,80 @@ public class UsageTests : IDisposable
         Assert.Empty(view.Hours);
         Assert.Equal(["a.md", "b.md"], view.Titles.Select(t => t.Name));
 
-        var title = StatsAppViewBuilder.Build(UsageAppDetail.Build(segments, [], "Cursor", "b.md", Day, Day, Zone), "Cursor", "b.md", StatsScale.Week, Day, Day, null);
+        var title = StatsAppViewBuilder.Build(UsageAppDetail.Build(segments, [], "Cursor", "b.md", Day, Day), "Cursor", "b.md", StatsScale.Week, Day, Day, null);
         Assert.Equal(("b.md", "Cursor · 工作"), (title.Name, title.Sub));
         Assert.Equal(7, title.Bars.Count);
         Assert.Equal(24, title.Hours.Count);
         Assert.Empty(title.Titles);
+    }
+
+    private static readonly TimeSpan UsEast = TimeSpan.FromHours(-5);
+
+    /// <summary>Local time in UTC−5 on <see cref="Day"/>.</summary>
+    private static DateTimeOffset East(int hour, int minute, int dayOffset = 0) =>
+        new(Day.AddDays(dayOffset).ToDateTime(new TimeOnly(hour, minute)), UsEast);
+
+    [Fact]
+    public void Segments_count_on_the_day_and_hour_they_were_recorded_at_whoever_reads_them()
+    {
+        // 20:00 to 21:00 in UTC−5 on the 11th is 9:00 to 10:00 on the 12th in UTC+8.
+        var report = UsageAggregator.Build([new UsageSegment(East(20, 0), East(21, 0), PresenceState.Working, ActivityCategory.Work, "Cursor", null)], [], Day, Day);
+
+        Assert.Equal(3600, UsageAggregator.ActiveSeconds(report));
+        Assert.Equal(20, Assert.Single(report.Hours).Hour);
+        Assert.Equal([-300], report.Offsets);
+        Assert.Empty(UsageAggregator.Build([new UsageSegment(East(20, 0), East(21, 0), PresenceState.Working, ActivityCategory.Work, "Cursor", null)], [], Day.AddDays(1), Day.AddDays(1)).Days);
+    }
+
+    [Fact]
+    public void Store_keeps_the_offset_and_groups_days_by_it()
+    {
+        using var store = NewStore();
+        store.Add(new UsageSegment(East(20, 0), East(21, 0), PresenceState.Working, ActivityCategory.Work, "Cursor", null));
+        store.Add(new UsageSegment(At(9, 0), At(9, 30), PresenceState.Working, ActivityCategory.Work, "Cursor", null));
+
+        var window = UsageAggregator.Window(Day, Day);
+        Assert.Equal([UsEast, TimeSpan.FromHours(8)], store.Segments(window.From, window.To).Select(s => s.Start.Offset).Order());
+        Assert.Equal([Day], store.Dates());
+        Assert.Equal(UsEast, Assert.Single(store.ExportDay(Day).Segments, s => s.Start.Offset == UsEast).Start.Offset);
+        Assert.Equal(2, store.ExportDay(Day).Segments.Count);
+        Assert.Empty(store.ExportDay(Day.AddDays(1)).Segments);
+    }
+
+    [Fact]
+    public void Recorder_records_times_in_the_offset_of_its_time_zone()
+    {
+        var writer = new FakeWriter();
+        var recorder = new UsageRecorder(writer, TimeZoneInfo.CreateCustomTimeZone("UTC-5", UsEast, "UTC-5", "UTC-5"));
+        recorder.Record(Work("a.md"), At(9, 0).ToUniversalTime());
+        recorder.Record(Work("a.md"), At(9, 0, 5).ToUniversalTime());
+        recorder.Flush();
+
+        var row = Assert.Single(writer.Rows);
+        Assert.Equal((UsEast, At(9, 0)), (row.Start.Offset, row.Start));
+    }
+
+    [Fact]
+    public void A_member_view_says_whose_local_time_it_is_in()
+    {
+        var report = UsageAggregator.Build([new UsageSegment(East(20, 0), East(21, 0), PresenceState.Working, ActivityCategory.Work, "Cursor", null)], [], Day, Day)
+            with { SharedDays = 7, Today = Day, Offset = -300 };
+
+        var view = StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.App, Day, Day, "Bob", myOffset: 480);
+        Assert.Equal("Bob 公开了最近 7 天的统计。时间按 Bob 的当地时间显示（UTC−5，比你晚 13 小时）。", view.Note);
+
+        var moved = StatsViewBuilder.Build(report with { Offset = 480 }, StatsScale.Day, StatsRankBy.App, Day, Day, "Bob", myOffset: 480);
+        Assert.Contains("时间按 Bob 记录时的当地时间显示（UTC−5，比你晚 13 小时）。", moved.Note);
+
+        var india = StatsViewBuilder.Build(report with { Offsets = [330], Offset = 330 }, StatsScale.Day, StatsRankBy.App, Day, Day, "Bob", myOffset: 480);
+        Assert.Contains("（UTC+5:30，比你晚 2 小时 30 分钟）", india.Note);
+
+        var same = StatsViewBuilder.Build(report with { Offsets = [480], Offset = 480 }, StatsScale.Day, StatsRankBy.App, Day, Day, "Bob", myOffset: 480);
+        Assert.Contains("（UTC+8，与你相同）", same.Note);
+
+        var mine = StatsViewBuilder.Build(report with { Offsets = [-300, 480] }, StatsScale.Week, StatsRankBy.App, Day, Day, myOffset: 480);
+        Assert.Equal("部分记录产生于其他时区，按记录时的当地时间显示（UTC−5）。", mine.Note);
+        Assert.Null(StatsViewBuilder.Build(report with { Offsets = [480] }, StatsScale.Week, StatsRankBy.App, Day, Day, myOffset: 480).Note);
     }
 
     private SqliteUsageStore NewStore()

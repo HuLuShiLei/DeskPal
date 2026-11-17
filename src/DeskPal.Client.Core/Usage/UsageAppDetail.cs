@@ -24,7 +24,7 @@ public sealed record UsageAppDetail(
 
     /// <param name="segments">Segments already reclassified with the current personal rules.</param>
     /// <param name="title">Only this title of the app; null for the whole app.</param>
-    public static UsageAppDetail Build(IEnumerable<UsageSegment> segments, IEnumerable<UsageRollup> rollups, string app, string? title, DateOnly from, DateOnly to, TimeZoneInfo zone)
+    public static UsageAppDetail Build(IEnumerable<UsageSegment> segments, IEnumerable<UsageRollup> rollups, string app, string? title, DateOnly from, DateOnly to)
     {
         bool Matches(PresenceState state, string? a, string? t) =>
             UsageStates.Counts(state) && string.Equals(a, app, StringComparison.Ordinal) && (title is null || string.Equals(t, title, StringComparison.Ordinal));
@@ -47,7 +47,7 @@ public sealed record UsageAppDetail(
 
         foreach (var segment in segments.Where(s => Matches(s.State, s.App, s.Title)))
         {
-            var date = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(segment.Start, zone).DateTime);
+            var date = DateOnly.FromDateTime(segment.Start.DateTime);
             if (date < from || date > to || segment.End <= segment.Start)
             {
                 continue;
@@ -55,7 +55,7 @@ public sealed record UsageAppDetail(
 
             Count(date, segment.State, segment.Category, segment.Title, segment.Seconds);
             pieces.Add((segment.Start, segment.End));
-            var midnight = UsageAggregator.LocalMidnight(date, zone);
+            var midnight = UsageAggregator.LocalMidnight(date, segment.Start.Offset);
             var startSecond = (int)(segment.Start - midnight).TotalSeconds;
             var endSecond = (int)(segment.End - midnight).TotalSeconds;
             for (var hour = startSecond / 3600; hour * 3600 < endSecond && hour < 24; hour++)

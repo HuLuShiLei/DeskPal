@@ -5,8 +5,10 @@ namespace DeskPal.Client.Core.Usage;
 
 /// <summary>
 /// Turns the local presence, evaluated every few seconds, into segments. A new segment starts whenever the state,
-/// category, app or title changes, and at local midnight. Gaps longer than <see cref="MaxGap"/> are not counted.
+/// category, app, title or UTC offset changes, and at local midnight. Gaps longer than <see cref="MaxGap"/> are not counted.
+/// Times carry the offset of the time zone they were recorded in.
 /// </summary>
+/// <param name="zone">Fixed time zone for tests; null follows the system time zone as it changes.</param>
 public sealed class UsageRecorder(IUsageWriter writer, TimeZoneInfo? zone = null)
 {
     /// <summary>Longer gaps (sleep, a stalled loop) are not counted. Same as the unclassified app totals.</summary>
@@ -17,7 +19,6 @@ public sealed class UsageRecorder(IUsageWriter writer, TimeZoneInfo? zone = null
 
     public const int MaxTitleLength = 200;
 
-    private readonly TimeZoneInfo _zone = zone ?? TimeZoneInfo.Local;
     private readonly Lock _lock = new();
     private IReadOnlyList<NoTitleRule> _noTitle = [];
     private UsageSegment? _open;
@@ -43,6 +44,7 @@ public sealed class UsageRecorder(IUsageWriter writer, TimeZoneInfo? zone = null
     /// <param name="hold">The browser's tab changed and its address is not read yet: keep the open segment instead of starting one with the old site.</param>
     public void Record(LocalPresence? presence, DateTimeOffset now, string? process = null, string? domain = null, ActivityCategory? baseCategory = null, bool hold = false)
     {
+        now = TimeZoneInfo.ConvertTime(now, zone ?? TimeZoneInfo.Local);
         lock (_lock)
         {
             if (_open is not null)
@@ -184,11 +186,9 @@ public sealed class UsageRecorder(IUsageWriter writer, TimeZoneInfo? zone = null
     private static string? Clean(string? text) => string.IsNullOrWhiteSpace(text) ? null : text.Trim();
 
     private static bool SameKey(UsageSegment a, UsageSegment b) =>
-        a.State == b.State && a.Category == b.Category && a.App == b.App && a.Title == b.Title && a.Process == b.Process && a.BaseCategory == b.BaseCategory;
+        a.State == b.State && a.Category == b.Category && a.App == b.App && a.Title == b.Title && a.Process == b.Process && a.BaseCategory == b.BaseCategory
+        && a.Start.Offset == b.Start.Offset;
 
-    private DateTimeOffset NextMidnight(DateTimeOffset time)
-    {
-        var next = TimeZoneInfo.ConvertTime(time, _zone).Date.AddDays(1);
-        return new DateTimeOffset(next, _zone.GetUtcOffset(next));
-    }
+    /// <summary>Midnight in the offset the segment was started in, so a segment stays within its own local day.</summary>
+    private static DateTimeOffset NextMidnight(DateTimeOffset time) => new(time.Date.AddDays(1), time.Offset);
 }

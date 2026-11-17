@@ -2,7 +2,11 @@ using DeskPal.Shared.Presence;
 
 namespace DeskPal.Client.Core.Usage;
 
-/// <summary>A stretch of time with the same state, category, app and title. Never crosses local midnight.</summary>
+/// <summary>
+/// A stretch of time with the same state, category, app and title. <see cref="Start"/> carries the UTC offset it was
+/// recorded at; its local day and hour come from that offset, not from the time zone of whoever reads it. Never crosses
+/// midnight of that local day.
+/// </summary>
 /// <param name="Category">Category when it was recorded. Never rewritten; <see cref="UsageReclassifier"/> applies the current personal rules when reading.</param>
 /// <param name="Title">Window or media title. Kept on this computer only.</param>
 /// <param name="Process">Process in front, without ".exe". Null for records made before it was kept.</param>

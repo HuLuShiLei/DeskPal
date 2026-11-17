@@ -36,6 +36,8 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // TimeZoneInfo.Local and DateTime.Now keep the time zone the process started in until the cache is cleared.
+        Microsoft.Win32.SystemEvents.TimeChanged += (_, _) => TimeZoneInfo.ClearCachedData();
         _logs = new ClientLogFiles(AppPaths.LogDirectory);
         RegisterCrashHandlers(_logs);
         var store = new SettingsStore();

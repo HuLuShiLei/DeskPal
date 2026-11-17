@@ -291,6 +291,27 @@
   <data name="Stats_NoTimeline" xml:space="preserve">
     <value>这一天只有总时长，没有时间轴。</value>
   </data>
+  <data name="Stats_PeerZone" xml:space="preserve">
+    <value>时间按 {0} 的当地时间显示（{1}）。</value>
+  </data>
+  <data name="Stats_PeerRecordedZone" xml:space="preserve">
+    <value>时间按 {0} 记录时的当地时间显示（{1}）。</value>
+  </data>
+  <data name="Stats_MyOtherZones" xml:space="preserve">
+    <value>部分记录产生于其他时区，按记录时的当地时间显示（{0}）。</value>
+  </data>
+  <data name="Stats_ZoneCompared" xml:space="preserve">
+    <value>{0}，{1}</value>
+  </data>
+  <data name="Zone_SameAsMine" xml:space="preserve">
+    <value>与你相同</value>
+  </data>
+  <data name="Zone_AheadOfMe" xml:space="preserve">
+    <value>比你早 {0}</value>
+  </data>
+  <data name="Zone_BehindMe" xml:space="preserve">
+    <value>比你晚 {0}</value>
+  </data>
   <data name="Stats_EmptyMine" xml:space="preserve">
     <value>此时间段没有记录。仅在 DeskPal 运行时记录。</value>
   </data>

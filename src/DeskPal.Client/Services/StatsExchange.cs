@@ -148,20 +148,20 @@ public sealed class StatsExchange(HubService hub, RoomState rooms, UsageService 
                 return;
             }
 
+            // Dates are this computer's. The requester may be a day ahead or behind; days outside what is shared
+            // get an empty report, which still tells the requester my date and offset.
             var today = UsageService.Today;
             var first = today.AddDays(1 - privacy.StatsDays);
             var from = request.From < first ? first : request.From;
             var to = request.To > today ? today : request.To;
-            if (from > to)
-            {
-                await ReplyAsync(envelope, new StatsResponsePayload(request.RequestId, Error: UiLanguage.Format(Strings.Stats_PeerSharedDays, PresenceFormatter.Days(privacy.StatsDays)), ErrorCode: StatsErrorCodes.OutOfRange));
-                return;
-            }
-
             (DateOnly, DateOnly)? previous = request is { PreviousFrom: { } pf, PreviousTo: { } pt } && pf >= first && pt < from ? (pf, pt) : null;
             var cacheKey = (requester.UserId, room.Id, from, to, previous?.Item1);
             UsageReport report;
-            if (_answered.TryGetValue(cacheKey, out var cached) && DateTimeOffset.UtcNow - cached.At < CacheFor)
+            if (from > to)
+            {
+                report = UsageService.Empty(request.From, request.To) with { SharedDays = privacy.StatsDays };
+            }
+            else if (_answered.TryGetValue(cacheKey, out var cached) && DateTimeOffset.UtcNow - cached.At < CacheFor)
             {
                 report = cached.Report;
             }

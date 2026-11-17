@@ -291,6 +291,27 @@
   <data name="Stats_NoTimeline" xml:space="preserve">
     <value>Only the daily total is available for this day.</value>
   </data>
+  <data name="Stats_PeerZone" xml:space="preserve">
+    <value>Times are in {0}'s local time ({1}).</value>
+  </data>
+  <data name="Stats_PeerRecordedZone" xml:space="preserve">
+    <value>Times are in {0}'s local time when recorded ({1}).</value>
+  </data>
+  <data name="Stats_MyOtherZones" xml:space="preserve">
+    <value>Some records are from another time zone and show the local time when recorded ({0}).</value>
+  </data>
+  <data name="Stats_ZoneCompared" xml:space="preserve">
+    <value>{0}, {1}</value>
+  </data>
+  <data name="Zone_SameAsMine" xml:space="preserve">
+    <value>same as yours</value>
+  </data>
+  <data name="Zone_AheadOfMe" xml:space="preserve">
+    <value>{0} ahead of you</value>
+  </data>
+  <data name="Zone_BehindMe" xml:space="preserve">
+    <value>{0} behind you</value>
+  </data>
   <data name="Stats_EmptyMine" xml:space="preserve">
     <value>Nothing recorded. DeskPal records usage only while it is running.</value>
   </data>

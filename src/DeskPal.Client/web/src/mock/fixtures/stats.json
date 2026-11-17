@@ -302,31 +302,12 @@
     "owner": "Bob",
     "title": "11 月 11 日 星期三（今天）",
     "totalLabel": "使用时长",
-    "total": "5 小时",
+    "total": "0 分钟",
     "compare": null,
-    "summary": "暂离 40 分钟",
+    "summary": null,
     "canPrev": true,
     "canNext": false,
-    "legend": [
-      {
-        "key": "Work",
-        "name": "工作",
-        "tone": "work",
-        "hidden": false
-      },
-      {
-        "key": "Communication",
-        "name": "聊天",
-        "tone": "chat",
-        "hidden": false
-      },
-      {
-        "key": "Video",
-        "name": "视频",
-        "tone": "relax",
-        "hidden": false
-      }
-    ],
+    "legend": [],
     "bars": [
       {
         "label": "0",
@@ -384,77 +365,39 @@
       },
       {
         "label": "",
-        "tip": "9:00–10:00 · 50 分钟",
+        "tip": "9:00–10:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 3000
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
-        "tip": "10:00–11:00 · 1 小时",
+        "tip": "10:00–11:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 2700
-          },
-          {
-            "key": "Communication",
-            "seconds": 900
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
-        "tip": "11:00–12:00 · 1 小时",
+        "tip": "11:00–12:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 3600
-          }
-        ]
+        "parts": []
       },
       {
         "label": "12",
-        "tip": "12:00–13:00 · 20 分钟",
+        "tip": "12:00–13:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Video",
-            "seconds": 1200
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
-        "tip": "13:00–14:00 · 50 分钟",
+        "tip": "13:00–14:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 1800
-          },
-          {
-            "key": "Video",
-            "seconds": 1200
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
-        "tip": "14:00–15:00 · 1 小时",
+        "tip": "14:00–15:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 3600
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
@@ -513,78 +456,10 @@
     ],
     "barMax": 3600,
     "barMaxLabel": "1 小时",
-    "timeline": [
-      {
-        "start": 33000,
-        "end": 38400,
-        "tone": "work",
-        "tip": "9:10–10:40 工作 · 1 小时 30 分钟"
-      },
-      {
-        "start": 38400,
-        "end": 39300,
-        "tone": "chat",
-        "tip": "10:40–10:55 聊天 · 15 分钟"
-      },
-      {
-        "start": 39300,
-        "end": 43200,
-        "tone": "work",
-        "tip": "10:55–12:00 工作 · 1 小时 5 分钟"
-      },
-      {
-        "start": 43200,
-        "end": 45600,
-        "tone": "away",
-        "tip": "12:00–12:40 暂离 · 40 分钟"
-      },
-      {
-        "start": 45600,
-        "end": 48000,
-        "tone": "relax",
-        "tip": "12:40–13:20 视频 · 40 分钟"
-      },
-      {
-        "start": 48600,
-        "end": 54000,
-        "tone": "work",
-        "tip": "13:30–15:00 工作 · 1 小时 30 分钟"
-      }
-    ],
-    "ranking": [
-      {
-        "name": "工作",
-        "sub": null,
-        "tone": "work",
-        "time": "4 小时 5 分钟",
-        "share": 1,
-        "hidden": false,
-        "detail": null,
-        "filter": "Work"
-      },
-      {
-        "name": "视频",
-        "sub": null,
-        "tone": "relax",
-        "time": "40 分钟",
-        "share": 0.163,
-        "hidden": false,
-        "detail": null,
-        "filter": "Video"
-      },
-      {
-        "name": "聊天",
-        "sub": null,
-        "tone": "chat",
-        "time": "15 分钟",
-        "share": 0.061,
-        "hidden": false,
-        "detail": null,
-        "filter": "Communication"
-      }
-    ],
-    "note": "Bob 公开了最近 7 天的统计。",
-    "empty": null,
+    "timeline": [],
+    "ranking": [],
+    "note": "Bob 公开了最近 7 天的统计。时间按 Bob 的当地时间显示（UTC−5，比你晚 13 小时）。",
+    "empty": "对方在此时间段没有记录。",
     "changes": [],
     "bounds": null,
     "rhythm": null
@@ -914,31 +789,12 @@
     "owner": "Bob",
     "title": "11 月 11 日 星期三（今天）",
     "totalLabel": "使用时长",
-    "total": "5 小时",
+    "total": "0 分钟",
     "compare": null,
-    "summary": "暂离 40 分钟",
+    "summary": null,
     "canPrev": true,
     "canNext": false,
-    "legend": [
-      {
-        "key": "Work",
-        "name": "工作",
-        "tone": "work",
-        "hidden": false
-      },
-      {
-        "key": "Communication",
-        "name": "聊天",
-        "tone": "chat",
-        "hidden": false
-      },
-      {
-        "key": "Video",
-        "name": "视频",
-        "tone": "relax",
-        "hidden": false
-      }
-    ],
+    "legend": [],
     "bars": [
       {
         "label": "0",
@@ -996,77 +852,39 @@
       },
       {
         "label": "",
-        "tip": "9:00–10:00 · 50 分钟",
+        "tip": "9:00–10:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 3000
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
-        "tip": "10:00–11:00 · 1 小时",
+        "tip": "10:00–11:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 2700
-          },
-          {
-            "key": "Communication",
-            "seconds": 900
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
-        "tip": "11:00–12:00 · 1 小时",
+        "tip": "11:00–12:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 3600
-          }
-        ]
+        "parts": []
       },
       {
         "label": "12",
-        "tip": "12:00–13:00 · 20 分钟",
+        "tip": "12:00–13:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Video",
-            "seconds": 1200
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
-        "tip": "13:00–14:00 · 50 分钟",
+        "tip": "13:00–14:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 1800
-          },
-          {
-            "key": "Video",
-            "seconds": 1200
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
-        "tip": "14:00–15:00 · 1 小时",
+        "tip": "14:00–15:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 3600
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
@@ -1125,78 +943,10 @@
     ],
     "barMax": 3600,
     "barMaxLabel": "1 小时",
-    "timeline": [
-      {
-        "start": 33000,
-        "end": 38400,
-        "tone": "work",
-        "tip": "9:10–10:40 工作 · 1 小时 30 分钟"
-      },
-      {
-        "start": 38400,
-        "end": 39300,
-        "tone": "chat",
-        "tip": "10:40–10:55 聊天 · 15 分钟"
-      },
-      {
-        "start": 39300,
-        "end": 43200,
-        "tone": "work",
-        "tip": "10:55–12:00 工作 · 1 小时 5 分钟"
-      },
-      {
-        "start": 43200,
-        "end": 45600,
-        "tone": "away",
-        "tip": "12:00–12:40 暂离 · 40 分钟"
-      },
-      {
-        "start": 45600,
-        "end": 48000,
-        "tone": "relax",
-        "tip": "12:40–13:20 视频 · 40 分钟"
-      },
-      {
-        "start": 48600,
-        "end": 54000,
-        "tone": "work",
-        "tip": "13:30–15:00 工作 · 1 小时 30 分钟"
-      }
-    ],
-    "ranking": [
-      {
-        "name": "工作",
-        "sub": null,
-        "tone": "work",
-        "time": "4 小时 5 分钟",
-        "share": 1,
-        "hidden": false,
-        "detail": null,
-        "filter": null
-      },
-      {
-        "name": "哔哩哔哩",
-        "sub": "视频",
-        "tone": "relax",
-        "time": "40 分钟",
-        "share": 0.163,
-        "hidden": false,
-        "detail": null,
-        "filter": null
-      },
-      {
-        "name": "聊天",
-        "sub": null,
-        "tone": "chat",
-        "time": "15 分钟",
-        "share": 0.061,
-        "hidden": false,
-        "detail": null,
-        "filter": null
-      }
-    ],
-    "note": "Bob 公开了最近 7 天的统计。部分类别仅公开了状态。",
-    "empty": null,
+    "timeline": [],
+    "ranking": [],
+    "note": "Bob 公开了最近 7 天的统计。时间按 Bob 的当地时间显示（UTC−5，比你晚 13 小时）。",
+    "empty": "对方在此时间段没有记录。",
     "changes": [],
     "bounds": null,
     "rhythm": null
@@ -1539,31 +1289,12 @@
     "owner": "Bob",
     "title": "11 月 11 日 星期三（今天）",
     "totalLabel": "使用时长",
-    "total": "5 小时",
+    "total": "0 分钟",
     "compare": null,
-    "summary": "暂离 40 分钟",
+    "summary": null,
     "canPrev": true,
     "canNext": false,
-    "legend": [
-      {
-        "key": "Work",
-        "name": "工作",
-        "tone": "work",
-        "hidden": false
-      },
-      {
-        "key": "Communication",
-        "name": "聊天",
-        "tone": "chat",
-        "hidden": false
-      },
-      {
-        "key": "Video",
-        "name": "视频",
-        "tone": "relax",
-        "hidden": false
-      }
-    ],
+    "legend": [],
     "bars": [
       {
         "label": "0",
@@ -1621,77 +1352,39 @@
       },
       {
         "label": "",
-        "tip": "9:00–10:00 · 50 分钟",
+        "tip": "9:00–10:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 3000
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
-        "tip": "10:00–11:00 · 1 小时",
+        "tip": "10:00–11:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 2700
-          },
-          {
-            "key": "Communication",
-            "seconds": 900
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
-        "tip": "11:00–12:00 · 1 小时",
+        "tip": "11:00–12:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 3600
-          }
-        ]
+        "parts": []
       },
       {
         "label": "12",
-        "tip": "12:00–13:00 · 20 分钟",
+        "tip": "12:00–13:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Video",
-            "seconds": 1200
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
-        "tip": "13:00–14:00 · 50 分钟",
+        "tip": "13:00–14:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 1800
-          },
-          {
-            "key": "Video",
-            "seconds": 1200
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
-        "tip": "14:00–15:00 · 1 小时",
+        "tip": "14:00–15:00 · 0 分钟",
         "date": null,
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 3600
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
@@ -1750,78 +1443,10 @@
     ],
     "barMax": 3600,
     "barMaxLabel": "1 小时",
-    "timeline": [
-      {
-        "start": 33000,
-        "end": 38400,
-        "tone": "work",
-        "tip": "9:10–10:40 工作 · 1 小时 30 分钟"
-      },
-      {
-        "start": 38400,
-        "end": 39300,
-        "tone": "chat",
-        "tip": "10:40–10:55 聊天 · 15 分钟"
-      },
-      {
-        "start": 39300,
-        "end": 43200,
-        "tone": "work",
-        "tip": "10:55–12:00 工作 · 1 小时 5 分钟"
-      },
-      {
-        "start": 43200,
-        "end": 45600,
-        "tone": "away",
-        "tip": "12:00–12:40 暂离 · 40 分钟"
-      },
-      {
-        "start": 45600,
-        "end": 48000,
-        "tone": "relax",
-        "tip": "12:40–13:20 视频 · 40 分钟"
-      },
-      {
-        "start": 48600,
-        "end": 54000,
-        "tone": "work",
-        "tip": "13:30–15:00 工作 · 1 小时 30 分钟"
-      }
-    ],
-    "ranking": [
-      {
-        "name": "工作",
-        "sub": null,
-        "tone": "work",
-        "time": "4 小时 5 分钟",
-        "share": 1,
-        "hidden": false,
-        "detail": null,
-        "filter": null
-      },
-      {
-        "name": "哔哩哔哩",
-        "sub": "视频",
-        "tone": "relax",
-        "time": "40 分钟",
-        "share": 0.163,
-        "hidden": false,
-        "detail": null,
-        "filter": null
-      },
-      {
-        "name": "聊天",
-        "sub": null,
-        "tone": "chat",
-        "time": "15 分钟",
-        "share": 0.061,
-        "hidden": false,
-        "detail": null,
-        "filter": null
-      }
-    ],
-    "note": "Bob 公开了最近 7 天的统计。部分类别仅公开了状态。部分类别未公开标题，仅显示应用名。",
-    "empty": null,
+    "timeline": [],
+    "ranking": [],
+    "note": "Bob 公开了最近 7 天的统计。时间按 Bob 的当地时间显示（UTC−5，比你晚 13 小时）。",
+    "empty": "对方在此时间段没有记录。",
     "changes": [],
     "bounds": null,
     "rhythm": null
@@ -2793,9 +2418,9 @@
     "owner": "Bob",
     "title": "11 月 9 日 – 11 月 15 日（本周）",
     "totalLabel": "日均使用时长",
-    "total": "7 小时 40 分钟",
+    "total": "6 小时",
     "compare": null,
-    "summary": "共 23 小时 · 暂离 2 小时 · 锁屏 2 小时",
+    "summary": "共 18 小时 · 暂离 1 小时 20 分钟 · 锁屏 2 小时",
     "canPrev": true,
     "canNext": false,
     "legend": [
@@ -2897,22 +2522,9 @@
       },
       {
         "label": "三",
-        "tip": "11 月 11 日 星期三 · 5 小时",
+        "tip": "11 月 11 日 星期三 · 0 分钟",
         "date": "2026-11-11",
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 14700
-          },
-          {
-            "key": "Communication",
-            "seconds": 900
-          },
-          {
-            "key": "Video",
-            "seconds": 2400
-          }
-        ]
+        "parts": []
       },
       {
         "label": "四",
@@ -2947,38 +2559,38 @@
         "name": "工作",
         "sub": null,
         "tone": "work",
-        "time": "16 小时 35 分钟",
+        "time": "12 小时 30 分钟",
         "share": 1,
         "hidden": false,
         "detail": null,
         "filter": "Work"
       },
       {
-        "name": "视频",
-        "sub": null,
-        "tone": "relax",
-        "time": "2 小时",
-        "share": 0.121,
-        "hidden": false,
-        "detail": null,
-        "filter": "Video"
-      },
-      {
         "name": "游戏",
         "sub": null,
         "tone": "game",
         "time": "1 小时 30 分钟",
-        "share": 0.09,
+        "share": 0.12,
         "hidden": false,
         "detail": null,
         "filter": "Game"
       },
       {
+        "name": "视频",
+        "sub": null,
+        "tone": "relax",
+        "time": "1 小时 20 分钟",
+        "share": 0.107,
+        "hidden": false,
+        "detail": null,
+        "filter": "Video"
+      },
+      {
         "name": "聊天",
         "sub": null,
         "tone": "chat",
-        "time": "1 小时 15 分钟",
-        "share": 0.075,
+        "time": "1 小时",
+        "share": 0.08,
         "hidden": false,
         "detail": null,
         "filter": "Communication"
@@ -2988,7 +2600,7 @@
         "sub": null,
         "tone": "other",
         "time": "1 小时",
-        "share": 0.06,
+        "share": 0.08,
         "hidden": false,
         "detail": null,
         "filter": "Other"
@@ -2998,13 +2610,13 @@
         "sub": null,
         "tone": "browse",
         "time": "40 分钟",
-        "share": 0.04,
+        "share": 0.053,
         "hidden": false,
         "detail": null,
         "filter": "Browsing"
       }
     ],
-    "note": "Bob 公开了最近 7 天的统计。",
+    "note": "Bob 公开了最近 7 天的统计。时间按 Bob 的当地时间显示（UTC−5，比你晚 13 小时）。",
     "empty": null,
     "changes": [],
     "bounds": null,
@@ -4008,9 +3620,9 @@
     "owner": "Bob",
     "title": "11 月 9 日 – 11 月 15 日（本周）",
     "totalLabel": "日均使用时长",
-    "total": "7 小时 40 分钟",
+    "total": "6 小时",
     "compare": null,
-    "summary": "共 23 小时 · 暂离 2 小时 · 锁屏 2 小时",
+    "summary": "共 18 小时 · 暂离 1 小时 20 分钟 · 锁屏 2 小时",
     "canPrev": true,
     "canNext": false,
     "legend": [
@@ -4112,22 +3724,9 @@
       },
       {
         "label": "三",
-        "tip": "11 月 11 日 星期三 · 5 小时",
+        "tip": "11 月 11 日 星期三 · 0 分钟",
         "date": "2026-11-11",
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 14700
-          },
-          {
-            "key": "Communication",
-            "seconds": 900
-          },
-          {
-            "key": "Video",
-            "seconds": 2400
-          }
-        ]
+        "parts": []
       },
       {
         "label": "四",
@@ -4162,18 +3761,8 @@
         "name": "工作",
         "sub": null,
         "tone": "work",
-        "time": "16 小时 35 分钟",
+        "time": "12 小时 30 分钟",
         "share": 1,
-        "hidden": false,
-        "detail": null,
-        "filter": null
-      },
-      {
-        "name": "哔哩哔哩",
-        "sub": "视频",
-        "tone": "relax",
-        "time": "2 小时",
-        "share": 0.121,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -4183,7 +3772,17 @@
         "sub": "游戏",
         "tone": "game",
         "time": "1 小时 30 分钟",
-        "share": 0.09,
+        "share": 0.12,
+        "hidden": false,
+        "detail": null,
+        "filter": null
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "视频",
+        "tone": "relax",
+        "time": "1 小时 20 分钟",
+        "share": 0.107,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -4192,8 +3791,8 @@
         "name": "聊天",
         "sub": null,
         "tone": "chat",
-        "time": "1 小时 15 分钟",
-        "share": 0.075,
+        "time": "1 小时",
+        "share": 0.08,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -4203,7 +3802,7 @@
         "sub": "其他",
         "tone": "other",
         "time": "1 小时",
-        "share": 0.06,
+        "share": 0.08,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -4213,13 +3812,13 @@
         "sub": "浏览网页",
         "tone": "browse",
         "time": "40 分钟",
-        "share": 0.04,
+        "share": 0.053,
         "hidden": false,
         "detail": null,
         "filter": null
       }
     ],
-    "note": "Bob 公开了最近 7 天的统计。部分类别仅公开了状态。",
+    "note": "Bob 公开了最近 7 天的统计。时间按 Bob 的当地时间显示（UTC−5，比你晚 13 小时）。部分类别仅公开了状态。",
     "empty": null,
     "changes": [],
     "bounds": null,
@@ -5236,9 +4835,9 @@
     "owner": "Bob",
     "title": "11 月 9 日 – 11 月 15 日（本周）",
     "totalLabel": "日均使用时长",
-    "total": "7 小时 40 分钟",
+    "total": "6 小时",
     "compare": null,
-    "summary": "共 23 小时 · 暂离 2 小时 · 锁屏 2 小时",
+    "summary": "共 18 小时 · 暂离 1 小时 20 分钟 · 锁屏 2 小时",
     "canPrev": true,
     "canNext": false,
     "legend": [
@@ -5340,22 +4939,9 @@
       },
       {
         "label": "三",
-        "tip": "11 月 11 日 星期三 · 5 小时",
+        "tip": "11 月 11 日 星期三 · 0 分钟",
         "date": "2026-11-11",
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 14700
-          },
-          {
-            "key": "Communication",
-            "seconds": 900
-          },
-          {
-            "key": "Video",
-            "seconds": 2400
-          }
-        ]
+        "parts": []
       },
       {
         "label": "四",
@@ -5390,18 +4976,8 @@
         "name": "工作",
         "sub": null,
         "tone": "work",
-        "time": "16 小时 35 分钟",
+        "time": "12 小时 30 分钟",
         "share": 1,
-        "hidden": false,
-        "detail": null,
-        "filter": null
-      },
-      {
-        "name": "哔哩哔哩",
-        "sub": "视频",
-        "tone": "relax",
-        "time": "2 小时",
-        "share": 0.121,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -5411,7 +4987,17 @@
         "sub": "原神 · 游戏",
         "tone": "game",
         "time": "1 小时 30 分钟",
-        "share": 0.09,
+        "share": 0.12,
+        "hidden": false,
+        "detail": null,
+        "filter": null
+      },
+      {
+        "name": "哔哩哔哩",
+        "sub": "视频",
+        "tone": "relax",
+        "time": "1 小时 20 分钟",
+        "share": 0.107,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -5420,8 +5006,8 @@
         "name": "聊天",
         "sub": null,
         "tone": "chat",
-        "time": "1 小时 15 分钟",
-        "share": 0.075,
+        "time": "1 小时",
+        "share": 0.08,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -5431,7 +5017,7 @@
         "sub": "其他",
         "tone": "other",
         "time": "1 小时",
-        "share": 0.06,
+        "share": 0.08,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -5441,13 +5027,13 @@
         "sub": "浏览网页",
         "tone": "browse",
         "time": "40 分钟",
-        "share": 0.04,
+        "share": 0.053,
         "hidden": false,
         "detail": null,
         "filter": null
       }
     ],
-    "note": "Bob 公开了最近 7 天的统计。部分类别仅公开了状态。部分类别未公开标题，仅显示应用名。",
+    "note": "Bob 公开了最近 7 天的统计。时间按 Bob 的当地时间显示（UTC−5，比你晚 13 小时）。部分类别仅公开了状态。部分类别未公开标题，仅显示应用名。",
     "empty": null,
     "changes": [],
     "bounds": null,
@@ -7546,9 +7132,9 @@
     "owner": "Bob",
     "title": "2026 年 11 月（本月）",
     "totalLabel": "日均使用时长",
-    "total": "7 小时 38 分钟",
+    "total": "6 小时 55 分钟",
     "compare": null,
-    "summary": "共 53 小时 30 分钟 · 暂离 3 小时 20 分钟 · 锁屏 4 小时",
+    "summary": "共 48 小时 30 分钟 · 暂离 2 小时 40 分钟 · 锁屏 4 小时",
     "canPrev": false,
     "canNext": false,
     "legend": [
@@ -7770,22 +7356,9 @@
       },
       {
         "label": "",
-        "tip": "11 月 11 日 星期三 · 5 小时",
+        "tip": "11 月 11 日 星期三 · 0 分钟",
         "date": "2026-11-11",
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 14700
-          },
-          {
-            "key": "Communication",
-            "seconds": 900
-          },
-          {
-            "key": "Video",
-            "seconds": 2400
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
@@ -7910,7 +7483,7 @@
         "name": "工作",
         "sub": null,
         "tone": "work",
-        "time": "29 小时 25 分钟",
+        "time": "25 小时 20 分钟",
         "share": 1,
         "hidden": false,
         "detail": null,
@@ -7921,7 +7494,7 @@
         "sub": null,
         "tone": "game",
         "time": "9 小时",
-        "share": 0.306,
+        "share": 0.355,
         "hidden": false,
         "detail": null,
         "filter": "Game"
@@ -7930,8 +7503,8 @@
         "name": "视频",
         "sub": null,
         "tone": "relax",
-        "time": "7 小时 30 分钟",
-        "share": 0.255,
+        "time": "6 小时 50 分钟",
+        "share": 0.27,
         "hidden": false,
         "detail": null,
         "filter": "Video"
@@ -7941,33 +7514,33 @@
         "sub": null,
         "tone": "browse",
         "time": "3 小时 30 分钟",
-        "share": 0.119,
+        "share": 0.138,
         "hidden": false,
         "detail": null,
         "filter": "Browsing"
-      },
-      {
-        "name": "聊天",
-        "sub": null,
-        "tone": "chat",
-        "time": "2 小时 5 分钟",
-        "share": 0.071,
-        "hidden": false,
-        "detail": null,
-        "filter": "Communication"
       },
       {
         "name": "其他",
         "sub": null,
         "tone": "other",
         "time": "2 小时",
-        "share": 0.068,
+        "share": 0.079,
         "hidden": false,
         "detail": null,
         "filter": "Other"
+      },
+      {
+        "name": "聊天",
+        "sub": null,
+        "tone": "chat",
+        "time": "1 小时 50 分钟",
+        "share": 0.072,
+        "hidden": false,
+        "detail": null,
+        "filter": "Communication"
       }
     ],
-    "note": "Bob 公开了最近 7 天的统计。",
+    "note": "Bob 公开了最近 7 天的统计。时间按 Bob 的当地时间显示（UTC−5，比你晚 13 小时）。",
     "empty": null,
     "changes": [],
     "bounds": null,
@@ -9261,9 +8834,9 @@
     "owner": "Bob",
     "title": "2026 年 11 月（本月）",
     "totalLabel": "日均使用时长",
-    "total": "7 小时 38 分钟",
+    "total": "6 小时 55 分钟",
     "compare": null,
-    "summary": "共 53 小时 30 分钟 · 暂离 3 小时 20 分钟 · 锁屏 4 小时",
+    "summary": "共 48 小时 30 分钟 · 暂离 2 小时 40 分钟 · 锁屏 4 小时",
     "canPrev": false,
     "canNext": false,
     "legend": [
@@ -9485,22 +9058,9 @@
       },
       {
         "label": "",
-        "tip": "11 月 11 日 星期三 · 5 小时",
+        "tip": "11 月 11 日 星期三 · 0 分钟",
         "date": "2026-11-11",
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 14700
-          },
-          {
-            "key": "Communication",
-            "seconds": 900
-          },
-          {
-            "key": "Video",
-            "seconds": 2400
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
@@ -9625,7 +9185,7 @@
         "name": "工作",
         "sub": null,
         "tone": "work",
-        "time": "29 小时 25 分钟",
+        "time": "25 小时 20 分钟",
         "share": 1,
         "hidden": false,
         "detail": null,
@@ -9636,7 +9196,7 @@
         "sub": "游戏",
         "tone": "game",
         "time": "9 小时",
-        "share": 0.306,
+        "share": 0.355,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -9645,8 +9205,8 @@
         "name": "哔哩哔哩",
         "sub": "视频",
         "tone": "relax",
-        "time": "7 小时 30 分钟",
-        "share": 0.255,
+        "time": "6 小时 50 分钟",
+        "share": 0.27,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -9656,17 +9216,7 @@
         "sub": "浏览网页",
         "tone": "browse",
         "time": "3 小时 30 分钟",
-        "share": 0.119,
-        "hidden": false,
-        "detail": null,
-        "filter": null
-      },
-      {
-        "name": "聊天",
-        "sub": null,
-        "tone": "chat",
-        "time": "2 小时 5 分钟",
-        "share": 0.071,
+        "share": 0.138,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -9676,13 +9226,23 @@
         "sub": "其他",
         "tone": "other",
         "time": "2 小时",
-        "share": 0.068,
+        "share": 0.079,
+        "hidden": false,
+        "detail": null,
+        "filter": null
+      },
+      {
+        "name": "聊天",
+        "sub": null,
+        "tone": "chat",
+        "time": "1 小时 50 分钟",
+        "share": 0.072,
         "hidden": false,
         "detail": null,
         "filter": null
       }
     ],
-    "note": "Bob 公开了最近 7 天的统计。部分类别仅公开了状态。",
+    "note": "Bob 公开了最近 7 天的统计。时间按 Bob 的当地时间显示（UTC−5，比你晚 13 小时）。部分类别仅公开了状态。",
     "empty": null,
     "changes": [],
     "bounds": null,
@@ -11002,9 +10562,9 @@
     "owner": "Bob",
     "title": "2026 年 11 月（本月）",
     "totalLabel": "日均使用时长",
-    "total": "7 小时 38 分钟",
+    "total": "6 小时 55 分钟",
     "compare": null,
-    "summary": "共 53 小时 30 分钟 · 暂离 3 小时 20 分钟 · 锁屏 4 小时",
+    "summary": "共 48 小时 30 分钟 · 暂离 2 小时 40 分钟 · 锁屏 4 小时",
     "canPrev": false,
     "canNext": false,
     "legend": [
@@ -11226,22 +10786,9 @@
       },
       {
         "label": "",
-        "tip": "11 月 11 日 星期三 · 5 小时",
+        "tip": "11 月 11 日 星期三 · 0 分钟",
         "date": "2026-11-11",
-        "parts": [
-          {
-            "key": "Work",
-            "seconds": 14700
-          },
-          {
-            "key": "Communication",
-            "seconds": 900
-          },
-          {
-            "key": "Video",
-            "seconds": 2400
-          }
-        ]
+        "parts": []
       },
       {
         "label": "",
@@ -11366,7 +10913,7 @@
         "name": "工作",
         "sub": null,
         "tone": "work",
-        "time": "29 小时 25 分钟",
+        "time": "25 小时 20 分钟",
         "share": 1,
         "hidden": false,
         "detail": null,
@@ -11377,7 +10924,7 @@
         "sub": "原神 · 游戏",
         "tone": "game",
         "time": "9 小时",
-        "share": 0.306,
+        "share": 0.355,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -11386,8 +10933,8 @@
         "name": "哔哩哔哩",
         "sub": "视频",
         "tone": "relax",
-        "time": "7 小时 30 分钟",
-        "share": 0.255,
+        "time": "6 小时 50 分钟",
+        "share": 0.27,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -11397,17 +10944,7 @@
         "sub": "浏览网页",
         "tone": "browse",
         "time": "3 小时 30 分钟",
-        "share": 0.119,
-        "hidden": false,
-        "detail": null,
-        "filter": null
-      },
-      {
-        "name": "聊天",
-        "sub": null,
-        "tone": "chat",
-        "time": "2 小时 5 分钟",
-        "share": 0.071,
+        "share": 0.138,
         "hidden": false,
         "detail": null,
         "filter": null
@@ -11417,13 +10954,23 @@
         "sub": "其他",
         "tone": "other",
         "time": "2 小时",
-        "share": 0.068,
+        "share": 0.079,
+        "hidden": false,
+        "detail": null,
+        "filter": null
+      },
+      {
+        "name": "聊天",
+        "sub": null,
+        "tone": "chat",
+        "time": "1 小时 50 分钟",
+        "share": 0.072,
         "hidden": false,
         "detail": null,
         "filter": null
       }
     ],
-    "note": "Bob 公开了最近 7 天的统计。部分类别仅公开了状态。部分类别未公开标题，仅显示应用名。",
+    "note": "Bob 公开了最近 7 天的统计。时间按 Bob 的当地时间显示（UTC−5，比你晚 13 小时）。部分类别仅公开了状态。部分类别未公开标题，仅显示应用名。",
     "empty": null,
     "changes": [],
     "bounds": null,

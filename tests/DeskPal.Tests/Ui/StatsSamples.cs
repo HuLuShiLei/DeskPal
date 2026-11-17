@@ -28,7 +28,16 @@ public static class StatsSamples
         StatsDays = 7,
     };
 
-    public static IReadOnlyList<UsageSegment> Segments()
+    /// <summary>Bob records in UTC−5 at the same local times; I am in UTC+8.</summary>
+    public const int BobOffset = -5 * 60;
+
+    public const int MyOffset = 8 * 60;
+
+    /// <summary>Bob's date at <see cref="PanelSamples.Now"/>, where it is 2:00 in the morning: his today is still empty.</summary>
+    public static readonly DateOnly BobToday = DateOnly.FromDateTime(PanelSamples.Now.ToOffset(TimeSpan.FromMinutes(BobOffset)).DateTime);
+
+    /// <param name="offset">UTC offset the sample is recorded at, in minutes.</param>
+    public static IReadOnlyList<UsageSegment> Segments(int offset = MyOffset)
     {
         var list = new List<UsageSegment>();
         for (var i = 0; i < 31; i++)
@@ -37,8 +46,8 @@ public static class StatsSamples
             var shift = i % 3 * 10;
             void Add(int fromMinute, int toMinute, PresenceState state, ActivityCategory category, string? app, string? title)
             {
-                var start = At(day, fromMinute);
-                var end = At(day, toMinute);
+                var start = At(day, fromMinute, offset);
+                var end = At(day, toMinute, offset);
                 if (i == 0 && end > PanelSamples.Now)
                 {
                     end = PanelSamples.Now;
@@ -82,25 +91,31 @@ public static class StatsSamples
     public static IReadOnlyDictionary<string, StatsView> Views()
     {
         var segments = Segments();
+        var bobSegments = Segments(BobOffset);
         var views = new Dictionary<string, StatsView>();
         foreach (var scale in Enum.GetValues<StatsScale>())
         {
             var range = StatsRange.Of(scale, Today);
             var previous = StatsRange.Previous(scale, Today);
             var to = range.To > Today ? Today : range.To;
-            var previousTotals = UsageAggregator.Totals(UsageAggregator.Build(segments, [], previous.From, previous.To, Zone));
-            var mine = UsageAggregator.Build(segments, [], range.From, to, Zone) with { Previous = previousTotals };
-            var first = Today.AddDays(1 - BobPrivacy.StatsDays);
-            var from = range.From < first ? first : range.From;
-            var bob = StatsFilter.Apply(UsageAggregator.Build(segments, [], from, to, Zone), BobPrivacy) with
+            var previousTotals = UsageAggregator.Totals(UsageAggregator.Build(segments, [], previous.From, previous.To));
+            var mine = UsageAggregator.Build(segments, [], range.From, to) with { Previous = previousTotals };
+            var bobRange = StatsRange.Of(scale, BobToday);
+            var bobPrevious = StatsRange.Previous(scale, BobToday);
+            var first = BobToday.AddDays(1 - BobPrivacy.StatsDays);
+            var from = bobRange.From < first ? first : bobRange.From;
+            var bobTo = bobRange.To > BobToday ? BobToday : bobRange.To;
+            var bob = StatsFilter.Apply(UsageAggregator.Build(bobSegments, [], from, bobTo), BobPrivacy) with
             {
                 SharedDays = BobPrivacy.StatsDays,
-                Previous = scale == StatsScale.Day ? previousTotals : null,
+                Today = BobToday,
+                Offset = BobOffset,
+                Previous = scale == StatsScale.Day ? UsageAggregator.Totals(UsageAggregator.Build(bobSegments, [], bobPrevious.From, bobPrevious.To)) : null,
             };
             foreach (var rankBy in Enum.GetValues<StatsRankBy>())
             {
-                views[$"{scale}-{rankBy}"] = StatsViewBuilder.Build(mine, scale, rankBy, Today, Today);
-                views[$"member-{scale}-{rankBy}"] = StatsViewBuilder.Build(bob, scale, rankBy, Today, Today, "Bob");
+                views[$"{scale}-{rankBy}"] = StatsViewBuilder.Build(mine, scale, rankBy, Today, Today, myOffset: MyOffset);
+                views[$"member-{scale}-{rankBy}"] = StatsViewBuilder.Build(bob, scale, rankBy, BobToday, BobToday, "Bob", myOffset: MyOffset);
             }
 
             if (scale == StatsScale.Week)
@@ -123,7 +138,7 @@ public static class StatsSamples
             var to = range.To > Today ? Today : range.To;
             foreach (var app in Targets.Keys)
             {
-                var detail = UsageAppDetail.Build(segments, [], app, null, range.From, to, Zone);
+                var detail = UsageAppDetail.Build(segments, [], app, null, range.From, to);
                 views[$"{scale}-{app}"] = StatsAppViewBuilder.Build(detail, app, null, scale, Today, Today, Target(app));
             }
         }
@@ -144,6 +159,6 @@ public static class StatsSamples
 
     private static StatsRuleTarget? Target(string app) => Targets.GetValueOrDefault(app);
 
-    private static DateTimeOffset At(DateOnly day, int minute) =>
-        new DateTimeOffset(day.ToDateTime(TimeOnly.MinValue), TimeSpan.FromHours(8)).AddMinutes(minute);
+    private static DateTimeOffset At(DateOnly day, int minute, int offset) =>
+        new DateTimeOffset(day.ToDateTime(TimeOnly.MinValue), TimeSpan.FromMinutes(offset)).AddMinutes(minute);
 }

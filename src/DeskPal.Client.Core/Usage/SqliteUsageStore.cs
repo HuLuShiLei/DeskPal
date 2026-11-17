@@ -36,7 +36,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 App TEXT NULL,
                 Title TEXT NULL,
                 Process TEXT NULL,
-                BaseCategory TEXT NULL);
+                BaseCategory TEXT NULL,
+                Offset INTEGER NULL);
             CREATE UNIQUE INDEX IF NOT EXISTS IX_Segments_Device_Start ON Segments (DeviceId, StartAt);
             CREATE INDEX IF NOT EXISTS IX_Segments_Start ON Segments (StartAt);
             CREATE TABLE IF NOT EXISTS DailyRollups (
@@ -107,6 +108,38 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 COMMIT;
                 """);
         }
+
+        if (!HasColumn("Segments", "Offset"))
+        {
+            Execute("ALTER TABLE Segments ADD COLUMN Offset INTEGER NULL;");
+        }
+
+        // Segments recorded before the offset was kept are taken as recorded in this computer's time zone.
+        var missing = new List<(long Id, long Start)>();
+        using (var select = Command("SELECT Id, StartAt FROM Segments WHERE Offset IS NULL"))
+        using (var reader = select.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                missing.Add((reader.GetInt64(0), reader.GetInt64(1)));
+            }
+        }
+
+        if (missing.Count == 0)
+        {
+            return;
+        }
+
+        using var tx = _db.BeginTransaction();
+        foreach (var (id, start) in missing)
+        {
+            using var update = Command("UPDATE Segments SET Offset = $offset WHERE Id = $id");
+            update.Parameters.AddWithValue("$offset", (long)_zone.GetUtcOffset(DateTimeOffset.FromUnixTimeMilliseconds(start)).TotalMinutes);
+            update.Parameters.AddWithValue("$id", id);
+            update.ExecuteNonQuery();
+        }
+
+        tx.Commit();
     }
 
     private bool HasColumn(string table, string column)
@@ -124,11 +157,11 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         lock (_lock)
         {
             using var cmd = Command("""
-                INSERT INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory)
-                VALUES ($device, $start, $end, $state, $category, $app, $title, $process, $base)
+                INSERT INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset)
+                VALUES ($device, $start, $end, $state, $category, $app, $title, $process, $base, $offset)
                 ON CONFLICT (DeviceId, StartAt) DO UPDATE SET EndAt = excluded.EndAt, State = excluded.State,
                     Category = excluded.Category, App = excluded.App, Title = excluded.Title,
-                    Process = excluded.Process, BaseCategory = excluded.BaseCategory
+                    Process = excluded.Process, BaseCategory = excluded.BaseCategory, Offset = excluded.Offset
                 RETURNING Id
                 """);
             BindSegment(cmd, _deviceId, segment.Start, segment.End, segment.State, segment.Category, segment.App, segment.Title, segment.Process, segment.BaseCategory);
@@ -152,16 +185,17 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
     {
         lock (_lock)
         {
-            using var cmd = Command("SELECT StartAt, EndAt, State, Category, App, Title, Process, BaseCategory FROM Segments WHERE StartAt < $to AND EndAt > $from ORDER BY StartAt");
+            using var cmd = Command("SELECT StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset FROM Segments WHERE StartAt < $to AND EndAt > $from ORDER BY StartAt");
             cmd.Parameters.AddWithValue("$from", from.ToUnixTimeMilliseconds());
             cmd.Parameters.AddWithValue("$to", to.ToUnixTimeMilliseconds());
             using var reader = cmd.ExecuteReader();
             var list = new List<UsageSegment>();
             while (reader.Read())
             {
+                var offset = TimeSpan.FromMinutes(reader.GetInt64(8));
                 list.Add(new UsageSegment(
-                    DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(0)),
-                    DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(1)),
+                    DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(0)).ToOffset(offset),
+                    DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(1)).ToOffset(offset),
                     Enum.Parse<PresenceState>(reader.GetString(2)),
                     Enum.Parse<ActivityCategory>(reader.GetString(3)),
                     reader.IsDBNull(4) ? null : reader.GetString(4),
@@ -232,15 +266,14 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
             var cutoff = LocalMidnight(keepFrom).ToUnixTimeMilliseconds();
             using var tx = _db.BeginTransaction();
             var totals = new Dictionary<(string Device, string Date, string State, string Category, string App, string Title, string Process, string Base), long>();
-            using (var select = Command("SELECT DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory FROM Segments WHERE StartAt < $cutoff"))
+            using (var select = Command("SELECT DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset FROM Segments WHERE StartAt < $cutoff"))
             {
                 select.Parameters.AddWithValue("$cutoff", cutoff);
                 using var reader = select.ExecuteReader();
                 while (reader.Read())
                 {
-                    var start = DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(1));
                     var seconds = (reader.GetInt64(2) - reader.GetInt64(1)) / 1000;
-                    var date = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(start, _zone).DateTime);
+                    var date = LocalDate(reader.GetInt64(1), reader.GetInt64(9));
                     var key = (reader.GetString(0), DateText(date), reader.GetString(3), reader.GetString(4),
                         reader.IsDBNull(5) ? "" : reader.GetString(5), reader.IsDBNull(6) ? "" : reader.GetString(6),
                         reader.IsDBNull(7) ? "" : reader.GetString(7), reader.IsDBNull(8) ? "" : reader.GetString(8));
@@ -356,6 +389,7 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
     /// Everything recorded on one local day, for sync. The same content always gives the same file: no export time,
     /// fixed order.
     /// </summary>
+    /// <param name="date">Local day of the recording, whatever this computer's time zone is now.</param>
     /// <param name="device">Only what this computer recorded; null for every computer.</param>
     public UsageExport ExportDay(DateOnly date, Guid? device = null)
     {
@@ -363,10 +397,9 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         {
             using var segments = Command($"""
                 SELECT {SegmentColumns} FROM Segments
-                WHERE StartAt >= $from AND StartAt < $to AND ($device IS NULL OR DeviceId = $device) ORDER BY StartAt, DeviceId
+                WHERE {RecordedOn} AND ($device IS NULL OR DeviceId = $device) ORDER BY StartAt, DeviceId
                 """);
-            segments.Parameters.AddWithValue("$from", LocalMidnight(date).ToUnixTimeMilliseconds());
-            segments.Parameters.AddWithValue("$to", LocalMidnight(date.AddDays(1)).ToUnixTimeMilliseconds());
+            BindDay(segments, date);
             segments.Parameters.AddWithValue("$device", (object?)device?.ToString() ?? DBNull.Value);
             using var rollups = Command($"""
                 SELECT {RollupColumns} FROM DailyRollups
@@ -385,13 +418,13 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         lock (_lock)
         {
             var dates = new HashSet<DateOnly>();
-            using (var cmd = Command("SELECT StartAt FROM Segments WHERE $device IS NULL OR DeviceId = $device"))
+            using (var cmd = Command("SELECT StartAt, Offset FROM Segments WHERE $device IS NULL OR DeviceId = $device"))
             {
                 cmd.Parameters.AddWithValue("$device", (object?)device?.ToString() ?? DBNull.Value);
                 using var reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    dates.Add(DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(0)), _zone).DateTime));
+                    dates.Add(LocalDate(reader.GetInt64(0), reader.GetInt64(1)));
                 }
             }
 
@@ -567,16 +600,13 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
             throw new ArgumentException("This computer's records are never replaced", nameof(device));
         }
 
-        var from = LocalMidnight(date);
-        var to = LocalMidnight(date.AddDays(1));
         lock (_lock)
         {
             using var tx = _db.BeginTransaction();
-            using (var delete = Command("DELETE FROM Segments WHERE DeviceId = $device AND StartAt >= $from AND StartAt < $to"))
+            using (var delete = Command($"DELETE FROM Segments WHERE DeviceId = $device AND {RecordedOn}"))
             {
                 delete.Parameters.AddWithValue("$device", device.ToString());
-                delete.Parameters.AddWithValue("$from", from.ToUnixTimeMilliseconds());
-                delete.Parameters.AddWithValue("$to", to.ToUnixTimeMilliseconds());
+                BindDay(delete, date);
                 delete.ExecuteNonQuery();
             }
 
@@ -588,7 +618,7 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
             }
 
             InsertAll(
-                day.Segments.Where(s => s.DeviceId == device && s.Start >= from && s.Start < to),
+                day.Segments.Where(s => s.DeviceId == device && DateOnly.FromDateTime(s.Start.DateTime) == date),
                 day.Rollups.Where(r => r.DeviceId == device && r.Date == date));
             tx.Commit();
         }
@@ -624,8 +654,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
             }
 
             using var cmd = Command("""
-                INSERT OR IGNORE INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory)
-                VALUES ($device, $start, $end, $state, $category, $app, $title, $process, $base)
+                INSERT OR IGNORE INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset)
+                VALUES ($device, $start, $end, $state, $category, $app, $title, $process, $base, $offset)
                 """);
             BindSegment(cmd, s.DeviceId, s.Start, s.End, s.State, s.Category, s.App, s.Title, s.Process, s.BaseCategory);
             segments += cmd.ExecuteNonQuery();
@@ -672,7 +702,28 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         return new DateTimeOffset(local, _zone.GetUtcOffset(local));
     }
 
-    private const string SegmentColumns = "DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory";
+    /// <summary>Offsets run from UTC−12 to UTC+14; the start is narrowed with these first so the index on StartAt is used.</summary>
+    private static readonly TimeSpan MaxOffsetBehind = TimeSpan.FromHours(12);
+
+    private static readonly TimeSpan MaxOffsetAhead = TimeSpan.FromHours(14);
+
+    /// <summary>Segments whose start falls on the local day bound with <see cref="BindDay"/>, in the offset they were recorded at.</summary>
+    private const string RecordedOn = "StartAt >= $from AND StartAt < $to AND StartAt + Offset * 60000 >= $localFrom AND StartAt + Offset * 60000 < $localTo";
+
+    private static void BindDay(SqliteCommand cmd, DateOnly date)
+    {
+        var localFrom = new DateTimeOffset(date.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+        var localTo = localFrom.AddDays(1);
+        cmd.Parameters.AddWithValue("$from", (localFrom - MaxOffsetAhead).ToUnixTimeMilliseconds());
+        cmd.Parameters.AddWithValue("$to", (localTo + MaxOffsetBehind).ToUnixTimeMilliseconds());
+        cmd.Parameters.AddWithValue("$localFrom", localFrom.ToUnixTimeMilliseconds());
+        cmd.Parameters.AddWithValue("$localTo", localTo.ToUnixTimeMilliseconds());
+    }
+
+    private static DateOnly LocalDate(long startAt, long offsetMinutes) =>
+        DateOnly.FromDateTime(DateTimeOffset.FromUnixTimeMilliseconds(startAt).ToOffset(TimeSpan.FromMinutes(offsetMinutes)).DateTime);
+
+    private const string SegmentColumns = "DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset";
 
     private const string RollupColumns = "DeviceId, Date, State, Category, App, Title, Seconds, Process, BaseCategory";
 
@@ -687,6 +738,7 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         cmd.Parameters.AddWithValue("$title", (object?)title ?? DBNull.Value);
         cmd.Parameters.AddWithValue("$process", (object?)process ?? DBNull.Value);
         cmd.Parameters.AddWithValue("$base", (object?)baseCategory?.ToString() ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("$offset", (long)start.Offset.TotalMinutes);
     }
 
     private static ActivityCategory? ParseCategory(string? text) =>
@@ -711,10 +763,11 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         var segments = new List<ExportedSegment>();
         while (reader.Read())
         {
+            var offset = TimeSpan.FromMinutes(reader.GetInt64(9));
             segments.Add(new ExportedSegment(
                 Guid.Parse(reader.GetString(0)),
-                DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(1)),
-                DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(2)),
+                DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(1)).ToOffset(offset),
+                DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(2)).ToOffset(offset),
                 Enum.Parse<PresenceState>(reader.GetString(3)),
                 Enum.Parse<ActivityCategory>(reader.GetString(4)),
                 reader.IsDBNull(5) ? null : reader.GetString(5),
