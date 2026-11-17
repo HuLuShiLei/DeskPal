@@ -28,10 +28,12 @@
     <ApplicationIcon>Assets\DeskPal.ico</ApplicationIcon>
   </PropertyGroup>
 
-  <!-- 图标由 Assets/make-icon.ps1 生成；托盘从资源里读，安装向导直接引用这个文件。 -->
+  <!-- 图标成稿是 Assets/icon-source.png，由 make-icon.ps1 收成 ico。托盘从资源里读，安装向导直接引用 ico。 -->
   <ItemGroup>
     <Resource Include="Assets\DeskPal.ico" />
     <None Remove="Assets\make-icon.ps1" />
+    <Resource Remove="Assets\icon-source.png" />
+    <Content Remove="Assets\icon-source.png" />
   </ItemGroup>
 
   <!-- 更新后弹出的「更新内容」读程序目录下的 CHANGELOG.md。 -->

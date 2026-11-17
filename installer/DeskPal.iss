@@ -29,7 +29,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0.19041
 WizardStyle=modern
-; 图标和小图由 src/DeskPal.Client/Assets/make-icon.ps1 生成。
+; 图标成稿由 src/DeskPal.Client/Assets/make-icon.ps1 收成 ico 和小图。
 SetupIconFile=..\src\DeskPal.Client\Assets\DeskPal.ico
 WizardSmallImageFile=wizard-small-*.bmp
 ShowLanguageDialog=no
