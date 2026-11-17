@@ -8,8 +8,8 @@
 
 ## 0.1.4
 
-- 更换了程序图标，托盘、任务栏、开始菜单和安装程序都会显示新图标。
-  en: DeskPal has a new icon, shown in the tray, the taskbar, the Start menu, and the installer.
+- 程序图标改成了深色背景上的字母 D，托盘、任务栏、开始菜单和安装程序都会显示。
+  en: The icon is now a letter D on a dark background, shown in the tray, the taskbar, the Start menu, and the installer.
 
 - 公开了使用统计的成员离线后，首页的「查看统计」会随离线状态一起消失。
   en: When a member who shares usage stats goes offline, View stats on Home disappears with the offline status.

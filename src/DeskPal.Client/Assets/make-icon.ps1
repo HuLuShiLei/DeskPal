@@ -1,7 +1,7 @@
 ﻿# 把 Assets/icon-source.png 收成 DeskPal.ico（exe、托盘、安装向导共用）和 installer/wizard-small-*.bmp。
 # 图案是成稿，不在这个脚本里画。换图时覆盖 icon-source.png（四角留白），再运行：
 #   powershell -File src/DeskPal.Client/Assets/make-icon.ps1 [-PreviewDir <目录>]
-# 源图是白底合成的，缩放后再把圆角外的白底还原成透明，避免缩小时出一圈白边。
+# 源图是白底合成的。只从四角向内去掉白边，字母本身的浅色不会被当成背景。
 param([string]$PreviewDir)
 
 $ErrorActionPreference = 'Stop'
@@ -12,25 +12,53 @@ $sourcePath = Join-Path $PSScriptRoot 'icon-source.png'
 $out = Join-Path $PSScriptRoot 'DeskPal.ico'
 if (-not (Test-Path $sourcePath)) { throw "missing $sourcePath" }
 
-# 圆角边缘是深色底板和白底的混合。三个通道估出的透明度接近，才当成边缘。
 function Convert-WhiteFringe([System.Drawing.Bitmap]$bmp) {
     $n = $bmp.Width
+    $fg = $null
+    $mid = [int]($n / 2)
     for ($y = 0; $y -lt $n; $y++) {
-        for ($x = 0; $x -lt $n; $x++) {
-            $c = $bmp.GetPixel($x, $y)
-            $aR = (255 - $c.R) / 237.0
-            $aG = (255 - $c.G) / 213.0
-            $aB = (255 - $c.B) / 182.0
-            $hi = [Math]::Max($aR, [Math]::Max($aG, $aB))
-            $lo = [Math]::Min($aR, [Math]::Min($aG, $aB))
-            $avg = ($aR + $aG + $aB) / 3.0
-            if (($hi - $lo) -gt 0.12 -or $avg -ge 0.93) { continue }
-            if ($avg -le 0.04) {
-                $bmp.SetPixel($x, $y, [System.Drawing.Color]::FromArgb(0, 0, 0, 0))
-            }
-            else {
-                $ai = [int][Math]::Round([Math]::Min(1.0, $avg) * 255)
-                $bmp.SetPixel($x, $y, [System.Drawing.Color]::FromArgb($ai, 18, 42, 73))
+        $c = $bmp.GetPixel($mid, $y)
+        if ($c.R -lt 90 -and $c.G -lt 90 -and $c.B -lt 90) { $fg = $c; break }
+    }
+    if ($null -eq $fg) { return }
+    $denR = [double][Math]::Max(1, 255 - $fg.R)
+    $denG = [double][Math]::Max(1, 255 - $fg.G)
+    $denB = [double][Math]::Max(1, 255 - $fg.B)
+
+    $seen = New-Object 'bool[]' ($n * $n)
+    $q = New-Object 'System.Collections.Generic.Queue[int]'
+    foreach ($seed in @(0, ($n - 1), (($n - 1) * $n), (($n * $n) - 1))) {
+        $seen[$seed] = $true
+        $q.Enqueue($seed)
+    }
+    while ($q.Count -gt 0) {
+        $i = $q.Dequeue()
+        $x = $i % $n
+        $y = [int][Math]::Floor($i / $n)
+        $c = $bmp.GetPixel($x, $y)
+        $aR = (255 - $c.R) / $denR
+        $aG = (255 - $c.G) / $denG
+        $aB = (255 - $c.B) / $denB
+        $hi = [Math]::Max($aR, [Math]::Max($aG, $aB))
+        $lo = [Math]::Min($aR, [Math]::Min($aG, $aB))
+        $avg = ($aR + $aG + $aB) / 3.0
+        if ((($hi - $lo) -gt 0.10) -or ($avg -ge 0.88)) { continue }
+        if ($avg -le 0.05) {
+            $bmp.SetPixel($x, $y, [System.Drawing.Color]::FromArgb(0, 0, 0, 0))
+        }
+        else {
+            $ai = [int][Math]::Round([Math]::Min(1.0, $avg) * 255)
+            $bmp.SetPixel($x, $y, [System.Drawing.Color]::FromArgb($ai, [int]$fg.R, [int]$fg.G, [int]$fg.B))
+        }
+        $next = New-Object System.Collections.Generic.List[int]
+        if ($x -gt 0) { $next.Add($i - 1) }
+        if ($x -lt ($n - 1)) { $next.Add($i + 1) }
+        if ($y -gt 0) { $next.Add($i - $n) }
+        if ($y -lt ($n - 1)) { $next.Add($i + $n) }
+        foreach ($nb in $next) {
+            if (-not $seen[$nb]) {
+                $seen[$nb] = $true
+                $q.Enqueue($nb)
             }
         }
     }
