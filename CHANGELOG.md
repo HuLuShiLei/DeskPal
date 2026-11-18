@@ -14,6 +14,12 @@
 - 时区不同时，使用统计里时间的悬停提示会在第二行显示对应的你的时间。
   en: When the time zones differ, hovering a time in usage stats shows the matching time for you on a second line.
 
+- 设置中可以选择「切换等待」：新状态保持所选时间不变后才同步给房间成员，可选不等待。使用统计不受影响。
+  en: Settings now has Switch delay: a new status is shared with the room after it stays the same for the chosen time, or right away. Usage stats aren't affected.
+
+- 切换等待、夜间模式、语言、关闭窗口时、窗口置顶和成员排序改为跟随账号，在其他电脑登录后保持一致。开机自启和加入测试版仍按每台电脑分别设置。
+  en: Switch delay, theme, language, the close option, always on top, and member order now follow your account to other computers. Start with Windows and beta updates are still set on each computer.
+
 - 程序图标改成了深色背景上的字母 D，托盘、任务栏、开始菜单和安装程序都会显示。
   en: The icon is now a letter D on a dark background, shown in the tray, the taskbar, the Start menu, and the installer.
 

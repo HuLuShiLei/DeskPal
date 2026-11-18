@@ -134,7 +134,8 @@ public sealed class PanelBridge
             NormalizeCloseAction(_settings.CloseAction),
             UiLanguage.Normalize(_settings.Language),
             _settings.IsAdmin,
-            AccountIdle.Normalize(_settings.IdleMinutes)),
+            AccountIdle.Normalize(_settings.IdleMinutes),
+            SwitchDelay.Normalize(_settings.SwitchDelaySeconds)),
         WhatsNew = _whatsNew.Pending,
         Pinned = _pins.Users,
         MemberOrder = _rooms.SelectedRoom is { } selected && _settings.MemberOrder.TryGetValue(selected.Id, out var order) ? order : [],
@@ -494,9 +495,11 @@ public sealed class PanelBridge
                     _settings.MemberOrder.Remove(gone);
                 }
 
-                _settings.MemberOrder[room.Id] = c.GuidList("userIds").Distinct().Where(id => room.Members.Any(m => m.UserId == id)).ToList();
+                var order = c.GuidList("userIds").Distinct().Where(id => room.Members.Any(m => m.UserId == id)).ToList();
+                _settings.MemberOrder[room.Id] = order;
                 _store.Save(_settings);
                 RaiseChanged();
+                await SyncAsync(new UserPreferences(MemberOrder: new() { [room.Id] = order }));
                 return CommandResult.Success;
             }
 
@@ -599,6 +602,7 @@ public sealed class PanelBridge
                 _settings.Topmost = c.Bool("enabled");
                 _store.Save(_settings);
                 TopmostChanged?.Invoke(_settings.Topmost);
+                await SyncAsync(new UserPreferences(Topmost: _settings.Topmost));
                 return CommandResult.Success;
 
             case "settings.closeAction":
@@ -612,6 +616,7 @@ public sealed class PanelBridge
                 _settings.CloseAction = action;
                 _store.Save(_settings);
                 RaiseChanged();
+                await SyncAsync(new UserPreferences(CloseAction: action));
                 return CommandResult.Success;
             }
 
@@ -626,6 +631,7 @@ public sealed class PanelBridge
                 _settings.Theme = theme;
                 _store.Save(_settings);
                 ThemeChanged?.Invoke(theme);
+                await SyncAsync(new UserPreferences(Theme: theme));
                 return CommandResult.Success;
             }
 
@@ -643,6 +649,19 @@ public sealed class PanelBridge
                 return CommandResult.Success;
             }
 
+            case "settings.switchDelay":
+            {
+                var seconds = c.Args.TryGetProperty("seconds", out var s) && s.ValueKind == JsonValueKind.Number ? s.GetInt32() : -1;
+                if (!SwitchDelay.IsAllowed(seconds))
+                {
+                    return CommandResult.Fail(Strings.Error_SwitchDelay);
+                }
+
+                _presence.SetSwitchDelay(seconds);
+                await SyncAsync(new UserPreferences(SwitchDelaySeconds: seconds));
+                return CommandResult.Success;
+            }
+
             case "settings.language":
             {
                 var language = UiLanguage.Normalize(c.String("language"));
@@ -655,6 +674,7 @@ public sealed class PanelBridge
                 _store.Save(_settings);
                 UiLanguage.Apply(UiLanguage.Resolve(language, CultureInfo.CurrentUICulture));
                 LanguageChanged?.Invoke();
+                await SyncAsync(new UserPreferences(Language: language));
                 return CommandResult.Success;
             }
 
@@ -834,4 +854,6 @@ public sealed class PanelBridge
     private static string NormalizeCloseAction(string? action) => action is "minimize" or "tray" or "quit" or "ask" ? action : "ask";
 
     private void RaiseChanged() => Changed?.Invoke();
+
+    private Task SyncAsync(UserPreferences change) => PreferencesSync.UploadAsync(_settings, _store, _api, change);
 }

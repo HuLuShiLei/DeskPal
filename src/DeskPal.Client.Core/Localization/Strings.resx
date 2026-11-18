@@ -559,6 +559,9 @@
   <data name="Error_Language" xml:space="preserve">
     <value>语言选项不正确</value>
   </data>
+  <data name="Error_SwitchDelay" xml:space="preserve">
+    <value>切换等待选项不正确</value>
+  </data>
   <data name="Error_LogoutUnavailable" xml:space="preserve">
     <value>现在不能退出登录。</value>
   </data>
@@ -795,6 +798,9 @@
   </data>
   <data name="ApiError_prefs_idleMinutes" xml:space="preserve">
     <value>暂离时长只能是 1、5、10、15 或 30 分钟</value>
+  </data>
+  <data name="ApiError_prefs_invalid" xml:space="preserve">
+    <value>设置选项不正确</value>
   </data>
   <data name="ApiError_statsSync_notAllowed" xml:space="preserve">
     <value>当前账号无法使用同步到服务器</value>

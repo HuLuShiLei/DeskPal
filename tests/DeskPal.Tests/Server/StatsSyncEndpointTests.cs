@@ -198,6 +198,33 @@ public sealed class StatsSyncEndpointTests : IClassFixture<StatsSyncEndpointTest
         Assert.Equal(15, again.IdleMinutes);
     }
 
+    [Fact]
+    public async Task Preferences_follow_the_account_and_change_only_the_fields_sent()
+    {
+        const string path = "/api/me/preferences";
+        var http = _factory.CreateClient();
+        var alice = await RegisterAsync(http, "alice");
+        Assert.Null(alice.Preferences);
+
+        await ExpectErrorAsync(http, HttpMethod.Patch, path, new UserPreferences(SwitchDelaySeconds: 7), alice.Token, HttpStatusCode.BadRequest, ApiErrorCodes.PreferencesInvalid);
+        await ExpectErrorAsync(http, HttpMethod.Patch, path, new UserPreferences(Theme: "pink"), alice.Token, HttpStatusCode.BadRequest, ApiErrorCodes.PreferencesInvalid);
+
+        var room = await SendAsync<RoomDto>(http, HttpMethod.Post, "/api/rooms", new CreateRoomRequest("Room"), alice.Token);
+        var other = Guid.NewGuid();
+        var bob = Guid.NewGuid();
+        await SendAsync<UserPreferences>(http, HttpMethod.Patch, path, new UserPreferences(0, "dark", MemberOrder: new() { [room.Id] = [bob], [other] = [bob] }), alice.Token);
+        var saved = await SendAsync<UserPreferences>(http, HttpMethod.Patch, path, new UserPreferences(Language: "en", Topmost: true), alice.Token);
+        Assert.Equal((0, "dark", "en", (string?)null, true), (saved.SwitchDelaySeconds, saved.Theme, saved.Language, saved.CloseAction, saved.Topmost));
+        Assert.Equal([room.Id], saved.MemberOrder!.Keys);
+
+        var again = await SendAsync<AuthResponse>(http, HttpMethod.Post, "/api/auth/login", new LoginRequest(alice.UserName, "password123"), null);
+        Assert.Equal(saved, again.Preferences! with { MemberOrder = saved.MemberOrder });
+        Assert.Equal([bob], again.Preferences!.MemberOrder![room.Id]);
+
+        var reset = await SendAsync<UserPreferences>(http, HttpMethod.Patch, path, new UserPreferences(MemberOrder: new() { [room.Id] = [] }), again.Token);
+        Assert.Empty(reset.MemberOrder!);
+    }
+
     private static UploadStatsDayRequest Upload(byte[] data) => new(Convert.ToBase64String(data));
 
     private static async Task<ApiError> ExpectErrorAsync(HttpClient http, HttpMethod method, string path, object? body, string token, HttpStatusCode status, string code)

@@ -18,9 +18,14 @@ public sealed class AppSettings
     /// <summary>The user chose not to enter any room. Selecting a room, creating one or joining one clears it.</summary>
     public bool NoRoom { get; set; }
     public int IdleMinutes { get; set; } = 5;
-    /// <summary>Not saved: older settings files carry 30, which must not override the current default.</summary>
-    [System.Text.Json.Serialization.JsonIgnore]
-    public int StableSeconds { get; set; } = 10;
+    /// <summary>One of <see cref="DeskPal.Client.Core.Presence.SwitchDelay.SecondOptions"/>. Older files carry an unsaved stableSeconds, which is ignored.</summary>
+    public int SwitchDelaySeconds { get; set; } = DeskPal.Client.Core.Presence.SwitchDelay.DefaultSeconds;
+
+    /// <summary>
+    /// A setting that follows the account was changed while the server could not be reached. The next sign-in uploads
+    /// this computer's values instead of taking the account's. See <see cref="PreferencesSync"/>.
+    /// </summary>
+    public bool PreferencesUnsynced { get; set; }
     public bool Paused { get; set; }
 
     public bool Topmost { get; set; }

@@ -559,6 +559,9 @@ Restart DeskPal after installing it.</value>
   <data name="Error_Language" xml:space="preserve">
     <value>Invalid language</value>
   </data>
+  <data name="Error_SwitchDelay" xml:space="preserve">
+    <value>Invalid switch delay</value>
+  </data>
   <data name="Error_LogoutUnavailable" xml:space="preserve">
     <value>You cannot sign out right now.</value>
   </data>
@@ -795,6 +798,9 @@ Restart DeskPal after installing it.</value>
   </data>
   <data name="ApiError_prefs_idleMinutes" xml:space="preserve">
     <value>Away time must be 1, 5, 10, 15, or 30 minutes</value>
+  </data>
+  <data name="ApiError_prefs_invalid" xml:space="preserve">
+    <value>Invalid setting</value>
   </data>
   <data name="ApiError_statsSync_notAllowed" xml:space="preserve">
     <value>Server sync isn't available for this account</value>

@@ -23,6 +23,13 @@ public sealed class PresenceDebouncer(TimeSpan stableFor, TimeSpan detailInterva
     /// <summary>When the pending presence will be committed if it stays unchanged; null when nothing is waiting.</summary>
     public DateTimeOffset? PendingDeadline => _pending is null ? null : _pendingSince + stableFor;
 
+    /// <summary>Takes effect at the next <see cref="Offer"/>; a pending presence keeps the time it first appeared.</summary>
+    public void Configure(TimeSpan newStableFor, TimeSpan newDetailInterval)
+    {
+        stableFor = newStableFor;
+        detailInterval = newDetailInterval;
+    }
+
     /// <returns>The newly committed presence, or null when nothing should be sent.</returns>
     public CommittedPresence? Offer(LocalPresence candidate, DateTimeOffset now)
     {

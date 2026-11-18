@@ -117,4 +117,5 @@ public sealed record SettingsView(
     string CloseAction = "ask",
     string Language = UiLanguage.FollowSystem,
     bool IsAdmin = false,
-    int IdleMinutes = AccountIdle.DefaultMinutes);
+    int IdleMinutes = AccountIdle.DefaultMinutes,
+    int SwitchDelaySeconds = SwitchDelay.DefaultSeconds);

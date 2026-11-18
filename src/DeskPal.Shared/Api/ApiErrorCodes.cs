@@ -19,6 +19,7 @@ public static class ApiErrorCodes
     public const string SignupCodeUsed = "auth.signupCodeUsed";
     public const string NotAdmin = "auth.notAdmin";
     public const string IdleMinutesInvalid = "prefs.idleMinutes";
+    public const string PreferencesInvalid = "prefs.invalid";
 
     public const string RoomNotMember = "room.notMember";
     public const string RoomNameInvalid = "room.nameInvalid";

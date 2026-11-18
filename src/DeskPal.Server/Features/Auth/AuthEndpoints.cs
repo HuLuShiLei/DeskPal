@@ -1,5 +1,7 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using DeskPal.Server.Common;
+using DeskPal.Shared;
 using DeskPal.Server.Data;
 using DeskPal.Server.Features.Presence;
 using DeskPal.Server.Features.Rooms;
@@ -120,6 +122,31 @@ public static partial class AuthEndpoints
             return Results.NoContent();
         }).RequireAuthorization();
 
+        app.MapPatch("/api/me/preferences", async (UserPreferences req, HttpContext ctx, DeskPalDbContext db, RoomService rooms) =>
+        {
+            if (!AccountPreferences.IsValid(req))
+            {
+                return Fail(400, ApiErrorCodes.PreferencesInvalid);
+            }
+
+            var user = await db.Users.FindAsync(ctx.User.GetUserId());
+            if (user is null)
+            {
+                return Fail(401, ApiErrorCodes.AccountMissing);
+            }
+
+            var roomIds = (await rooms.GetRoomIdsForUserAsync(user.Id)).ToHashSet();
+            var merged = AccountPreferences.Merge(Preferences(user) ?? new UserPreferences(), req, roomIds.Contains);
+            var json = JsonSerializer.Serialize(merged, DeskPalJson.Options);
+            if (user.Preferences != json)
+            {
+                user.Preferences = json;
+                await db.SaveChangesAsync();
+            }
+
+            return Results.Ok(merged);
+        }).RequireAuthorization();
+
         app.MapPut("/api/me/displayName", async (UpdateDisplayNameRequest req, HttpContext ctx, DeskPalDbContext db, RoomService rooms, RoomNotifier notifier, IOptions<AuthOptions> options) =>
         {
             var displayName = req.DisplayName?.Trim() ?? "";
@@ -162,7 +189,10 @@ public static partial class AuthEndpoints
     }
 
     private static AuthResponse Profile(User user, string token, bool isAdmin) =>
-        new(token, user.Id, user.UserName, user.DisplayName, user.ShareUsage, isAdmin, user.IdleMinutes);
+        new(token, user.Id, user.UserName, user.DisplayName, user.ShareUsage, isAdmin, user.IdleMinutes, Preferences(user));
+
+    private static UserPreferences? Preferences(User user) =>
+        user.Preferences is null ? null : JsonSerializer.Deserialize<UserPreferences>(user.Preferences, DeskPalJson.Options);
 
     private const string InvalidDisplayName = ApiErrorCodes.DisplayNameInvalid;
 

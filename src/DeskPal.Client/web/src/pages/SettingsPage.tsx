@@ -122,6 +122,19 @@ export function SettingsPage({ state }: { state: PanelState }) {
               ))}
             </select>
           </SettingRow>
+          <SettingRow title={t("settings.switchDelay")} hint={t("settings.switchDelayHint")}>
+            <select
+              aria-label={t("settings.switchDelay")}
+              value={s.switchDelaySeconds}
+              onChange={(e) => void run({ type: "settings.switchDelay", seconds: Number(e.currentTarget.value) })}
+            >
+              {[0, 3, 5, 10, 30].map((seconds) => (
+                <option key={seconds} value={seconds}>
+                  {seconds === 0 ? t("settings.switchNow") : t("settings.seconds", { seconds })}
+                </option>
+              ))}
+            </select>
+          </SettingRow>
           <SettingRow title={t("settings.language")}>
             <select aria-label={t("settings.language")} value={s.language} onChange={(e) => run({ type: "settings.language", language: e.currentTarget.value as Language })}>
               <option value="system">{t("settings.followSystem")}</option>

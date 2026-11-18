@@ -52,7 +52,8 @@ public sealed class PresenceCoordinator : BackgroundService
         _unclassified = unclassified;
         _usage = usage;
         _signals = bus.Subscribe();
-        _debouncer = new PresenceDebouncer(TimeSpan.FromSeconds(settings.StableSeconds), TimeSpan.FromSeconds(settings.StableSeconds));
+        var delay = SwitchDelay.Normalize(settings.SwitchDelaySeconds);
+        _debouncer = new PresenceDebouncer(TimeSpan.FromSeconds(delay), SwitchDelay.DetailInterval(delay));
         _deadline = new Timer(_ => Evaluate());
         _rooms.RoomsReloaded += OnRoomsChangedAsync;
         _rooms.SelectionChanged += OnRoomsChangedAsync;
@@ -89,6 +90,18 @@ public sealed class PresenceCoordinator : BackgroundService
     {
         _settings.Paused = paused;
         _store.Save(_settings);
+        Evaluate();
+    }
+
+    public void SetSwitchDelay(int seconds)
+    {
+        _settings.SwitchDelaySeconds = seconds;
+        _store.Save(_settings);
+        lock (_lock)
+        {
+            _debouncer.Configure(TimeSpan.FromSeconds(seconds), SwitchDelay.DetailInterval(seconds));
+        }
+
         Evaluate();
     }
 

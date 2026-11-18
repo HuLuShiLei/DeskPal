@@ -51,14 +51,14 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 - 根目录 `nuget.config` 只保留 nuget.org。本机全局配置里的公司源在当前网络下连不上，会让还原卡住，不要删这个文件。
 - 开发端口是 5180。默认的 5284 被 QQ 占用。前端开发服务器是 5190。
 - 编译客户端需要 Node（20.19 以上），会自动执行 `npm ci` 和 `npm run build`。没有 Node 时加 `-p:SkipWebBuild=true`，使用已有的 `web/dist`。
-- 改完代码至少跑 `dotnet build` 和 `dotnet test`。动了采集、Hub 或界面，再按 skill `deskpal-e2e-check` 做一次端到端自检。
+- 这是个人项目，开发流程走用户级 skill `personal-dev-workflow`。改完代码至少跑 `dotnet build` 和受影响的测试。改了采集链路、Hub、通信协议、同步、数据库迁移、安装更新这类大改，再按 skill `deskpal-e2e-check` 做一次端到端自检；只改界面时用 `npm run dev` 的模拟数据截图检查。
 
 ## 硬约束
 
 1. **不截图、不装键盘钩子、不注入、不提权。** 客户端以普通用户权限运行。后期游戏化如果要统计按键，只能用 Raw Input 计次数，不读按键内容。
 2. **原始窗口标题和媒体标题不离开本机**，除非该 Room 成员把对应类别的隐私级别设为“显示详情”。上报前必须经过 `PrivacyFilter.Apply`。
 3. **Server 只按 `Envelope.Type`、`RoomId` 和 `To` 路由，不解析 `Payload`。** 这是为端到端加密（`Enc` 字段）留的口子，使用统计的 `stats.response` 已经是密文。Server 自己生成的消息（离线、Room 事件）例外。
-4. **成员的最新状态只存在 Server 内存里**（`PresenceStore`），不写数据库。数据库只存账号、Room、成员关系、邀请码、注册邀请码、踢出后的禁止再次加入记录、成员之间的屏蔽记录、隐私设置、内置规则、个人分类，用户同意分享后上报的未识别应用（进程名、产品名、当天分钟数），以及用户开启「同步到服务器」后上传的使用统计（每天一份用 PIN 码加密的密文，Server 不解析，关闭时立即删除；只有 `StatsSync:AllowedUserNames` 名单里的账号能开启，名单外的在 Server 启动时关闭并删除）和同一份密钥加密的统计设置（不记录标题）。暂离时长是账号上的一个整数，登录后同步，不含使用内容。
+4. **成员的最新状态只存在 Server 内存里**（`PresenceStore`），不写数据库。数据库只存账号、Room、成员关系、邀请码、注册邀请码、踢出后的禁止再次加入记录、成员之间的屏蔽记录、隐私设置、内置规则、个人分类，用户同意分享后上报的未识别应用（进程名、产品名、当天分钟数），以及用户开启「同步到服务器」后上传的使用统计（每天一份用 PIN 码加密的密文，Server 不解析，关闭时立即删除；只有 `StatsSync:AllowedUserNames` 名单里的账号能开启，名单外的在 Server 启动时关闭并删除）和同一份密钥加密的统计设置（不记录标题）。暂离时长是账号上的一个整数；切换等待、外观、语言、关闭窗口时、窗口置顶、成员排序存在账号的 `Preferences`（JSON）里。这些都在登录后同步，不含使用内容。开机自启、加入测试版、暂停分享、选中的房间、同步文件夹路径只在本机。
 5. **数据模型按 Room 设计，不按“一对”设计。** 人数上限来自配置 `Rooms:MaxMembersPerRoom`，默认 20。已有房间在列出或有人加入时改成当前配置。
 6. **Room 成员关系变化后，必须调用 `RoomNotifier` 同步 SignalR Group。** 否则退出 Room 的人还会继续收到消息。
 7. Server 运行时目录叫 `storage/`，源码目录叫 `Data/`。Windows 路径不区分大小写，不要把数据库目录改回 `data`。容器内数据库是 `/data/deskpal.db`（Linux 区分大小写，没有冲突），路径由连接串决定。

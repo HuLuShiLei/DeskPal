@@ -86,6 +86,11 @@ public sealed class LoginWindow : Window
             var response = register
                 ? await _api.RegisterAsync(new RegisterRequest(c.String("userName"), displayName, c.String("password"), c.OptionalString("signupCode")))
                 : await _api.LoginAsync(new LoginRequest(c.String("userName"), c.String("password")));
+            if (_settings.UserId != response.UserId)
+            {
+                _settings.PreferencesUnsynced = false;
+            }
+
             _settings.UserId = response.UserId;
             _settings.UserName = response.UserName;
             _settings.DisplayName = response.DisplayName;
@@ -97,7 +102,7 @@ public sealed class LoginWindow : Window
                 await _api.SetIdleMinutesAsync(_settings.IdleMinutes);
             }
 
-            _store.Save(_settings);
+            await PreferencesSync.ApplyAsync(_settings, _store, _api, response.Preferences);
             return CommandResult.Success;
         }
         catch (ApiException ex)

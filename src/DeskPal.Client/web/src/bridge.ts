@@ -122,6 +122,8 @@ export interface PanelState {
     isAdmin: boolean;
     /** 无操作超过这么多分钟后显示暂离。 */
     idleMinutes: number;
+    /** 新状态保持这么多秒不变后才同步给房间成员；0 立即同步。只影响推送，不影响使用统计。 */
+    switchDelaySeconds: number;
   };
   myRules: MyRuleItem[];
   unclassified: UnclassifiedItem[];
@@ -299,6 +301,7 @@ export type Command =
   | { type: "settings.closeAction"; action: CloseAction }
   | { type: "settings.language"; language: Language }
   | { type: "settings.idleMinutes"; minutes: number }
+  | { type: "settings.switchDelay"; seconds: number }
   | { type: "update.check" }
   | { type: "update.beta"; enabled: boolean }
   | { type: "update.restart" }

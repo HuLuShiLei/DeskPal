@@ -288,6 +288,9 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "settings.idleMinutes":
         if ([1, 5, 10, 15, 30].includes(m.minutes as number)) state.settings.idleMinutes = m.minutes as number;
         break;
+      case "settings.switchDelay":
+        if ([0, 3, 5, 10, 30].includes(m.seconds as number)) state.settings.switchDelaySeconds = m.seconds as number;
+        break;
       case "settings.closeAction":
         state.settings.closeAction = m.action === "minimize" || m.action === "tray" || m.action === "quit" ? m.action : "ask";
         break;

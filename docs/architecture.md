@@ -79,10 +79,10 @@ flowchart LR
 
 `PresenceDebouncer`：
 
-- 新状态要持续 `StableSeconds`（10 秒，不写入 `settings.json`）才提交，`Since` 记为开始出现的时刻。`PresenceCoordinator` 在到期时刻再判定一次，不等下一次 5 秒的定时判定。
+- 新状态要持续「切换等待」的秒数才提交（`switchDelaySeconds`，跟随账号，可选 0、3、5、10、30，默认 10；0 表示立即提交），`Since` 记为开始出现的时刻。设置里修改后立即生效，正在等待的新状态按新的时长计算。只影响推送给房间的状态，使用统计由 `UsageRecorder` 按防抖前的状态记录，不受影响。`PresenceCoordinator` 在到期时刻再判定一次，不等下一次 5 秒的定时判定。
 - 状态页「我的状态」大字显示已提交的状态，按当前房间的隐私设置过滤，和房间成员看到的一致；鼠标指向状态、应用名、标题时，用气泡显示不经过滤的类别、应用和标题（`PanelState.me.full`），只给自己看，不上报。无房间时不过滤。有待提交的新状态时，标题行右侧显示「n 秒后变为」和新状态（同样过滤），标题行不足 300px 时缩成「n 秒 →」，仍是一行；进度条贴在卡片底边，不改变卡片高度；`PanelState.me.pending` 给出剩余毫秒，页面自己倒数，指向倒计时显示新状态的完整内容（`pending.full`）和识别方式。房间成员还没有收到过状态时，右上角不显示文字。只有详情变了的，直接显示本机的新详情，不显示倒计时。
 - 暂停分享、锁屏，进入和退出都立即提交。
-- 状态不变、只是详情变了（例如切换到另一个视频），按同样的间隔限频。
+- 状态不变、只是详情变了（例如切换到另一个视频），按同样的间隔限频，但间隔不少于 10 秒（`SwitchDelay.MinDetailInterval`），避免选「不等待」时标题频繁变化的窗口不停推送。
 
 不采集麦克风，也不再产生 `Meeting`。`Meeting` 留在 `PresenceState` 和 `ActivityCategory` 里，收到时显示为“工作中”。
 
@@ -284,7 +284,9 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 | `<安装目录>\logs\deskpal.log` | 客户端运行日志。超过 1 MB 后改名为 `deskpal-时间.log`，最多保留 5 个旧文件，超过 7 天的旧文件删除。不记录窗口标题、媒体标题、域名、页面标题、密码、token、邀请码 |
 | `<安装目录>\logs\setup.log` | 最近一次通过安装向导安装时 Velopack Setup.exe 的日志 |
 
-`settings.json` 里还有窗口置顶（`topmost`）。WebView2 的缓存在 `<安装目录>\WebView2`。开机自启写入 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`；用命名 Mutex 保证单实例运行。
+`settings.json` 里还有窗口置顶（`topmost`）。
+
+跟随账号的设置：暂离时长在 `Users.IdleMinutes`（`PUT /api/me/idle-minutes`）；切换等待、外观、语言、关闭窗口时、窗口置顶、成员排序在 `Users.Preferences`（`UserPreferences` 的 JSON，迁移 `AddUserPreferences`）。`PATCH /api/me/preferences` 只改请求里带的字段，成员排序按房间合并，空列表表示恢复默认顺序，已不在的房间的排序在保存时删除；不认识的取值返回 `prefs.invalid`。`GET /api/me` 和登录的 `AuthResponse.Preferences` 带回当前值。客户端在 `settings.json` 里保留一份：登录后以账号为准，账号上还没有的字段上传本机值（`PreferencesResolver`）；设置页修改时先保存本机再上传，连不上服务器时记 `preferencesUnsynced`，下次登录改为上传本机的全部值，不被账号上的旧值覆盖。同一账号只能在一台电脑上登录，所以不做实时推送。开机自启、加入测试版、暂停分享、选中的房间、同步文件夹路径只在本机。WebView2 的缓存在 `<安装目录>\WebView2`。开机自启写入 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`；用命名 Mutex 保证单实例运行。
 
 ## 部署和发布
 

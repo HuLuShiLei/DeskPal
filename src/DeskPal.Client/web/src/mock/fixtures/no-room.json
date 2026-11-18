@@ -67,7 +67,8 @@
     "closeAction": "ask",
     "language": "system",
     "isAdmin": false,
-    "idleMinutes": 5
+    "idleMinutes": 5,
+    "switchDelaySeconds": 10
   },
   "myRules": [
     {

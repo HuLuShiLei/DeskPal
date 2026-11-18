@@ -290,6 +290,9 @@ namespace DeskPal.Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Preferences")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("SessionId")
                         .HasColumnType("TEXT");
 

@@ -128,6 +128,40 @@ public class PresenceDebouncerTests
         Assert.Equal("c.cs", committed!.Presence.Detail);
         Assert.Equal(T0, committed.Since);
     }
+
+    [Fact]
+    public void No_delay_commits_at_once_but_title_changes_stay_rate_limited()
+    {
+        var d = new PresenceDebouncer(TimeSpan.Zero, SwitchDelay.DetailInterval(0));
+        d.Offer(Working, T0);
+
+        Assert.Equal(T0.AddSeconds(1), d.Offer(Video, T0.AddSeconds(1))!.Since);
+        Assert.Null(d.PendingDeadline);
+        Assert.Null(d.Offer(Video with { Detail = "狗" }, T0.AddSeconds(5)));
+        Assert.Equal("狗", d.Offer(Video with { Detail = "狗" }, T0.AddSeconds(11))!.Presence.Detail);
+    }
+
+    [Fact]
+    public void Shorter_delay_applies_to_what_is_already_pending()
+    {
+        var d = Create();
+        d.Offer(Working, T0);
+        Assert.Null(d.Offer(Video, T0.AddSeconds(1)));
+
+        d.Configure(TimeSpan.FromSeconds(5), SwitchDelay.DetailInterval(5));
+        Assert.Equal(T0.AddSeconds(6), d.PendingDeadline);
+        Assert.Equal(T0.AddSeconds(1), d.Offer(Video, T0.AddSeconds(6))!.Since);
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(30, 30)]
+    [InlineData(7, SwitchDelay.DefaultSeconds)]
+    [InlineData(-1, SwitchDelay.DefaultSeconds)]
+    public void Switch_delay_accepts_only_the_listed_options(int seconds, int expected)
+    {
+        Assert.Equal(expected, SwitchDelay.Normalize(seconds));
+    }
 }
 
 public class TitleAndIdleTests

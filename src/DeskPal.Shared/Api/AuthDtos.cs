@@ -8,7 +8,8 @@ public sealed record LoginRequest(string UserName, string Password);
 /// <param name="ShareUsage">null until the user has answered whether to share usage data.</param>
 /// <param name="IsAdmin">Listed in the server's Auth:AdminUserNames; may create signup invites.</param>
 /// <param name="IdleMinutes">null until the account has chosen one. One of <see cref="AccountIdle.MinuteOptions"/>.</param>
-public sealed record AuthResponse(string Token, Guid UserId, string UserName, string DisplayName, bool? ShareUsage = null, bool IsAdmin = false, int? IdleMinutes = null);
+/// <param name="Preferences">null until any of them is set on any computer.</param>
+public sealed record AuthResponse(string Token, Guid UserId, string UserName, string DisplayName, bool? ShareUsage = null, bool IsAdmin = false, int? IdleMinutes = null, UserPreferences? Preferences = null);
 
 public sealed record UpdateDisplayNameRequest(string DisplayName);
 

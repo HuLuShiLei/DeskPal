@@ -65,6 +65,7 @@ public partial class App : Application
             return;
         }
 
+        UiLanguage.Apply(UiLanguage.Resolve(settings.Language, CultureInfo.CurrentUICulture));
         _host = BuildHost(settings, store, api, _logs);
         var services = _host.Services;
         services.GetRequiredService<ILogger<App>>().LogInformation("Ready version {Version}", services.GetRequiredService<UpdateService>().VersionLabel);
@@ -118,7 +119,7 @@ public partial class App : Application
                 settings.ShareUsage = me.ShareUsage;
                 settings.IsAdmin = me.IsAdmin;
                 var uploadIdle = IdleSync.Apply(settings, me.IdleMinutes);
-                store.Save(settings);
+                await PreferencesSync.ApplyAsync(settings, store, api, me.Preferences);
                 if (uploadIdle)
                 {
                     try

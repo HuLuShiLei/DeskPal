@@ -34,6 +34,9 @@ public sealed class User
 
     /// <summary>Minutes without input before the status becomes away. null until set on any computer; one of <see cref="AccountIdle.MinuteOptions"/>.</summary>
     public int? IdleMinutes { get; set; }
+
+    /// <summary>JSON of <see cref="UserPreferences"/>; null until any of them is set.</summary>
+    public string? Preferences { get; set; }
 }
 
 /// <summary>One day of a user's usage stats, encrypted on the user's computer. Only kept while the user has sync on.</summary>
