@@ -8,6 +8,12 @@
 
 ## 0.1.4
 
+- 修复更新后、刚启动或从托盘打开面板时，偶尔整个窗口全黑或全白、需要重启程序才能恢复的问题。面板没有正常加载时会自动重新加载。
+  en: Fixed the panel sometimes staying completely black or white after an update, at startup, or when opened from the tray, until DeskPal was restarted. The panel now reloads itself when it doesn't load.
+
+- 双击托盘图标会打开面板，不再打开后又立即隐藏。
+  en: Double-clicking the tray icon now opens the panel instead of opening and hiding it again.
+
 - 日统计的柱状图可以点击或拖动，查看所选时段的使用情况。按住 Ctrl 可以多选。
   en: The day chart can be clicked or dragged to show usage for the selected hours. Hold Ctrl to select more than one range.
 

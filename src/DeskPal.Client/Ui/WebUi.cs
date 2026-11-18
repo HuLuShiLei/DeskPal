@@ -13,7 +13,6 @@ public static class WebUi
 {
     public const string DownloadUrl = "https://go.microsoft.com/fwlink/p/?LinkId=2124703";
     private const string HostName = "app.deskpal.example";
-    private static Task<CoreWebView2Environment>? _environment;
 
     /// <summary>Outside the Velopack current folder, which is replaced on every update.</summary>
     public static string UserDataFolder => AppPaths.WebView2Directory;
@@ -95,8 +94,10 @@ public static class WebUi
     /// <param name="page">Path and query under the web root, e.g. "index.html?page=login".</param>
     public static async Task InitializeAsync(WebView2 web, string page, Action<string> onMessage)
     {
-        _environment ??= CoreWebView2Environment.CreateAsync(null, UserDataFolder);
-        await web.EnsureCoreWebView2Async(await _environment);
+        // A new environment each time: one whose browser process has exited, or whose creation failed while the
+        // previous instance was still shutting down after an update, must not be reused.
+        var environment = await CoreWebView2Environment.CreateAsync(null, UserDataFolder);
+        await web.EnsureCoreWebView2Async(environment);
         var core = web.CoreWebView2;
 #if DEBUG
         const bool debug = true;

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -6,25 +7,34 @@ using System.Windows.Threading;
 using DeskPal.Client.Services;
 using DeskPal.Client.Views;
 using Microsoft.Extensions.Logging;
+using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 
 namespace DeskPal.Client.Ui;
 
 /// <summary>
 /// The status, Room and settings panel. The page lives in WebView2, which is released after the window has been
-/// hidden for a while and created again on the next open.
+/// hidden for a while and created again on the next open. If the page does not report ready in time, or a WebView2
+/// process fails, the WebView2 is created again.
 /// </summary>
 public sealed class PanelWindow : Window, IUserPrompt
 {
     private static readonly TimeSpan ReleaseAfter = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan LoadTimeout = TimeSpan.FromSeconds(15);
+    private const int MaxLoadAttempts = 3;
+    private const long JustShownMilliseconds = 1000;
     private readonly PanelBridge _bridge;
     private readonly AppSettings _settings;
     private readonly ILogger<PanelWindow> _logger;
     private readonly DispatcherTimer _release;
     private readonly DispatcherTimer _push;
     private readonly DispatcherTimer _tick;
+    private readonly DispatcherTimer _loadTimeout;
+    private readonly Stopwatch _loading = new();
     private readonly Dictionary<int, TaskCompletionSource<bool>> _dialogs = new();
     private int _nextDialogId;
+    private int _loadAttempts;
+    private long _shownAt;
     private bool _placed;
     private WebView2? _web;
     private Border? _surface;
@@ -52,6 +62,8 @@ public sealed class PanelWindow : Window, IUserPrompt
         _push = new DispatcherTimer(TimeSpan.FromMilliseconds(200), DispatcherPriority.Background, (_, _) => PushState(), Dispatcher);
         _push.Stop();
         _tick = new DispatcherTimer(TimeSpan.FromSeconds(30), DispatcherPriority.Background, (_, _) => SchedulePush(), Dispatcher);
+        _loadTimeout = new DispatcherTimer(LoadTimeout, DispatcherPriority.Background, (_, _) => OnLoadTimeout(), Dispatcher);
+        _loadTimeout.Stop();
 
         bridge.Prompt = this;
         bridge.Changed += () => Dispatcher.BeginInvoke(SchedulePush);
@@ -79,6 +91,9 @@ public sealed class PanelWindow : Window, IUserPrompt
     /// <summary>The page chose to quit. The app handles this the same way as the tray Exit item.</summary>
     public event EventHandler? QuitRequested;
 
+    /// <summary>Became visible less than a second ago, e.g. opened at startup just before a tray click.</summary>
+    public bool JustShown => Environment.TickCount64 - _shownAt < JustShownMilliseconds;
+
     protected override void OnClosing(CancelEventArgs e)
     {
         if (!AllowClose)
@@ -104,6 +119,11 @@ public sealed class PanelWindow : Window, IUserPrompt
             Left = area.Right - Width - 16;
             Top = area.Bottom - Height - 16;
             _placed = true;
+        }
+
+        if (!IsVisible)
+        {
+            _shownAt = Environment.TickCount64;
         }
 
         Show();
@@ -197,11 +217,14 @@ public sealed class PanelWindow : Window, IUserPrompt
         var web = new WebView2 { DefaultBackgroundColor = WebUi.ColorFor(_settings.Theme) };
         _web = web;
         Content = Host(web);
-        _ = InitializeAsync(web, _ready);
+        _logger.LogInformation("Loading the panel page (attempt {Attempt})", _loadAttempts + 1);
+        _loading.Restart();
+        _loadTimeout.Start();
+        _ = InitializeAsync(web);
         return _ready.Task;
     }
 
-    private async Task InitializeAsync(WebView2 web, TaskCompletionSource ready)
+    private async Task InitializeAsync(WebView2 web)
     {
         try
         {
@@ -209,14 +232,88 @@ public sealed class PanelWindow : Window, IUserPrompt
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Initializing WebView2 failed");
             if (_web == web)
             {
-                ReleaseWebView();
-                Content = Notice(UiLanguage.Format(Strings.Panel_LoadFailed, ex.Message), null);
+                _logger.LogWarning(ex, "Initializing WebView2 failed");
+                RestartWebView(ex.Message);
             }
 
-            ready.TrySetResult();
+            return;
+        }
+
+        if (_web != web)
+        {
+            return;
+        }
+
+        _logger.LogInformation("Panel WebView2 created in {Milliseconds} ms", _loading.ElapsedMilliseconds);
+        web.CoreWebView2.ProcessFailed += (_, e) => OnProcessFailed(web, e);
+        web.CoreWebView2.NavigationCompleted += (_, e) =>
+        {
+            if (!e.IsSuccess)
+            {
+                _logger.LogWarning("Panel page navigation failed ({Status})", e.WebErrorStatus);
+            }
+        };
+    }
+
+    private void OnProcessFailed(WebView2 web, CoreWebView2ProcessFailedEventArgs e)
+    {
+        _logger.LogWarning("WebView2 process failed: {Kind}, {Reason}, exit code {ExitCode}", e.ProcessFailedKind, e.Reason, e.ExitCode);
+        if (e.ProcessFailedKind is not (CoreWebView2ProcessFailedKind.BrowserProcessExited
+            or CoreWebView2ProcessFailedKind.RenderProcessExited
+            or CoreWebView2ProcessFailedKind.RenderProcessUnresponsive))
+        {
+            return;
+        }
+
+        // Disposing the control inside its own event handler is not safe.
+        Dispatcher.BeginInvoke(() =>
+        {
+            if (_web == web)
+            {
+                RestartWebView(null);
+            }
+        });
+    }
+
+    private void OnLoadTimeout()
+    {
+        _loadTimeout.Stop();
+        if (_web is null || _ready is not { Task.IsCompleted: false })
+        {
+            return;
+        }
+
+        _logger.LogWarning("Panel page did not report ready within {Seconds} s", LoadTimeout.TotalSeconds);
+        if (IsVisible)
+        {
+            RestartWebView(null);
+        }
+        else
+        {
+            DisposeWebView();
+            Content = null;
+        }
+    }
+
+    /// <summary>Creates the WebView2 again while the window is open. After a few failures shows the error instead.</summary>
+    private void RestartWebView(string? error)
+    {
+        _loadAttempts++;
+        DisposeWebView();
+        if (_loadAttempts >= MaxLoadAttempts)
+        {
+            _logger.LogWarning("Panel page failed {Attempts} times in a row", _loadAttempts);
+            _loadAttempts = 0;
+            Content = Notice(error is null ? Strings.Panel_LoadStalled : UiLanguage.Format(Strings.Panel_LoadFailed, error), null);
+            return;
+        }
+
+        Content = null;
+        if (IsVisible)
+        {
+            _ = EnsureWebViewAsync();
         }
     }
 
@@ -230,6 +327,14 @@ public sealed class PanelWindow : Window, IUserPrompt
         switch (command.Type)
         {
             case "ready":
+                _loadTimeout.Stop();
+                _loadAttempts = 0;
+                if (_loading.IsRunning)
+                {
+                    _logger.LogInformation("Panel page ready in {Milliseconds} ms", _loading.ElapsedMilliseconds);
+                    _loading.Reset();
+                }
+
                 _ready?.TrySetResult();
                 PushState();
                 return;
@@ -278,17 +383,27 @@ public sealed class PanelWindow : Window, IUserPrompt
             return;
         }
 
+        DisposeWebView();
+        Content = null;
+    }
+
+    private void DisposeWebView()
+    {
+        _loadTimeout.Stop();
+        _loading.Reset();
         foreach (var pending in _dialogs.Values)
         {
             pending.TrySetResult(false);
         }
 
         _dialogs.Clear();
-        _web?.Dispose();
+        var web = _web;
+        var ready = _ready;
         _web = null;
         _surface = null;
         _ready = null;
-        Content = null;
+        web?.Dispose();
+        ready?.TrySetResult();
     }
 
     /// <summary>Native fallback without the page's title bar, so it can be dragged anywhere and closed with its own button.</summary>

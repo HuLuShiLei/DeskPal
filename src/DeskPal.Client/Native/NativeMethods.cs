@@ -13,6 +13,9 @@ internal static class NativeMethods
     public static extern int GetSystemMetrics(int index);
 
     [DllImport("user32.dll")]
+    public static extern uint GetDoubleClickTime();
+
+    [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();
 
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]

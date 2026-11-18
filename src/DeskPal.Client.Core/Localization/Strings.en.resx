@@ -496,6 +496,9 @@ Restart DeskPal after installing it.</value>
   <data name="Panel_LoadFailed" xml:space="preserve">
     <value>Could not load the panel: {0}</value>
   </data>
+  <data name="Panel_LoadStalled" xml:space="preserve">
+    <value>The panel didn't load. Close this window and open it again.</value>
+  </data>
   <data name="Panel_OpenDownload" xml:space="preserve">
     <value>Open download page</value>
   </data>

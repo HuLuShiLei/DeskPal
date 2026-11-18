@@ -29,6 +29,8 @@ public partial class App : Application
     private CancellationTokenSource? _updates;
     private ClientLogFiles? _logs;
     private bool _exiting;
+    private bool _openRequested;
+    private long _lastTrayClick;
 
     private const string SignedOutArg = "--signed-out";
 
@@ -102,7 +104,7 @@ public partial class App : Application
         {
             _ = Dispatcher.BeginInvoke(() => WebUi.ShowMissingRuntime(Strings.Runtime_PanelUnavailable));
         }
-        else if (!e.Args.Contains("--minimized"))
+        else if (_openRequested || !e.Args.Contains("--minimized"))
         {
             _panel.ShowAndActivate();
         }
@@ -307,19 +309,36 @@ public partial class App : Application
             ContextMenu = menu,
             Icon = LoadTrayIcon(),
         };
-        tray.TrayLeftMouseUp += (_, _) =>
-        {
-            if (_panel is { IsVisible: true })
-            {
-                _panel.Hide();
-            }
-            else
-            {
-                _panel?.ShowAndActivate();
-            }
-        };
+        tray.TrayLeftMouseUp += (_, _) => OnTrayClick();
         tray.ForceCreate(false);
         return tray;
+    }
+
+    /// <summary>
+    /// Each click of a double-click raises its own mouse up. Only the first one counts, so a double-click opens the
+    /// panel instead of opening and hiding it. Clicks during startup open the panel once it exists.
+    /// </summary>
+    private void OnTrayClick()
+    {
+        var now = Environment.TickCount64;
+        if (now - _lastTrayClick < NativeMethods.GetDoubleClickTime())
+        {
+            return;
+        }
+
+        _lastTrayClick = now;
+        if (_panel is null)
+        {
+            _openRequested = true;
+        }
+        else if (_panel.IsVisible && !_panel.JustShown)
+        {
+            _panel.Hide();
+        }
+        else
+        {
+            _panel.ShowAndActivate();
+        }
     }
 
     // 按系统小图标尺寸取 ico 里最接近的一张，避免缩放高 DPI 时托盘图标发虚。
