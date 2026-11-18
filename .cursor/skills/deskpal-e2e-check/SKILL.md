@@ -1,6 +1,6 @@
 ---
 name: deskpal-e2e-check
-description: 在本机对 DeskPal 做端到端自检：启动 Server，用 REST 创建测试账号和 Room，以测试账号启动 WPF 客户端，再用一个模拟 Room 成员的 SignalR 小程序收发状态，最后清理现场。改了采集器、PresenceHub、RoomState、PresenceCoordinator 或界面后，或者用户说自检、联调、端到端测试时使用。
+description: 在本机对 DeskPal 做端到端自检：启动 Server，用 REST 创建测试账号和 Room，以测试账号启动 WPF 客户端，再用一个模拟 Room 成员的 SignalR 小程序收发状态，最后清理现场。改了采集器、PresenceHub、RoomState、PresenceCoordinator、通信协议、同步、数据库迁移这类大改后，或者用户说自检、联调、端到端测试时使用。只改界面、文案、样式不用。
 ---
 
 # DeskPal 端到端自检

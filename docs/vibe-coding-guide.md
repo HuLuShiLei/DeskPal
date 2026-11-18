@@ -46,7 +46,7 @@ Cursor 会自动读取 `AGENTS.md` 和 `.cursor/rules/` 里匹配当前文件的
 
 1. `dotnet build DeskPal.slnx` 没有错误和新警告。
 2. `dotnet test` 全部通过；改了行为的，有对应的新测试或改过的断言。
-3. 改了采集、Hub、界面的，跑一次 skill `deskpal-e2e-check`。
+3. 改了采集链路、Hub、通信协议、同步、数据库迁移、安装更新这类大改的，跑一次 skill `deskpal-e2e-check`。只改界面的，用 `npm run dev` 的模拟数据截图检查。
 4. 改了口径（状态优先级、隐私默认值、Room 规则等）的，同步 `docs/progress.md` 的“已定”和变更日志，以及 `docs/architecture.md` 的对应章节。
 5. 修掉已知问题的，从 `docs/known-issues.md` 删除。
 6. 没有提交密钥、token、本机数据（`storage/`、`.local/`）。生产环境的 JWT 密钥只放在 Portainer Stack 的环境变量 `DESKPAL_JWT_KEY` 里。
