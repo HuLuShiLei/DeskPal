@@ -667,6 +667,9 @@ Restart DeskPal after installing it.</value>
   <data name="Update_DownloadingPercent" xml:space="preserve">
     <value>Downloading version {0} ({1}%)</value>
   </data>
+  <data name="Update_Preparing" xml:space="preserve">
+    <value>Preparing version {0}…</value>
+  </data>
   <data name="ApiError_auth_userNameInvalid" xml:space="preserve">
     <value>User name must be 3 to 32 characters: letters, digits, underscores or hyphens</value>
   </data>

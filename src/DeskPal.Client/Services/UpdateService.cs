@@ -202,12 +202,13 @@ public sealed class UpdateService
             {
                 if (interactive)
                 {
-                    ReportDownload(target, null);
+                    ReportActivity(UiLanguage.Format(Strings.Update_Downloading, target));
                 }
 
+                var progress = DownloadProgress(info);
                 await manager.DownloadUpdatesAsync(
                     info,
-                    interactive ? percent => ReportDownload(target, percent) : null,
+                    interactive ? percent => ReportDownload(target, progress, percent) : null,
                     cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -278,8 +279,9 @@ public sealed class UpdateService
             }
 
             var target = info.TargetFullRelease.Version.ToString();
-            ReportDownload(target, null);
-            await manager.DownloadUpdatesAsync(info, percent => ReportDownload(target, percent)).ConfigureAwait(false);
+            ReportActivity(UiLanguage.Format(Strings.Update_Downloading, target));
+            var progress = DownloadProgress(info);
+            await manager.DownloadUpdatesAsync(info, percent => ReportDownload(target, progress, percent)).ConfigureAwait(false);
             if (!CommitReady(epoch, manager, info.TargetFullRelease, downgrade: true))
             {
                 DeleteDownloadedPackages();
@@ -353,12 +355,20 @@ public sealed class UpdateService
         }
     }
 
-    /// <summary>面板显示带百分比的句子。</summary>
-    private void ReportDownload(string version, int? percent)
+    private static UpdateDownloadProgress DownloadProgress(UpdateInfo info) => new(UpdateDownloadProgress.UsesDeltas(
+        info.BaseRelease?.FileName is not null,
+        info.DeltasToTarget.Length,
+        info.DeltasToTarget.Sum(d => d.Size),
+        info.TargetFullRelease.Size));
+
+    /// <summary>面板显示带百分比的句子；增量包下载完、合成安装包期间没有进度，改为显示正在准备。</summary>
+    private void ReportDownload(string version, UpdateDownloadProgress progress, int percent) =>
+        ReportActivity(progress.Map(percent) is { } shown
+            ? UiLanguage.Format(Strings.Update_DownloadingPercent, version, shown)
+            : UiLanguage.Format(Strings.Update_Preparing, version));
+
+    private void ReportActivity(string text)
     {
-        var text = percent is null
-            ? UiLanguage.Format(Strings.Update_Downloading, version)
-            : UiLanguage.Format(Strings.Update_DownloadingPercent, version, percent);
         lock (_state)
         {
             if (_interactive == 0 || _activity == text)

@@ -14,6 +14,9 @@
 - 双击托盘图标会打开面板，不再打开后又立即隐藏。
   en: Double-clicking the tray icon now opens the panel instead of opening and hiding it again.
 
+- 下载更新时，进度不再长时间停在 70%：下载完成后显示「正在准备新版本」。
+  en: The update progress no longer stays at 70% for a long time. After the download finishes, it shows Preparing version.
+
 - 日统计的柱状图可以点击或拖动，查看所选时段的使用情况。按住 Ctrl 可以多选。
   en: The day chart can be clicked or dragged to show usage for the selected hours. Hold Ctrl to select more than one range.
 

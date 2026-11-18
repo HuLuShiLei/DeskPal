@@ -127,7 +127,7 @@ flowchart LR
 - 面板隐藏 5 分钟后释放 WebView2，它的进程随之退出；再打开时重新加载，约 0.5 秒。
 - 面板打开后 15 秒内页面没有发来 `ready`，或者 WebView2 的浏览器进程、渲染进程退出或无响应，就释放当前 WebView2 重新创建；连续 3 次不成功时显示 WPF 提示，关闭后再打开会重新尝试。每次创建都新建 `CoreWebView2Environment`，不复用浏览器进程已退出的环境。加载的开始、耗时和失败原因写进客户端日志。
 - 托盘左键单击打开或隐藏面板。双击的第二下不算（按系统双击间隔），面板刚显示不到 1 秒时单击也只打开不隐藏；启动过程中托盘已出现、面板还没创建时的单击，会在启动完成后打开面板。
-- 更新的确认和提示（`UpdateInteraction`）通过 `IUserPrompt` 显示在面板里；面板不可用时退回系统对话框。手动检查一点击，设置页就显示「正在检查更新…」，按钮变为「请稍候…」；开始下载后改为「正在下载新版本 x（百分比）」。检查更新不弹出 Windows 通知气泡。后台每 6 小时的检查不显示这些过程，下载完成后设置页的「立即重启并更新」变为可用。每次检查调用一次 GitHub API（Release 列表，未登录时每个出口 IP 每小时 60 次），清单和安装包走 `browser_download_url`，不占额度。`UpdateCheckThrottle`：手动检查 5 分钟内沿用同一通道上次「已是最新」的结果；`GithubApiDownloader` 识别限流（429，或 403 且额度用完、带 Retry-After），按 `Retry-After` / `X-RateLimit-Reset` 记下恢复时间（1 分钟到 1 小时），在此之前手动和后台检查都不请求。
+- 更新的确认和提示（`UpdateInteraction`）通过 `IUserPrompt` 显示在面板里；面板不可用时退回系统对话框。手动检查一点击，设置页就显示「正在检查更新…」，按钮变为「请稍候…」；开始下载后改为「正在下载新版本 x（百分比）」，增量包下完、合成安装包期间改为「正在准备新版本 x…」。检查更新不弹出 Windows 通知气泡。后台每 6 小时的检查不显示这些过程，下载完成后设置页的「立即重启并更新」变为可用。每次检查调用一次 GitHub API（Release 列表，未登录时每个出口 IP 每小时 60 次），清单和安装包走 `browser_download_url`，不占额度。`UpdateCheckThrottle`：手动检查 5 分钟内沿用同一通道上次「已是最新」的结果；`GithubApiDownloader` 识别限流（429，或 403 且额度用完、带 Retry-After），按 `Retry-After` / `X-RateLimit-Reset` 记下恢复时间（1 分钟到 1 小时），在此之前手动和后台检查都不请求。
 - 更新内容：根目录 `CHANGELOG.md` 随客户端复制到程序目录。启动时 `WhatsNewStore`（Client.Core）把它和 `%APPDATA%\DeskPal\changelog-seen.json` 里看过的中文条目比较。每条下面一行 `en:` 是英文，放进 `PanelState.whatsNew` 时按当前界面语言选择。页面弹出「已更新到 x」和按版本分组的列表；点「知道了」发 `changelog.seen`，记下当前版本和全部中文条目。没有记录时（首次安装、第一次升级到有这个功能的版本）只记录不弹出。
 - 启动时检测 WebView2 Runtime。没有时用系统对话框提示下载：已登录时采集和同步照常，只是面板打不开；未登录时无法登录。
 
