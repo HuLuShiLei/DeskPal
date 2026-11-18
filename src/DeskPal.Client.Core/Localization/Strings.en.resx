@@ -312,6 +312,15 @@
   <data name="Zone_BehindMe" xml:space="preserve">
     <value>{0} behind you</value>
   </data>
+  <data name="Stats_PeerMoment" xml:space="preserve">
+    <value>Their time {0}, {1}</value>
+  </data>
+  <data name="Stats_YourTime" xml:space="preserve">
+    <value> (your time {0})</value>
+  </data>
+  <data name="Stats_DateClock" xml:space="preserve">
+    <value>{0}, {1}</value>
+  </data>
   <data name="Stats_EmptyMine" xml:space="preserve">
     <value>Nothing recorded. DeskPal records usage only while it is running.</value>
   </data>

@@ -63,6 +63,7 @@ public static class StatsViewBuilder
         filter = shownLegend?.Key;
         bool Shown(string key) => filter is null || key == filter;
 
+        var zoneOffset = ComparedOffset(report, owner, myOffset);
         var total = counted.Where(d => Shown(KeyOf(d.State, d.Category))).Sum(d => d.Seconds);
         var away = report.Days.Where(d => d.State == PresenceState.Away).Sum(d => d.Seconds);
         var locked = report.Days.Where(d => d.State == PresenceState.Locked).Sum(d => d.Seconds);
@@ -71,7 +72,12 @@ public static class StatsViewBuilder
             ? Enumerable.Range(0, 24).Select(hour =>
             {
                 var parts = Parts(report.Hours.Where(h => h.Hour == hour), KeyOf, Shown);
-                return new StatsBar(hour % 6 == 0 ? hour.ToString() : "", $"{hour}:00–{hour + 1}:00 · {Duration(parts.Sum(p => p.Seconds))}", null, parts);
+                var clock = $"{hour}:00–{hour + 1}:00";
+                var duration = Duration(parts.Sum(p => p.Seconds));
+                var tip = ZoneMoment(clock, range.From, hour * 3600, (hour + 1) * 3600, zoneOffset, myOffset, today) is { } moment
+                    ? $"{moment.Peer} · {duration}{moment.Yours}"
+                    : $"{clock} · {duration}";
+                return new StatsBar(hour % 6 == 0 ? hour.ToString() : "", tip, null, parts);
             }).ToList()
             : Enumerable.Range(0, range.Days).Select(i =>
             {
@@ -80,6 +86,12 @@ public static class StatsViewBuilder
                 var label = scale == StatsScale.Week ? PresenceFormatter.Weekday(date.DayOfWeek) : date.Day == 1 || date.Day % 5 == 0 ? date.Day.ToString() : "";
                 var day = PresenceFormatter.DateWithWeekday(date, today);
                 var tip = date > today ? UiLanguage.Format(Strings.Stats_NotYet, day) : $"{day} · {Duration(parts.Sum(p => p.Seconds))}";
+                if (zoneOffset is int peer && myOffset is int mine)
+                {
+                    var start = UsageAggregator.LocalMidnight(date, TimeSpan.FromMinutes(peer));
+                    tip += UiLanguage.Format(Strings.Stats_YourTime, ViewerRange(start, start.AddDays(1), mine, today));
+                }
+
                 return new StatsBar(label, tip, date <= today ? date : null, parts);
             }).ToList();
 
@@ -181,7 +193,7 @@ public static class StatsViewBuilder
             barMax,
             barMaxLabel,
             scale == StatsScale.Day
-                ? report.Timeline.Where(s => filter is null || (UsageStates.Counts(s.State) && KeyOf(s.State, s.Category) == filter)).Select(Span).ToList()
+                ? report.Timeline.Where(s => filter is null || (UsageStates.Counts(s.State) && KeyOf(s.State, s.Category) == filter)).Select(s => Span(s, zoneOffset, myOffset, range.From, today)).ToList()
                 : [],
             Ranking(report, rankBy, legend, stateLegend, KeyOf, Shown, mine: owner is null),
             notes.Count == 0 ? null : string.Join(Strings.SentenceSeparator, notes),
@@ -228,6 +240,50 @@ public static class StatsViewBuilder
     private static string Relative(int minutes) => minutes == 0
         ? Strings.Zone_SameAsMine
         : UiLanguage.Format(minutes > 0 ? Strings.Zone_AheadOfMe : Strings.Zone_BehindMe, Duration(Math.Abs(minutes) * 60L));
+
+    /// <summary>The one offset the range was recorded at, when it differs from <paramref name="myOffset"/>.</summary>
+    private static int? ComparedOffset(UsageReport report, string? owner, int? myOffset)
+    {
+        if (owner is null || myOffset is not int mine)
+        {
+            return null;
+        }
+
+        var recorded = (report.Offsets ?? []).Distinct().ToList();
+        if (recorded.Count == 0 && report.Offset is int current)
+        {
+            recorded.Add(current);
+        }
+
+        return recorded.Count == 1 && recorded[0] != mine ? recorded[0] : null;
+    }
+
+    /// <summary>The other person's date and clock, and the same moment in the viewer's time. Null when the offsets match.</summary>
+    private static (string Peer, string Yours)? ZoneMoment(string clock, DateOnly day, int startSecond, int endSecond, int? peerOffset, int? myOffset, DateOnly today)
+    {
+        if (peerOffset is not int peer || myOffset is not int mine)
+        {
+            return null;
+        }
+
+        var origin = UsageAggregator.LocalMidnight(day, TimeSpan.FromMinutes(peer));
+        var yours = UiLanguage.Format(Strings.Stats_YourTime, ViewerRange(origin.AddSeconds(startSecond), origin.AddSeconds(endSecond), mine, today));
+        return (UiLanguage.Format(Strings.Stats_PeerMoment, PresenceFormatter.Date(day, today), clock), yours);
+    }
+
+    /// <summary>"11 月 17 日 20:00–21:00", or both dates when the moment crosses midnight for the viewer.</summary>
+    private static string ViewerRange(DateTimeOffset start, DateTimeOffset end, int myOffset, DateOnly today)
+    {
+        var from = start.ToOffset(TimeSpan.FromMinutes(myOffset));
+        var to = end.ToOffset(TimeSpan.FromMinutes(myOffset));
+        var fromDate = DateOnly.FromDateTime(from.DateTime);
+        var toDate = DateOnly.FromDateTime(to.DateTime);
+        var fromClock = $"{from.Hour}:{from.Minute:00}";
+        var toClock = $"{to.Hour}:{to.Minute:00}";
+        var fromText = UiLanguage.Format(Strings.Stats_DateClock, PresenceFormatter.Date(fromDate, today), fromClock);
+        var toText = UiLanguage.Format(Strings.Stats_DateClock, PresenceFormatter.Date(toDate, today), toClock);
+        return fromDate == toDate ? $"{fromText}–{toClock}" : $"{fromText} – {toText}";
+    }
 
     /// <summary>Differences per category, as daily averages for a week or month like the total.</summary>
     private static List<StatsChange> Changes(
@@ -366,7 +422,7 @@ public static class StatsViewBuilder
         var max = top.Count == 0 ? 1 : top[0].Seconds;
         return top.Select(r => new StatsRankItem(r.Name, r.Sub, r.Legend.Tone, Duration(r.Seconds), Math.Round((double)r.Seconds / max, 3), r.Legend.Hidden, r.Detail, r.Filter)).ToList();
     }
-    private static StatsSpanView Span(UsageSpan span)
+    private static StatsSpanView Span(UsageSpan span, int? peerOffset, int? myOffset, DateOnly day, DateOnly today)
     {
         var state = StateLegend.First(s => s.Key == StateKey(span.State, span.Category));
         var (name, tone) = span.State switch
@@ -375,7 +431,10 @@ public static class StatsViewBuilder
             PresenceState.Locked => (Strings.State_Locked, "offline"),
             _ => (state.Name, state.Tone),
         };
-        return new StatsSpanView(span.Start, span.End, tone, $"{Clock(span.Start)}–{Clock(span.End)} {name} · {Duration(span.End - span.Start)}");
+        var clock = $"{Clock(span.Start)}–{Clock(span.End)}";
+        var moment = ZoneMoment(clock, day, span.Start, span.End, peerOffset, myOffset, today);
+        var when = moment is { } z ? $"{z.Peer} {name}" : $"{clock} {name}";
+        return new StatsSpanView(span.Start, span.End, tone, $"{when} · {Duration(span.End - span.Start)}{moment?.Yours}");
     }
 
     /// <param name="today">Today is not over yet and is not compared with anything.</param>

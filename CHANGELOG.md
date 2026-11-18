@@ -11,6 +11,9 @@
 - 查看房间成员的使用统计时，按对方的日期和当地时间显示，并注明对方所在时区及与你的时差。使用统计按记录时的当地时间归入日期，更换时区后，已有记录的日期和时段不变。
   en: Room members' usage stats now follow their own date and local time, with their time zone and the difference from yours. Usage stats stay on the date and time they were recorded, even after you change time zones.
 
+- 时区不同时，使用统计里时间的悬停提示会写出对方当时的日期和小时，以及对应的你的时间。
+  en: When the time zones differ, hovering a time in usage stats also shows their date and hour and the matching time for you.
+
 - 程序图标改成了深色背景上的字母 D，托盘、任务栏、开始菜单和安装程序都会显示。
   en: The icon is now a letter D on a dark background, shown in the tray, the taskbar, the Start menu, and the installer.
 

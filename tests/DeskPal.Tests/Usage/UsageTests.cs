@@ -649,6 +649,11 @@ public class UsageTests : IDisposable
 
         var view = StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.App, Day, Day, "Bob", myOffset: 480);
         Assert.Equal("Bob 公开了最近 7 天的统计。时间按 Bob 的当地时间显示（UTC−5，比你晚 13 小时）。", view.Note);
+        Assert.Equal("对方 11 月 11 日 20:00–21:00 · 1 小时（你的时间 11 月 12 日 9:00–10:00）", view.Bars[20].Tip);
+        Assert.Equal("对方 11 月 11 日 7:00–8:00 · 0 分钟（你的时间 11 月 11 日 20:00–21:00）", view.Bars[7].Tip);
+        Assert.Equal("对方 11 月 11 日 20:00–21:00 工作 · 1 小时（你的时间 11 月 12 日 9:00–10:00）", Assert.Single(view.Timeline).Tip);
+        var week = StatsViewBuilder.Build(report, StatsScale.Week, StatsRankBy.App, Day, Day, "Bob", myOffset: 480);
+        Assert.Contains("（你的时间 11 月 11 日 13:00 – 11 月 12 日 13:00）", week.Bars[2].Tip);
 
         var moved = StatsViewBuilder.Build(report with { Offset = 480 }, StatsScale.Day, StatsRankBy.App, Day, Day, "Bob", myOffset: 480);
         Assert.Contains("时间按 Bob 记录时的当地时间显示（UTC−5，比你晚 13 小时）。", moved.Note);
