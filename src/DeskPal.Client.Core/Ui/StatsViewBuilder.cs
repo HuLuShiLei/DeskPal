@@ -73,10 +73,7 @@ public static class StatsViewBuilder
             {
                 var parts = Parts(report.Hours.Where(h => h.Hour == hour), KeyOf, Shown);
                 var clock = $"{hour}:00–{hour + 1}:00";
-                var duration = Duration(parts.Sum(p => p.Seconds));
-                var tip = ZoneMoment(clock, range.From, hour * 3600, (hour + 1) * 3600, zoneOffset, myOffset, today) is { } moment
-                    ? $"{moment.Peer} · {duration}{moment.Yours}"
-                    : $"{clock} · {duration}";
+                var tip = $"{clock} · {Duration(parts.Sum(p => p.Seconds))}{YourTime(range.From, hour * 3600, (hour + 1) * 3600, zoneOffset, myOffset, today)}";
                 return new StatsBar(hour % 6 == 0 ? hour.ToString() : "", tip, null, parts);
             }).ToList()
             : Enumerable.Range(0, range.Days).Select(i =>
@@ -86,12 +83,7 @@ public static class StatsViewBuilder
                 var label = scale == StatsScale.Week ? PresenceFormatter.Weekday(date.DayOfWeek) : date.Day == 1 || date.Day % 5 == 0 ? date.Day.ToString() : "";
                 var day = PresenceFormatter.DateWithWeekday(date, today);
                 var tip = date > today ? UiLanguage.Format(Strings.Stats_NotYet, day) : $"{day} · {Duration(parts.Sum(p => p.Seconds))}";
-                if (zoneOffset is int peer && myOffset is int mine)
-                {
-                    var start = UsageAggregator.LocalMidnight(date, TimeSpan.FromMinutes(peer));
-                    tip += UiLanguage.Format(Strings.Stats_YourTime, ViewerRange(start, start.AddDays(1), mine, today));
-                }
-
+                tip += YourTime(date, 0, 86400, zoneOffset, myOffset, today);
                 return new StatsBar(label, tip, date <= today ? date : null, parts);
             }).ToList();
 
@@ -258,17 +250,16 @@ public static class StatsViewBuilder
         return recorded.Count == 1 && recorded[0] != mine ? recorded[0] : null;
     }
 
-    /// <summary>The other person's date and clock, and the same moment in the viewer's time. Null when the offsets match.</summary>
-    private static (string Peer, string Yours)? ZoneMoment(string clock, DateOnly day, int startSecond, int endSecond, int? peerOffset, int? myOffset, DateOnly today)
+    /// <summary>A second line with the same moment in the viewer's time; empty when the offsets match.</summary>
+    private static string YourTime(DateOnly day, int startSecond, int endSecond, int? peerOffset, int? myOffset, DateOnly today)
     {
         if (peerOffset is not int peer || myOffset is not int mine)
         {
-            return null;
+            return "";
         }
 
         var origin = UsageAggregator.LocalMidnight(day, TimeSpan.FromMinutes(peer));
-        var yours = UiLanguage.Format(Strings.Stats_YourTime, ViewerRange(origin.AddSeconds(startSecond), origin.AddSeconds(endSecond), mine, today));
-        return (UiLanguage.Format(Strings.Stats_PeerMoment, PresenceFormatter.Date(day, today), clock), yours);
+        return "\n" + UiLanguage.Format(Strings.Stats_YourTime, ViewerRange(origin.AddSeconds(startSecond), origin.AddSeconds(endSecond), mine, today));
     }
 
     /// <summary>"11 月 17 日 20:00–21:00", or both dates when the moment crosses midnight for the viewer.</summary>
@@ -431,10 +422,8 @@ public static class StatsViewBuilder
             PresenceState.Locked => (Strings.State_Locked, "offline"),
             _ => (state.Name, state.Tone),
         };
-        var clock = $"{Clock(span.Start)}–{Clock(span.End)}";
-        var moment = ZoneMoment(clock, day, span.Start, span.End, peerOffset, myOffset, today);
-        var when = moment is { } z ? $"{z.Peer} {name}" : $"{clock} {name}";
-        return new StatsSpanView(span.Start, span.End, tone, $"{when} · {Duration(span.End - span.Start)}{moment?.Yours}");
+        var tip = $"{Clock(span.Start)}–{Clock(span.End)} {name} · {Duration(span.End - span.Start)}{YourTime(day, span.Start, span.End, peerOffset, myOffset, today)}";
+        return new StatsSpanView(span.Start, span.End, tone, tip);
     }
 
     /// <param name="today">Today is not over yet and is not compared with anything.</param>

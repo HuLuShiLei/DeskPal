@@ -312,11 +312,8 @@
   <data name="Zone_BehindMe" xml:space="preserve">
     <value>比你晚 {0}</value>
   </data>
-  <data name="Stats_PeerMoment" xml:space="preserve">
-    <value>对方 {0} {1}</value>
-  </data>
   <data name="Stats_YourTime" xml:space="preserve">
-    <value>（你的时间 {0}）</value>
+    <value>你的时间 {0}</value>
   </data>
   <data name="Stats_DateClock" xml:space="preserve">
     <value>{0} {1}</value>
