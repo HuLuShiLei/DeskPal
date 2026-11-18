@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 暂停分享期间的使用统计默认不向房间成员公开，只显示为暂停分享。可以在房间设置中打开「包含暂停期间」。
+  en: Usage while sharing is paused is hidden from room members by default and shown only as paused. Include time while paused can be turned on in the room settings.
+
 - 查看房间成员的使用统计时，按对方的日期和当地时间显示，并注明对方所在时区及与你的时差。使用统计按记录时的当地时间归入日期，更换时区后，已有记录的日期和时段不变。
   en: Room members' usage stats now follow their own date and local time, with their time zone and the difference from yours. Usage stats stay on the date and time they were recorded, even after you change time zones.
 

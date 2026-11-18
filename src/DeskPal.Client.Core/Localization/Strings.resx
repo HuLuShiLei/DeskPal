@@ -279,6 +279,9 @@
   <data name="Stats_Locked" xml:space="preserve">
     <value>锁屏 {0}</value>
   </data>
+  <data name="Stats_Paused" xml:space="preserve">
+    <value>暂停分享 {0}</value>
+  </data>
   <data name="Stats_SharedDays" xml:space="preserve">
     <value>{0} 公开了最近 {1}的统计。</value>
   </data>

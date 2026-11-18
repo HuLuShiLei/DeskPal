@@ -15,6 +15,9 @@ public sealed class PrivacyProfile
     /// <summary>How many recent days the stats cover, one of <see cref="StatsDayOptions"/>.</summary>
     public int StatsDays { get; set; } = DefaultStatsDays;
 
+    /// <summary>The shared stats include what I did while sharing was paused; otherwise that time shows as paused.</summary>
+    public bool SharePausedStats { get; set; }
+
     public PrivacyLevel LevelFor(ActivityCategory category) =>
         Levels.TryGetValue(category, out var level) ? level : DefaultLevel(category);
 

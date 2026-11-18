@@ -100,6 +100,8 @@ export interface PanelState {
     shareStats: boolean;
     statsDays: number;
     dayOptions: { value: number; name: string }[];
+    /** 公开的统计包含暂停分享期间的实际活动；否则这段时间只显示为暂停分享。 */
+    sharePausedStats: boolean;
   } | null;
   correction: { target: string | null; current: string; options: Option<string>[]; personal: boolean };
   settings: {
@@ -266,6 +268,7 @@ export type Command =
   | { type: "room.invite"; roomId: string }
   | { type: "room.privacy"; roomId: string; levels: Record<string, PrivacyLevel> }
   | { type: "room.shareStats"; roomId: string; enabled: boolean; days: number }
+  | { type: "room.sharePausedStats"; roomId: string; enabled: boolean }
   | { type: "stats.query"; scale: StatsScale; rankBy: StatsRankBy; filter: string | null; date: string | null; userId: string | null }
   | { type: "stats.app"; scale: StatsScale; date: string | null; app: string; title: string | null }
   | { type: "stats.export" }

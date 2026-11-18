@@ -29,7 +29,7 @@ public sealed class StatsExchange(HubService hub, RoomState rooms, UsageService 
 
     private readonly ConcurrentDictionary<Guid, Pending> _pending = new();
     private readonly ConcurrentDictionary<(Guid, DateOnly, DateOnly, DateOnly?), (DateTimeOffset At, UsageReport Report)> _received = new();
-    private readonly ConcurrentDictionary<(Guid, Guid, DateOnly, DateOnly, DateOnly?), (DateTimeOffset At, UsageReport Report)> _answered = new();
+    private readonly ConcurrentDictionary<(Guid, Guid, DateOnly, DateOnly, DateOnly?, bool), (DateTimeOffset At, UsageReport Report)> _answered = new();
     private readonly ConcurrentDictionary<(Guid, Guid), DateTimeOffset> _viewCounted = new();
 
     public void Handle(Envelope envelope)
@@ -155,7 +155,7 @@ public sealed class StatsExchange(HubService hub, RoomState rooms, UsageService 
             var from = request.From < first ? first : request.From;
             var to = request.To > today ? today : request.To;
             (DateOnly, DateOnly)? previous = request is { PreviousFrom: { } pf, PreviousTo: { } pt } && pf >= first && pt < from ? (pf, pt) : null;
-            var cacheKey = (requester.UserId, room.Id, from, to, previous?.Item1);
+            var cacheKey = (requester.UserId, room.Id, from, to, previous?.Item1, privacy.SharePausedStats);
             UsageReport report;
             if (from > to)
             {
@@ -167,7 +167,7 @@ public sealed class StatsExchange(HubService hub, RoomState rooms, UsageService 
             }
             else
             {
-                var full = await Task.Run(() => usage.Report(from, to, previous));
+                var full = await Task.Run(() => usage.Report(from, to, previous, hidePaused: !privacy.SharePausedStats));
                 report = StatsFilter.Apply(full, privacy) with { SharedDays = privacy.StatsDays };
                 _answered[cacheKey] = (DateTimeOffset.UtcNow, report);
             }

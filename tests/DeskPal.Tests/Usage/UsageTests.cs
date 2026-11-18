@@ -669,6 +669,103 @@ public class UsageTests : IDisposable
         Assert.Null(StatsViewBuilder.Build(report with { Offsets = [480] }, StatsScale.Week, StatsRankBy.App, Day, Day, myOffset: 480).Note);
     }
 
+    [Fact]
+    public void Recorder_marks_what_is_done_while_sharing_is_paused_as_a_new_segment()
+    {
+        var writer = new FakeWriter();
+        var recorder = new UsageRecorder(writer, Zone);
+        recorder.Record(Work("a.md"), At(9, 0));
+        recorder.Record(Work("a.md"), At(9, 0, 5));
+        recorder.Record(Work("a.md"), At(9, 0, 10), paused: true);
+        recorder.Record(Work("a.md"), At(9, 0, 15), paused: true);
+        recorder.Flush();
+
+        Assert.Equal([(At(9, 0), At(9, 0, 10), false), (At(9, 0, 10), At(9, 0, 15), true)], writer.Rows.Select(r => (r.Start, r.End, r.Paused)));
+        Assert.Equal((PresenceState.Working, "a.md"), (writer.Rows[1].State, writer.Rows[1].Title));
+    }
+
+    [Fact]
+    public void Store_keeps_the_paused_mark_through_folding_export_and_import()
+    {
+        using var source = NewStore();
+        source.Add(new UsageSegment(At(9, 0, dayOffset: -1), At(9, 30, dayOffset: -1), PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫"));
+        source.Add(new UsageSegment(At(10, 0, dayOffset: -1), At(10, 20, dayOffset: -1), PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫", Paused: true));
+        source.Add(new UsageSegment(At(9, 0), At(9, 10), PresenceState.Working, ActivityCategory.Work, "Cursor", null, Paused: true));
+
+        Assert.True(Assert.Single(source.Segments(At(0, 0), At(0, 0, dayOffset: 1))).Paused);
+        source.Compact(Day, At(12, 0));
+        var yesterday = Day.AddDays(-1);
+        Assert.Equal([(false, 1800L), (true, 1200L)], source.Rollups(yesterday, yesterday).Select(r => (r.Paused, r.Seconds)).Order());
+
+        var export = source.Export(At(12, 0));
+        var json = System.Text.Json.JsonSerializer.Serialize(export, DeskPal.Shared.DeskPalJson.Options);
+        Assert.Equal(2, json.Split("\"paused\":true").Length - 1);
+        Assert.DoesNotContain("\"paused\":false", json);
+
+        using var target = NewStore();
+        target.Import(System.Text.Json.JsonSerializer.Deserialize<UsageExport>(json, DeskPal.Shared.DeskPalJson.Options)!);
+        Assert.Equal([false, true], target.Rollups(yesterday, yesterday).Select(r => r.Paused).Order());
+        Assert.True(Assert.Single(target.Segments(At(0, 0), At(0, 0, dayOffset: 1))).Paused);
+    }
+
+    [Fact]
+    public void Databases_from_before_the_paused_mark_are_upgraded()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"deskpal-usage-{Guid.NewGuid():N}.db");
+        _files.Add(path);
+        using (var db = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={path};Pooling=False"))
+        {
+            db.Open();
+            using var cmd = db.CreateCommand();
+            cmd.CommandText = """
+                CREATE TABLE Segments (Id INTEGER PRIMARY KEY, DeviceId TEXT NOT NULL, StartAt INTEGER NOT NULL, EndAt INTEGER NOT NULL,
+                    State TEXT NOT NULL, Category TEXT NOT NULL, App TEXT NULL, Title TEXT NULL, Process TEXT NULL, BaseCategory TEXT NULL, Offset INTEGER NULL);
+                CREATE TABLE DailyRollups (DeviceId TEXT NOT NULL, Date TEXT NOT NULL, State TEXT NOT NULL, Category TEXT NOT NULL,
+                    App TEXT NOT NULL, Title TEXT NOT NULL, Process TEXT NOT NULL DEFAULT '', BaseCategory TEXT NOT NULL DEFAULT '', Seconds INTEGER NOT NULL,
+                    PRIMARY KEY (DeviceId, Date, State, Category, App, Title, Process, BaseCategory));
+                INSERT INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title, Offset)
+                    VALUES ('d', 1794358800000, 1794360600000, 'Working', 'Work', 'Cursor', 'a.md', 480);
+                INSERT INTO DailyRollups (DeviceId, Date, State, Category, App, Title, Seconds)
+                    VALUES ('d', '2026-11-01', 'Working', 'Work', 'Cursor', 'a.md', 600);
+                """;
+            cmd.ExecuteNonQuery();
+        }
+
+        using var store = new SqliteUsageStore(path, Guid.NewGuid(), Zone);
+        Assert.False(Assert.Single(store.Segments(At(0, 0), At(0, 0, dayOffset: 1))).Paused);
+        Assert.Equal((600L, false), store.Rollups(new(2026, 11, 1), new(2026, 11, 1)).Select(r => (r.Seconds, r.Paused)).Single());
+        store.Add(new UsageSegment(At(11, 0), At(11, 5), PresenceState.Working, ActivityCategory.Work, "Cursor", null, Paused: true));
+        Assert.Equal([false, true], store.Segments(At(0, 0), At(0, 0, dayOffset: 1)).Select(s => s.Paused));
+    }
+
+    [Fact]
+    public void A_member_sees_paused_time_only_as_paused_unless_it_is_shared()
+    {
+        UsageSegment[] segments =
+        [
+            new(At(9, 0), At(10, 0), PresenceState.Working, ActivityCategory.Work, "Cursor", "a.md"),
+            new(At(10, 0), At(11, 0), PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫", Paused: true),
+        ];
+        UsageRollup[] rollups = [new(Day, PresenceState.Slacking, ActivityCategory.Game, "原神", null, 600, Paused: true)];
+        var profile = new PrivacyProfile { ShareStats = true, Levels = { [ActivityCategory.Work] = PrivacyLevel.Detail, [ActivityCategory.Video] = PrivacyLevel.Detail, [ActivityCategory.Game] = PrivacyLevel.Detail } };
+
+        var shown = StatsFilter.Apply(UsageAggregator.Build(segments, rollups, Day, Day), profile);
+        Assert.Equal(3600 * 2 + 600, UsageAggregator.ActiveSeconds(shown));
+        Assert.Contains(shown.Titles, t => t.Title == "猫");
+
+        var hidden = StatsFilter.Apply(UsageAggregator.Build(segments.Select(UsageStates.HidePaused), rollups.Select(UsageStates.HidePaused), Day, Day), profile)
+            with { SharedDays = 7, Today = Day, Offset = 480, Offsets = [480] };
+        Assert.Equal(3600, UsageAggregator.ActiveSeconds(hidden));
+        Assert.Equal(4200, hidden.Days.Single(d => d.State == PresenceState.Paused).Seconds);
+        Assert.Equal(["Cursor"], hidden.Apps.Select(a => a.App));
+        Assert.Equal(["a.md"], hidden.Titles.Select(t => t.Title));
+        Assert.Equal([PresenceState.Working, PresenceState.Paused], hidden.Timeline.Select(s => s.State));
+
+        var view = StatsViewBuilder.Build(hidden, StatsScale.Day, StatsRankBy.Title, Day, Day, "Bob", myOffset: 480);
+        Assert.Contains("暂停分享 1 小时 10 分钟", view.Summary);
+        Assert.Equal("10:00–11:00 暂停分享 · 1 小时", view.Timeline[1].Tip);
+    }
+
     private SqliteUsageStore NewStore()
     {
         var path = Path.Combine(Path.GetTempPath(), $"deskpal-usage-{Guid.NewGuid():N}.db");

@@ -67,6 +67,7 @@ public static class StatsViewBuilder
         var total = counted.Where(d => Shown(KeyOf(d.State, d.Category))).Sum(d => d.Seconds);
         var away = report.Days.Where(d => d.State == PresenceState.Away).Sum(d => d.Seconds);
         var locked = report.Days.Where(d => d.State == PresenceState.Locked).Sum(d => d.Seconds);
+        var paused = report.Days.Where(d => d.State == PresenceState.Paused).Sum(d => d.Seconds);
 
         var bars = scale == StatsScale.Day
             ? Enumerable.Range(0, 24).Select(hour =>
@@ -120,6 +121,11 @@ public static class StatsViewBuilder
         if (filter is null && locked >= 60)
         {
             summary.Add(UiLanguage.Format(Strings.Stats_Locked, Duration(locked)));
+        }
+
+        if (filter is null && paused >= 60)
+        {
+            summary.Add(UiLanguage.Format(Strings.Stats_Paused, Duration(paused)));
         }
 
         var notes = new List<string>();
@@ -420,6 +426,7 @@ public static class StatsViewBuilder
         {
             PresenceState.Away => (Strings.State_Away, "away"),
             PresenceState.Locked => (Strings.State_Locked, "offline"),
+            PresenceState.Paused => (Strings.State_Paused, "away"),
             _ => (state.Name, state.Tone),
         };
         var tip = $"{Clock(span.Start)}–{Clock(span.End)} {name} · {Duration(span.End - span.Start)}{YourTime(day, span.Start, span.End, peerOffset, myOffset, today)}";

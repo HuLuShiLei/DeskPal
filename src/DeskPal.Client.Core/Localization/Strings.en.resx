@@ -279,6 +279,9 @@
   <data name="Stats_Locked" xml:space="preserve">
     <value>Locked {0}</value>
   </data>
+  <data name="Stats_Paused" xml:space="preserve">
+    <value>Sharing paused {0}</value>
+  </data>
   <data name="Stats_SharedDays" xml:space="preserve">
     <value>{0} shares the last {1}.</value>
   </data>

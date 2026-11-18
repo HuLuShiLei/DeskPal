@@ -172,6 +172,23 @@ public sealed class RoomServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task Paused_stats_are_not_shared_until_turned_on_and_stay_on_when_other_settings_change()
+    {
+        var room = await CreateFullRoomAsync();
+        Assert.False((await _rooms.GetPrivacyAsync(_alice, room)).Value!.SharePausedStats);
+
+        await _rooms.SetPrivacyAsync(_alice, room, new DeskPal.Shared.Api.PrivacyProfileDto(new(), ShareStats: true, StatsDays: 7));
+        Assert.False((await _rooms.GetPrivacyAsync(_alice, room)).Value!.SharePausedStats);
+
+        await _rooms.SetPrivacyAsync(_alice, room, new DeskPal.Shared.Api.PrivacyProfileDto(new(), SharePausedStats: true));
+        await _rooms.SetPrivacyAsync(_alice, room, new DeskPal.Shared.Api.PrivacyProfileDto(new(), ShareStats: true, StatsDays: 30));
+
+        var saved = (await _rooms.GetPrivacyAsync(_alice, room)).Value!;
+        Assert.Equal((true, 30, true), (saved.ShareStats!.Value, saved.StatsDays!.Value, saved.SharePausedStats!.Value));
+        Assert.False((await _rooms.GetPrivacyAsync(_bob, room)).Value!.SharePausedStats);
+    }
+
+    [Fact]
     public async Task New_members_share_only_the_state()
     {
         var room = await CreateFullRoomAsync();

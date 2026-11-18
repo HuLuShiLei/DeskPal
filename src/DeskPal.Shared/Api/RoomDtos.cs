@@ -38,4 +38,5 @@ public sealed record BlockMemberRequest(Guid UserId);
 
 /// <param name="ShareStats">null keeps the saved value, so older clients do not turn sharing off.</param>
 /// <param name="StatsDays">null keeps the saved value.</param>
-public sealed record PrivacyProfileDto(Dictionary<ActivityCategory, PrivacyLevel> Levels, bool? ShareStats = null, int? StatsDays = null);
+/// <param name="SharePausedStats">null keeps the saved value.</param>
+public sealed record PrivacyProfileDto(Dictionary<ActivityCategory, PrivacyLevel> Levels, bool? ShareStats = null, int? StatsDays = null, bool? SharePausedStats = null);

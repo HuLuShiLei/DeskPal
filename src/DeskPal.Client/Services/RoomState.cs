@@ -164,6 +164,10 @@ public sealed class RoomState(
     public Task SaveStatsSharingAsync(Guid roomId, bool share, int days) =>
         SaveAsync(roomId, new PrivacyProfileDto(GetPrivacy(roomId).Levels, share, days));
 
+    /// <summary>Whether the shared stats include what I did while sharing was paused.</summary>
+    public Task SavePausedStatsSharingAsync(Guid roomId, bool share) =>
+        SaveAsync(roomId, new PrivacyProfileDto(GetPrivacy(roomId).Levels, SharePausedStats: share));
+
     private async Task SaveAsync(Guid roomId, PrivacyProfileDto dto)
     {
         var saved = await api.SetPrivacyAsync(roomId, dto);
@@ -180,6 +184,7 @@ public sealed class RoomState(
         Levels = dto.Levels ?? new(),
         ShareStats = dto.ShareStats ?? false,
         StatsDays = dto.StatsDays ?? PrivacyProfile.DefaultStatsDays,
+        SharePausedStats = dto.SharePausedStats ?? false,
     };
 
     public void Handle(Envelope envelope)

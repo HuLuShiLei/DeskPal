@@ -328,6 +328,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
             Levels = dto.Levels ?? old.Levels,
             ShareStats = dto.ShareStats ?? old.ShareStats,
             StatsDays = dto.StatsDays ?? old.StatsDays,
+            SharePausedStats = dto.SharePausedStats ?? old.SharePausedStats,
         };
         member.PrivacyProfileJson = JsonSerializer.Serialize(profile, DeskPalJson.Options);
         await db.SaveChangesAsync();
@@ -339,7 +340,7 @@ public sealed class RoomService(DeskPalDbContext db, TimeProvider time, IOptions
         ? PrivacyProfile.CreateDefault()
         : JsonSerializer.Deserialize<PrivacyProfile>(json, DeskPalJson.Options) ?? PrivacyProfile.CreateDefault();
 
-    private static PrivacyProfileDto ToDto(PrivacyProfile profile) => new(profile.Levels, profile.ShareStats, profile.StatsDays);
+    private static PrivacyProfileDto ToDto(PrivacyProfile profile) => new(profile.Levels, profile.ShareStats, profile.StatsDays, profile.SharePausedStats);
 
     /// <returns>True when the block is new, so callers only notify on a real change.</returns>
     public async Task<ServiceResult<bool>> BlockAsync(Guid userId, Guid roomId, Guid targetUserId)

@@ -145,8 +145,8 @@ flowchart LR
 
 在本机记录和计算。默认 Server 不保存；用户在统计页打开「同步到服务器」后，Server 保存一份用 PIN 码加密的副本，见下文「同步到服务器」。也可以改用「同步文件夹」，通过用户自己的网盘或同步工具在电脑之间同步，Server 不参与，见下文「同步文件夹」。两种同步只能开启一种，开启任一种时不能清除全部统计。
 
-- 记录：`PresenceCoordinator` 每次判定后交给 `UsageRecorder`（Client.Core）。状态、类别、应用、标题任一变化就开始新的片段；两次判定间隔超过 30 秒时中间不计；跨过本地零点时切开。暂停分享时按没有暂停时的判定记录。暂离、锁屏只记状态。时间按当时的系统时区记录，`Segments.Offset` 保存记录时的 UTC 偏移（分钟）；统计、同步、导出都按这个偏移算日期和小时，之后换时区不会改变已有记录属于哪一天。系统时区变化时新开一段。标题最长 200 个字符，标题等于应用名时不记标题。「不记录标题」的规则（`NoTitleRule`）分四种：应用名（和状态页一致）、进程名（按 `RulePattern` 去掉 `.exe`）、网址（按域名，子域名也算；浏览器只拿得到域名，拿不到路径）、标题关键词（窗口标题、网页标题、媒体标题包含即算），命中时只记类别和名称。
-- 存储：`SqliteUsageStore`，每个账号一个文件 `%APPDATA%\DeskPal\usage\<userId>.db`，不加密。表 `Segments`（片段，`DeviceId + StartAt` 唯一）、`DailyRollups`（旧版本或其他电脑按保留时长折叠过的日期的按天汇总）、`StatsViews`（谁查看过，保留 7 天）、`SyncDays`（同步到服务器的每天哈希和版本号）、`FolderWritten`（写入同步文件夹的每天哈希）、`FolderRead`（读过的其他电脑文件的大小和修改时间）。正在进行的片段每分钟写一次结束时间。片段一直保留，不再折叠；`UsageService` 每 6 小时调用 `PruneViews`，只删除 7 天前的查看记录。
+- 记录：`PresenceCoordinator` 每次判定后交给 `UsageRecorder`（Client.Core）。状态、类别、应用、标题任一变化就开始新的片段；两次判定间隔超过 30 秒时中间不计；跨过本地零点时切开。暂停分享时按没有暂停时的判定记录，片段带 `Paused` 标记，切换暂停时新开一段。暂离、锁屏只记状态。时间按当时的系统时区记录，`Segments.Offset` 保存记录时的 UTC 偏移（分钟）；统计、同步、导出都按这个偏移算日期和小时，之后换时区不会改变已有记录属于哪一天。系统时区变化时新开一段。标题最长 200 个字符，标题等于应用名时不记标题。「不记录标题」的规则（`NoTitleRule`）分四种：应用名（和状态页一致）、进程名（按 `RulePattern` 去掉 `.exe`）、网址（按域名，子域名也算；浏览器只拿得到域名，拿不到路径）、标题关键词（窗口标题、网页标题、媒体标题包含即算），命中时只记类别和名称。
+- 存储：`SqliteUsageStore`，每个账号一个文件 `%APPDATA%\DeskPal\usage\<userId>.db`，不加密。表 `Segments`（片段，`DeviceId + StartAt` 唯一）、`DailyRollups`（旧版本或其他电脑按保留时长折叠过的日期的按天汇总，`Paused` 在主键里）、`StatsViews`（谁查看过，保留 7 天）、`SyncDays`（同步到服务器的每天哈希和版本号）、`FolderWritten`（写入同步文件夹的每天哈希）、`FolderRead`（读过的其他电脑文件的大小和修改时间）。正在进行的片段每分钟写一次结束时间。片段一直保留，不再折叠；`UsageService` 每 6 小时调用 `PruneViews`，只删除 7 天前的查看记录。
 - 导入导出：JSON（`UsageExport`，`schemaVersion` 1，不限文件大小，导入时整个文件读进内存），导出全部片段和汇总，导入时按 `DeviceId + StartAt` 去重。
 - 显示：`UsageAggregator` 把片段汇总成 `UsageReport`（每天、每小时、时间轴、应用排行、标题排行、上一周期合计 `Previous`、星期几 × 小时 `WeekHours`、每个逻辑日的首末活动 `Bounds`），`StatsViewBuilder` 再按范围和排行方式生成页面要画的 `StatsView`（含类别变化 `Changes`、首末活动 `Bounds`、一周节律 `Rhythm`），文字都在 C# 里算好。逻辑日从凌晨 4 点开始（`UsageAggregator.DayStartHour`），`UsageService` 多读到范围结束后一天的 4 点。页面用手写 SVG 和 CSS 画时间轴、堆叠柱、热力图、图例和排行。
 - 应用详情：页面命令 `stats.app`（`scale`、`date`、`app`、可空的 `title`）只查自己的统计。`UsageAppDetail` 按应用名（和标题）精确匹配计入的片段，算每天、每小时、使用次数（间隔不超过 60 秒合并为一次）、最长一次和前 10 个标题；`StatsAppViewBuilder` 生成 `StatsAppView`，带「更改分类」需要的 `Rule`。
@@ -185,7 +185,7 @@ flowchart LR
 - 默认值：`Work`、`Meeting`、`Communication` 为 `StateOnly`，其他类别为 `Category`。没有人默认开启 `Detail`。
 - 过滤在客户端完成，原始标题不经过 PrivacyFilter 就不会离开本机。
 - Envelope 的 `Enc` 字段预留给端到端加密，Server 不解析 Payload。`stats.response` 已经使用 `ecdh-p256-aesgcm`，其他消息仍是 `none`。
-- 每个房间另有「公开使用统计」开关（`ShareStats`，默认关）和可查看天数（`StatsDays`，1、3、7、30，默认 7），保存在同一份隐私配置里。统计按上面的类别级别降级：`StateOnly` 的类别只给状态，`Category` 不给标题。
+- 每个房间另有「公开使用统计」开关（`ShareStats`，默认关）和可查看天数（`StatsDays`，1、3、7、30，默认 7）、是否包含暂停分享期间（`SharePausedStats`，默认关；关闭时 `UsageStates.HidePaused` 把暂停期间的记录换成 `Paused` 状态，不带类别、应用和标题），保存在同一份隐私配置里。统计按上面的类别级别降级：`StateOnly` 的类别只给状态，`Category` 不给标题。
 
 ## REST 接口
 
@@ -223,7 +223,7 @@ flowchart LR
 | POST | `/api/rooms/{id}/transfer` | 所有者转让所有权 |
 | PUT | `/api/rooms/{id}` | 所有者修改 Room 名称（`RenameRoomRequest`，去掉首尾空格后 1 到 30 个字符）；名称有变化时广播 `room.renamed` |
 | DELETE | `/api/rooms/{id}` | 所有者解散，级联删除成员、邀请码、踢出记录和屏蔽记录 |
-| GET/PUT | `/api/rooms/{id}/privacy` | 我在该 Room 的隐私配置。`PrivacyProfileDto` 的 `shareStats`、`statsDays` 为空时保留原值；`statsDays` 只能是 1、3、7、30，否则返回 400。公开开关变化，或公开时天数变化，广播 `room.memberSharingChanged`。`RoomMemberDto` 带每个成员的 `shareStats`、`statsDays` |
+| GET/PUT | `/api/rooms/{id}/privacy` | 我在该 Room 的隐私配置。`PrivacyProfileDto` 的 `shareStats`、`statsDays`、`sharePausedStats` 为空时保留原值；`statsDays` 只能是 1、3、7、30，否则返回 400。公开开关变化，或公开时天数变化，广播 `room.memberSharingChanged`。`RoomMemberDto` 带每个成员的 `shareStats`、`statsDays` |
 | GET | `/api/rules/builtin?version=N` | 内置规则；版本相同时 `rules` 为 null |
 | GET | `/api/rules/candidates` | 规则库候选（`RuleCandidatesResponse`），请求头 `X-DeskPal-Maintainer` 要等于 `Rules:MaintainerToken`，否则 404 |
 | GET | `/health` | 健康检查，返回 `status` 和 `revision`（镜像构建时的 Git 提交号，本地运行为空） |

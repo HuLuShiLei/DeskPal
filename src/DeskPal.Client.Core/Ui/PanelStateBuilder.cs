@@ -272,5 +272,6 @@ public static class PanelStateBuilder
         Enum.GetValues<PrivacyLevel>().Select(l => new Option<PrivacyLevel>(l, PresenceFormatter.PrivacyLevelName(l))).ToList(),
         profile.ShareStats,
         profile.StatsDays,
-        PrivacyProfile.StatsDayOptions.Select(d => new Option<int>(d, PresenceFormatter.Days(d))).ToList());
+        PrivacyProfile.StatsDayOptions.Select(d => new Option<int>(d, PresenceFormatter.Days(d))).ToList(),
+        profile.SharePausedStats);
 }

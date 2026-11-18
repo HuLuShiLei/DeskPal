@@ -62,12 +62,14 @@ public sealed record PrivacyRow(ActivityCategory Category, string Name, PrivacyL
 
 /// <param name="ShareStats">Room members may view my usage stats, at the detail of the rows.</param>
 /// <param name="StatsDays">How many recent days they may view.</param>
+/// <param name="SharePausedStats">They also see what I did while sharing was paused; otherwise that time shows as paused.</param>
 public sealed record PrivacyView(
     IReadOnlyList<PrivacyRow> Rows,
     IReadOnlyList<Option<PrivacyLevel>> Levels,
     bool ShareStats = false,
     int StatsDays = PrivacyProfile.DefaultStatsDays,
-    IReadOnlyList<Option<int>>? DayOptions = null);
+    IReadOnlyList<Option<int>>? DayOptions = null,
+    bool SharePausedStats = false);
 
 /// <summary>Settings of my own usage stats, shown on the stats page.</summary>
 /// <param name="NoTitleRules">Apps, processes, sites and title keywords whose titles are never recorded.</param>

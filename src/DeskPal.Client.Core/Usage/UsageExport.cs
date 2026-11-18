@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using DeskPal.Shared.Presence;
 
 namespace DeskPal.Client.Core.Usage;
@@ -16,9 +17,30 @@ public sealed record UsageExport(
 
 /// <param name="Process">Missing in files from older versions.</param>
 /// <param name="BaseCategory">Missing in files from older versions.</param>
-public sealed record ExportedSegment(Guid DeviceId, DateTimeOffset Start, DateTimeOffset End, PresenceState State, ActivityCategory Category, string? App, string? Title, string? Process = null, ActivityCategory? BaseCategory = null);
+/// <param name="Paused">Recorded while sharing was paused. Left out when false, so days synced before it was kept keep their hash.</param>
+public sealed record ExportedSegment(
+    Guid DeviceId,
+    DateTimeOffset Start,
+    DateTimeOffset End,
+    PresenceState State,
+    ActivityCategory Category,
+    string? App,
+    string? Title,
+    string? Process = null,
+    ActivityCategory? BaseCategory = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool Paused = false);
 
-public sealed record ExportedRollup(Guid DeviceId, DateOnly Date, PresenceState State, ActivityCategory Category, string? App, string? Title, long Seconds, string? Process = null, ActivityCategory? BaseCategory = null);
+public sealed record ExportedRollup(
+    Guid DeviceId,
+    DateOnly Date,
+    PresenceState State,
+    ActivityCategory Category,
+    string? App,
+    string? Title,
+    long Seconds,
+    string? Process = null,
+    ActivityCategory? BaseCategory = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool Paused = false);
 
 /// <summary>Someone in a room viewed my stats. Kept on this computer for <see cref="SqliteUsageStore.ViewsKeptFor"/>.</summary>
 public sealed record StatsViewRecord(Guid RoomId, string RoomName, Guid ViewerId, string ViewerName, DateTimeOffset At);

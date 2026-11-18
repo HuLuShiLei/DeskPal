@@ -42,7 +42,8 @@ public sealed class UsageRecorder(IUsageWriter writer, TimeZoneInfo? zone = null
     /// <param name="domain">Normalized host when a browser is in front, for <see cref="NoTitleKind.Domain"/>.</param>
     /// <param name="baseCategory">Category without the personal rules; stored so a removed personal rule stops applying.</param>
     /// <param name="hold">The browser's tab changed and its address is not read yet: keep the open segment instead of starting one with the old site.</param>
-    public void Record(LocalPresence? presence, DateTimeOffset now, string? process = null, string? domain = null, ActivityCategory? baseCategory = null, bool hold = false)
+    /// <param name="paused">Sharing is paused; <paramref name="presence"/> is still what is actually done.</param>
+    public void Record(LocalPresence? presence, DateTimeOffset now, string? process = null, string? domain = null, ActivityCategory? baseCategory = null, bool hold = false, bool paused = false)
     {
         now = TimeZoneInfo.ConvertTime(now, zone ?? TimeZoneInfo.Local);
         lock (_lock)
@@ -70,7 +71,7 @@ public sealed class UsageRecorder(IUsageWriter writer, TimeZoneInfo? zone = null
             {
                 _holdSince = null;
             }
-            else if (_open is not null)
+            else if (_open is not null && _open.Paused == paused)
             {
                 _holdSince ??= now;
                 if (now - _holdSince.Value < MaxHold)
@@ -79,7 +80,7 @@ public sealed class UsageRecorder(IUsageWriter writer, TimeZoneInfo? zone = null
                 }
             }
 
-            var next = Normalize(presence, now, process, domain, baseCategory);
+            var next = Normalize(presence, now, process, domain, baseCategory) with { Paused = paused };
             if (_open is not null && SameKey(_open, next))
             {
                 if (_open.End - _saved >= SaveEvery)
@@ -186,7 +187,7 @@ public sealed class UsageRecorder(IUsageWriter writer, TimeZoneInfo? zone = null
     private static string? Clean(string? text) => string.IsNullOrWhiteSpace(text) ? null : text.Trim();
 
     private static bool SameKey(UsageSegment a, UsageSegment b) =>
-        a.State == b.State && a.Category == b.Category && a.App == b.App && a.Title == b.Title && a.Process == b.Process && a.BaseCategory == b.BaseCategory
+        a.State == b.State && a.Category == b.Category && a.App == b.App && a.Title == b.Title && a.Process == b.Process && a.BaseCategory == b.BaseCategory && a.Paused == b.Paused
         && a.Start.Offset == b.Start.Offset;
 
     /// <summary>Midnight in the offset the segment was started in, so a segment stays within its own local day.</summary>

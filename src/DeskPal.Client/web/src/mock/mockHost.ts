@@ -161,6 +161,9 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "room.shareStats":
         if (state.privacy) Object.assign(state.privacy, { shareStats: m.enabled as boolean, statsDays: m.days as number });
         break;
+      case "room.sharePausedStats":
+        if (state.privacy) state.privacy.sharePausedStats = m.enabled as boolean;
+        break;
       case "stats.query": {
         // 样例只有「今天」所在的日、周、月；翻页时返回同一份。
         await new Promise((resolve) => setTimeout(resolve, m.userId ? 600 : 80));

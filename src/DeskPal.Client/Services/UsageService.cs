@@ -67,11 +67,12 @@ public sealed class UsageService : IDisposable
     public static int Offset => (int)TimeZoneInfo.Local.GetUtcOffset(DateTimeOffset.UtcNow).TotalMinutes;
 
     /// <param name="previous">Range whose usage is compared with; null skips the comparison.</param>
-    public UsageReport Report(DateOnly from, DateOnly to, (DateOnly From, DateOnly To)? previous = null)
+    /// <param name="hidePaused">Time recorded while sharing was paused counts as paused, without what was done.</param>
+    public UsageReport Report(DateOnly from, DateOnly to, (DateOnly From, DateOnly To)? previous = null, bool hidePaused = false)
     {
         Recorder.Flush();
-        var report = Build(from, to) with { Today = Today, Offset = Offset };
-        return previous is { } p ? report with { Previous = UsageAggregator.Totals(Build(p.From, p.To)) } : report;
+        var report = Build(from, to, hidePaused) with { Today = Today, Offset = Offset };
+        return previous is { } p ? report with { Previous = UsageAggregator.Totals(Build(p.From, p.To, hidePaused)) } : report;
     }
 
     /// <summary>Nothing to show for days outside what is shared, with the date and offset to show other days by.</summary>
@@ -157,15 +158,19 @@ public sealed class UsageService : IDisposable
         return UsageRuleTargets.Create(_db.ProcessesByApp(), personal.Concat(_builtinRules.Load().Rules));
     }
 
-    private UsageReport Build(DateOnly from, DateOnly to)
+    private UsageReport Build(DateOnly from, DateOnly to, bool hidePaused = false)
     {
         var reclassifier = _reclassifier;
         var window = UsageAggregator.Window(from, to, UsageAggregator.DayStartHour);
-        return UsageAggregator.Build(
-            _db.Segments(window.From, window.To).Select(reclassifier.Apply),
-            _db.Rollups(from, to).Select(reclassifier.Apply),
-            from,
-            to);
+        var segments = _db.Segments(window.From, window.To).Select(reclassifier.Apply);
+        var rollups = _db.Rollups(from, to).Select(reclassifier.Apply);
+        if (hidePaused)
+        {
+            segments = segments.Select(UsageStates.HidePaused);
+            rollups = rollups.Select(UsageStates.HidePaused);
+        }
+
+        return UsageAggregator.Build(segments, rollups, from, to);
     }
 
     private void PruneViews()

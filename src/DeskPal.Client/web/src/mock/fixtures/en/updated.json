@@ -148,7 +148,8 @@
         "value": 30,
         "name": "30 days"
       }
-    ]
+    ],
+    "sharePausedStats": false
   },
   "correction": {
     "target": "Cursor",

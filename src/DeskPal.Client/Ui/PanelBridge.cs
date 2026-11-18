@@ -267,6 +267,10 @@ public sealed class PanelBridge
                 return CommandResult.Success;
             }
 
+            case "room.sharePausedStats":
+                await _rooms.SavePausedStatsSharingAsync(c.Guid("roomId"), c.Bool("enabled"));
+                return CommandResult.Success;
+
             case "stats.query":
                 return await QueryStatsAsync(c);
 

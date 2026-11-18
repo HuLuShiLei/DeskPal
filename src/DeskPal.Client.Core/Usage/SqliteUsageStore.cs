@@ -37,7 +37,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 Title TEXT NULL,
                 Process TEXT NULL,
                 BaseCategory TEXT NULL,
-                Offset INTEGER NULL);
+                Offset INTEGER NULL,
+                Paused INTEGER NOT NULL DEFAULT 0);
             CREATE UNIQUE INDEX IF NOT EXISTS IX_Segments_Device_Start ON Segments (DeviceId, StartAt);
             CREATE INDEX IF NOT EXISTS IX_Segments_Start ON Segments (StartAt);
             CREATE TABLE IF NOT EXISTS DailyRollups (
@@ -50,7 +51,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 Process TEXT NOT NULL DEFAULT '',
                 BaseCategory TEXT NOT NULL DEFAULT '',
                 Seconds INTEGER NOT NULL,
-                PRIMARY KEY (DeviceId, Date, State, Category, App, Title, Process, BaseCategory));
+                Paused INTEGER NOT NULL DEFAULT 0,
+                PRIMARY KEY (DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Paused));
             CREATE TABLE IF NOT EXISTS StatsViews (
                 RoomId TEXT NOT NULL,
                 RoomName TEXT NOT NULL,
@@ -114,6 +116,35 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
             Execute("ALTER TABLE Segments ADD COLUMN Offset INTEGER NULL;");
         }
 
+        if (!HasColumn("Segments", "Paused"))
+        {
+            Execute("ALTER TABLE Segments ADD COLUMN Paused INTEGER NOT NULL DEFAULT 0;");
+        }
+
+        if (!HasColumn("DailyRollups", "Paused"))
+        {
+            Execute("""
+                BEGIN;
+                CREATE TABLE DailyRollupsNew (
+                    DeviceId TEXT NOT NULL,
+                    Date TEXT NOT NULL,
+                    State TEXT NOT NULL,
+                    Category TEXT NOT NULL,
+                    App TEXT NOT NULL,
+                    Title TEXT NOT NULL,
+                    Process TEXT NOT NULL DEFAULT '',
+                    BaseCategory TEXT NOT NULL DEFAULT '',
+                    Seconds INTEGER NOT NULL,
+                    Paused INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY (DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Paused));
+                INSERT INTO DailyRollupsNew (DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Seconds)
+                    SELECT DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Seconds FROM DailyRollups;
+                DROP TABLE DailyRollups;
+                ALTER TABLE DailyRollupsNew RENAME TO DailyRollups;
+                COMMIT;
+                """);
+        }
+
         // Segments recorded before the offset was kept are taken as recorded in this computer's time zone.
         var missing = new List<(long Id, long Start)>();
         using (var select = Command("SELECT Id, StartAt FROM Segments WHERE Offset IS NULL"))
@@ -157,14 +188,14 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         lock (_lock)
         {
             using var cmd = Command("""
-                INSERT INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset)
-                VALUES ($device, $start, $end, $state, $category, $app, $title, $process, $base, $offset)
+                INSERT INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset, Paused)
+                VALUES ($device, $start, $end, $state, $category, $app, $title, $process, $base, $offset, $paused)
                 ON CONFLICT (DeviceId, StartAt) DO UPDATE SET EndAt = excluded.EndAt, State = excluded.State,
                     Category = excluded.Category, App = excluded.App, Title = excluded.Title,
-                    Process = excluded.Process, BaseCategory = excluded.BaseCategory, Offset = excluded.Offset
+                    Process = excluded.Process, BaseCategory = excluded.BaseCategory, Offset = excluded.Offset, Paused = excluded.Paused
                 RETURNING Id
                 """);
-            BindSegment(cmd, _deviceId, segment.Start, segment.End, segment.State, segment.Category, segment.App, segment.Title, segment.Process, segment.BaseCategory);
+            BindSegment(cmd, _deviceId, segment.Start, segment.End, segment.State, segment.Category, segment.App, segment.Title, segment.Process, segment.BaseCategory, segment.Paused);
             return (long)cmd.ExecuteScalar()!;
         }
     }
@@ -185,7 +216,7 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
     {
         lock (_lock)
         {
-            using var cmd = Command("SELECT StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset FROM Segments WHERE StartAt < $to AND EndAt > $from ORDER BY StartAt");
+            using var cmd = Command("SELECT StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset, Paused FROM Segments WHERE StartAt < $to AND EndAt > $from ORDER BY StartAt");
             cmd.Parameters.AddWithValue("$from", from.ToUnixTimeMilliseconds());
             cmd.Parameters.AddWithValue("$to", to.ToUnixTimeMilliseconds());
             using var reader = cmd.ExecuteReader();
@@ -201,7 +232,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                     reader.IsDBNull(4) ? null : reader.GetString(4),
                     reader.IsDBNull(5) ? null : reader.GetString(5),
                     reader.IsDBNull(6) ? null : reader.GetString(6),
-                    ParseCategory(reader.IsDBNull(7) ? null : reader.GetString(7))));
+                    ParseCategory(reader.IsDBNull(7) ? null : reader.GetString(7)),
+                    reader.GetInt64(9) != 0));
             }
 
             return list;
@@ -235,7 +267,7 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
     {
         lock (_lock)
         {
-            using var cmd = Command("SELECT Date, State, Category, App, Title, Seconds, Process, BaseCategory FROM DailyRollups WHERE Date >= $from AND Date <= $to");
+            using var cmd = Command("SELECT Date, State, Category, App, Title, Seconds, Process, BaseCategory, Paused FROM DailyRollups WHERE Date >= $from AND Date <= $to");
             cmd.Parameters.AddWithValue("$from", DateText(from));
             cmd.Parameters.AddWithValue("$to", DateText(to));
             using var reader = cmd.ExecuteReader();
@@ -250,7 +282,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                     NullIfEmpty(reader.GetString(4)),
                     reader.GetInt64(5),
                     NullIfEmpty(reader.GetString(6)),
-                    ParseCategory(reader.GetString(7))));
+                    ParseCategory(reader.GetString(7)),
+                    reader.GetInt64(8) != 0));
             }
 
             return list;
@@ -265,8 +298,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         {
             var cutoff = LocalMidnight(keepFrom).ToUnixTimeMilliseconds();
             using var tx = _db.BeginTransaction();
-            var totals = new Dictionary<(string Device, string Date, string State, string Category, string App, string Title, string Process, string Base), long>();
-            using (var select = Command("SELECT DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset FROM Segments WHERE StartAt < $cutoff"))
+            var totals = new Dictionary<(string Device, string Date, string State, string Category, string App, string Title, string Process, string Base, long Paused), long>();
+            using (var select = Command("SELECT DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset, Paused FROM Segments WHERE StartAt < $cutoff"))
             {
                 select.Parameters.AddWithValue("$cutoff", cutoff);
                 using var reader = select.ExecuteReader();
@@ -276,18 +309,19 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                     var date = LocalDate(reader.GetInt64(1), reader.GetInt64(9));
                     var key = (reader.GetString(0), DateText(date), reader.GetString(3), reader.GetString(4),
                         reader.IsDBNull(5) ? "" : reader.GetString(5), reader.IsDBNull(6) ? "" : reader.GetString(6),
-                        reader.IsDBNull(7) ? "" : reader.GetString(7), reader.IsDBNull(8) ? "" : reader.GetString(8));
+                        reader.IsDBNull(7) ? "" : reader.GetString(7), reader.IsDBNull(8) ? "" : reader.GetString(8), reader.GetInt64(10));
                     totals[key] = totals.GetValueOrDefault(key) + seconds;
                 }
             }
 
-            foreach (var ((device, date, state, category, app, title, process, baseCategory), seconds) in totals)
+            foreach (var ((device, date, state, category, app, title, process, baseCategory, paused), seconds) in totals)
             {
                 using var insert = Command("""
-                    INSERT INTO DailyRollups (DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Seconds)
-                    VALUES ($device, $date, $state, $category, $app, $title, $process, $base, $seconds)
-                    ON CONFLICT (DeviceId, Date, State, Category, App, Title, Process, BaseCategory) DO UPDATE SET Seconds = Seconds + excluded.Seconds
+                    INSERT INTO DailyRollups (DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Seconds, Paused)
+                    VALUES ($device, $date, $state, $category, $app, $title, $process, $base, $seconds, $paused)
+                    ON CONFLICT (DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Paused) DO UPDATE SET Seconds = Seconds + excluded.Seconds
                     """);
+                insert.Parameters.AddWithValue("$paused", paused);
                 insert.Parameters.AddWithValue("$device", device);
                 insert.Parameters.AddWithValue("$date", date);
                 insert.Parameters.AddWithValue("$state", state);
@@ -403,7 +437,7 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
             segments.Parameters.AddWithValue("$device", (object?)device?.ToString() ?? DBNull.Value);
             using var rollups = Command($"""
                 SELECT {RollupColumns} FROM DailyRollups
-                WHERE Date = $date AND ($device IS NULL OR DeviceId = $device) ORDER BY DeviceId, State, Category, App, Title, Process, BaseCategory
+                WHERE Date = $date AND ($device IS NULL OR DeviceId = $device) ORDER BY DeviceId, State, Category, App, Title, Process, BaseCategory, Paused
                 """);
             rollups.Parameters.AddWithValue("$date", DateText(date));
             rollups.Parameters.AddWithValue("$device", (object?)device?.ToString() ?? DBNull.Value);
@@ -654,10 +688,10 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
             }
 
             using var cmd = Command("""
-                INSERT OR IGNORE INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset)
-                VALUES ($device, $start, $end, $state, $category, $app, $title, $process, $base, $offset)
+                INSERT OR IGNORE INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset, Paused)
+                VALUES ($device, $start, $end, $state, $category, $app, $title, $process, $base, $offset, $paused)
                 """);
-            BindSegment(cmd, s.DeviceId, s.Start, s.End, s.State, s.Category, s.App, s.Title, s.Process, s.BaseCategory);
+            BindSegment(cmd, s.DeviceId, s.Start, s.End, s.State, s.Category, s.App, s.Title, s.Process, s.BaseCategory, s.Paused);
             segments += cmd.ExecuteNonQuery();
         }
 
@@ -670,9 +704,10 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
             }
 
             using var cmd = Command("""
-                INSERT OR IGNORE INTO DailyRollups (DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Seconds)
-                VALUES ($device, $date, $state, $category, $app, $title, $process, $base, $seconds)
+                INSERT OR IGNORE INTO DailyRollups (DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Seconds, Paused)
+                VALUES ($device, $date, $state, $category, $app, $title, $process, $base, $seconds, $paused)
                 """);
+            cmd.Parameters.AddWithValue("$paused", r.Paused ? 1 : 0);
             cmd.Parameters.AddWithValue("$device", r.DeviceId.ToString());
             cmd.Parameters.AddWithValue("$date", DateText(r.Date));
             cmd.Parameters.AddWithValue("$state", r.State.ToString());
@@ -723,12 +758,13 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
     private static DateOnly LocalDate(long startAt, long offsetMinutes) =>
         DateOnly.FromDateTime(DateTimeOffset.FromUnixTimeMilliseconds(startAt).ToOffset(TimeSpan.FromMinutes(offsetMinutes)).DateTime);
 
-    private const string SegmentColumns = "DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset";
+    private const string SegmentColumns = "DeviceId, StartAt, EndAt, State, Category, App, Title, Process, BaseCategory, Offset, Paused";
 
-    private const string RollupColumns = "DeviceId, Date, State, Category, App, Title, Seconds, Process, BaseCategory";
+    private const string RollupColumns = "DeviceId, Date, State, Category, App, Title, Seconds, Process, BaseCategory, Paused";
 
-    private static void BindSegment(SqliteCommand cmd, Guid device, DateTimeOffset start, DateTimeOffset end, PresenceState state, ActivityCategory category, string? app, string? title, string? process, ActivityCategory? baseCategory)
+    private static void BindSegment(SqliteCommand cmd, Guid device, DateTimeOffset start, DateTimeOffset end, PresenceState state, ActivityCategory category, string? app, string? title, string? process, ActivityCategory? baseCategory, bool paused)
     {
+        cmd.Parameters.AddWithValue("$paused", paused ? 1 : 0);
         cmd.Parameters.AddWithValue("$device", device.ToString());
         cmd.Parameters.AddWithValue("$start", start.ToUnixTimeMilliseconds());
         cmd.Parameters.AddWithValue("$end", end.ToUnixTimeMilliseconds());
@@ -773,7 +809,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 reader.IsDBNull(5) ? null : reader.GetString(5),
                 reader.IsDBNull(6) ? null : reader.GetString(6),
                 reader.IsDBNull(7) ? null : reader.GetString(7),
-                ParseCategory(reader.IsDBNull(8) ? null : reader.GetString(8))));
+                ParseCategory(reader.IsDBNull(8) ? null : reader.GetString(8)),
+                reader.GetInt64(10) != 0));
         }
 
         return segments;
@@ -794,7 +831,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 NullIfEmpty(reader.GetString(5)),
                 reader.GetInt64(6),
                 NullIfEmpty(reader.GetString(7)),
-                ParseCategory(reader.GetString(8))));
+                ParseCategory(reader.GetString(8)),
+                reader.GetInt64(9) != 0));
         }
 
         return rollups;

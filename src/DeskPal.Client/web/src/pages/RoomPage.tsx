@@ -300,6 +300,18 @@ function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
     await run({ type: "room.shareStats", roomId: room.id, enabled, days }, enabled ? t("privacy.shared") : t("privacy.unshared"));
   };
 
+  const sharePaused = async (enabled: boolean) => {
+    if (enabled) {
+      const answer = await ask({
+        title: t("privacy.paused"),
+        message: t("privacy.pausedMessage", { room: room.name }),
+        okText: t("privacy.shareOk"),
+      });
+      if (!answer.ok) return;
+    }
+    await run({ type: "room.sharePausedStats", roomId: room.id, enabled }, t("privacy.saved"));
+  };
+
   return (
     <Section title={t("privacy.title")} label={t("privacy.title")}>
       <div class="card flush">
@@ -341,6 +353,11 @@ function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
                 </option>
               ))}
             </select>
+          </SettingRow>
+        )}
+        {privacy.shareStats && (
+          <SettingRow title={t("privacy.paused")} hint={t("privacy.pausedHint")}>
+            <Switch checked={privacy.sharePausedStats} label={t("privacy.paused")} onChange={(v) => void sharePaused(v)} />
           </SettingRow>
         )}
       </div>
