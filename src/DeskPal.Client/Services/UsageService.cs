@@ -68,11 +68,12 @@ public sealed class UsageService : IDisposable
 
     /// <param name="previous">Range whose usage is compared with; null skips the comparison.</param>
     /// <param name="hidePaused">Time recorded while sharing was paused counts as paused, without what was done.</param>
-    public UsageReport Report(DateOnly from, DateOnly to, (DateOnly From, DateOnly To)? previous = null, bool hidePaused = false)
+    /// <param name="hours">Hours of the day the totals and ranking are limited to; nothing is compared then.</param>
+    public UsageReport Report(DateOnly from, DateOnly to, (DateOnly From, DateOnly To)? previous = null, bool hidePaused = false, IReadOnlyCollection<int>? hours = null)
     {
         Recorder.Flush();
-        var report = Build(from, to, hidePaused) with { Today = Today, Offset = Offset };
-        return previous is { } p ? report with { Previous = UsageAggregator.Totals(Build(p.From, p.To, hidePaused)) } : report;
+        var report = Build(from, to, hidePaused, hours) with { Today = Today, Offset = Offset };
+        return previous is { } p && hours is null ? report with { Previous = UsageAggregator.Totals(Build(p.From, p.To, hidePaused)) } : report;
     }
 
     /// <summary>Nothing to show for days outside what is shared, with the date and offset to show other days by.</summary>
@@ -158,7 +159,7 @@ public sealed class UsageService : IDisposable
         return UsageRuleTargets.Create(_db.ProcessesByApp(), personal.Concat(_builtinRules.Load().Rules));
     }
 
-    private UsageReport Build(DateOnly from, DateOnly to, bool hidePaused = false)
+    private UsageReport Build(DateOnly from, DateOnly to, bool hidePaused = false, IReadOnlyCollection<int>? hours = null)
     {
         var reclassifier = _reclassifier;
         var window = UsageAggregator.Window(from, to, UsageAggregator.DayStartHour);
@@ -170,7 +171,7 @@ public sealed class UsageService : IDisposable
             rollups = rollups.Select(UsageStates.HidePaused);
         }
 
-        return UsageAggregator.Build(segments, rollups, from, to);
+        return UsageAggregator.Build(segments, rollups, from, to, hours);
     }
 
     private void PruneViews()

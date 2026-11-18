@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 日统计的柱状图可以点击或拖动，查看所选时段的使用情况。按住 Ctrl 可以多选。
+  en: The day chart can be clicked or dragged to show usage for the selected hours. Hold Ctrl to select more than one range.
+
 - 暂停分享期间的使用统计默认不向房间成员公开，只显示为暂停分享。可以在房间设置中打开「包含暂停期间」。
   en: Usage while sharing is paused is hidden from room members by default and shown only as paused. Include time while paused can be turned on in the room settings.
 

@@ -757,8 +757,9 @@ public sealed class PanelBridge
             var range = StatsRange.Of(scale, anchor);
             var previous = StatsRange.Previous(scale, anchor);
             var to = range.To > today ? today : range.To;
-            var mine = await Task.Run(() => _usage.Report(range.From, to, (previous.From, previous.To)));
-            return new CommandResult(true, Data: StatsViewBuilder.Build(mine, scale, rankBy, anchor, today, filter: filter, myOffset: UsageService.Offset));
+            var hours = scale == StatsScale.Day ? c.HourList("hours") : null;
+            var mine = await Task.Run(() => _usage.Report(range.From, to, (previous.From, previous.To), hours: hours));
+            return new CommandResult(true, Data: StatsViewBuilder.Build(mine, scale, rankBy, anchor, today, filter: filter, myOffset: UsageService.Offset, hours: hours));
         }
 
         var userId = c.Guid("userId");

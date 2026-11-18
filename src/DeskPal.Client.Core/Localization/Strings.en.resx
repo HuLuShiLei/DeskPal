@@ -330,6 +330,9 @@
   <data name="Stats_UsageTime" xml:space="preserve">
     <value>Usage</value>
   </data>
+  <data name="Stats_HoursUsage" xml:space="preserve">
+    <value>Usage {0}</value>
+  </data>
   <data name="Stats_DailyAverage" xml:space="preserve">
     <value>Daily average</value>
   </data>

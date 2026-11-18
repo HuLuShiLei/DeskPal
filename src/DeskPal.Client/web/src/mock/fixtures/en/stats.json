@@ -1451,6 +1451,1792 @@
     "bounds": null,
     "rhythm": null
   },
+  "Day-Category-h9,10,11": {
+    "scale": "Day",
+    "rankBy": "Category",
+    "filter": null,
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "Wed, Nov 11 (today)",
+    "totalLabel": "Usage 9:00–12:00",
+    "total": "2 h 50 min",
+    "compare": null,
+    "summary": null,
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 2700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 min",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 h",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 Work · 1 h 30 min"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 Chat · 15 min"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 Work · 1 h 5 min"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 Away · 40 min"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 Video · 40 min"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 Work · 1 h 30 min"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "Work",
+        "sub": null,
+        "tone": "work",
+        "time": "2 h 35 min",
+        "share": 1,
+        "hidden": false,
+        "detail": null,
+        "filter": "Work"
+      },
+      {
+        "name": "Chat",
+        "sub": null,
+        "tone": "chat",
+        "time": "15 min",
+        "share": 0.097,
+        "hidden": false,
+        "detail": null,
+        "filter": "Communication"
+      }
+    ],
+    "note": null,
+    "empty": null,
+    "changes": [],
+    "bounds": null,
+    "rhythm": null
+  },
+  "Day-App-h9,10,11": {
+    "scale": "Day",
+    "rankBy": "App",
+    "filter": null,
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "Wed, Nov 11 (today)",
+    "totalLabel": "Usage 9:00–12:00",
+    "total": "2 h 50 min",
+    "compare": null,
+    "summary": null,
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 2700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 min",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 h",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 Work · 1 h 30 min"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 Chat · 15 min"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 Work · 1 h 5 min"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 Away · 40 min"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 Video · 40 min"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 Work · 1 h 30 min"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "Cursor",
+        "sub": "Work",
+        "tone": "work",
+        "time": "2 h 35 min",
+        "share": 1,
+        "hidden": false,
+        "detail": {
+          "app": "Cursor",
+          "title": null
+        },
+        "filter": null
+      },
+      {
+        "name": "微信",
+        "sub": "Chat",
+        "tone": "chat",
+        "time": "15 min",
+        "share": 0.097,
+        "hidden": false,
+        "detail": {
+          "app": "微信",
+          "title": null
+        },
+        "filter": null
+      }
+    ],
+    "note": null,
+    "empty": null,
+    "changes": [],
+    "bounds": null,
+    "rhythm": null
+  },
+  "Day-Title-h9,10,11": {
+    "scale": "Day",
+    "rankBy": "Title",
+    "filter": null,
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "Wed, Nov 11 (today)",
+    "totalLabel": "Usage 9:00–12:00",
+    "total": "2 h 50 min",
+    "compare": null,
+    "summary": null,
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 2700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 min",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 h",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 Work · 1 h 30 min"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 Chat · 15 min"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 Work · 1 h 5 min"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 Away · 40 min"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 Video · 40 min"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 Work · 1 h 30 min"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "plan.md - idea1 - Cursor",
+        "sub": "Cursor · Work",
+        "tone": "work",
+        "time": "1 h 30 min",
+        "share": 1,
+        "hidden": false,
+        "detail": {
+          "app": "Cursor",
+          "title": "plan.md - idea1 - Cursor"
+        },
+        "filter": null
+      },
+      {
+        "name": "StatsPage.tsx - idea1 - Cursor",
+        "sub": "Cursor · Work",
+        "tone": "work",
+        "time": "1 h 5 min",
+        "share": 0.722,
+        "hidden": false,
+        "detail": {
+          "app": "Cursor",
+          "title": "StatsPage.tsx - idea1 - Cursor"
+        },
+        "filter": null
+      },
+      {
+        "name": "项目群",
+        "sub": "微信 · Chat",
+        "tone": "chat",
+        "time": "15 min",
+        "share": 0.167,
+        "hidden": false,
+        "detail": {
+          "app": "微信",
+          "title": "项目群"
+        },
+        "filter": null
+      }
+    ],
+    "note": null,
+    "empty": null,
+    "changes": [],
+    "bounds": null,
+    "rhythm": null
+  },
+  "Day-Category-h9,10,14,15": {
+    "scale": "Day",
+    "rankBy": "Category",
+    "filter": null,
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "Wed, Nov 11 (today)",
+    "totalLabel": "Usage 9:00–11:00, 14:00–16:00",
+    "total": "2 h 50 min",
+    "compare": null,
+    "summary": null,
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 2700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 min",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 h",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 Work · 1 h 30 min"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 Chat · 15 min"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 Work · 1 h 5 min"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 Away · 40 min"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 Video · 40 min"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 Work · 1 h 30 min"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "Work",
+        "sub": null,
+        "tone": "work",
+        "time": "2 h 35 min",
+        "share": 1,
+        "hidden": false,
+        "detail": null,
+        "filter": "Work"
+      },
+      {
+        "name": "Chat",
+        "sub": null,
+        "tone": "chat",
+        "time": "15 min",
+        "share": 0.097,
+        "hidden": false,
+        "detail": null,
+        "filter": "Communication"
+      }
+    ],
+    "note": null,
+    "empty": null,
+    "changes": [],
+    "bounds": null,
+    "rhythm": null
+  },
+  "Day-App-h9,10,14,15": {
+    "scale": "Day",
+    "rankBy": "App",
+    "filter": null,
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "Wed, Nov 11 (today)",
+    "totalLabel": "Usage 9:00–11:00, 14:00–16:00",
+    "total": "2 h 50 min",
+    "compare": null,
+    "summary": null,
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 2700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 min",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 h",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 Work · 1 h 30 min"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 Chat · 15 min"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 Work · 1 h 5 min"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 Away · 40 min"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 Video · 40 min"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 Work · 1 h 30 min"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "Cursor",
+        "sub": "Work",
+        "tone": "work",
+        "time": "1 h 35 min",
+        "share": 1,
+        "hidden": false,
+        "detail": {
+          "app": "Cursor",
+          "title": null
+        },
+        "filter": null
+      },
+      {
+        "name": "Visual Studio Code",
+        "sub": "Work",
+        "tone": "work",
+        "time": "1 h",
+        "share": 0.632,
+        "hidden": false,
+        "detail": {
+          "app": "Visual Studio Code",
+          "title": null
+        },
+        "filter": null
+      },
+      {
+        "name": "微信",
+        "sub": "Chat",
+        "tone": "chat",
+        "time": "15 min",
+        "share": 0.158,
+        "hidden": false,
+        "detail": {
+          "app": "微信",
+          "title": null
+        },
+        "filter": null
+      }
+    ],
+    "note": null,
+    "empty": null,
+    "changes": [],
+    "bounds": null,
+    "rhythm": null
+  },
+  "Day-Title-h9,10,14,15": {
+    "scale": "Day",
+    "rankBy": "Title",
+    "filter": null,
+    "anchor": "2026-11-11",
+    "owner": null,
+    "title": "Wed, Nov 11 (today)",
+    "totalLabel": "Usage 9:00–11:00, 14:00–16:00",
+    "total": "2 h 50 min",
+    "compare": null,
+    "summary": null,
+    "canPrev": true,
+    "canNext": false,
+    "legend": [
+      {
+        "key": "Work",
+        "name": "Work",
+        "tone": "work",
+        "hidden": false
+      },
+      {
+        "key": "Communication",
+        "name": "Chat",
+        "tone": "chat",
+        "hidden": false
+      },
+      {
+        "key": "Video",
+        "name": "Video",
+        "tone": "relax",
+        "hidden": false
+      }
+    ],
+    "bars": [
+      {
+        "label": "0",
+        "tip": "0:00–1:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "1:00–2:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "2:00–3:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "3:00–4:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "4:00–5:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "5:00–6:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "6",
+        "tip": "6:00–7:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "7:00–8:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "8:00–9:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "9:00–10:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3000
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "10:00–11:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 2700
+          },
+          {
+            "key": "Communication",
+            "seconds": 900
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "11:00–12:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "12",
+        "tip": "12:00–13:00 · 20 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "13:00–14:00 · 50 min",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 1800
+          },
+          {
+            "key": "Video",
+            "seconds": 1200
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "14:00–15:00 · 1 h",
+        "date": null,
+        "parts": [
+          {
+            "key": "Work",
+            "seconds": 3600
+          }
+        ]
+      },
+      {
+        "label": "",
+        "tip": "15:00–16:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "16:00–17:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "17:00–18:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "18",
+        "tip": "18:00–19:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "19:00–20:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "20:00–21:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "21:00–22:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "22:00–23:00 · 0 min",
+        "date": null,
+        "parts": []
+      },
+      {
+        "label": "",
+        "tip": "23:00–24:00 · 0 min",
+        "date": null,
+        "parts": []
+      }
+    ],
+    "barMax": 3600,
+    "barMaxLabel": "1 h",
+    "timeline": [
+      {
+        "start": 33000,
+        "end": 38400,
+        "tone": "work",
+        "tip": "9:10–10:40 Work · 1 h 30 min"
+      },
+      {
+        "start": 38400,
+        "end": 39300,
+        "tone": "chat",
+        "tip": "10:40–10:55 Chat · 15 min"
+      },
+      {
+        "start": 39300,
+        "end": 43200,
+        "tone": "work",
+        "tip": "10:55–12:00 Work · 1 h 5 min"
+      },
+      {
+        "start": 43200,
+        "end": 45600,
+        "tone": "away",
+        "tip": "12:00–12:40 Away · 40 min"
+      },
+      {
+        "start": 45600,
+        "end": 48000,
+        "tone": "relax",
+        "tip": "12:40–13:20 Video · 40 min"
+      },
+      {
+        "start": 48600,
+        "end": 54000,
+        "tone": "work",
+        "tip": "13:30–15:00 Work · 1 h 30 min"
+      }
+    ],
+    "ranking": [
+      {
+        "name": "plan.md - idea1 - Cursor",
+        "sub": "Cursor · Work",
+        "tone": "work",
+        "time": "1 h 30 min",
+        "share": 1,
+        "hidden": false,
+        "detail": {
+          "app": "Cursor",
+          "title": "plan.md - idea1 - Cursor"
+        },
+        "filter": null
+      },
+      {
+        "name": "architecture.md - docs",
+        "sub": "Visual Studio Code · Work",
+        "tone": "work",
+        "time": "1 h",
+        "share": 0.667,
+        "hidden": false,
+        "detail": {
+          "app": "Visual Studio Code",
+          "title": "architecture.md - docs"
+        },
+        "filter": null
+      },
+      {
+        "name": "项目群",
+        "sub": "微信 · Chat",
+        "tone": "chat",
+        "time": "15 min",
+        "share": 0.167,
+        "hidden": false,
+        "detail": {
+          "app": "微信",
+          "title": "项目群"
+        },
+        "filter": null
+      },
+      {
+        "name": "StatsPage.tsx - idea1 - Cursor",
+        "sub": "Cursor · Work",
+        "tone": "work",
+        "time": "5 min",
+        "share": 0.056,
+        "hidden": false,
+        "detail": {
+          "app": "Cursor",
+          "title": "StatsPage.tsx - idea1 - Cursor"
+        },
+        "filter": null
+      }
+    ],
+    "note": null,
+    "empty": null,
+    "changes": [],
+    "bounds": null,
+    "rhythm": null
+  },
   "Week-Category": {
     "scale": "Week",
     "rankBy": "Category",

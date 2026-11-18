@@ -22,15 +22,19 @@ public static class UsageAggregator
 
     /// <summary>Apps and titles are not cut to <see cref="TopCount"/> here, so that <see cref="StatsFilter"/> can merge hidden ones first.</summary>
     /// <param name="segments">Segments of the range; those until <see cref="DayStartHour"/> on the day after only end the last day's <see cref="UsageDayBounds"/>.</param>
+    /// <param name="hours">Hours of the day that days, apps and titles are limited to; hourly totals, the timeline and bounds still
+    /// cover whole days. Rollups have no time of day and are left out. null counts whole days.</param>
     public static UsageReport Build(
         IEnumerable<UsageSegment> segments,
         IEnumerable<UsageRollup> rollups,
         DateOnly from,
-        DateOnly to)
+        DateOnly to,
+        IReadOnlyCollection<int>? hours = null)
     {
+        var selected = hours?.ToHashSet();
         var single = from == to;
         var days = new Dictionary<(DateOnly, PresenceState, ActivityCategory), long>();
-        var hours = new Dictionary<(int, PresenceState, ActivityCategory), long>();
+        var hourly = new Dictionary<(int, PresenceState, ActivityCategory), long>();
         var apps = new Dictionary<(PresenceState, ActivityCategory, string?), long>();
         var titles = new Dictionary<(PresenceState, ActivityCategory, string?, string?), long>();
         var spans = new List<UsageSpan>();
@@ -77,10 +81,10 @@ public static class UsageAggregator
                 }
 
                 offsets.Add((int)segment.Start.Offset.TotalMinutes);
-                Count(date, segment.State, segment.Category, segment.App, segment.Title, (long)(end - start).TotalSeconds);
                 var midnight = LocalMidnight(date, segment.Start.Offset);
                 var startSecond = (int)(start - midnight).TotalSeconds;
                 var endSecond = (int)(end - midnight).TotalSeconds;
+                Count(date, segment.State, segment.Category, segment.App, segment.Title, selected is null ? (long)(end - start).TotalSeconds : Within(startSecond, endSecond, selected));
                 if (single)
                 {
                     spans.Add(new UsageSpan(startSecond, endSecond, segment.State, segment.Category));
@@ -99,7 +103,7 @@ public static class UsageAggregator
                     if (single)
                     {
                         var key = (hour, segment.State, segment.Category);
-                        hours[key] = hours.GetValueOrDefault(key) + seconds;
+                        hourly[key] = hourly.GetValueOrDefault(key) + seconds;
                     }
                 }
             }
@@ -107,7 +111,7 @@ public static class UsageAggregator
 
         foreach (var rollup in rollups)
         {
-            if (rollup.Date >= from && rollup.Date <= to)
+            if (selected is null && rollup.Date >= from && rollup.Date <= to)
             {
                 Count(rollup.Date, rollup.State, rollup.Category, rollup.App, rollup.Title, rollup.Seconds);
             }
@@ -117,7 +121,7 @@ public static class UsageAggregator
             from,
             to,
             days.Select(d => new UsageTotal(d.Key.Item1, -1, d.Key.Item2, d.Key.Item3, d.Value)).OrderBy(d => d.Date).ThenBy(d => d.State).ThenBy(d => d.Category).ToList(),
-            hours.Select(h => new UsageTotal(from, h.Key.Item1, h.Key.Item2, h.Key.Item3, h.Value)).OrderBy(h => h.Hour).ThenBy(h => h.State).ThenBy(h => h.Category).ToList(),
+            hourly.Select(h => new UsageTotal(from, h.Key.Item1, h.Key.Item2, h.Key.Item3, h.Value)).OrderBy(h => h.Hour).ThenBy(h => h.State).ThenBy(h => h.Category).ToList(),
             JoinSpans(spans),
             apps.Select(a => new UsageItem(a.Key.Item1, a.Key.Item2, a.Key.Item3, null, a.Value)).OrderByDescending(a => a.Seconds).ToList(),
             titles.Select(t => new UsageItem(t.Key.Item1, t.Key.Item2, t.Key.Item3, t.Key.Item4, t.Value)).OrderByDescending(t => t.Seconds).ToList(),
@@ -147,6 +151,10 @@ public static class UsageAggregator
         .ToList();
 
     public static DateTimeOffset LocalMidnight(DateOnly date, TimeSpan offset) => new(date.ToDateTime(TimeOnly.MinValue), offset);
+
+    /// <summary>Seconds of the span that fall in the given hours of the day.</summary>
+    private static long Within(int startSecond, int endSecond, HashSet<int> hours) => hours
+        .Sum(h => (long)Math.Max(0, Math.Min(endSecond, (h + 1) * 3600) - Math.Max(startSecond, h * 3600)));
 
     /// <summary>Pieces of one local day each, in the offset of <paramref name="start"/>.</summary>
     internal static IEnumerable<(DateOnly Date, DateTimeOffset Start, DateTimeOffset End)> SplitByDay(DateTimeOffset start, DateTimeOffset end)

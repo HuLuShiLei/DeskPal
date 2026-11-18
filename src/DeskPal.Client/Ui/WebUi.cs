@@ -190,6 +190,23 @@ public sealed record WebCommand(int? Id, string Type, JsonElement Args)
 
     public Guid Guid(string name) => System.Guid.TryParse(String(name), out var id) ? id : throw new FormatException(UiLanguage.Format(Strings.Error_InvalidId, name));
 
+    /// <summary>Distinct hours of the day, sorted; null when missing or empty. Values outside 0 to 23 are dropped.</summary>
+    public IReadOnlyList<int>? HourList(string name)
+    {
+        if (!Args.TryGetProperty(name, out var value) || value.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        var hours = value.EnumerateArray()
+            .Where(e => e.ValueKind == JsonValueKind.Number && e.TryGetInt32(out var h) && h is >= 0 and < 24)
+            .Select(e => e.GetInt32())
+            .Distinct()
+            .Order()
+            .ToList();
+        return hours.Count == 0 ? null : hours;
+    }
+
     public List<Guid> GuidList(string name) =>
         Args.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Array
             ? value.EnumerateArray().Select(e => System.Guid.TryParse(e.GetString(), out var id) ? id : throw new FormatException(UiLanguage.Format(Strings.Error_InvalidId, name))).ToList()

@@ -168,8 +168,12 @@ export function createMockTransport(params: URLSearchParams): Transport {
         // 样例只有「今天」所在的日、周、月；翻页时返回同一份。
         await new Promise((resolve) => setTimeout(resolve, m.userId ? 600 : 80));
         const key = `${m.userId ? "member-" : ""}${m.scale}-${m.rankBy}`;
+        const hours = m.scale === "Day" && !m.userId ? (m.hours as number[] | null) : null;
         // 样例里只有「本周只看游戏」一页，其他筛选返回不筛选的那页。
-        const view = views[`${key}-${m.filter}`] ?? views[key];
+        // 选中时段只有 9–12 点和 9–11、14–16 点两种，其他选择返回 9–12 点那页。
+        const view = hours?.length
+          ? (views[`${key}-h${hours.join(",")}`] ?? views[`${key}-h9,10,11`])
+          : (views[`${key}-${m.filter}`] ?? views[key]);
         return view
           ? { ok: true, error: null, data: view }
           : { ok: false, error: L("对方不在线、当前不在此房间，或没有响应。", "This member is offline, not in this room, or did not respond.") };

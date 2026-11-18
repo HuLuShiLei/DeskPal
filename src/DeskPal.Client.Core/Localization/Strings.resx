@@ -330,6 +330,9 @@
   <data name="Stats_UsageTime" xml:space="preserve">
     <value>使用时长</value>
   </data>
+  <data name="Stats_HoursUsage" xml:space="preserve">
+    <value>{0} 使用时长</value>
+  </data>
   <data name="Stats_DailyAverage" xml:space="preserve">
     <value>日均使用时长</value>
   </data>

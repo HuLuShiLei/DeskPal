@@ -1,8 +1,22 @@
+import { useRef, useState } from "preact/hooks";
 import type { StatsBar, StatsRhythm, StatsView } from "../bridge";
 import { t } from "../i18n";
 
-/** 一天 24 小时的横向色带。悬停显示起止时间和时长。 */
-export function Timeline({ spans }: { spans: StatsView["timeline"] }) {
+/** 连续的下标合成一段：[起点, 个数]。 */
+function runs(indexes: Iterable<number>): [number, number][] {
+  const result: [number, number][] = [];
+  for (const i of [...indexes].sort((a, b) => a - b)) {
+    const last = result[result.length - 1];
+    if (last && last[0] + last[1] === i) last[1]++;
+    else result.push([i, 1]);
+  }
+  return result;
+}
+
+/** 一天 24 小时的横向色带。悬停显示起止时间和时长。选了时段时，其余小时变淡。 */
+export function Timeline({ spans, selected = [] }: { spans: StatsView["timeline"]; selected?: number[] }) {
+  const picked = new Set(selected);
+  const faded = picked.size === 0 ? [] : runs(Array.from({ length: 24 }, (_, h) => h).filter((h) => !picked.has(h)));
   return (
     <div class="stats-timeline">
       <svg viewBox="0 0 86400 10" preserveAspectRatio="none" role="img" aria-label={t("charts.timeline")}>
@@ -11,6 +25,9 @@ export function Timeline({ spans }: { spans: StatsView["timeline"] }) {
           <rect key={s.start} x={s.start} y="0" width={Math.max(s.end - s.start, 60)} height="10" style={{ fill: `var(--tone-${s.tone})` }}>
             <title>{s.tip}</title>
           </rect>
+        ))}
+        {faded.map(([from, count]) => (
+          <rect key={from} x={from * 3600} y="0" width={count * 3600} height="10" class="stats-faded" />
         ))}
       </svg>
       <div class="stats-axis five" aria-hidden="true">
@@ -22,28 +39,90 @@ export function Timeline({ spans }: { spans: StatsView["timeline"] }) {
   );
 }
 
-/** 堆叠柱。每根柱按图例分色；给了 onPick 时，点有日期的柱进入那一天。 */
-export function Bars({ bars, max, maxLabel, legend, onPick, label = t("charts.bars") }: {
+/** 拖动中的选择：起止柱和是否按住 Ctrl 追加。 */
+type Drag = { from: number; to: number; add: boolean };
+
+/**
+ * 堆叠柱。每根柱按图例分色；给了 onPick 时，点有日期的柱进入那一天。
+ * 给了 onSelect 时可以选柱：点一根或拖过几根选中这一段，再点唯一选中的那根取消；按住 Ctrl 追加，拖过的都已选中时改为去掉。
+ */
+export function Bars({ bars, max, maxLabel, legend, onPick, label = t("charts.bars"), selected = [], onSelect }: {
   bars: StatsBar[];
   max: number;
   maxLabel: string;
   legend: StatsView["legend"];
   onPick?: (date: string) => void;
   label?: string;
+  selected?: number[];
+  onSelect?: (indexes: number[]) => void;
 }) {
   const tone = new Map(legend.map((l) => [l.key, l]));
   const width = 10;
+  const svg = useRef<SVGSVGElement>(null);
+  // 快速点击时 pointerup 会在重新渲染前到达，处理函数要读 ref 里的最新值。
+  const dragging = useRef<Drag | null>(null);
+  const [drag, setDragState] = useState<Drag | null>(null);
+  const setDrag = (d: Drag | null) => {
+    dragging.current = d;
+    setDragState(d);
+  };
+  const picked = new Set(selected);
+
+  const indexAt = (clientX: number) => {
+    const box = svg.current!.getBoundingClientRect();
+    return Math.min(bars.length - 1, Math.max(0, Math.floor(((clientX - box.left) / box.width) * bars.length)));
+  };
+  const result = (d: Drag) => {
+    const span = Array.from({ length: Math.abs(d.to - d.from) + 1 }, (_, k) => Math.min(d.from, d.to) + k);
+    if (!d.add) return span;
+    const next = new Set(picked);
+    const remove = span.every((i) => picked.has(i));
+    span.forEach((i) => (remove ? next.delete(i) : next.add(i)));
+    return [...next];
+  };
+  const shown = drag ? new Set(result(drag)) : picked;
+
+  const select = onSelect && {
+    onPointerDown: (e: PointerEvent) => {
+      if (e.button !== 0) return;
+      svg.current!.setPointerCapture(e.pointerId);
+      const i = indexAt(e.clientX);
+      setDrag({ from: i, to: i, add: e.ctrlKey || e.metaKey });
+    },
+    onPointerMove: (e: PointerEvent) => {
+      const d = dragging.current;
+      if (!d) return;
+      const i = indexAt(e.clientX);
+      if (i !== d.to) setDrag({ ...d, to: i });
+    },
+    onPointerUp: () => {
+      const d = dragging.current;
+      if (!d) return;
+      const again = !d.add && d.from === d.to && picked.size === 1 && picked.has(d.from);
+      setDrag(null);
+      onSelect(again ? [] : result(d).sort((a, b) => a - b));
+    },
+    onPointerCancel: () => setDrag(null),
+  };
+
   return (
-    <div class="stats-bars">
+    <div class={onSelect ? "stats-bars selectable" : "stats-bars"}>
       <span class="stats-max">{maxLabel}</span>
-      <svg viewBox={`0 0 ${bars.length * width} 100`} preserveAspectRatio="none" role="img" aria-label={label}>
+      <svg ref={svg} viewBox={`0 0 ${bars.length * width} 100`} preserveAspectRatio="none" role="img" aria-label={label} {...select}>
+        {runs(shown).map(([from, count]) => (
+          <g key={`pick-${from}`} class="stats-pick">
+            <rect x={from * width} y="0" width={count * width} height="100" />
+            <rect x={from * width + 1} y="101.5" width={count * width - 2} height="2.5" class="stats-pick-line" />
+          </g>
+        ))}
         <line x1="0" x2={bars.length * width} y1="0.5" y2="0.5" class="stats-grid" />
         <line x1="0" x2={bars.length * width} y1="50" y2="50" class="stats-grid" />
         {bars.map((bar, i) => {
           let y = 100;
           const clickable = bar.date !== null && onPick !== undefined;
+          const classes = ["stats-bar", clickable && "clickable", shown.size > 0 && !shown.has(i) && "faded"].filter(Boolean).join(" ");
           return (
-            <g key={i} class={clickable ? "stats-bar clickable" : "stats-bar"} onClick={() => clickable && onPick(bar.date!)}>
+            <g key={i} class={classes} onClick={() => clickable && onPick(bar.date!)}>
               <title>{bar.tip}</title>
               <rect x={i * width} y="0" width={width} height="100" class="stats-hit" />
               {bar.parts.map((p) => {

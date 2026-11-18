@@ -87,7 +87,11 @@ public static class StatsSamples
         return list;
     }
 
-    /// <summary>Every page of the sample stats: mine as "Day-App" and so on, Bob's as "member-Day-App", my week of games alone as "Week-App-Game".</summary>
+    /// <summary>Hours picked on my day chart in the samples; the mock shows the first for any other pick.</summary>
+    private static readonly int[][] PickedHours = [[9, 10, 11], [9, 10, 14, 15]];
+
+    /// <summary>Every page of the sample stats: mine as "Day-App" and so on, Bob's as "member-Day-App", my week of games alone as "Week-App-Game",
+    /// my day limited to some hours as "Day-App-h9,10,11".</summary>
     public static IReadOnlyDictionary<string, StatsView> Views()
     {
         var segments = Segments();
@@ -121,6 +125,18 @@ public static class StatsSamples
             if (scale == StatsScale.Week)
             {
                 views["Week-App-Game"] = StatsViewBuilder.Build(mine, scale, StatsRankBy.App, Today, Today, filter: "Game");
+            }
+
+            if (scale == StatsScale.Day)
+            {
+                foreach (var hours in PickedHours)
+                {
+                    var picked = UsageAggregator.Build(segments, [], range.From, to, hours);
+                    foreach (var rankBy in Enum.GetValues<StatsRankBy>())
+                    {
+                        views[$"Day-{rankBy}-h{string.Join(",", hours)}"] = StatsViewBuilder.Build(picked, scale, rankBy, Today, Today, myOffset: MyOffset, hours: hours);
+                    }
+                }
             }
         }
 

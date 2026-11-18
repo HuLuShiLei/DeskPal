@@ -45,8 +45,14 @@ public static class StatsViewBuilder
     /// <param name="filter">Legend key to show only; ignored when the range has no such category.</param>
     /// <param name="today">Today of whoever the stats belong to.</param>
     /// <param name="myOffset">My UTC offset now in minutes, to say whose local time the page is in; null says nothing.</param>
-    public static StatsView Build(UsageReport report, StatsScale scale, StatsRankBy rankBy, DateOnly anchor, DateOnly today, string? owner = null, string? filter = null, int? myOffset = null)
+    /// <param name="hours">Hours of a day the report's days, apps and titles were limited to (<see cref="UsageAggregator.Build"/>); null for the whole range.</param>
+    public static StatsView Build(UsageReport report, StatsScale scale, StatsRankBy rankBy, DateOnly anchor, DateOnly today, string? owner = null, string? filter = null, int? myOffset = null, IReadOnlyList<int>? hours = null)
     {
+        if (scale != StatsScale.Day || hours is { Count: 0 })
+        {
+            hours = null;
+        }
+
         var range = StatsRange.Of(scale, anchor);
         var stateLegend = StateLegend;
         var fullLegend = CategoryLegend
@@ -55,7 +61,7 @@ public static class StatsViewBuilder
         string KeyOf(PresenceState state, ActivityCategory category) => CategoryKey(category) ?? "hidden-" + StateKey(state, category);
 
         var counted = report.Days.Where(d => UsageStates.Counts(d.State)).ToList();
-        var used = counted.Select(d => KeyOf(d.State, d.Category))
+        var used = counted.Concat(report.Hours.Where(h => UsageStates.Counts(h.State))).Select(d => KeyOf(d.State, d.Category))
             .Concat(report.Apps.Concat(report.Titles).Select(i => KeyOf(i.State, i.Category)))
             .ToHashSet();
         var legend = fullLegend.Where(l => used.Contains(l.Key)).ToList();
@@ -97,8 +103,8 @@ public static class StatsViewBuilder
         }
         else
         {
-            var hours = Math.Max(1, (long)Math.Ceiling(bars.Select(b => b.Parts.Sum(p => p.Seconds)).DefaultIfEmpty(0).Max() / 3600.0));
-            barMax = hours * 3600;
+            var maxHours = Math.Max(1, (long)Math.Ceiling(bars.Select(b => b.Parts.Sum(p => p.Seconds)).DefaultIfEmpty(0).Max() / 3600.0));
+            barMax = maxHours * 3600;
             barMaxLabel = Duration(barMax);
         }
 
@@ -161,18 +167,20 @@ public static class StatsViewBuilder
         }
 
         string? empty = null;
-        if (counted.Sum(d => d.Seconds) == 0 && away == 0 && locked == 0)
+        if (hours is null && counted.Sum(d => d.Seconds) == 0 && away == 0 && locked == 0)
         {
             empty = owner is null ? Strings.Stats_EmptyMine : Strings.Stats_EmptyOther;
         }
 
         var previousRange = Previous(scale, anchor);
-        var compare = filter is null ? Compare(report.Previous?.Sum(p => p.Seconds), scale, total, average, previousRange, scale == StatsScale.Day && range.From == today) : null;
+        var compare = filter is null && hours is null ? Compare(report.Previous?.Sum(p => p.Seconds), scale, total, average, previousRange, scale == StatsScale.Day && range.From == today) : null;
         var changes = compare is null || report.Previous is not { } previous
             ? []
             : Changes(counted, previous, scale, shownDays, previousRange.Days, KeyOf, fullLegend);
 
-        var totalLabel = scale == StatsScale.Day ? Strings.Stats_UsageTime : Strings.Stats_DailyAverage;
+        var totalLabel = hours is not null ? UiLanguage.Format(Strings.Stats_HoursUsage, HourSpans(hours))
+            : scale == StatsScale.Day ? Strings.Stats_UsageTime
+            : Strings.Stats_DailyAverage;
         return new StatsView(
             scale,
             rankBy,
@@ -197,7 +205,7 @@ public static class StatsViewBuilder
             notes.Count == 0 ? null : string.Join(Strings.SentenceSeparator, notes),
             empty,
             changes,
-            filter is null ? Bounds(report.Bounds, scale, range) : null,
+            filter is null && hours is null ? Bounds(report.Bounds, scale, range) : null,
             scale == StatsScale.Day ? null : Rhythm(report.WeekHours, scale, shownFrom, shownDays, KeyOf, Shown, shownLegend?.Tone));
     }
 
@@ -479,6 +487,25 @@ public static class StatsViewBuilder
     }
 
     internal static string Clock(int seconds) => $"{seconds / 3600}:{seconds % 3600 / 60:00}";
+
+    /// <summary>"9:00–12:00、14:00–15:00": runs of consecutive hours.</summary>
+    public static string HourSpans(IReadOnlyList<int> hours)
+    {
+        var runs = new List<(int From, int To)>();
+        foreach (var hour in hours.Distinct().Order())
+        {
+            if (runs.Count > 0 && runs[^1].To == hour)
+            {
+                runs[^1] = (runs[^1].From, hour + 1);
+            }
+            else
+            {
+                runs.Add((hour, hour + 1));
+            }
+        }
+
+        return string.Join(Strings.ListSeparator, runs.Select(r => $"{r.From}:00–{r.To}:00"));
+    }
 
     private static string StateKey(PresenceState state, ActivityCategory category) => state switch
     {

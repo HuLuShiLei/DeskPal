@@ -269,7 +269,7 @@ export type Command =
   | { type: "room.privacy"; roomId: string; levels: Record<string, PrivacyLevel> }
   | { type: "room.shareStats"; roomId: string; enabled: boolean; days: number }
   | { type: "room.sharePausedStats"; roomId: string; enabled: boolean }
-  | { type: "stats.query"; scale: StatsScale; rankBy: StatsRankBy; filter: string | null; date: string | null; userId: string | null }
+  | { type: "stats.query"; scale: StatsScale; rankBy: StatsRankBy; filter: string | null; date: string | null; userId: string | null; hours: number[] | null }
   | { type: "stats.app"; scale: StatsScale; date: string | null; app: string; title: string | null }
   | { type: "stats.export" }
   | { type: "stats.import" }

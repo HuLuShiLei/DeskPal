@@ -520,6 +520,15 @@ button.hint-button:active:not(:disabled) { background: var(--pressed); color: va
 .stats-hit { fill: transparent; }
 .stats-bar.clickable { cursor: pointer; }
 .stats-bar:hover .stats-hit { fill: var(--hover); }
+.stats-bar { transition: opacity 0.12s ease; }
+.stats-bar.faded { opacity: 0.3; }
+.stats-bars.selectable svg { touch-action: none; user-select: none; }
+.stats-pick rect { fill: var(--accent); fill-opacity: 0.08; }
+.stats-pick rect.stats-pick-line { fill-opacity: 1; }
+.stats-faded { fill: var(--surface-strong); opacity: 0.7; pointer-events: none; }
+.stats-pick-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; font-size: 12px; color: var(--faint); }
+.stats-pick-bar span { min-width: 0; }
+.stats-pick-bar button { flex: none; min-height: 24px; padding: 0 8px; font-size: 12px; }
 .hidden-part { opacity: 0.45; }
 .stats-axis { display: grid; margin-top: 4px; font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
 .stats-axis span { text-align: center; white-space: nowrap; overflow: visible; }

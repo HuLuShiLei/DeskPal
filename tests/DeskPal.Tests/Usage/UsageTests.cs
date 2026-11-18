@@ -136,6 +136,36 @@ public class UsageTests : IDisposable
     }
 
     [Fact]
+    public void Picked_hours_limit_totals_and_ranking_but_keep_the_whole_day_chart()
+    {
+        UsageSegment[] segments =
+        [
+            new(At(9, 30), At(10, 30), PresenceState.Working, ActivityCategory.Work, "Cursor", "a.md"),
+            new(At(10, 30), At(10, 40), PresenceState.Away, ActivityCategory.None, null, null),
+            new(At(14, 0), At(15, 0), PresenceState.Slacking, ActivityCategory.Game, "原神", "深渊"),
+            new(At(20, 0), At(21, 0), PresenceState.Slacking, ActivityCategory.Video, "哔哩哔哩", "猫"),
+        ];
+        int[] hours = [10, 14];
+        var rollup = new UsageRollup(Day, PresenceState.Working, ActivityCategory.Work, "Word", null, 600);
+
+        var report = UsageAggregator.Build(segments, [rollup], Day, Day, hours) with { Previous = [new(Day, -1, PresenceState.Working, ActivityCategory.Work, 3600)] };
+        var view = StatsViewBuilder.Build(report, StatsScale.Day, StatsRankBy.App, Day, Day.AddDays(1), hours: hours);
+
+        Assert.Equal(1800 + 3600, UsageAggregator.ActiveSeconds(report));
+        Assert.Equal(600, report.Days.Single(d => d.State == PresenceState.Away).Seconds);
+        Assert.Equal([("原神", 3600L), ("Cursor", 1800L)], report.Apps.Select(a => (a.App!, a.Seconds)));
+        Assert.Contains(report.Hours, h => h.Hour == 20);
+        Assert.Equal(4, report.Timeline.Count);
+        Assert.Equal(("10:00–11:00、14:00–15:00 使用时长", "1 小时 30 分钟"), (view.TotalLabel, view.Total));
+        Assert.Equal(["原神", "Cursor"], view.Ranking.Select(r => r.Name));
+        Assert.Contains(view.Legend, l => l.Key == "Video");
+        Assert.Null(view.Compare);
+        Assert.Null(view.Bounds);
+        Assert.Null(view.Empty);
+        Assert.Equal("9:00–12:00", StatsViewBuilder.HourSpans([11, 9, 10]));
+    }
+
+    [Fact]
     public void Store_folds_expired_days_into_daily_totals()
     {
         using var store = NewStore();

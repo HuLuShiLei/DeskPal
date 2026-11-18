@@ -48,12 +48,19 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
 
   const sharing = state.members.filter((m) => m.shareStats && !m.blocked);
   const userId = target?.userId ?? null;
+  /** 日统计上选中的小时；换了日期、范围或查看对象就不再生效。只能选自己的统计。 */
+  const [pick, setPick] = useState<{ scope: string; hours: number[] }>({ scope: "", hours: [] });
+  const canPick = scale === "Day" && userId === null;
+  const scope = `${date}`;
+  const hours = canPick && pick.scope === scope ? pick.hours : [];
+  const hoursKey = hours.join(",");
+  const onHours = canPick ? (h: number[]) => setPick({ scope, hours: h }) : undefined;
 
   useEffect(() => {
     const query = async () => {
       const id = ++latest.current;
       setLoading(true);
-      const result = await bridge.request({ type: "stats.query", scale, rankBy, filter, date, userId });
+      const result = await bridge.request({ type: "stats.query", scale, rankBy, filter, date, userId, hours: hours.length > 0 ? hours : null });
       if (id !== latest.current) return;
       setLoading(false);
       if (result.ok) {
@@ -67,7 +74,7 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
     // 看自己的今天时，每分钟刷新一次。
     const timer = userId === null ? setInterval(() => void query(), 60_000) : undefined;
     return () => clearInterval(timer);
-  }, [scale, rankBy, filter, date, userId, revision]);
+  }, [scale, rankBy, filter, date, userId, revision, hoursKey]);
 
   useEffect(() => {
     if (!detail) {
@@ -204,7 +211,19 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
               </p>
             )}
             {!view && !error && <p class="loading">{target ? t("stats.requesting", { name: target.name }) : t("stats.reading")}</p>}
-            {view && <Report view={view} onPick={(d) => (setScale("Day"), setDate(d))} onRow={pickRow} rankBy={rankBy} onRankBy={setRankBy} onFilter={setFilter} busy={loading} />}
+            {view && (
+              <Report
+                view={view}
+                onPick={(d) => (setScale("Day"), setDate(d))}
+                onRow={pickRow}
+                rankBy={rankBy}
+                onRankBy={setRankBy}
+                onFilter={setFilter}
+                busy={loading}
+                hours={hours}
+                onHours={view.scale === "Day" ? onHours : undefined}
+              />
+            )}
           </>
         )}
       </Section>
@@ -213,7 +232,7 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
   );
 }
 
-function Report({ view, onPick, onRow, rankBy, onRankBy, onFilter, busy }: {
+function Report({ view, onPick, onRow, rankBy, onRankBy, onFilter, busy, hours, onHours }: {
   view: StatsView;
   onPick: (date: string) => void;
   onRow: (item: StatsRankItem) => void;
@@ -221,6 +240,9 @@ function Report({ view, onPick, onRow, rankBy, onRankBy, onFilter, busy }: {
   onRankBy: (rankBy: StatsRankBy) => void;
   onFilter: (key: string | null) => void;
   busy: boolean;
+  hours: number[];
+  /** 日统计可以选时段时给出。 */
+  onHours?: (hours: number[]) => void;
 }) {
   return (
     <div class={busy ? "stats-report busy" : "stats-report"} aria-busy={busy}>
@@ -251,9 +273,27 @@ function Report({ view, onPick, onRow, rankBy, onRankBy, onFilter, busy }: {
       ) : (
         <>
           <div class="card stats-chart">
-            {view.timeline.length > 0 && <Timeline spans={view.timeline} />}
-            <Bars bars={view.bars} max={view.barMax} maxLabel={view.barMaxLabel} legend={view.legend} onPick={view.scale === "Day" ? undefined : onPick} />
+            {view.timeline.length > 0 && <Timeline spans={view.timeline} selected={hours} />}
+            <Bars
+              bars={view.bars}
+              max={view.barMax}
+              maxLabel={view.barMaxLabel}
+              legend={view.legend}
+              onPick={view.scale === "Day" ? undefined : onPick}
+              selected={hours}
+              onSelect={onHours}
+            />
             <Legend legend={view.legend} selected={view.filter} onPick={onFilter} />
+            {onHours && (
+              <div class="stats-pick-bar">
+                <span>{t(hours.length > 0 ? "stats.pickMore" : "stats.pickHint")}</span>
+                {hours.length > 0 && (
+                  <button class="subtle" onClick={() => onHours([])}>
+                    {t("stats.wholeDay")}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
           {view.rhythm && (
             <div class="card stats-chart">
@@ -270,6 +310,7 @@ function Report({ view, onPick, onRow, rankBy, onRankBy, onFilter, busy }: {
               ))}
             </div>
             {view.ranking.length > 0 && <Ranking items={view.ranking} onPick={onRow} />}
+            {view.ranking.length === 0 && hours.length > 0 && <p class="stats-empty">{t("stats.pickedEmpty")}</p>}
           </div>
         </>
       )}
