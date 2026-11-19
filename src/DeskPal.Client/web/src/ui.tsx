@@ -2,6 +2,7 @@ import type { ComponentChildren, RefObject } from "preact";
 import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import type { Bridge, PresenceView, Tone } from "./bridge";
 import { t } from "./i18n";
+import { isMac } from "./platform";
 
 // Segoe Fluent Icons（Windows 11）/ Segoe MDL2 Assets（Windows 10）里的字形。
 const glyphs = {
@@ -44,7 +45,73 @@ const glyphs = {
 
 export type IconName = keyof typeof glyphs;
 
+/** 圆：圆心 (x, y)，半径 r。 */
+const circle = (x: number, y: number, r: number) => `M${x - r} ${y}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0`;
+const person = (x: number, y: number) => `${circle(x, y, 2.3)}M${x - 4.3} ${y + 8.2}c0-2.4 1.9-4.3 4.3-4.3s4.3 1.9 4.3 4.3`;
+const pin = "M9.6 2.4l4 4-2 1-2.4 2.4.5 2.6-1.1 1.1-5.1-5.1 1.1-1.1 2.6.5 2.4-2.4z";
+
+/**
+ * macOS 没有 Segoe Fluent Icons，改用同样含义的线条图标（16×16，描边，跟随文字颜色和字号）。
+ * 和上面的字形一一对应，Windows 上不使用。
+ */
+const paths: Record<IconName, string> = {
+  people: `${person(6, 5)}M11 3.2a2.2 2.2 0 0 1 0 4.2M12.4 9.6c1.3.6 2.1 2 2.1 3.6`,
+  group: `${person(8, 4.5)}${circle(3.2, 6.6, 1.6)}${circle(12.8, 6.6, 1.6)}M1 12.5c0-1.6 1-2.8 2.4-3.1M15 12.5c0-1.6-1-2.8-2.4-3.1`,
+  home: "M2 7.5 8 2.5l6 5M3.5 6.5V13.5h3.3v-4h2.4v4h3.3V6.5",
+  settings: `${circle(8, 8, 2.2)}${circle(8, 8, 4.6)}M8 1.5v1.9M8 12.6v1.9M1.5 8h1.9M12.6 8h1.9M3.4 3.4l1.3 1.3M11.3 11.3l1.3 1.3M3.4 12.6l1.3-1.3M11.3 4.7l1.3-1.3`,
+  minimize: "M3.5 8h9",
+  close: "M4 4l8 8M12 4l-8 8",
+  chevronDown: "M4 6l4 4 4-4",
+  add: "M8 3v10M3 8h10",
+  edit: "M10.6 2.6l2.8 2.8L6 12.8H3.2V10zM9.2 4l2.8 2.8",
+  delete: "M3 4.5h10M6.4 4.5V2.8h3.2v1.7M4.5 4.5l.7 9h5.6l.7-9M7 7v4.3M9 7v4.3",
+  link: "M7 9.2a3 3 0 0 0 4.2 0l2-2a3 3 0 0 0-4.2-4.2l-.8.8M9 6.8a3 3 0 0 0-4.2 0l-2 2a3 3 0 0 0 4.2 4.2l.8-.8",
+  tag: `M2.5 2.5h5l6 6-5 5-6-6z${circle(5.5, 5.5, 0.8)}`,
+  undo: "M5 3 2.5 5.5 5 8M2.5 5.5H10a3.5 3.5 0 0 1 0 7H6",
+  accept: "M3 8.5l3 3 7-7",
+  info: `${circle(8, 8, 6)}M8 7.2v4M8 4.9v.1`,
+  warning: "M8 2.3l6.2 11H1.8zM8 6.4v3.4M8 11.6v.1",
+  ring: "M4 11V7a4 4 0 0 1 8 0v4l1.2 1.4H2.8zM6.5 14h3",
+  refresh: "M13 8a5 5 0 1 1-1.5-3.6M13 2.4v3h-3",
+  timer: `${circle(8, 9, 5)}M8 6.3V9l2 1.4M6.4 1.8h3.2`,
+  forward: "M6 3.5 10.5 8 6 12.5",
+  back: "M10 3.5 5.5 8l4.5 4.5",
+  chart: "M2.5 13.5h11M4.5 11.2V8.2M7.7 11.2V4.6M10.9 11.2V6.6",
+  hide: `M1.8 8s2.3-4 6.2-4 6.2 4 6.2 4-2.3 4-6.2 4-6.2-4-6.2-4z${circle(8, 8, 1.9)}M2.5 2.5l11 11`,
+  search: `${circle(7, 7, 4.3)}M10.2 10.2l3.4 3.4`,
+  pin: `${pin}M5.4 10.6l-3 3`,
+  pinned: `${pin}M5.4 10.6l-3 3`,
+  more: "M3.5 8h.01M8 8h.01M12.5 8h.01",
+  block: `${circle(8, 8, 5.8)}M3.9 3.9l8.2 8.2`,
+  remove: `${circle(8, 8, 5.8)}M5.2 8h5.6`,
+  app: "M2.5 3.5h11v9h-11zM2.5 6h11M4.3 4.8h.01M5.8 4.8h.01",
+  globe: `${circle(8, 8, 6)}M2 8h12M8 2c2 2.2 2 9.8 0 12M8 2c-2 2.2-2 9.8 0 12`,
+  text: "M3 4V3h10v1M8 3v10M6 13h4",
+  check: "M3 8.5l3 3 7-7",
+  copy: "M5.5 5.5h8v8h-8zM10.5 5.5v-3h-8v8h3",
+  filter: "M2.5 3h11L9.3 8v4.6l-2.6 1.4V8z",
+};
+
 export function Icon({ name, class: cls }: { name: IconName; class?: string }) {
+  if (isMac()) {
+    return (
+      <svg
+        class={cls ? `icon svg-icon ${cls}` : "icon svg-icon"}
+        aria-hidden="true"
+        viewBox="0 0 16 16"
+        width="1em"
+        height="1em"
+        fill={name === "pinned" ? "currentColor" : "none"}
+        stroke="currentColor"
+        stroke-width={name === "more" ? 2.4 : 1.4}
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d={paths[name]} />
+      </svg>
+    );
+  }
+
   return (
     <span class={cls ? `icon ${cls}` : "icon"} aria-hidden="true">
       {glyphs[name]}

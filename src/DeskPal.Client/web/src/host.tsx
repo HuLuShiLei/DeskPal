@@ -2,6 +2,7 @@ import { createContext } from "preact";
 import { useContext, useEffect, useRef, useState } from "preact/hooks";
 import type { Bridge, Command, CommandResult, PresenceView } from "./bridge";
 import { t } from "./i18n";
+import { Icon } from "./ui";
 
 export interface DialogOptions {
   title: string;
@@ -85,9 +86,7 @@ export function useHostServices(bridge: Bridge) {
       <div class="toasts" role="status">
         {toasts.map((x) => (
           <div key={x.id} class={x.error ? "toast error" : "toast"}>
-            <span class="icon" aria-hidden="true">
-              {x.error ? "\uE7BA" : "\uE8FB"}
-            </span>
+            <Icon name={x.error ? "warning" : "accept"} />
             {x.text}
           </div>
         ))}

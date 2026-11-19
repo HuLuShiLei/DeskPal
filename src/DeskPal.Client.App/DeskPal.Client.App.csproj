@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Windows 和 macOS 客户端共用的部分：连接、房间、状态推送、统计、同步、更新、面板命令。不依赖任何平台的界面库。 -->
+  <ItemGroup>
+    <ProjectReference Include="..\DeskPal.Client.Core\DeskPal.Client.Core.csproj" />
+    <ProjectReference Include="..\DeskPal.Shared\DeskPal.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.14" />
+    <PackageReference Include="Velopack" Version="1.2.161" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>DeskPal.Client</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

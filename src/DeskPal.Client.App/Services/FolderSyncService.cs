@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using DeskPal.Client.Core.Usage;
+using DeskPal.Client.Platform;
 using DeskPal.Shared;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -25,7 +26,7 @@ public sealed class FolderSyncService : BackgroundService
         _settings = settings;
         _logger = logger;
         var path = Path.Combine(SettingsStore.Directory, "usage", $"{settings.UserId:N}.folder-sync");
-        _sync = new FolderSync(usage.Store, new DpapiFolderStore(path), settings.UserId, () => UsageService.Today);
+        _sync = new FolderSync(usage.Store, new ProtectedFolderStore(path), settings.UserId, () => UsageService.Today);
         _sync.Changed += () => Changed?.Invoke();
         usage.DaysChanged += () => _allDays = true;
     }
@@ -116,8 +117,8 @@ public sealed class FolderSyncService : BackgroundService
         }
     }
 
-    /// <summary>The folder and the key, the key encrypted with Windows DPAPI for the current Windows user.</summary>
-    private sealed class DpapiFolderStore(string path) : IFolderSyncStore
+    /// <summary>The folder and the key, the key encrypted for the current user (DPAPI on Windows, a keychain key on macOS).</summary>
+    private sealed class ProtectedFolderStore(string path) : IFolderSyncStore
     {
         public FolderSyncConfig? Load()
         {
@@ -134,7 +135,7 @@ public sealed class FolderSyncService : BackgroundService
                     return null;
                 }
 
-                var key = ProtectedData.Unprotect(Convert.FromBase64String(file.Key), null, DataProtectionScope.CurrentUser);
+                var key = SecretProtection.UnprotectFromBase64(file.Key);
                 return new FolderSyncConfig(file.Folder, file.Salt, key);
             }
             catch (Exception ex) when (ex is IOException or JsonException or FormatException or CryptographicException)
@@ -146,7 +147,7 @@ public sealed class FolderSyncService : BackgroundService
         public void Save(FolderSyncConfig config)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            var file = new ConfigFile(config.Folder, config.Salt, Convert.ToBase64String(ProtectedData.Protect(config.Key, null, DataProtectionScope.CurrentUser)));
+            var file = new ConfigFile(config.Folder, config.Salt, SecretProtection.ProtectToBase64(config.Key));
             File.WriteAllText(path, JsonSerializer.Serialize(file, DeskPalJson.Options));
         }
 

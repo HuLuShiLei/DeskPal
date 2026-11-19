@@ -34,7 +34,7 @@
   --tone-offline: #a0a0a0;
   --radius: 6px;
   --radius-lg: 8px;
-  font: 13px/1.45 "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+  font: 13px/1.45 "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
   color: var(--text);
   background: var(--bg);
 }
@@ -149,13 +149,13 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 .titlebar { height: 36px; display: flex; align-items: center; -webkit-app-region: drag; app-region: drag; padding-left: 12px; }
 .app-mark {
   width: 18px; height: 18px; border-radius: 5px; flex: none;
-  display: grid; place-items: center; font: 700 11px/1 "Segoe UI", sans-serif;
+  display: grid; place-items: center; font: 700 11px/1 "Segoe UI", -apple-system, sans-serif;
   background: linear-gradient(135deg, #5b8cff, #3f6fe8); color: #fff;
 }
 .app-mark.large { width: 52px; height: 52px; border-radius: 14px; font-size: 26px; box-shadow: 0 6px 18px rgba(63, 111, 232, 0.35); }
 .app-title { font-size: 12px; color: var(--muted); }
 .wordmark {
-  font: 700 16px/1 "Segoe UI Variable Display", "Segoe UI", sans-serif; letter-spacing: -0.4px;
+  font: 700 16px/1 "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif; letter-spacing: -0.4px;
   color: var(--text); white-space: nowrap;
 }
 .wordmark-accent {
@@ -446,7 +446,7 @@ button.hint-button:active:not(:disabled) { background: var(--pressed); color: va
 
 .room-badge {
   width: 24px; height: 24px; border-radius: 7px; flex: none; display: grid; place-items: center;
-  font: 600 12px/1 "Segoe UI", "Microsoft YaHei UI", sans-serif;
+  font: 600 12px/1 "Segoe UI", "Microsoft YaHei UI", -apple-system, "PingFang SC", sans-serif;
 }
 .room-badge[class*="tv-"] { background: color-mix(in srgb, var(--tv) 22%, transparent); color: color-mix(in srgb, var(--tv) 85%, var(--text)); }
 .room-badge.small { width: 20px; height: 20px; border-radius: 999px; font-size: 10px; }
@@ -470,7 +470,7 @@ button.hint-button:active:not(:disabled) { background: var(--pressed); color: va
 .dialog-body select, .dialog-body input:not([type=checkbox]):not([type=radio]) { width: 100%; }
 .dialog-buttons { display: flex; gap: 8px; padding: 16px 20px; background: var(--bg); border-top: 1px solid var(--line); }
 .dialog-buttons button { flex: 1; }
-.highlight { font: 600 24px/1.2 Consolas, monospace; letter-spacing: 3px; text-align: center; padding: 10px; background: var(--hover); border-radius: var(--radius); }
+.highlight { font: 600 24px/1.2 Consolas, "SF Mono", Menlo, monospace; letter-spacing: 3px; text-align: center; padding: 10px; background: var(--hover); border-radius: var(--radius); }
 .check { display: flex; align-items: center; gap: 8px; }
 .choices { display: grid; gap: 2px; }
 .choices label { display: flex; align-items: center; gap: 8px; min-height: 28px; }
@@ -603,7 +603,7 @@ button.card-row.selectable-row[aria-selected=true]:hover:not(:disabled) { backgr
 .invite-row { display: flex; align-items: center; gap: 6px; }
 .invite-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .invite-label, .invite-hint { font-size: 12px; color: var(--muted); }
-.invite-value { font: 600 20px/1.2 Consolas, monospace; letter-spacing: 2px; }
+.invite-value { font: 600 20px/1.2 Consolas, "SF Mono", Menlo, monospace; letter-spacing: 2px; }
 .invite-row > button { flex: none; }
 
 /* 行尾「更多」菜单：位置由脚本按按钮算好。 */
@@ -634,5 +634,12 @@ select.category-select { flex: none; width: 104px; }
 .account-card .row-main { gap: 2px; }
 .account-card .row-title { font-size: 15px; font-weight: 600; }
 .account-card .row-title .icon-button { width: 26px; height: 26px; min-height: 26px; margin-left: 4px; }
-.invite-code { font: 600 14px/1.3 Consolas, monospace; letter-spacing: 1px; }
+.invite-code { font: 600 14px/1.3 Consolas, "SF Mono", Menlo, monospace; letter-spacing: 1px; }
 .card-row.used .invite-code { color: var(--muted); }
+
+/* ---- macOS（<html data-platform="mac">） ---- */
+/* 没有 Segoe Fluent Icons，图标是 ui.tsx 里的 SVG，大小跟随原来的 font-size。 */
+.svg-icon { width: 1em; height: 1em; vertical-align: -0.15em; overflow: visible; }
+.caption .svg-icon { font-size: 12px; }
+/* 窗口跟随鼠标拖动时不要选中文字或拖出图片。 */
+[data-platform="mac"] .titlebar, [data-platform="mac"] .pin-card { -webkit-user-drag: none; }

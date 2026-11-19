@@ -341,13 +341,18 @@ export interface SignupInviteItem {
 /** ask 每次询问，minimize 最小化，tray 最小化到系统托盘，quit 直接退出。 */
 export type CloseAction = "ask" | "minimize" | "tray" | "quit";
 
-/** 不需要回复的消息。window.* 是自绘标题栏的按钮，由窗口直接处理。 */
+/**
+ * 不需要回复的消息。window.* 是自绘标题栏的按钮，由窗口直接处理。
+ * window.drag、window.dblclick 只在 macOS 上发：WKWebView 不支持 CSS app-region，按下标题栏时由窗口跟随鼠标移动。
+ */
 export type Notice =
   | { type: "ready" }
   | { type: "dialog.answer"; dialogId: number; ok: boolean }
   | { type: "window.minimize" }
   | { type: "window.close" }
-  | { type: "window.quit" };
+  | { type: "window.quit" }
+  | { type: "window.drag" }
+  | { type: "window.dblclick" };
 
 export interface CommandResult {
   ok: boolean;
@@ -355,7 +360,7 @@ export interface CommandResult {
   data?: unknown;
 }
 
-/** 消息通道：WebView2 里是 chrome.webview，浏览器里是模拟宿主。 */
+/** 消息通道：Windows 的 WebView2 里是 chrome.webview，macOS 的 WKWebView 里是 webkit.messageHandlers，浏览器里是模拟宿主。 */
 export interface Transport {
   post(message: unknown): void;
   listen(listener: (message: HostMessage) => void): void;
@@ -369,6 +374,9 @@ interface WebView {
 declare global {
   interface Window {
     chrome?: { webview?: WebView };
+    webkit?: { messageHandlers?: { deskpal?: { postMessage(message: string): void } } };
+    /** macOS 宿主调用它把消息交给页面。 */
+    __deskpal?: (message: HostMessage) => void;
   }
 }
 
@@ -414,6 +422,19 @@ export async function createBridge(): Promise<Bridge> {
       {
         post: (m) => webview.postMessage(m),
         listen: (l) => webview.addEventListener("message", (e) => l(e.data)),
+      },
+      false,
+    );
+  }
+
+  const webkit = window.webkit?.messageHandlers?.deskpal;
+  if (webkit) {
+    return new Bridge(
+      {
+        post: (m) => webkit.postMessage(JSON.stringify(m)),
+        listen: (l) => {
+          window.__deskpal = l;
+        },
       },
       false,
     );

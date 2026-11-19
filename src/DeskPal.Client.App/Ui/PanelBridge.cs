@@ -2,14 +2,13 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
-using System.Windows;
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Updates;
 using DeskPal.Client.Core.Usage;
+using DeskPal.Client.Platform;
 using DeskPal.Client.Services;
-using DeskPal.Client.Views;
 using DeskPal.Shared.Api;
 using DeskPal.Shared.Presence;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -35,6 +34,7 @@ public sealed class PanelBridge
     private readonly StatsSyncService _sync;
     private readonly FolderSyncService _folder;
     private readonly PersonalDataService _personal;
+    private readonly IClientPlatform _platform;
 
     /// <summary>UTC offset of each member whose stats I looked at, from their last answer.</summary>
     private readonly ConcurrentDictionary<Guid, int> _peerOffsets = new();
@@ -55,8 +55,11 @@ public sealed class PanelBridge
         StatsExchange stats,
         StatsSyncService sync,
         FolderSyncService folder,
-        PersonalDataService personal)
+        PersonalDataService personal,
+        IClientPlatform platform)
     {
+        _platform = platform;
+        Prompt = platform.FallbackPrompt;
         _usage = usage;
         _personal = personal;
         personal.Changed += RaiseChanged;
@@ -97,7 +100,7 @@ public sealed class PanelBridge
     public event Action? LanguageChanged;
 
     /// <summary>Where update confirmations are shown. Set by the panel window.</summary>
-    public IUserPrompt Prompt { get; set; } = MessageBoxPrompt.Instance;
+    public IUserPrompt Prompt { get; set; }
 
     /// <summary>由 App 赋值。清除登录状态并重新启动，回到登录页。</summary>
     public Func<Task>? Logout { get; set; }
@@ -127,7 +130,7 @@ public sealed class PanelBridge
         MyRules = _personalRules.Rules,
         Unclassified = _unclassified.Top(TimeSpan.FromMinutes(5), 5),
         Settings = new SettingsView(
-            AutoStart.IsEnabled(),
+            _platform.AutoStartEnabled,
             _settings.Topmost,
             _updates.ReceiveBeta,
             _updates.UpdateReady,
@@ -231,14 +234,14 @@ public sealed class PanelBridge
             case "room.inviteCopy":
             {
                 var code = (await _api.GetInviteAsync(c.Guid("roomId"))).Code;
-                Clipboard.SetText(code);
+                _platform.CopyText(code);
                 return new CommandResult(true, Data: new { code });
             }
 
             case "room.invite":
             {
                 var invite = await _api.CreateInviteAsync(c.Guid("roomId"));
-                Clipboard.SetText(invite.Code);
+                _platform.CopyText(invite.Code);
                 return new CommandResult(true, Data: new { code = invite.Code });
             }
 
@@ -285,32 +288,27 @@ public sealed class PanelBridge
 
             case "stats.export":
             {
-                var dialog = new Microsoft.Win32.SaveFileDialog
-                {
-                    Title = Strings.Export_Title,
-                    FileName = string.Format(Strings.Export_FileName, DateTime.Now.ToString("yyyyMMdd")),
-                    Filter = Strings.Export_Filter,
-                };
-                if (dialog.ShowDialog() != true)
+                var file = await _platform.PickSaveFileAsync(Strings.Export_Title, string.Format(Strings.Export_FileName, DateTime.Now.ToString("yyyyMMdd")));
+                if (file is null)
                 {
                     return CommandResult.Success;
                 }
 
-                await Task.Run(() => _usage.Export(dialog.FileName));
-                return new CommandResult(true, Data: new { message = UiLanguage.Format(Strings.Export_Done, dialog.FileName) });
+                await Task.Run(() => _usage.Export(file));
+                return new CommandResult(true, Data: new { message = UiLanguage.Format(Strings.Export_Done, file) });
             }
 
             case "stats.import":
             {
-                var dialog = new Microsoft.Win32.OpenFileDialog { Title = Strings.Import_Title, Filter = Strings.Export_Filter };
-                if (dialog.ShowDialog() != true)
+                var file = await _platform.PickOpenFileAsync(Strings.Import_Title);
+                if (file is null)
                 {
                     return CommandResult.Success;
                 }
 
                 try
                 {
-                    var result = await Task.Run(() => _usage.Import(dialog.FileName));
+                    var result = await Task.Run(() => _usage.Import(file));
                     var message = result.Segments + result.Rollups == 0
                         ? Strings.Import_NothingNew
                         : UiLanguage.Format(Strings.Import_Done, result.Segments, result.Rollups);
@@ -371,13 +369,11 @@ public sealed class PanelBridge
                     return CommandResult.Fail(Strings.Folder_ServerOn);
                 }
 
-                var dialog = new Microsoft.Win32.OpenFolderDialog { Title = Strings.Folder_DialogTitle };
-                if (dialog.ShowDialog() != true)
+                if (await _platform.PickFolderAsync(Strings.Folder_DialogTitle) is not { } path)
                 {
                     return CommandResult.Success;
                 }
 
-                var path = dialog.FolderName;
                 return await Task.Run(() => _folder.Check(path)) switch
                 {
                     FolderCheck.NotWritable => CommandResult.Fail(Strings.Folder_NotWritable),
@@ -456,13 +452,11 @@ public sealed class PanelBridge
                     return CommandResult.Fail(Strings.Personal_FolderAccountOn);
                 }
 
-                var dialog = new Microsoft.Win32.OpenFolderDialog { Title = Strings.Personal_FolderDialogTitle };
-                if (dialog.ShowDialog() != true)
+                if (await _platform.PickFolderAsync(Strings.Personal_FolderDialogTitle) is not { } path)
                 {
                     return CommandResult.Success;
                 }
 
-                var path = dialog.FolderName;
                 if (!await Task.Run(() => _personal.CanUseFolder(path)))
                 {
                     return CommandResult.Fail(Strings.Folder_NotWritable);
@@ -478,32 +472,27 @@ public sealed class PanelBridge
 
             case "personal.export":
             {
-                var dialog = new Microsoft.Win32.SaveFileDialog
-                {
-                    Title = Strings.Personal_ExportTitle,
-                    FileName = string.Format(Strings.Personal_ExportFileName, DateTime.Now.ToString("yyyyMMdd")),
-                    Filter = Strings.Export_Filter,
-                };
-                if (dialog.ShowDialog() != true)
+                var file = await _platform.PickSaveFileAsync(Strings.Personal_ExportTitle, string.Format(Strings.Personal_ExportFileName, DateTime.Now.ToString("yyyyMMdd")));
+                if (file is null)
                 {
                     return CommandResult.Success;
                 }
 
-                await Task.Run(() => _personal.Export(dialog.FileName));
-                return new CommandResult(true, Data: new { message = UiLanguage.Format(Strings.Export_Done, dialog.FileName) });
+                await Task.Run(() => _personal.Export(file));
+                return new CommandResult(true, Data: new { message = UiLanguage.Format(Strings.Export_Done, file) });
             }
 
             case "personal.import":
             {
-                var dialog = new Microsoft.Win32.OpenFileDialog { Title = Strings.Personal_ImportTitle, Filter = Strings.Export_Filter };
-                if (dialog.ShowDialog() != true)
+                var file = await _platform.PickOpenFileAsync(Strings.Personal_ImportTitle);
+                if (file is null)
                 {
                     return CommandResult.Success;
                 }
 
                 try
                 {
-                    var (rules, noTitle) = await _personal.ImportAsync(dialog.FileName);
+                    var (rules, noTitle) = await _personal.ImportAsync(file);
                     return new CommandResult(true, Data: new { message = UiLanguage.Format(Strings.Personal_ImportDone, rules, noTitle) });
                 }
                 catch (InvalidDataException ex)
@@ -659,7 +648,7 @@ public sealed class PanelBridge
             case "signupInvites.create":
             {
                 var invite = await _api.CreateSignupInviteAsync();
-                Clipboard.SetText(invite.Code);
+                _platform.CopyText(invite.Code);
                 return new CommandResult(true, Data: new
                 {
                     code = invite.Code,
@@ -669,7 +658,7 @@ public sealed class PanelBridge
             }
 
             case "signupInvites.copy":
-                Clipboard.SetText(c.String("code"));
+                _platform.CopyText(c.String("code"));
                 return CommandResult.Success;
 
             case "signupInvites.revoke":
@@ -677,7 +666,7 @@ public sealed class PanelBridge
                 return new CommandResult(true, Data: SignupInviteItems(await _api.GetSignupInvitesAsync()));
 
             case "settings.autoStart":
-                AutoStart.Set(c.Bool("enabled"));
+                _platform.SetAutoStart(c.Bool("enabled"));
                 return CommandResult.Success;
 
             case "settings.topmost":
@@ -787,7 +776,7 @@ public sealed class PanelBridge
 
             case "logs.open":
                 Directory.CreateDirectory(AppPaths.LogDirectory);
-                WebUi.OpenExternal(AppPaths.LogDirectory);
+                _platform.OpenExternal(AppPaths.LogDirectory);
                 return CommandResult.Success;
 
             case "update.restart":

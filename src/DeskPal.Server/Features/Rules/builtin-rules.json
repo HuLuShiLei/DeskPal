@@ -1,5 +1,5 @@
 {
-    "version": 7,
+    "version": 8,
     "rules": [
         {
             "kind": "Process",
@@ -2400,6 +2400,441 @@
             "pattern": "stack overflow",
             "category": "Work",
             "name": "Stack Overflow"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.microsoft.vscode",
+            "category": "Work",
+            "name": "VS Code"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.todesktop.230313mzl4w4u92",
+            "category": "Work",
+            "name": "Cursor"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.exafunction.windsurf",
+            "category": "Work",
+            "name": "Windsurf"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.apple.dt.xcode",
+            "category": "Work",
+            "name": "Xcode"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.jetbrains.intellij",
+            "category": "Work",
+            "name": "IntelliJ IDEA"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.jetbrains.intellij.ce",
+            "category": "Work",
+            "name": "IntelliJ IDEA"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.jetbrains.pycharm",
+            "category": "Work",
+            "name": "PyCharm"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.jetbrains.pycharm.ce",
+            "category": "Work",
+            "name": "PyCharm"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.jetbrains.webstorm",
+            "category": "Work",
+            "name": "WebStorm"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.jetbrains.goland",
+            "category": "Work",
+            "name": "GoLand"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.jetbrains.clion",
+            "category": "Work",
+            "name": "CLion"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.jetbrains.datagrip",
+            "category": "Work",
+            "name": "DataGrip"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.jetbrains.rider",
+            "category": "Work",
+            "name": "Rider"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.jetbrains.phpstorm",
+            "category": "Work",
+            "name": "PhpStorm"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.jetbrains.rubymine",
+            "category": "Work",
+            "name": "RubyMine"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.google.android.studio",
+            "category": "Work",
+            "name": "Android Studio"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.sublimetext.4",
+            "category": "Work",
+            "name": "Sublime Text"
+        },
+        {
+            "kind": "Process",
+            "pattern": "dev.zed.zed",
+            "category": "Work",
+            "name": "Zed"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.apple.terminal",
+            "category": "Work",
+            "name": "终端",
+            "names": {
+                "en": "Terminal"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.googlecode.iterm2",
+            "category": "Work",
+            "name": "iTerm2"
+        },
+        {
+            "kind": "Process",
+            "pattern": "dev.warp.warp-stable",
+            "category": "Work",
+            "name": "Warp"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.github.wez.wezterm",
+            "category": "Work",
+            "name": "WezTerm"
+        },
+        {
+            "kind": "Process",
+            "pattern": "org.alacritty",
+            "category": "Work",
+            "name": "Alacritty"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.microsoft.excel",
+            "category": "Work",
+            "name": "Excel"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.microsoft.word",
+            "category": "Work",
+            "name": "Word"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.microsoft.powerpoint",
+            "category": "Work",
+            "name": "PowerPoint"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.microsoft.onenote.mac",
+            "category": "Other",
+            "name": "OneNote"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.microsoft.outlook",
+            "category": "Work",
+            "name": "Outlook"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.microsoft.teams2",
+            "category": "Work",
+            "name": "Teams"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.microsoft.teams",
+            "category": "Work",
+            "name": "Teams"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.apple.iwork.pages",
+            "category": "Work",
+            "name": "Pages"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.apple.iwork.numbers",
+            "category": "Work",
+            "name": "Numbers"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.apple.iwork.keynote",
+            "category": "Work",
+            "name": "Keynote"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.kingsoft.wpsoffice.mac",
+            "category": "Work",
+            "name": "WPS"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.tencent.weworkmac",
+            "category": "Work",
+            "name": "企业微信",
+            "names": {
+                "en": "WeCom"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.tinyspeck.slackmacgap",
+            "category": "Work",
+            "name": "Slack"
+        },
+        {
+            "kind": "Process",
+            "pattern": "us.zoom.xos",
+            "category": "Work",
+            "name": "Zoom"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.figma.desktop",
+            "category": "Work",
+            "name": "Figma"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.adobe.photoshop",
+            "category": "Work",
+            "name": "Photoshop"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.adobe.illustrator",
+            "category": "Work",
+            "name": "Illustrator"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.postmanlabs.mac",
+            "category": "Work",
+            "name": "Postman"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.docker.docker",
+            "category": "Work",
+            "name": "Docker Desktop"
+        },
+        {
+            "kind": "Process",
+            "pattern": "abnerworks.typora",
+            "category": "Work",
+            "name": "Typora"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.anthropic.claudefordesktop",
+            "category": "Work",
+            "name": "Claude"
+        },
+        {
+            "kind": "Process",
+            "pattern": "md.obsidian",
+            "category": "Other",
+            "name": "Obsidian"
+        },
+        {
+            "kind": "Process",
+            "pattern": "notion.id",
+            "category": "Other",
+            "name": "Notion"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.apple.finder",
+            "category": "Other",
+            "name": "访达",
+            "names": {
+                "en": "Finder"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.apple.notes",
+            "category": "Other",
+            "name": "备忘录",
+            "names": {
+                "en": "Notes"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.apple.preview",
+            "category": "Other",
+            "name": "预览",
+            "names": {
+                "en": "Preview"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.apple.mail",
+            "category": "Other",
+            "name": "邮件",
+            "names": {
+                "en": "Mail"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.openai.chat",
+            "category": "Other",
+            "name": "ChatGPT"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.microsoft.rdc.macos",
+            "category": "Other",
+            "name": "远程桌面",
+            "names": {
+                "en": "Remote Desktop"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.parallels.desktop.console",
+            "category": "Other",
+            "name": "Parallels Desktop"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.vmware.fusion",
+            "category": "Other",
+            "name": "VMware Fusion"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.teamviewer.teamviewer",
+            "category": "Other",
+            "name": "TeamViewer"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.tencent.xinwechat",
+            "category": "Communication",
+            "name": "微信",
+            "names": {
+                "en": "WeChat"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.tencent.qq",
+            "category": "Communication",
+            "name": "QQ"
+        },
+        {
+            "kind": "Process",
+            "pattern": "ru.keepcoder.telegram",
+            "category": "Communication",
+            "name": "Telegram"
+        },
+        {
+            "kind": "Process",
+            "pattern": "org.telegram.desktop",
+            "category": "Communication",
+            "name": "Telegram"
+        },
+        {
+            "kind": "Process",
+            "pattern": "net.whatsapp.whatsapp",
+            "category": "Communication",
+            "name": "WhatsApp"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.apple.mobilesms",
+            "category": "Communication",
+            "name": "信息",
+            "names": {
+                "en": "Messages"
+            }
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.colliderli.iina",
+            "category": "Video",
+            "name": "IINA"
+        },
+        {
+            "kind": "Process",
+            "pattern": "org.videolan.vlc",
+            "category": "Video",
+            "name": "VLC"
+        },
+        {
+            "kind": "Process",
+            "pattern": "io.mpv",
+            "category": "Video",
+            "name": "mpv"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.apple.quicktimeplayerx",
+            "category": "Video",
+            "name": "QuickTime Player"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.apple.tv",
+            "category": "Video",
+            "name": "Apple TV"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.valvesoftware.steam",
+            "category": "Other",
+            "name": "Steam"
+        },
+        {
+            "kind": "Process",
+            "pattern": "com.epicgames.epicgameslauncher",
+            "category": "Other",
+            "name": "Epic Games"
         }
     ]
 }

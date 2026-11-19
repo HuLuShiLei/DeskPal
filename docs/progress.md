@@ -25,6 +25,7 @@
 | 界面文案 | 书面用语：工作中、在聊天、正在浏览网页、其他活动、在看视频、在玩游戏；不用“忙”“摸鱼”。本机识别分标题、应用、详情三行。页面上写「房间」，不写 Room | 用户要求 |
 | 多语言 | 简体中文和英文。所有给用户看的文字都在客户端（resx 和 `web/src/i18n/`），Server 只返回错误码和参数，不做多语言。设置里可选跟随系统、简体中文、English，立即生效。更新内容同样按界面语言显示。内置规则的应用名在规则库里写 `names.en`，发送和保存的仍是默认名称（中文），由接收方按自己的界面语言翻译，不改协议 | 用户要求文案从代码里抽出来、只由客户端提供；用户要求内置规则库支持多语言 |
 | 服务器地址 | 登录页和设置页不显示、不能修改服务器地址，连接失败的提示不带地址。联调只改 `settings.json` | 用户要求不让用户看到服务器地址 |
+| macOS 版 | 2026-11-19 起有 macOS 客户端（`src/DeskPal.Client.Mac`，AppKit + WKWebView，macOS 13+），功能和 Windows 版相同，和 Windows 用户同房间。平台无关的服务抽到 `DeskPal.Client.App` 两端共用，Windows 版行为不变。先出未签名的测试版，Apple 芯片和 Intel 各一个安装包，CI 预留签名和公证开关（`MAC_SIGN`）。读窗口标题和网址只申请「辅助功能」，不申请屏幕录制和输入监控 | 用户要做 Mac 版；没有 Apple Developer 账号；要求两种芯片都支持、抽共享层而不是复制一份 |
 | 浏览器 | 前台是浏览器且正在播放当前页的视频时显示“在看视频”，否则显示“正在浏览网页”，后面是域名和页面标题。不按网站名单细分。个人分类可以把某个网站改成其他类别。隐私设为“只显示状态”时仍能看出是在看视频；“显示类别和应用”时看到域名；标题只在“显示详情”时发出 | 用户要求浏览网页不做网站名单细分；正在播放的当前页视频单独算视频 |
 | Room 改名 | 只有所有者可以改，1 到 30 个字符 | 用户选定 |
 | 显示名称 | 设置页「账号」可以修改，1 到 20 个字符，允许重名。修改后广播 `room.memberRenamed`，房间成员和自己的其他电脑重新拉取 Room 列表 | 用户要求显示名称可以改，允许重名 |
@@ -83,6 +84,8 @@
 - 同步到服务器、同步文件夹：两台电脑之间的同步只在单元测试（两个本地库 + 模拟 Server，或两个本地库 + 同一个临时目录）和 Server 集成测试里覆盖；页面在浏览器模拟数据下检查过中英文、400px 宽度和各种状态。真实客户端还没走过「开启 → 退出登录 → 另一台电脑登录输入 PIN 码 → 关闭」，同步文件夹还没在真实的 OneDrive、坚果云目录里试过。
 - Server 已通过 Portainer webhook 部署。从带 `revision` 的版本起，CI 会等到 `/health` 返回本次提交号。两台真实电脑登录还没验证。
 
+- macOS 客户端从没在真实的 Mac 上运行过，只在 Windows 上对 `Microsoft.macOS` 引用程序集做过类型检查（`tools/MacCheck`），CI 的 `mac` 任务也还没跑过。第一次要在 Mac 上依次验证：安装包能装上并打开、辅助功能授权、窗口标题和全屏、Safari 和 Chrome 的网址、空闲和锁屏、MediaRemote 在 15.4 之前和之后的表现、菜单栏图标左右键、面板拖动和关闭方式、置顶卡片、登录和退出登录后重启、开机自启、文件和文件夹选择、自动更新（更新后辅助功能授权是否要重新勾选）、和 Windows 电脑在同一个房间互看状态和统计。
+
 ## 偏离方案
 
 | 方案 | 实际 | 原因 |
@@ -108,6 +111,8 @@
 | 错误码只有方案里的四个 | 另加 `statsSync.invalid`（盐、校验值为空或超长，上传的不是 base64） | 请求格式错误时要有错误码 |
 | 下载后按现有导入逻辑合并（`deviceId + 开始时间` 去重） | 按电脑和日期整份替换其他电脑的记录（`MergeDay`），本机记录不动 | 导入逻辑只补缺少的：另一台电脑还在变长的片段不会更新，另一台电脑折叠过期片段后本机会同时有片段和汇总而翻倍 |
 | 同步开启时清除全部统计，同时清空 Server 上的副本 | 同步开启时不能清除，要先关闭；删除 `DELETE /api/me/stats-sync/days` | 2026-11-13 用户要求和同步文件夹统一 |
+| macOS 的 token 和同步密钥放在钥匙串 | 放在 `local.key`（权限 600）加密的文件里 | 未签名的应用每次更新后钥匙串会当成另一个应用，弹出登录密码提示；保护程度和 DPAPI 当前用户相同 |
+| macOS 开机自启用 `SMAppService` | 用 `~/Library/LaunchAgents` 的 plist | 不依赖签名，能带 `--minimized` 参数 |
 | 同步文件夹退出登录时只删除密钥、保留路径 | 退出登录时整份删除（路径和密钥），重新登录后再次选择文件夹 | 少一种「有路径、没密钥」的状态，重新选择时会自动识别已有的同步数据 |
 
 ## 变更日志
@@ -209,3 +214,4 @@
 | 2026-11-18 | 修复更新后、刚启动或从托盘打开时面板偶尔全黑或全白、要重启才恢复：面板 15 秒内没收到页面的 `ready`，或 WebView2 浏览器进程、渲染进程退出或无响应时重新创建 WebView2，连续 3 次失败显示 `Panel_LoadStalled`；`WebUi` 每次新建 `CoreWebView2Environment`，不再缓存；加载开始、耗时、失败写日志。托盘单击按系统双击间隔去抖，面板刚显示不到 1 秒时不隐藏，启动过程中的单击在启动完成后打开面板 |
 | 2026-11-18 | 增量更新的下载进度按 0–70 换算成 0–100%，之后 Update.exe 合成安装包期间显示 `Update_Preparing`（Velopack 这一段不报进度，以前停在 70%）；增量失败改为完整下载时进度回退，按完整下载显示（`UpdateDownloadProgress`） |
 | 2026-11-19 | 个人数据与不记录标题（见 plan-2026-11-19-personal-data.md）：`NoTitleRule` 移到 `Client.Core/Personal`，新增 `TitleFilter`，`PresenceCoordinator` 在 `PresenceResolver.Resolve` 之后调用，`UsageRecorder` 不再判断。个人分类和不记录标题以本机为准（`PersonalDataStore`，`personal\<userId>.json`，带删除记录，按 `PersonalMerge` 合并），旧的 `personal-rules.json` 和 `settings.json` 的 `noTitleRules` 启动时迁移。`Users.PersonalSync`（迁移 `AddPersonalSync`，已有个人分类、偏好或暂离时长的账号设为开启），新表 `UserNoTitleRules`、`SharedRuleReports`；新接口 `POST`/`DELETE /api/me/personal-sync`、`/api/me/no-title-rules`；关闭时个人分类和不记录标题的读写、暂离时长和偏好的写入返回 403 `personalSync.off`（读取也拒绝，避免关闭时的 `rules.personalChanged` 让其他电脑拉到空列表覆盖本机），客户端收到后关闭本机开关、保留本机数据。`NoTitleRuleDto.Rule`、`PersonalData.Tombstones`、`PersonalFile.Data` 不写进 JSON。`UsageReportRequest` 增加 `Rules`，未开启同步时用于规则库候选。`StatsSync` 不再上传统计设置。`PersonalDataService` 负责同步到账号、同步文件夹（`<文件夹>\DeskPal\<userId>\personal\<deviceId>.json`，每 2 分钟一次）和导入导出（`PersonalFile`）。`PanelState` 增加顶层 `noTitleRules`，`UsageView` 去掉；`SettingsView` 增加 `personal`。页面命令 `stats.noTitle.*` 改为 `noTitle.*`，新增 `personal.*`。导航「分类」改名「规则」，图标改为漏斗（U+E71C），页内切换「分类」和「不记录标题」；设置页新增「个人数据」一节 |
+| 2026-11-19 | macOS 客户端（完整的文件改动、原因和验证见 [changes-2026-11-19-macos.md](changes-2026-11-19-macos.md)）：新项目 `DeskPal.Client.App`（net10.0），从 WPF 项目移入 `ApiClient`、`HubService`、`RoomState`、`PresenceCoordinator`、统计、同步、个人数据、`UpdateService`、`PanelBridge`、`WebCommand`、`UpdateInteraction`（命名空间 `Views` 改为 `Ui`）；新增 `ClientStartup`（注册服务、恢复登录、登录页提交、内置规则、刷新房间、退出登录）、`IClientPlatform`、`ISecretProtector`/`SecretProtection`。`PanelBridge` 的文件对话框、剪贴板、开机自启、打开日志目录改走 `IClientPlatform`；`AppSettings`、`StatsSyncService`、`FolderSyncService` 的 DPAPI 改走 `SecretProtection`（Windows 仍是 DPAPI，文件格式不变）。`SettingsStore.Directory`、`AppPaths.LogDirectory` 在 macOS 上是 `~/Library/Application Support/DeskPal`、`~/Library/Logs/DeskPal`。`UpdatePolicy.Channel(beta, macArchitecture)`：macOS 通道 `osx-arm64`、`osx-x64`（测试版加 `-beta`）。新项目 `DeskPal.Client.Mac`（net10.0-macos）：采集器（NSWorkspace、辅助功能、CGEventSource、锁屏通知、MediaRemote）、`MacPlatform`、`FileKeyProtector`、LaunchAgent 自启、菜单栏图标、`PanelController`、`LoginController`、`MemberCards`、`WebHost`（`deskpal://` 协议、`webkit.messageHandlers`）。前端：`bridge.ts` 支持 WKWebView，新增 `platform.ts`（`platform=mac` 时用 `window.drag`/`window.dblclick` 拖动窗口），`Icon` 在 macOS 上画 SVG，五条文案有 macOS 说法，字体加 macOS 回退。`Browsers` 加 Mac 浏览器 Bundle ID，推测层的游戏目录同时匹配 `/`。内置规则库版本 8，加 68 条 Mac 应用 Bundle ID 规则。资源 `Strings` 加 `Common_Ok`、`Common_Cancel`、`App_AlreadyRunningMac`。CI：版本号移到 `changes` 任务，新增 `mac` 任务（macos-15，arm64 和 x64）打 `.pkg`，正式发布时用 `vpk upload --merge` 追加到 Windows 建好的 Release；其他分支手动运行只出 Artifacts。`tools/MacCheck` 在 Windows 上做类型检查 |

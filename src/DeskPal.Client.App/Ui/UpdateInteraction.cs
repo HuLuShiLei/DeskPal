@@ -1,8 +1,6 @@
-using System.Windows;
-using DeskPal.Client.Core.Localization;
 using DeskPal.Client.Services;
 
-namespace DeskPal.Client.Views;
+namespace DeskPal.Client.Ui;
 
 public enum PromptKind
 {
@@ -15,28 +13,6 @@ public enum PromptKind
 public interface IUserPrompt
 {
     Task<bool> AskAsync(PromptKind kind, string message);
-}
-
-/// <summary>Fallback when the panel page cannot be shown.</summary>
-public sealed class MessageBoxPrompt : IUserPrompt
-{
-    public static MessageBoxPrompt Instance { get; } = new();
-
-    public Task<bool> AskAsync(PromptKind kind, string message)
-    {
-        var owner = Application.Current?.Windows.OfType<Window>().FirstOrDefault(window => window.IsVisible);
-        var buttons = kind == PromptKind.Confirm ? MessageBoxButton.OKCancel : MessageBoxButton.OK;
-        var image = kind switch
-        {
-            PromptKind.Confirm => MessageBoxImage.Question,
-            PromptKind.Warning => MessageBoxImage.Warning,
-            _ => MessageBoxImage.Information,
-        };
-        var result = owner is null
-            ? MessageBox.Show(message, "DeskPal", buttons, image)
-            : MessageBox.Show(owner, message, "DeskPal", buttons, image);
-        return Task.FromResult(result == MessageBoxResult.OK);
-    }
 }
 
 public static class UpdateInteraction

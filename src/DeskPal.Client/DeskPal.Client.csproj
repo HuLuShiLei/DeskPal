@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\DeskPal.Client.App\DeskPal.Client.App.csproj" />
     <ProjectReference Include="..\DeskPal.Client.Core\DeskPal.Client.Core.csproj" />
     <ProjectReference Include="..\DeskPal.Shared\DeskPal.Shared.csproj" />
   </ItemGroup>

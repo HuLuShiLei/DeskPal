@@ -1,6 +1,6 @@
 # DeskPal
 
-Windows 状态共享客户端：同一个房间的成员实时看到对方在工作、聊天还是放松（以及在看什么、玩什么）。不截图，只采集前台应用、浏览器域名、空闲、锁屏、媒体播放这几类信号，在本机分类、按该房间的隐私设置过滤后，再通过 SignalR 推送。
+Windows 和 macOS 状态共享客户端：同一个房间的成员实时看到对方在工作、聊天还是放松（以及在看什么、玩什么）。不截图，只采集前台应用、浏览器域名、空闲、锁屏、媒体播放这几类信号，在本机分类、按该房间的隐私设置过滤后，再通过 SignalR 推送。
 
 当前可以加入多个房间，同一时间最多进入一个，也可以在房间菜单里选「无房间」。一个房间都没有时同样是无房间。设计按后续游戏化（类似 Steam 上 Bongo Cat 的“打字攒道具”）预留了扩展点。
 
@@ -25,7 +25,10 @@ Windows 状态共享客户端：同一个房间的成员实时看到对方在工
 src/DeskPal.Shared/       Envelope、MessageTypes、状态枚举、DTO、RulePattern（Server 和客户端共用）
 src/DeskPal.Server/       ASP.NET Core：Features/{Auth,Rooms,Presence,Rules}、Data（EF Core + SQLite + 迁移）
 src/DeskPal.Client.Core/  纯逻辑，无 Windows 依赖：事件总线、分层分类器、状态判定、防抖、隐私过滤、文案
-src/DeskPal.Client/       WPF 托盘程序：Collectors、Native、Services、Ui（WebView2 宿主）、Views；web/ 是面板和登录页的前端（Vite + Preact）
+src/DeskPal.Client.App/   Windows 和 macOS 共用的客户端服务：连接、房间、状态推送、统计、同步、更新、面板命令（PanelBridge）、启动流程（ClientStartup）。平台能力走 Platform/IClientPlatform、ISecretProtector
+src/DeskPal.Client/       WPF 托盘程序：Collectors、Native、Platform（WindowsPlatform、DPAPI）、Ui（WebView2 宿主）；web/ 是面板和登录页的前端（Vite + Preact），两个平台共用
+src/DeskPal.Client.Mac/   macOS 菜单栏程序（net10.0-macos，AppKit + WKWebView）：Collectors（NSWorkspace、辅助功能）、Native、Platform、Ui。只能在 Mac 上编译
+tools/MacCheck/           没有 Mac 时对 macOS 引用程序集做类型检查
 tests/DeskPal.Tests/      xUnit：Client.Core 逻辑、RoomService、PresenceHub 集成测试
 .github/workflows/        ci（测试 + 客户端 exe）、docker（Server 镜像推 GHCR）、rule-candidates（每周把多人一致的个人分类做成规则库 PR）
 installer/                Inno Setup 安装向导：选择安装目录，内嵌 Velopack 的 Setup.exe
@@ -39,10 +42,13 @@ dotnet build DeskPal.slnx
 dotnet test tests/DeskPal.Tests
 cd src/DeskPal.Server; dotnet run            # http://localhost:5180
 dotnet run --project src/DeskPal.Client      # 本机客户端
+dotnet build src/DeskPal.Client.Mac -r osx-arm64   # 只能在 Mac 上：先 dotnet workload install macos，需要 Xcode 26
+dotnet build tools/MacCheck -p:MacRef=<Microsoft.macOS.dll>   # Windows 上检查 Mac 客户端能否编译，见 tools/MacCheck
 cd src/DeskPal.Client/web; npm run dev  # 面板前端，http://localhost:5190/，用模拟数据
 dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/Migrations
 ```
 
+- macOS 客户端：CI 的 `mac` 任务在 macos-15 上按芯片打 `DeskPal-<版本>-osx-arm64-Setup.pkg` 和 `osx-x64`，和 Windows 版同一个版本号、同一个 Release，更新通道是 `osx-arm64`、`osx-x64`（测试版加 `-beta`）。默认不签名；仓库变量 `MAC_SIGN=true` 并配好 ci.yml 里列出的 secret 后签名并公证。在其他分支手动运行 CI 只打包不发布，安装包在 Artifacts 里。
 - 发布：推送 main 会自动构建 Server 镜像（`ghcr.io/hulushilei/deskpal-server:latest`），构建成功后调用 Portainer webhook 拉取并重建容器。webhook 地址放在 GitHub secret `PORTAINER_WEBHOOK_URL`，不进仓库。main 上改了客户端时，CI 会发测试版 Pre-release（`DeskPal-<版本>-Setup.exe`，例如 `DeskPal-0.1.2-dev.15-Setup.exe`）；打 `vX.Y.Z` 标签并推送，会发正式版 `DeskPal-<版本>-Setup.exe`（例如 `DeskPal-0.1.2-Setup.exe`）。远程仓库是 `https://github.com/HuLuShiLei/DeskPal.git`。
 - **推送 main 前先更新根目录的 `CHANGELOG.md`**：把这次要推送、用户能感受到的改动整理成书面中文条目，写进最上面一节，和代码一起推送。最上面一节是下一个正式版的版本号（例如 `## 0.1.2`），测试版的改动也写在这一节。发布正式版 `vX.Y.Z` 后，下一次推送先新开 `## X.Y.(Z+1)`。CI 发布时检查最上面一节的版本号：正式版必须和标签一致，测试版不能低于自动算出的版本号，否则发布失败；改了客户端却没改 `CHANGELOG.md` 时只给出警告。客户端更新后，第一次打开面板时按界面语言显示还没看过的条目。每条下面缩进一行 `en:` 写英文；看过与否按中文比对，改了中文会再显示一次。
 - 安装包是 `installer/DeskPal.iss` 编译的 Inno Setup 向导，用户可以选择安装目录（默认 `%LocalAppData%\Programs\DeskPal`）。安装版的日志在 `<安装目录>\logs`，设置和规则在 `%APPDATA%\DeskPal`。
@@ -55,7 +61,7 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 
 ## 硬约束
 
-1. **不截图、不装键盘钩子、不注入、不提权。** 客户端以普通用户权限运行。后期游戏化如果要统计按键，只能用 Raw Input 计次数，不读按键内容。
+1. **不截图、不装键盘钩子、不注入、不提权。** 客户端以普通用户权限运行。后期游戏化如果要统计按键，只能用 Raw Input 计次数，不读按键内容。macOS 只申请「辅助功能」（读焦点窗口标题、浏览器地址），不申请「屏幕录制」和「输入监控」。
 2. **原始窗口标题和媒体标题不离开本机**，除非该 Room 成员把对应类别的隐私级别设为“显示详情”。上报前必须经过 `PrivacyFilter.Apply`。
 3. **Server 只按 `Envelope.Type`、`RoomId` 和 `To` 路由，不解析 `Payload`。** 这是为端到端加密（`Enc` 字段）留的口子，使用统计的 `stats.response` 已经是密文。Server 自己生成的消息（离线、Room 事件）例外。
 4. **成员的最新状态只存在 Server 内存里**（`PresenceStore`），不写数据库。数据库只存账号、Room、成员关系、邀请码、注册邀请码、踢出后的禁止再次加入记录、成员之间的屏蔽记录、隐私设置、内置规则，开启「同步到账号」后的个人分类和不记录标题的规则（明文，关闭时立即删除），用户同意分享后上报的未识别应用（进程名、产品名、当天分钟数）和未开启「同步到账号」时一并上报的应用个人分类（进程名、类别、名称，只用于规则候选），以及用户开启「同步到服务器」后上传的使用统计（每天一份用 PIN 码加密的密文，Server 不解析，关闭时立即删除；只有 `StatsSync:AllowedUserNames` 名单里的账号能开启，名单外的在 Server 启动时关闭并删除）。暂离时长是账号上的一个整数；切换等待、外观、语言、关闭窗口时、窗口置顶、成员排序存在账号的 `Preferences`（JSON）里。个人分类、不记录标题、暂离时长和 `Preferences` 只在开启「同步到账号」（`User.PersonalSync`，默认关闭）后保存，登录后同步，不含使用内容；关闭时 Server 立即删除，本机保留。开机自启、加入测试版、暂停分享、选中的房间、两个同步文件夹路径只在本机。

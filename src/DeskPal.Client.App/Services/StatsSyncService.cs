@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Usage;
+using DeskPal.Client.Platform;
 using DeskPal.Shared;
 using DeskPal.Shared.Api;
 using Microsoft.Extensions.Hosting;
@@ -27,7 +28,7 @@ public sealed class StatsSyncService : BackgroundService
         _settings = settings;
         _logger = logger;
         var keyPath = Path.Combine(SettingsStore.Directory, "usage", $"{settings.UserId:N}.sync-key");
-        _sync = new StatsSync(usage.Store, new HttpSyncApi(api), new DpapiKeyStore(keyPath), () => UsageService.Today);
+        _sync = new StatsSync(usage.Store, new HttpSyncApi(api), new ProtectedKeyStore(keyPath), () => UsageService.Today);
         _sync.Changed += () => Changed?.Invoke();
         usage.DaysChanged += () => _allDays = true;
     }
@@ -179,8 +180,8 @@ public sealed class StatsSyncService : BackgroundService
 
     }
 
-    /// <summary>The key, encrypted with Windows DPAPI for the current Windows user, next to the account's usage database.</summary>
-    private sealed class DpapiKeyStore(string path) : IStatsSyncKeyStore
+    /// <summary>The key, encrypted for the current user (DPAPI on Windows, a keychain key on macOS), next to the account's usage database.</summary>
+    private sealed class ProtectedKeyStore(string path) : IStatsSyncKeyStore
     {
         public StoredSyncKey? Load()
         {
@@ -197,7 +198,7 @@ public sealed class StatsSyncService : BackgroundService
                     return null;
                 }
 
-                var key = ProtectedData.Unprotect(Convert.FromBase64String(file.Key), null, DataProtectionScope.CurrentUser);
+                var key = SecretProtection.UnprotectFromBase64(file.Key);
                 return new StoredSyncKey(file.Salt, key);
             }
             catch (Exception ex) when (ex is IOException or JsonException or FormatException or CryptographicException)
@@ -209,7 +210,7 @@ public sealed class StatsSyncService : BackgroundService
         public void Save(StoredSyncKey key)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            var file = new KeyFile(key.Salt, Convert.ToBase64String(ProtectedData.Protect(key.Key, null, DataProtectionScope.CurrentUser)));
+            var file = new KeyFile(key.Salt, SecretProtection.ProtectToBase64(key.Key));
             File.WriteAllText(path, JsonSerializer.Serialize(file, DeskPalJson.Options));
         }
 
