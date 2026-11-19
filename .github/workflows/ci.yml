@@ -254,9 +254,9 @@ jobs:
         arch: [arm64, x64]
     env:
       MAC_SIGN: ${{ vars.MAC_SIGN }}
-      # macos workload 的版本号和 Xcode 一一对应（26.2.x 需要 Xcode 26.2），不固定时会装上要求更新 Xcode 的最新版。
+      # macos workload 每个版本要求一个固定的 Xcode（26.2.10233 要求 26.3），不固定时会装上要求更新 Xcode 的最新版。
       # 升级时两个一起改：workload 版本见 NuGet 包 Microsoft.NET.Sdk.macOS.Manifest-10.0.100，Xcode 要在 runner 上存在。
-      XCODE_VERSION: '26.2'
+      XCODE_VERSION: '26.3'
       MACOS_WORKLOAD: '26.2.10233/10.0.100'
     steps:
       - uses: actions/checkout@v4
@@ -271,6 +271,7 @@ jobs:
           xcodebuild -version
 
       - uses: actions/setup-dotnet@v4
+        id: dotnet
         with:
           dotnet-version: '10.0.x'
 
@@ -282,6 +283,9 @@ jobs:
 
       - name: 安装 macos workload
         run: |
+          # runner 上还预装了更高版本的 SDK，不指定时 dotnet 会选它。global.json 只在这个任务里生成，不进仓库。
+          printf '{"sdk": {"version": "%s", "rollForward": "disable"}}\n' '${{ steps.dotnet.outputs.dotnet-version }}' > global.json
+          dotnet --version
           printf '{"microsoft.net.sdk.macos": "%s"}\n' "$MACOS_WORKLOAD" > "$RUNNER_TEMP/workload-rollback.json"
           dotnet workload config --update-mode manifests
           dotnet workload install macos --from-rollback-file "$RUNNER_TEMP/workload-rollback.json"
