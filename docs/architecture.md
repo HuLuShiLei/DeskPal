@@ -56,10 +56,21 @@ flowchart LR
 
 ### 个人分类
 
-- 「纠正分类」和「待归类」写入个人分类（`PUT /api/me/rules`），按账号保存在 Server 的 `UserRules` 表，所有房间、所有电脑通用，只影响自己的识别结果。没有房间规则：同一个应用，房间里每个人可以有不同的分类。
+- 「纠正分类」和「待归类」写入个人分类，所有房间通用，只影响自己的识别结果。2026-11-19 起以本机为准，见下面的「个人数据」；开启「同步到账号」后同时写入 Server 的 `UserRules` 表（`PUT /api/me/rules`）。没有房间规则：同一个应用，房间里每个人可以有不同的分类。
 - 识别结果照常经过隐私过滤后广播，所以别人看到的是你自己的分类，例如“工作中 · 微信”。新加入的房间所有类别默认只显示状态，要在该房间把工作改成“显示类别和应用”，别人才看得到应用名。
-- 修改后 Server 只给该用户自己的连接发 `rules.personalChanged`，各台电脑重新拉取。客户端在 `%APPDATA%\DeskPal\personal-rules.json` 缓存一份（带 userId，换账号时不用别人的缓存），离线启动时先用缓存。
-- 每人最多 500 条；`Meeting` 和退役类别不能设置。「分类」页的「我的分类」可以搜索、修改和删除，状态页对当前应用提供「恢复默认」。
+- 开启同步时，修改后 Server 只给该用户自己的连接发 `rules.personalChanged`，客户端重新拉取个人分类和不记录标题。
+- 每人最多 500 条；`Meeting` 和退役类别不能设置。「规则」页的「分类」可以搜索、修改和删除，状态页对当前应用提供「恢复默认」。
+
+### 个人数据
+
+个人分类、不记录标题的规则、暂离时长和偏好设置（切换等待、外观、语言、关闭窗口时、窗口置顶、成员排序）统称个人数据，2026-11-19 起以本机为准，除本机外可以保存到下面三处之一。
+
+- 本机：`PersonalDataStore` 写 `%APPDATA%\DeskPal\personal\<userId>.json`（`PersonalData`：个人分类、不记录标题、删除记录），换账号时不用别人的数据。偏好设置和暂离时长仍在 `settings.json`。第一次启动时把旧的 `personal-rules.json` 和 `settings.json` 的 `noTitleRules` 迁移进来。
+- 同步到账号（`Users.PersonalSync`，默认关闭）：设置页开启前弹出警告，说明这些内容明文保存在服务器。开启时客户端把本机的个人数据发给 `POST /api/me/personal-sync`，Server 按每条规则的修改时间合并（客户端的时间晚于 Server 当前时间时按当前时间），偏好设置以账号为准，账号还没有暂离时长时用本机值，返回合并结果，客户端整份替换本机。之后修改先写 Server，再写本机。关闭时 `DELETE /api/me/personal-sync` 删除 Server 上的个人分类、不记录标题、暂离时长和偏好设置，本机保留。关闭期间个人分类和不记录标题的读写、暂离时长和偏好设置的写入返回 403 `personalSync.off`，客户端收到后把本机开关也关掉，本机数据保留，修改只保存在本机。读取也返回 403，是为了关闭时 Server 发出的 `rules.personalChanged` 不会让各台电脑拉到空列表、覆盖本机数据。迁移 `AddPersonalSync` 把 Server 上已有个人分类、偏好设置或暂离时长的账号设为开启，其他账号默认关闭。
+- 同步文件夹：和使用统计的同步文件夹一样由用户自己的网盘同步，每台电脑写 `<文件夹>\DeskPal\<userId>\personal\<deviceId>.json`（`PersonalFile`，明文），读其他电脑的文件，每 2 分钟一次，修改后立即写。可以和使用统计用同一个文件夹（统计只读以设备号命名的目录）。按 `PersonalMerge` 合并：同一条（种类，内容）以最近修改的为准，删除也算修改，删除记录保留 90 天；偏好设置整份以修改时间晚的为准。和同步到账号只能开启一种。退出登录时停止。
+- 导入导出：`PersonalFile` 格式的 JSON（`format` 为 `deskpal-personal`），含个人分类、不记录标题、偏好设置和暂离时长。导入时文件里的规则覆盖本机相同的规则，并按导入时间算作修改，其他规则保留；开启了同步到账号时一并合并到 Server。
+
+规则库候选：开启同步的账号仍从 `UserRules` 统计；未开启、同意分享使用数据的账号，`UsageReporter` 在使用上报里附带应用（进程名）个人分类（`UsageReportRequest.Rules`，只有进程名、类别、名称），Server 存进 `SharedRuleReports`，每次上报整份替换，关闭分享或开启同步时删除。
 
 ### 未识别应用和规则库候选
 
@@ -110,7 +121,7 @@ flowchart LR
 
 | 窗口 | 文件 | 内容 |
 |---|---|---|
-| 面板 | `Ui/PanelWindow.cs`、`Ui/PanelBridge.cs` | 标题栏中间是房间切换菜单。左侧导航五页：首页（我的状态、房间成员、待归类；公开了使用统计且当前在线的成员行右侧有统计按钮，离线后按钮和状态一起消失）、统计（自己和房间成员的使用统计，以及查看记录、不记录标题、导入导出、同步到服务器（只对名单内账号显示）、同步文件夹、清除）、房间（列表、创建和加入、改名、邀请码、屏蔽成员、转让、退出、解散、隐私设置、公开使用统计）、分类（我的分类，可按应用、网站、类别搜索，修改和删除）、设置（账号和退出登录、开机自启、窗口置顶、关闭窗口时、夜间模式、分享使用数据、测试版、检查更新、问题与建议）。默认 420×680，可以拖动边框调整，最小 400×480，不能最大化；内容最宽 640px 居中。第一次打开时停靠在屏幕右下角。关闭按钮默认弹出选择：最小化、最小化到系统托盘，或直接退出，可勾选不再提示；设置里可以改成每次询问、最小化、最小化到系统托盘或直接退出。托盘菜单只有「打开 DeskPal」和「退出」 |
+| 面板 | `Ui/PanelWindow.cs`、`Ui/PanelBridge.cs` | 标题栏中间是房间切换菜单。左侧导航五页：首页（我的状态、房间成员、待归类；公开了使用统计且当前在线的成员行右侧有统计按钮，离线后按钮和状态一起消失）、统计（自己和房间成员的使用统计，以及查看记录、导入导出、同步到服务器（只对名单内账号显示）、同步文件夹、清除）、房间（列表、创建和加入、改名、邀请码、屏蔽成员、转让、退出、解散、隐私设置、公开使用统计）、规则（导航图标是漏斗；顶部切换「分类」和「不记录标题」：分类可按应用、网站、类别搜索，修改和删除；不记录标题可添加和删除）、设置（账号和退出登录、开机自启、窗口置顶、关闭窗口时、夜间模式、个人数据（同步到账号、同步文件夹、导入导出）、分享使用数据、测试版、检查更新、问题与建议）。默认 420×680，可以拖动边框调整，最小 400×480，不能最大化；内容最宽 640px 居中。第一次打开时停靠在屏幕右下角。关闭按钮默认弹出选择：最小化、最小化到系统托盘，或直接退出，可勾选不再提示；设置里可以改成每次询问、最小化、最小化到系统托盘或直接退出。托盘菜单只有「打开 DeskPal」和「退出」 |
 | 登录 | `Ui/LoginWindow.cs` | 登录和注册。在 Room、Hub 等服务启动之前显示，所以是单独的窗口 |
 | 置顶小卡片 | `Ui/MemberCards.cs`、`Ui/MemberCardWindow.cs`、`PinnedMembers`（Client.Core） | 状态页成员行的大头针把该成员置顶到桌面，每人一张 280×84 的卡片（`index.html?page=card`），人数不限。卡片总在最前，不显示在任务栏，不抢焦点；从屏幕右上角往下排，整张可以拖动，双击打开面板，点 × 取消置顶。内容是头像、名字、已持续多久、状态标签，应用名和详情合成一行（C# 算好放在 `card` 消息里）。置顶只存在内存里，属于置顶时所在的房间：切换房间、选「无房间」、该成员退出、被踢出或被我屏蔽时移除，再进入也不恢复，重启后也没有 |
 
@@ -136,7 +147,7 @@ flowchart LR
 | 方向 | 消息 |
 |---|---|
 | 宿主 → 页面 | `state`（完整的 `PanelState`，变化后最多每 200 毫秒推一次）、`result{id, ok, error, data}`、`dialog{id, kind, message}`、`login{userName, notice}`（不带服务器地址，登录页不显示也不能修改，地址只在 `settings.json` 的 `serverUrl`） |
-| 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`presence.pause / correct / resetCorrection`、`rules.set / delete`、`stats.query / app / export / import / clear / noTitle.add / noTitle.remove`、`settings.autoStart / topmost / shareUsage / theme / closeAction / language`、`update.check / beta / restart`、`changelog.seen`、`logs.open`、`auth.login / register / logout` |
+| 页面 → 宿主，要回复 | `{id, type, ...}`：`room.*`、`presence.pause / correct / resetCorrection`、`rules.set / delete`、`stats.query / app / export / import / clear`、`noTitle.add / remove`、`personal.sync.enable / disable`、`personal.folder.choose / stop`、`personal.export / import`、`settings.autoStart / topmost / shareUsage / theme / closeAction / language`、`update.check / beta / restart`、`changelog.seen`、`logs.open`、`auth.login / register / logout` |
 | 页面 → 宿主，不回复 | `ready`、`dialog.answer{dialogId, ok}`、`window.minimize`、`window.close`、`window.quit` |
 
 `PanelState` 由 `PanelStateBuilder` 在 Client.Core 里生成，界面上的文字（连接状态、空提示、识别方式（悬停问号显示）、待提交状态、我的分类、待归类）都在 C# 里算好。状态页不显示「房间成员看到」，页面只负责显示。页面写「房间」，不写 Room。`PanelFixtureTests` 把几组样例按中文、英文各序列化一份到 `web/src/mock/fixtures/` 和 `fixtures/en/`，不一致就失败，改了 `PanelState` 或文案后用 `DESKPAL_UPDATE_FIXTURES=1` 运行测试更新。
@@ -147,7 +158,7 @@ flowchart LR
 
 在本机记录和计算。默认 Server 不保存；用户在统计页打开「同步到服务器」后，Server 保存一份用 PIN 码加密的副本，见下文「同步到服务器」。也可以改用「同步文件夹」，通过用户自己的网盘或同步工具在电脑之间同步，Server 不参与，见下文「同步文件夹」。两种同步只能开启一种，开启任一种时不能清除全部统计。
 
-- 记录：`PresenceCoordinator` 每次判定后交给 `UsageRecorder`（Client.Core）。状态、类别、应用、标题任一变化就开始新的片段；两次判定间隔超过 30 秒时中间不计；跨过本地零点时切开。暂停分享时按没有暂停时的判定记录，片段带 `Paused` 标记，切换暂停时新开一段。暂离、锁屏只记状态。时间按当时的系统时区记录，`Segments.Offset` 保存记录时的 UTC 偏移（分钟）；统计、同步、导出都按这个偏移算日期和小时，之后换时区不会改变已有记录属于哪一天。系统时区变化时新开一段。标题最长 200 个字符，标题等于应用名时不记标题。「不记录标题」的规则（`NoTitleRule`）分四种：应用名（和状态页一致）、进程名（按 `RulePattern` 去掉 `.exe`）、网址（按域名，子域名也算；浏览器只拿得到域名，拿不到路径）、标题关键词（窗口标题、网页标题、媒体标题包含即算），命中时只记类别和名称。
+- 记录：`PresenceCoordinator` 每次判定后交给 `UsageRecorder`（Client.Core）。状态、类别、应用、标题任一变化就开始新的片段；两次判定间隔超过 30 秒时中间不计；跨过本地零点时切开。暂停分享时按没有暂停时的判定记录，片段带 `Paused` 标记，切换暂停时新开一段。暂离、锁屏只记状态。时间按当时的系统时区记录，`Segments.Offset` 保存记录时的 UTC 偏移（分钟）；统计、同步、导出都按这个偏移算日期和小时，之后换时区不会改变已有记录属于哪一天。系统时区变化时新开一段。标题最长 200 个字符，标题等于应用名时不记标题。「不记录标题」的规则（`NoTitleRule`）分四种：应用名（和状态页一致）、进程名（按 `RulePattern` 去掉 `.exe`）、网址（按域名，子域名也算；浏览器只拿得到域名，拿不到路径）、标题关键词（窗口标题、网页标题、媒体标题包含即算）。2026-11-19 起命中时房间成员、首页和使用统计都只显示类别和名称：`PresenceCoordinator` 在 `PresenceResolver.Resolve` 之后立即用 `TitleFilter.Apply` 去掉标题，`UsageRecorder` 不再单独判断。规则在「规则」页维护，属于个人数据。
 - 存储：`SqliteUsageStore`，每个账号一个文件 `%APPDATA%\DeskPal\usage\<userId>.db`，不加密。表 `Segments`（片段，`DeviceId + StartAt` 唯一）、`DailyRollups`（旧版本或其他电脑按保留时长折叠过的日期的按天汇总，`Paused` 在主键里）、`StatsViews`（谁查看过，保留 7 天）、`SyncDays`（同步到服务器的每天哈希和版本号）、`FolderWritten`（写入同步文件夹的每天哈希）、`FolderRead`（读过的其他电脑文件的大小和修改时间）。正在进行的片段每分钟写一次结束时间。片段一直保留，不再折叠；`UsageService` 每 6 小时调用 `PruneViews`，只删除 7 天前的查看记录。
 - 导入导出：JSON（`UsageExport`，`schemaVersion` 1，不限文件大小，导入时整个文件读进内存），导出全部片段和汇总，导入时按 `DeviceId + StartAt` 去重。
 - 显示：`UsageAggregator` 把片段汇总成 `UsageReport`（每天、每小时、时间轴、应用排行、标题排行、上一周期合计 `Previous`、星期几 × 小时 `WeekHours`、每个逻辑日的首末活动 `Bounds`），`StatsViewBuilder` 再按范围和排行方式生成页面要画的 `StatsView`（含类别变化 `Changes`、首末活动 `Bounds`、一周节律 `Rhythm`），文字都在 C# 里算好。逻辑日从凌晨 4 点开始（`UsageAggregator.DayStartHour`），`UsageService` 多读到范围结束后一天的 4 点。页面用手写 SVG 和 CSS 画时间轴、堆叠柱、热力图、图例和排行。自己的日统计可以在柱状图上点选或拖选小时，`stats.query` 带上 `hours`（0–23）；总时长和排行只算这些小时，柱状图和时间轴仍是全天，按天汇总的记录没有钟点、不计入。
@@ -202,15 +213,20 @@ flowchart LR
 | POST | `/api/admin/signup-invites` | 管理员生成一个注册邀请码：8 位，字母表和房间邀请码相同，不过期 |
 | DELETE | `/api/admin/signup-invites/{code}` | 管理员作废一个未使用的注册邀请码，返回 204；已使用的返回 409 `auth.signupCodeUsed`，不存在或已作废返回 404 `auth.signupCodeInvalid` |
 | PUT | `/api/me/displayName` | 修改名称（`UpdateDisplayNameRequest`，去掉首尾空格后 1 到 20 个字符，允许重名）；名称有变化时给该用户所在的每个 Room 广播 `room.memberRenamed`，没有 Room 时只发给自己的连接 |
-| GET | `/api/me/rules` | 我的个人分类，最近修改的在前 |
+| GET | `/api/me/rules` | 我的个人分类，最近修改的在前；未开启同步到账号时返回 403 `personalSync.off`，客户端据此关闭本机开关、保留本机数据 |
 | PUT | `/api/me/rules` | 按（种类，标准化后的内容）新增或覆盖个人分类（`UpsertUserRuleRequest`），之后给自己的连接发 `rules.personalChanged` |
-| DELETE | `/api/me/rules?kind=&pattern=` | 删除一条个人分类，返回 204 |
+| DELETE | `/api/me/rules?kind=&pattern=` | 删除一条个人分类，返回 204。上面两个写入接口在未开启同步到账号时返回 403 `personalSync.off` |
+| POST | `/api/me/personal-sync` | 开启同步到账号并合并本机的个人数据（`PersonalDataDto`），返回账号上的合并结果，给自己的连接发 `rules.personalChanged` |
+| DELETE | `/api/me/personal-sync` | 关闭同步到账号，删除 Server 上的个人分类、不记录标题、暂离时长和偏好设置，返回 204 |
+| GET | `/api/me/no-title-rules` | 我的不记录标题规则（`NoTitleRuleDto`）；未开启同步返回 403 `personalSync.off` |
+| PUT | `/api/me/no-title-rules` | 新增一条（`UpsertNoTitleRuleRequest`），相同的（种类，内容，不区分大小写）只更新时间；内容不合法返回 400 `noTitle.invalid`，超过 200 条返回 409 `noTitle.limit`，未开启同步返回 403 `personalSync.off` |
+| DELETE | `/api/me/no-title-rules?kind=&pattern=` | 删除一条，返回 204；未开启同步返回 403 |
 | PUT | `/api/me/sharing` | 是否分享使用数据（`SetSharingRequest`）；关闭时删除已上报的未识别应用 |
 | POST | `/api/me/usage` | 上报今天的未识别应用（`UsageReportRequest`，最多 50 个，只收应用）。没有同意分享时返回 403 |
 | GET | `/api/me/stats-sync` | 使用统计同步的状态（`StatsSyncStatusDto`）：是否开启、盐、校验值、每天的版本号、`Allowed`（是否在名单里）。关闭或不在名单里时盐和校验值为空，日期列表为空 |
 | PUT | `/api/me/stats-sync` | 开启同步（`EnableStatsSyncRequest`：盐、校验值，各最长 200 个字符，为空或超长返回 400 `statsSync.invalid`）。不在名单里返回 403 `statsSync.notAllowed`；已开启返回 409 `statsSync.alreadyEnabled` |
 | DELETE | `/api/me/stats-sync` | 关闭同步，在同一个事务里删除全部日期、盐和校验值，返回 204 |
-| PUT | `/api/me/stats-sync/days/{date}` | 上传一天的密文（`UploadStatsDayRequest`，base64），返回 `StatsSyncDayInfo`（日期、新版本号）。不在名单里返回 403 `statsSync.notAllowed`；未开启返回 409 `statsSync.notEnabled`；不是 base64 或为空返回 400 `statsSync.invalid`。不检查单日大小，合计大小也不限制。上传统计设置（`PUT /api/me/stats-sync/settings`）同样先检查名单 |
+| PUT | `/api/me/stats-sync/days/{date}` | 上传一天的密文（`UploadStatsDayRequest`，base64），返回 `StatsSyncDayInfo`（日期、新版本号）。不在名单里返回 403 `statsSync.notAllowed`；未开启返回 409 `statsSync.notEnabled`；不是 base64 或为空返回 400 `statsSync.invalid`。不检查单日大小，合计大小也不限制。上传统计设置（`PUT /api/me/stats-sync/settings`）同样先检查名单；这个接口只留给旧客户端，新客户端不再上传统计设置 |
 | GET | `/api/me/stats-sync/days/{date}` | 下载一天的密文（`StatsSyncDayDto`）。不存在、未开启或不在名单里返回 404 |
 
 | GET | `/api/rooms` | 我加入的 Room。`blocked` 只列出我自己屏蔽的、仍在房间里的成员，不会出现别人的屏蔽记录 |
@@ -254,14 +270,16 @@ flowchart LR
 
 | 表 | 主要字段 |
 |---|---|
-| `Users` | Id、UserName（唯一）、DisplayName、PasswordHash（PBKDF2）、CreatedAt、ShareUsage（空表示还没问过）、SessionId（当前登录的会话，空表示升级后还没登录过）、StatsSyncEnabled、StatsSyncSalt、StatsSyncKeyCheck、StatsSyncRevision（使用统计同步，见「同步到服务器」） |
+| `Users` | Id、UserName（唯一）、DisplayName、PasswordHash（PBKDF2）、CreatedAt、ShareUsage（空表示还没问过）、SessionId（当前登录的会话，空表示升级后还没登录过）、StatsSyncEnabled、StatsSyncSalt、StatsSyncKeyCheck、StatsSyncRevision（使用统计同步，见「同步到服务器」）、PersonalSync（同步到账号，见「个人数据」）、IdleMinutes、Preferences |
 | `Rooms` | Id、Name、OwnerId、MaxMembers、CreatedAt |
 | `RoomMembers` | RoomId + UserId、Role、JoinedAt、PrivacyProfileJson（为空时用默认值） |
 | `RoomInvites` | Code（唯一）、RoomId（唯一）、CreatedBy。每个房间一条，创建房间时生成，所有者重新生成时替换，不过期 |
 | `SignupInvites` | Code（唯一）、CreatedBy、CreatedAt、UsedBy、UsedAt、RevokedAt。注册邀请码，一个码注册一个账号，不过期 |
 | `RoomBans` | RoomId + UserId、BannedBy、BannedAt。生成新邀请码时删除，被踢出的人即可用新邀请码加入 |
 | `RoomBlocks` | RoomId + BlockerId + BlockedId、CreatedAt。成员之间的屏蔽，退出房间后保留，解散房间时级联删除 |
-| `UserRules` | UserId + Kind + Pattern（唯一）、Category、Name、UpdatedAt。个人分类 |
+| `UserRules` | UserId + Kind + Pattern（唯一）、Category、Name、UpdatedAt。个人分类，只在开启同步到账号后写入 |
+| `UserNoTitleRules` | Id、UserId、Kind、Pattern、UpdatedAt。不记录标题的规则，只在开启同步到账号后写入，明文 |
+| `SharedRuleReports` | UserId + Pattern、Category、Name、ReportedAt。未开启同步到账号、同意分享的账号上报的应用个人分类，只用于规则库候选 |
 | `UnknownAppReports` | UserId + Kind + Pattern、DisplayName、Minutes（最近一次上报的当天分钟数）、ReportedAt |
 | `StatsSyncDays` | UserId + Date、Revision、Data（用 PIN 码加密的一天使用统计，Server 不解析）、UpdatedAt。只在用户开启同步后写入，关闭时删除，删除账号时级联删除 |
 | `BuiltinRules` / `AppMeta` | 内置规则（`Names` 列是其他语言名称的 JSON）和规则库版本号 |
@@ -276,11 +294,11 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 
 | 文件 | 内容 |
 |---|---|
-| `settings.json` | Server 地址（默认 `https://deskpal.hafuhafu.cn:36443`，界面上不显示也不能修改，联调时只能改这里）、当前用户、DPAPI 加密的 token、选中的 Room、是否为无房间（`noRoom`）、空闲和防抖参数、暂停分享、是否加入测试版（`includePrerelease`，空则沿用安装渠道）、是否分享使用数据（`shareUsage`，以 Server 为准）、关闭按钮（`closeAction`：`ask`、`minimize`、`tray`、`quit`）、本机设备号（`deviceId`，写进统计片段）、不记录标题的规则（`noTitleRules`，每条是 `kind` + `pattern`） |
+| `settings.json` | Server 地址（默认 `https://deskpal.hafuhafu.cn:36443`，界面上不显示也不能修改，联调时只能改这里）、当前用户、DPAPI 加密的 token、选中的 Room、是否为无房间（`noRoom`）、空闲和防抖参数、暂停分享、是否加入测试版（`includePrerelease`，空则沿用安装渠道）、是否分享使用数据（`shareUsage`，以 Server 为准）、关闭按钮（`closeAction`：`ask`、`minimize`、`tray`、`quit`）、本机设备号（`deviceId`，写进统计片段）、是否开启同步到账号（`personalSync`）、偏好设置的修改时间（`preferencesUpdatedAt`，同步文件夹用）、个人数据的同步文件夹（`personalFolder`）。旧版本的不记录标题（`noTitleRules`）在启动时迁移到 `personal\<userId>.json` 后清空 |
 | `usage\<userId>.db` | 使用统计（SQLite），见「使用统计」。卸载不删除，可以在统计页清除 |
 | `usage\<userId>.sync-key` | 同步到服务器的盐和密钥（JSON，密钥用 DPAPI 加密）。关闭同步、发现已在别处关闭或 PIN 码已更换、退出登录时删除 |
 | `usage\<userId>.folder-sync` | 同步文件夹的路径、盐和密钥（JSON，密钥用 DPAPI 加密）。停止同步、发现文件夹已重新设置、退出登录时删除 |
-| `personal-rules.json` | 个人分类的缓存（`userId` + `rules`），以 Server 为准 |
+| `personal\<userId>.json` | 个人数据：个人分类、不记录标题和删除记录，以本机为准。旧版本的 `personal-rules.json` 第一次启动时迁移 |
 | `builtin-rules.json` | 内置规则缓存（含其他语言的名称） |
 | `unclassified-<userId>.json` | 当天未识别应用的前台时长（`day` + `apps`），第二天启动时不再使用 |
 | `<安装目录>\logs\deskpal.log` | 客户端运行日志。超过 1 MB 后改名为 `deskpal-时间.log`，最多保留 5 个旧文件，超过 7 天的旧文件删除。不记录窗口标题、媒体标题、域名、页面标题、密码、token、邀请码 |
@@ -288,7 +306,7 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 
 `settings.json` 里还有窗口置顶（`topmost`）。
 
-跟随账号的设置：暂离时长在 `Users.IdleMinutes`（`PUT /api/me/idle-minutes`）；切换等待、外观、语言、关闭窗口时、窗口置顶、成员排序在 `Users.Preferences`（`UserPreferences` 的 JSON，迁移 `AddUserPreferences`）。`PATCH /api/me/preferences` 只改请求里带的字段，成员排序按房间合并，空列表表示恢复默认顺序，已不在的房间的排序在保存时删除；不认识的取值返回 `prefs.invalid`。`GET /api/me` 和登录的 `AuthResponse.Preferences` 带回当前值。客户端在 `settings.json` 里保留一份：登录后以账号为准，账号上还没有的字段上传本机值（`PreferencesResolver`）；设置页修改时先保存本机再上传，连不上服务器时记 `preferencesUnsynced`，下次登录改为上传本机的全部值，不被账号上的旧值覆盖。同一账号只能在一台电脑上登录，所以不做实时推送。开机自启、加入测试版、暂停分享、选中的房间、同步文件夹路径只在本机。WebView2 的缓存在 `<安装目录>\WebView2`。开机自启写入 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`；用命名 Mutex 保证单实例运行。
+跟随账号的设置（只在开启同步到账号后保存，见「个人数据」）：暂离时长在 `Users.IdleMinutes`（`PUT /api/me/idle-minutes`）；切换等待、外观、语言、关闭窗口时、窗口置顶、成员排序在 `Users.Preferences`（`UserPreferences` 的 JSON，迁移 `AddUserPreferences`）。`PATCH /api/me/preferences` 只改请求里带的字段，成员排序按房间合并，空列表表示恢复默认顺序，已不在的房间的排序在保存时删除；不认识的取值返回 `prefs.invalid`。`GET /api/me` 和登录的 `AuthResponse.Preferences` 带回当前值。客户端在 `settings.json` 里保留一份：登录后以账号为准，账号上还没有的字段上传本机值（`PreferencesResolver`）；设置页修改时先保存本机再上传，连不上服务器时记 `preferencesUnsynced`，下次登录改为上传本机的全部值，不被账号上的旧值覆盖。同一账号只能在一台电脑上登录，所以不做实时推送。开机自启、加入测试版、暂停分享、选中的房间、两个同步文件夹的路径只在本机。WebView2 的缓存在 `<安装目录>\WebView2`。开机自启写入 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`；用命名 Mutex 保证单实例运行。
 
 ## 部署和发布
 

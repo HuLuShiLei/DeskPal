@@ -8,6 +8,15 @@
 
 ## 0.1.4
 
+- 左侧导航的「分类」改名为「规则」并更换图标，「不记录标题」从统计页移到这里。命中规则时，房间成员和首页也只显示类别和名称，不再显示标题，适合远程控制软件的识别码这类内容。
+  en: Categories in the left navigation is now Rules with a new icon, and Don't record titles has moved there from Stats. When a rule matches, room members and Home also show only the category and name, never the title, which helps with things like remote access codes.
+
+- 设置中新增「个人数据」：个人分类、不记录标题和偏好设置默认只保存在本机，开启「同步到账号」后才保存到服务器并在其他电脑同步，关闭时立即删除服务器上的数据。之前已在服务器上保存过个人分类或偏好设置的账号保持开启。
+  en: Settings now has Personal data. Categories, no-title rules and preferences stay on this computer by default and are saved on the server and synced to other computers only after you turn on Account sync. Turning it off deletes them from the server right away. Accounts that already kept categories or preferences on the server stay on.
+
+- 个人数据可以导出、导入，也可以通过同步文件夹在电脑之间同步，同步文件夹可以和使用统计用同一个。
+  en: Personal data can be exported and imported, or synced between computers through a sync folder, which can be the same folder as usage stats.
+
 - 修复更新后、刚启动或从托盘打开面板时，偶尔整个窗口全黑或全白、需要重启程序才能恢复的问题。面板没有正常加载时会自动重新加载。
   en: Fixed the panel sometimes staying completely black or white after an update, at startup, or when opened from the tray, until DeskPal was restarted. The panel now reloads itself when it doesn't load.
 
@@ -32,8 +41,8 @@
 - 设置中可以选择「切换等待」：新状态保持所选时间不变后才同步给房间成员，可选不等待。使用统计不受影响。
   en: Settings now has Switch delay: a new status is shared with the room after it stays the same for the chosen time, or right away. Usage stats aren't affected.
 
-- 切换等待、夜间模式、语言、关闭窗口时、窗口置顶和成员排序改为跟随账号，在其他电脑登录后保持一致。开机自启和加入测试版仍按每台电脑分别设置。
-  en: Switch delay, theme, language, the close option, always on top, and member order now follow your account to other computers. Start with Windows and beta updates are still set on each computer.
+- 开启「同步到账号」后，切换等待、夜间模式、语言、关闭窗口时、窗口置顶和成员排序跟随账号，在其他电脑登录后保持一致。开机自启和加入测试版仍按每台电脑分别设置。
+  en: With Account sync on, switch delay, theme, language, the close option, always on top, and member order follow your account to other computers. Start with Windows and beta updates are still set on each computer.
 
 - 程序图标改成了深色背景上的字母 D，托盘、任务栏、开始菜单和安装程序都会显示。
   en: The icon is now a letter D on a dark background, shown in the tray, the taskbar, the Start menu, and the installer.

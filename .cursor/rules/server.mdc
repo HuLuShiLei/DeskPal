@@ -33,5 +33,6 @@ if (invite is null || invite.ExpiresAt <= time.GetUtcNow()) { ... }
 - 不要在 Hub 里读取 `Payload` 做业务判断。
 - 配置项放 `appsettings.json` 对应的节，用 Options 类读取。密钥只从环境变量（`Jwt__Key`、`Rules__MaintainerToken`）读取，不要写进 `appsettings*.json`。
 - 只和某个用户自己有关的通知（例如 `rules.personalChanged`）用 `ConnectionRegistry` 发给该用户的连接，不要发到房间 Group。
-- 规则库候选只统计 `ShareUsage == true` 的账号。用户关闭分享时删除他的 `UnknownAppReports`。
+- 规则库候选只统计 `ShareUsage == true` 的账号。用户关闭分享时删除他的 `UnknownAppReports` 和 `SharedRuleReports`。个人分类来自 `UserRules`（开启「同步到账号」的账号）和 `SharedRuleReports`（未开启的账号随使用上报附带的应用个人分类），开启同步时删除该账号的 `SharedRuleReports`。
+- 个人数据（`UserRules`、`UserNoTitleRules`、`IdleMinutes`、`Preferences`）只在 `User.PersonalSync` 为 true 时写入；关闭时返回 403 `personalSync.off`。关闭同步时全部删除。
 - 数据库路径只看连接串 `ConnectionStrings:Default`（本地 `storage/deskpal.db`，容器内 `/data/deskpal.db`），启动时按连接串创建目录。不要在代码里写死目录。
