@@ -226,43 +226,6 @@ public sealed class StatsSyncTests : IDisposable
     }
 
     [Fact]
-    public async Task Stats_settings_follow_the_account_and_the_account_wins_on_unlock()
-    {
-        var server = new FakeServer();
-        var settingsA = new FakeSettings { Current = new([new NoTitleRule(NoTitleKind.App, "招商银行")]) };
-        var syncA = new StatsSync(NewStore(), server, new FakeKeys(), () => Day, Cheap, settingsA);
-        await syncA.EnableAsync(Pin);
-        await syncA.SyncAsync(allDays: false);
-        Assert.Equal(1, server.SettingsUploads);
-        Assert.DoesNotContain("招商银行", Encoding.UTF8.GetString(server.Settings!.Value.Data));
-
-        var settingsB = new FakeSettings { Current = new([]) };
-        var syncB = new StatsSync(NewStore(), server, new FakeKeys(), () => Day, Cheap, settingsB);
-        await syncB.UnlockAsync(Pin);
-        await syncB.SyncAsync(allDays: false);
-        Assert.Equal("招商银行", settingsB.Current.NoTitleRules.Single().Pattern);
-        Assert.Equal(1, server.SettingsUploads);
-
-        settingsB.Current = new([new NoTitleRule(NoTitleKind.Title, "病历")]);
-        await syncB.SyncAsync(allDays: false);
-        await syncA.SyncAsync(allDays: false);
-        await syncA.SyncAsync(allDays: false);
-        Assert.Equal("病历", settingsA.Current.NoTitleRules.Single().Pattern);
-        Assert.Equal(2, server.SettingsUploads);
-
-        await syncA.DisableAsync();
-        Assert.Null(server.Settings);
-    }
-
-    [Fact]
-    public void Settings_from_older_versions_with_a_retention_are_read()
-    {
-        var older = """{"noTitleRules":[{"kind":"App","pattern":"招商银行"}],"retentionDays":90}""";
-        var settings = System.Text.Json.JsonSerializer.Deserialize<SyncedStatsSettings>(older, DeskPal.Shared.DeskPalJson.Options)!;
-        Assert.Equal("招商银行", settings.NoTitleRules.Single().Pattern);
-    }
-
-    [Fact]
     public async Task Removed_from_the_list_drops_the_key_and_keeps_the_stats_here()
     {
         var server = new FakeServer();
@@ -310,15 +273,6 @@ public sealed class StatsSyncTests : IDisposable
         }
     }
 
-    private sealed class FakeSettings : IStatsSettingsSource
-    {
-        public required SyncedStatsSettings Current { get; set; }
-
-        public SyncedStatsSettings Read() => Current;
-
-        public void Apply(SyncedStatsSettings settings) => Current = settings;
-    }
-
     private sealed class FakeKeys : IStatsSyncKeyStore
     {
         private StoredSyncKey? _key;
@@ -343,13 +297,10 @@ public sealed class StatsSyncTests : IDisposable
         public int Downloads { get; private set; }
         public bool Unreachable { get; set; }
 
-        public (long Revision, byte[] Data)? Settings { get; private set; }
-        public int SettingsUploads { get; private set; }
-
         public bool Allowed { get; set; } = true;
 
         public Task<StatsSyncStatusDto> GetStatusAsync() => Task.FromResult(Enabled
-            ? new StatsSyncStatusDto(true, Salt, KeyCheck, Days.OrderBy(d => d.Key).Select(d => new StatsSyncDayInfo(d.Key, d.Value.Revision)).ToList(), Settings?.Revision, Allowed)
+            ? new StatsSyncStatusDto(true, Salt, KeyCheck, Days.OrderBy(d => d.Key).Select(d => new StatsSyncDayInfo(d.Key, d.Value.Revision)).ToList(), null, Allowed)
             : new StatsSyncStatusDto(false, null, null, [], Allowed: Allowed));
 
         /// <summary>What the server does at start for an account no longer in the list.</summary>
@@ -358,19 +309,7 @@ public sealed class StatsSyncTests : IDisposable
             Allowed = false;
             (Enabled, Salt, KeyCheck) = (false, null, null);
             Days.Clear();
-            Settings = null;
         }
-
-        public Task<long> UploadSettingsAsync(byte[] data)
-        {
-            Assert.True(Enabled);
-            SettingsUploads++;
-            Settings = (++_revision, data);
-            return Task.FromResult(_revision);
-        }
-
-        public Task<StatsSyncSettingsDto?> DownloadSettingsAsync() =>
-            Task.FromResult(Settings is { } s ? new StatsSyncSettingsDto(s.Revision, Convert.ToBase64String(s.Data)) : null);
 
         public async Task<StatsSyncStatusDto?> EnableAsync(EnableStatsSyncRequest request)
         {
@@ -381,7 +320,6 @@ public sealed class StatsSyncTests : IDisposable
 
             (Enabled, Salt, KeyCheck) = (true, request.Salt, request.KeyCheck);
             Days.Clear();
-            Settings = null;
             return await GetStatusAsync();
         }
 
@@ -394,7 +332,6 @@ public sealed class StatsSyncTests : IDisposable
 
             (Enabled, Salt, KeyCheck) = (false, null, null);
             Days.Clear();
-            Settings = null;
             return Task.CompletedTask;
         }
 

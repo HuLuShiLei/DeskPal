@@ -817,4 +817,37 @@
   <data name="ApiError_statsSync_notAllowed" xml:space="preserve">
     <value>当前账号无法使用同步到服务器</value>
   </data>
+  <data name="ApiError_personalSync_off" xml:space="preserve">
+    <value>同步到账号未开启</value>
+  </data>
+  <data name="ApiError_noTitle_invalid" xml:space="preserve">
+    <value>规则内容不正确</value>
+  </data>
+  <data name="ApiError_noTitle_limit" xml:space="preserve">
+    <value>不记录标题的规则最多 {limit} 条，请先删除不需要的规则</value>
+  </data>
+  <data name="Personal_AccountFolderOn" xml:space="preserve">
+    <value>个人数据的同步文件夹已开启，请先停止。</value>
+  </data>
+  <data name="Personal_FolderAccountOn" xml:space="preserve">
+    <value>同步到账号已开启，请先关闭。</value>
+  </data>
+  <data name="Personal_FolderDialogTitle" xml:space="preserve">
+    <value>选择个人数据的同步文件夹</value>
+  </data>
+  <data name="Personal_ExportTitle" xml:space="preserve">
+    <value>导出个人数据</value>
+  </data>
+  <data name="Personal_ExportFileName" xml:space="preserve">
+    <value>DeskPal-个人数据-{0}.json</value>
+  </data>
+  <data name="Personal_ImportTitle" xml:space="preserve">
+    <value>导入个人数据</value>
+  </data>
+  <data name="PersonalImport_NotFile" xml:space="preserve">
+    <value>不是 DeskPal 导出的个人数据文件。</value>
+  </data>
+  <data name="Personal_ImportDone" xml:space="preserve">
+    <value>已导入 {0} 条分类、{1} 条不记录标题的规则。</value>
+  </data>
 </root>

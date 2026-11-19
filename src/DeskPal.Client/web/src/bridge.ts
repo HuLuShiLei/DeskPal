@@ -126,15 +126,17 @@ export interface PanelState {
     idleMinutes: number;
     /** 新状态保持这么多秒不变后才同步给房间成员；0 立即同步。只影响推送，不影响使用统计。 */
     switchDelaySeconds: number;
+    /** 个人数据（个人分类、不记录标题、偏好设置）除本机外还保存在哪里。同步到账号和同步文件夹只能开启一种。 */
+    personal: { accountSync: boolean; folder: string | null; folderUnavailable: boolean } | null;
   };
   myRules: MyRuleItem[];
+  /** 不记录标题：命中时房间、首页和使用统计都不显示标题。 */
+  noTitleRules: NoTitleItem[] | null;
   unclassified: UnclassifiedItem[];
   /** 更新后还没看过的更新内容；关闭对话框后为 null。 */
   whatsNew: { title: string; summary: string; sections: { version: string; items: string[] }[] } | null;
   /** 我自己的使用统计设置。 */
   usage: {
-    /** 不记录标题的应用和网站。 */
-    noTitleRules: { kind: NoTitleKind; pattern: string; label: string }[];
     /** 最近 7 天查看过我的统计的人，最新的在前。 */
     viewers: { name: string; room: string; when: string }[];
     /** 同步到服务器，账号不在服务器名单里时为 null。needsPin：其他电脑开启的，这台电脑还要输入 PIN 码；error：上次同步失败、用户可以处理的原因。 */
@@ -149,6 +151,11 @@ export interface PanelState {
 export type Language = "system" | "zh-CN" | "en";
 
 export type NoTitleKind = "App" | "Process" | "Domain" | "Title";
+export interface NoTitleItem {
+  kind: NoTitleKind;
+  pattern: string;
+  label: string;
+}
 export type StatsScale = "Day" | "Week" | "Month";
 /** 排行列出什么。图表固定按类别着色。 */
 export type StatsRankBy = "Category" | "App" | "Title";
@@ -280,8 +287,14 @@ export type Command =
   | { type: "stats.folder.choose" }
   | { type: "stats.folder.enable"; path: string; pin: string }
   | { type: "stats.folder.stop" }
-  | { type: "stats.noTitle.add"; kind: NoTitleKind; pattern: string }
-  | { type: "stats.noTitle.remove"; kind: NoTitleKind; pattern: string }
+  | { type: "noTitle.add"; kind: NoTitleKind; pattern: string }
+  | { type: "noTitle.remove"; kind: NoTitleKind; pattern: string }
+  | { type: "personal.sync.enable" }
+  | { type: "personal.sync.disable" }
+  | { type: "personal.folder.choose" }
+  | { type: "personal.folder.stop" }
+  | { type: "personal.export" }
+  | { type: "personal.import" }
   | { type: "room.transfer"; roomId: string; userId: string }
   | { type: "room.kick"; roomId: string; userId: string }
   | { type: "room.leave"; roomId: string }

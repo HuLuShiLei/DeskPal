@@ -43,7 +43,8 @@ public static class PanelSamples
         UserName: "alice",
         UpdateActivity: null,
         ShareUsage: true,
-        Theme: "system");
+        Theme: "system",
+        Personal: new PersonalView(AccountSync: false));
 
     public static PanelInput Default()
     {

@@ -29,7 +29,8 @@ public sealed record SetSharingRequest(bool Enabled);
 /// <summary>An app or site the builtin rules did not recognize, with today's foreground minutes. No titles.</summary>
 public sealed record UnknownAppItem(RuleKind Kind, string Pattern, string? DisplayName, int Minutes);
 
-public sealed record UsageReportRequest(IReadOnlyList<UnknownAppItem> Apps);
+/// <param name="Rules">Personal rules for apps; only sent while account sync is off, and replace the earlier ones.</param>
+public sealed record UsageReportRequest(IReadOnlyList<UnknownAppItem> Apps, IReadOnlyList<SharedRuleItem>? Rules = null);
 
 /// <summary>Many accounts put the same app in the same category with their personal rules.</summary>
 public sealed record ConsensusCandidate(RuleKind Kind, string Pattern, string? Name, ActivityCategory Category, int Users, int Agreeing, ActivityCategory? Builtin);

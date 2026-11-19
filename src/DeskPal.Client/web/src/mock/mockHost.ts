@@ -56,6 +56,10 @@ export function createMockTransport(params: URLSearchParams): Transport {
     const error = syncSample === "error" ? L("同步失败，将自动重试。", "Sync failed and will try again.") : null;
     state.usage.sync = { enabled: true, needsPin: syncSample === "pin", error };
   }
+  const personalSample = params.get("personal");
+  if (personalSample === "account") state.settings.personal = { accountSync: true, folder: null, folderUnavailable: false };
+  else if (personalSample === "folder" || personalSample === "unavailable")
+    state.settings.personal = { accountSync: false, folder: folderPath, folderUnavailable: personalSample === "unavailable" };
   const fail = params.has("fail");
   const login = params.get("page") === "login";
   const card = params.get("page") === "card";
@@ -216,17 +220,34 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "stats.folder.stop":
         if (state.usage) state.usage.folder = { enabled: false, path: null, unavailable: false };
         break;
-      case "stats.noTitle.add": {
+      case "noTitle.add": {
         const kind = m.kind as NoTitleKind;
         const pattern = (m.pattern as string).trim();
         const label = (english ? { App: "App", Process: "Process", Domain: "Site", Title: "Title contains" } : { App: "应用", Process: "进程", Domain: "网址", Title: "标题含" })[kind];
-        if (state.usage && !state.usage.noTitleRules.some((r) => r.kind === kind && r.pattern === pattern))
-          state.usage.noTitleRules.push({ kind, pattern, label: `${label} · ${pattern}` });
+        const rules = (state.noTitleRules ??= []);
+        if (!rules.some((r) => r.kind === kind && r.pattern === pattern)) rules.push({ kind, pattern, label: `${label} · ${pattern}` });
         break;
       }
-      case "stats.noTitle.remove":
-        if (state.usage) state.usage.noTitleRules = state.usage.noTitleRules.filter((r) => !(r.kind === m.kind && r.pattern === m.pattern));
+      case "noTitle.remove":
+        state.noTitleRules = (state.noTitleRules ?? []).filter((r) => !(r.kind === m.kind && r.pattern === m.pattern));
         break;
+      case "personal.sync.enable":
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        state.settings.personal = { accountSync: true, folder: null, folderUnavailable: false };
+        break;
+      case "personal.sync.disable":
+        state.settings.personal = { accountSync: false, folder: null, folderUnavailable: false };
+        break;
+      case "personal.folder.choose":
+        state.settings.personal = { accountSync: false, folder: folderPath, folderUnavailable: false };
+        break;
+      case "personal.folder.stop":
+        state.settings.personal = { accountSync: false, folder: null, folderUnavailable: false };
+        break;
+      case "personal.export":
+        return { ok: true, error: null, data: { message: L("已导出到 C:\\Users\\alice\\Documents\\DeskPal-个人数据-20261119.json", "Exported to C:\\Users\\alice\\Documents\\DeskPal-personal-20261119.json") } };
+      case "personal.import":
+        return { ok: true, error: null, data: { message: L("已导入 12 条分类、3 条不记录标题的规则。", "Imported 12 categories and 3 no-title rules.") } };
       case "room.transfer": {
         const r = room(m.roomId);
         if (r) r.isOwner = false;

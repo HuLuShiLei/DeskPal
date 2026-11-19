@@ -25,7 +25,8 @@ public sealed record PanelState(
     IReadOnlyList<UnclassifiedItem> Unclassified,
     WhatsNewView? WhatsNew = null,
     UsageView? Usage = null,
-    string Locale = UiLanguage.Chinese);
+    string Locale = UiLanguage.Chinese,
+    IReadOnlyList<NoTitleItem>? NoTitleRules = null);
 
 public sealed record ConnectionView(bool Connected, string Text);
 
@@ -72,11 +73,10 @@ public sealed record PrivacyView(
     bool SharePausedStats = false);
 
 /// <summary>Settings of my own usage stats, shown on the stats page.</summary>
-/// <param name="NoTitleRules">Apps, processes, sites and title keywords whose titles are never recorded.</param>
 /// <param name="Viewers">Who viewed my stats in the last 7 days, latest first.</param>
 /// <param name="Sync">Copy of the stats kept on the server; null when the account may not use it.</param>
 /// <param name="Folder">Sync through a folder the user's cloud drive or sync app copies. Only one of the two can be on.</param>
-public sealed record UsageView(IReadOnlyList<NoTitleItem> NoTitleRules, IReadOnlyList<StatsViewerItem> Viewers, UsageSyncView? Sync = null, UsageFolderView? Folder = null);
+public sealed record UsageView(IReadOnlyList<StatsViewerItem> Viewers, UsageSyncView? Sync = null, UsageFolderView? Folder = null);
 
 /// <param name="Path">The chosen folder, when on.</param>
 /// <param name="Unavailable">On, but the folder cannot be reached right now.</param>
@@ -87,6 +87,7 @@ public sealed record UsageFolderView(bool Enabled, string? Path, bool Unavailabl
 /// <param name="Error">Why the last sync failed, when the user can do something about it (e.g. a day over the size limit).</param>
 public sealed record UsageSyncView(bool Enabled, bool NeedsPin, string? Error = null);
 
+/// <summary>An app, process, site or title keyword whose title is hidden from rooms, the home page and stats.</summary>
 public sealed record NoTitleItem(NoTitleKind Kind, string Pattern, string Label);
 
 public sealed record StatsViewerItem(string Name, string Room, string When);
@@ -120,4 +121,11 @@ public sealed record SettingsView(
     string Language = UiLanguage.FollowSystem,
     bool IsAdmin = false,
     int IdleMinutes = AccountIdle.DefaultMinutes,
-    int SwitchDelaySeconds = SwitchDelay.DefaultSeconds);
+    int SwitchDelaySeconds = SwitchDelay.DefaultSeconds,
+    PersonalView? Personal = null);
+
+/// <summary>Where the personal rules, no-title rules and preferences are kept besides this computer.</summary>
+/// <param name="AccountSync">Synced with the account on the server.</param>
+/// <param name="Folder">The sync folder, when on. Off while account sync is on.</param>
+/// <param name="FolderUnavailable">The folder is set but cannot be reached right now.</param>
+public sealed record PersonalView(bool AccountSync, string? Folder = null, bool FolderUnavailable = false);

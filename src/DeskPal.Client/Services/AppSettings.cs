@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using DeskPal.Client.Core.Usage;
 using DeskPal.Shared;
+using DeskPal.Shared.Api;
 
 namespace DeskPal.Client.Services;
 
@@ -51,8 +51,17 @@ public sealed class AppSettings
     /// <summary>Identifies this computer in exported usage files, so importing them twice does not count twice.</summary>
     public Guid DeviceId { get; set; }
 
-    /// <summary>Apps, processes, sites and title keywords whose titles are never recorded in the usage stats.</summary>
+    /// <summary>Where older versions kept the no-title rules. Moved into the personal data file at start, then left empty.</summary>
     public List<NoTitleRule> NoTitleRules { get; set; } = [];
+
+    /// <summary>Copy of whether the account keeps its personal data on the server. Off until turned on in Settings.</summary>
+    public bool PersonalSync { get; set; }
+
+    /// <summary>When the away time or a preference last changed here; decides which computer's values a sync folder keeps.</summary>
+    public DateTimeOffset? PreferencesUpdatedAt { get; set; }
+
+    /// <summary>Folder the personal data of the signed-in account syncs through. Only on this computer; cleared on sign-out.</summary>
+    public string? PersonalFolder { get; set; }
 
     /// <summary>Per room, the order the user dragged the other members into. Only affects this computer.</summary>
     public Dictionary<Guid, List<Guid>> MemberOrder { get; set; } = [];

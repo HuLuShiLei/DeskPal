@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import type { NoTitleKind, PanelState, StatsAppView, StatsDetailKey, StatsRankBy, StatsRankItem, StatsScale, StatsView } from "../bridge";
+import type { PanelState, StatsAppView, StatsDetailKey, StatsRankBy, StatsRankItem, StatsScale, StatsView } from "../bridge";
 import { Bars, Heatmap, Legend, Ranking, Timeline } from "../components/charts";
 import { useHost } from "../host";
 import { t, type MessageKey } from "../i18n";
@@ -470,29 +470,6 @@ function UsageSettings({ usage }: { usage: NonNullable<PanelState["usage"]> }) {
     if (answer.ok) await busy(() => run({ type: "stats.folder.stop" }, t("folder.stopped")));
   };
 
-  const addNoTitle = async () => {
-    const answer = await ask({
-      title: t("noTitle.title"),
-      message: t("noTitle.message"),
-      select: {
-        presentation: "radio",
-        options: [
-          { value: "App", name: t("noTitle.app") },
-          { value: "Process", name: t("noTitle.process") },
-          { value: "Domain", name: t("noTitle.domain") },
-          { value: "Title", name: t("noTitle.keyword") },
-        ],
-      },
-      input: {
-        placeholders: { App: t("noTitle.exampleApp"), Process: t("noTitle.exampleProcess"), Domain: t("noTitle.exampleDomain"), Title: t("noTitle.exampleTitle") },
-        maxLength: 100,
-        required: true,
-      },
-      okText: t("common.add"),
-    });
-    if (answer.ok) await run({ type: "stats.noTitle.add", kind: answer.selected as NoTitleKind, pattern: answer.text });
-  };
-
   const transfer = async (type: "stats.export" | "stats.import") => {
     const result = await run({ type });
     const message = (result.data as { message?: string } | undefined)?.message;
@@ -529,30 +506,6 @@ function UsageSettings({ usage }: { usage: NonNullable<PanelState["usage"]> }) {
             ))}
           </ul>
         )}
-        <SettingRow
-          title={t("noTitle.title")}
-          hint={t("noTitle.hint")}
-        >
-          <button onClick={() => void addNoTitle()}>
-            <Icon name="add" />
-            {t("common.add")}
-          </button>
-        </SettingRow>
-        {usage.noTitleRules.length > 0 && (
-          <div class="chips stats-no-title">
-            {usage.noTitleRules.map((r) => (
-              <button
-                key={r.kind + r.pattern}
-                class="chip"
-                aria-label={t("noTitle.remove", { label: r.label })}
-                title={t("noTitle.clickToRemove")}
-                onClick={() => void run({ type: "stats.noTitle.remove", kind: r.kind, pattern: r.pattern })}
-              >
-                {r.label} ×
-              </button>
-            ))}
-          </div>
-        )}
         <SettingRow title={t("usage.transfer")} hint={t("usage.transferHint")}>
           <button onClick={() => void transfer("stats.export")}>{t("usage.export")}</button>
           <button onClick={() => void transfer("stats.import")}>{t("usage.import")}</button>
@@ -574,7 +527,7 @@ function UsageSettings({ usage }: { usage: NonNullable<PanelState["usage"]> }) {
               ) : folderOn && !synced ? (
                 t("sync.folderOn")
               ) : (
-                (sync.error ?? (synced ? t("sync.noTitleSynced") : undefined))
+                (sync.error ?? undefined)
               )
             }
           >

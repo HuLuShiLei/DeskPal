@@ -209,7 +209,7 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 .search-bar input:not([type=checkbox]):not([type=radio]) { flex: 1; padding-left: 32px; }
 .search-icon { position: absolute; left: 13px; color: var(--muted); pointer-events: none; }
 .section-note { font-size: 12px; color: var(--faint); }
-.section-actions { display: flex; gap: 6px; }
+.section-actions { display: flex; align-items: center; gap: 6px; }
 .card {
   background: var(--surface-strong); border: 1px solid var(--line); border-radius: var(--radius-lg);
   padding: 12px 14px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px;
@@ -554,7 +554,7 @@ button.hint-button:active:not(:disabled) { background: var(--pressed); color: va
 .stats-rank-bar > span { display: block; height: 100%; border-radius: 2px; }
 .stats-viewers { margin: 0; padding: 4px 14px 10px; list-style: none; display: grid; gap: 4px; }
 .stats-viewers li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: baseline; }
-.stats-no-title { padding: 4px 14px 12px; }
+.rules-views { margin-bottom: -6px; }
 .stats-changes { display: flex; flex-wrap: wrap; gap: 2px 12px; margin: 2px 0 0; padding: 0; list-style: none; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .stats-changes li { display: inline-flex; align-items: center; gap: 6px; }
 .stats-card-title { font-size: 12px; color: var(--muted); }

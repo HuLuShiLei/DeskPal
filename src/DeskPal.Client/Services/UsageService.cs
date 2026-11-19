@@ -43,7 +43,6 @@ public sealed class UsageService : IDisposable
 
         _db = new SqliteUsageStore(Path.Combine(SettingsStore.Directory, "usage", $"{settings.UserId:N}.db"), settings.DeviceId);
         Recorder = new UsageRecorder(_db);
-        Recorder.SetNoTitleRules(settings.NoTitleRules);
         _prune = new Timer(_ => PruneViews(), null, TimeSpan.FromSeconds(30), PruneEvery);
         LoadViews();
     }
@@ -94,16 +93,6 @@ public sealed class UsageService : IDisposable
             to);
     }
 
-    /// <summary>The no-title rules changed, here or from another computer through sync.</summary>
-    public event Action? SettingsChanged;
-
-    public void SetNoTitleRules(List<NoTitleRule> rules)
-    {
-        _settings.NoTitleRules = rules;
-        _store.Save(_settings);
-        Recorder.SetNoTitleRules(rules);
-        SettingsChanged?.Invoke();
-    }
 
     public void Export(string path)
     {

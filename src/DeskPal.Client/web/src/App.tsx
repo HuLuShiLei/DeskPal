@@ -15,7 +15,7 @@ const tabs: { id: Tab; name: MessageKey; icon: IconName }[] = [
   { id: "status", name: "tab.status", icon: "home" },
   { id: "stats", name: "tab.stats", icon: "chart" },
   { id: "room", name: "tab.room", icon: "group" },
-  { id: "rules", name: "tab.rules", icon: "tag" },
+  { id: "rules", name: "tab.rules", icon: "filter" },
   { id: "settings", name: "tab.settings", icon: "settings" },
 ];
 

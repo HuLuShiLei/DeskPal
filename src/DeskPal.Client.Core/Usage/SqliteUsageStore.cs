@@ -508,30 +508,6 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         }
     }
 
-    /// <summary>What was last uploaded or downloaded of the synced settings; null when nothing yet.</summary>
-    public SyncMark? SyncSettingsMark()
-    {
-        lock (_lock)
-        {
-            using var cmd = Command("SELECT Hash, Revision FROM SyncSettings WHERE Id = 1");
-            using var reader = cmd.ExecuteReader();
-            return reader.Read() ? new SyncMark(reader.IsDBNull(0) ? null : reader.GetString(0), reader.GetInt64(1)) : null;
-        }
-    }
-
-    public void SetSyncSettingsMark(SyncMark mark)
-    {
-        lock (_lock)
-        {
-            using var cmd = Command("""
-                INSERT INTO SyncSettings (Id, Hash, Revision) VALUES (1, $hash, $revision)
-                ON CONFLICT (Id) DO UPDATE SET Hash = excluded.Hash, Revision = excluded.Revision
-                """);
-            cmd.Parameters.AddWithValue("$hash", (object?)mark.Hash ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("$revision", mark.Revision);
-            cmd.ExecuteNonQuery();
-        }
-    }
 
     /// <summary>Forgets what was synced with the server, after sync was turned off or on again.</summary>
     public void ResetSync()

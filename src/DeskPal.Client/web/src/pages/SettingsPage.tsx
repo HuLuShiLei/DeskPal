@@ -144,6 +144,7 @@ export function SettingsPage({ state }: { state: PanelState }) {
           </SettingRow>
         </div>
       </Section>
+      <PersonalData personal={s.personal} />
       <Section title={t("settings.categories")}>
         <div class="card flush">
           <SettingRow title={t("sharing.title")} hint={t("settings.sharingHint")}>
@@ -178,6 +179,89 @@ export function SettingsPage({ state }: { state: PanelState }) {
       </Section>
       {s.isAdmin && <SignupInvites />}
     </>
+  );
+}
+
+/** 个人分类、不记录标题和偏好设置除本机外保存到哪里，以及导入导出。 */
+function PersonalData({ personal }: { personal: PanelState["settings"]["personal"] }) {
+  const { run, ask, toast } = useHost();
+  const [busy, setBusy] = useState(false);
+  const accountSync = personal?.accountSync ?? false;
+  const folder = personal?.folder ?? null;
+
+  const guard = async (action: () => Promise<unknown>) => {
+    setBusy(true);
+    try {
+      await action();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const enable = async () => {
+    const answer = await ask({ title: t("personal.enableTitle"), message: t("personal.enableMessage"), okText: t("sync.turnOn") });
+    if (answer.ok) await guard(() => run({ type: "personal.sync.enable" }, t("personal.enabled")));
+  };
+
+  const disable = async () => {
+    const answer = await ask({ title: t("personal.disableTitle"), message: t("personal.disableMessage"), okText: t("sync.disable"), danger: true });
+    if (answer.ok) await guard(() => run({ type: "personal.sync.disable" }, t("sync.disabled")));
+  };
+
+  const chooseFolder = () => guard(() => run({ type: "personal.folder.choose" }));
+
+  const stopFolder = async () => {
+    const answer = await ask({ title: t("folder.stopTitle"), message: t("personal.folderStopMessage"), okText: t("folder.stop") });
+    if (answer.ok) await run({ type: "personal.folder.stop" }, t("folder.stopped"));
+  };
+
+  const transfer = async (type: "personal.export" | "personal.import") => {
+    const result = await run({ type });
+    const message = (result.data as { message?: string } | undefined)?.message;
+    if (result.ok && message) toast(message);
+  };
+
+  return (
+    <Section title={t("personal.title")}>
+      <div class="card flush">
+        <SettingRow title={t("personal.sync")} hint={t("personal.syncHint")} description={folder && !accountSync ? t("sync.folderOn") : undefined}>
+          <Switch
+            checked={accountSync}
+            label={t("personal.sync")}
+            disabled={busy || (folder !== null && !accountSync)}
+            onChange={(on) => void (on ? enable() : disable())}
+          />
+        </SettingRow>
+        <SettingRow
+          title={t("folder.title")}
+          hint={t("personal.folderHint")}
+          description={
+            folder ? (
+              <>
+                {personal?.folderUnavailable && <span class="sub">{t("folder.unavailable")}</span>}
+                <span class="sub folder-path" title={folder}>
+                  {folder}
+                </span>
+              </>
+            ) : accountSync ? (
+              t("personal.accountOn")
+            ) : undefined
+          }
+        >
+          {folder ? (
+            <button onClick={() => void stopFolder()}>{t("folder.stop")}</button>
+          ) : (
+            <button disabled={busy || accountSync} onClick={() => void chooseFolder()}>
+              {t("folder.choose")}
+            </button>
+          )}
+        </SettingRow>
+        <SettingRow title={t("usage.transfer")} hint={t("personal.transferHint")}>
+          <button onClick={() => void transfer("personal.export")}>{t("usage.export")}</button>
+          <button onClick={() => void transfer("personal.import")}>{t("usage.import")}</button>
+        </SettingRow>
+      </div>
+    </Section>
   );
 }
 

@@ -196,7 +196,12 @@
     "language": "system",
     "isAdmin": true,
     "idleMinutes": 5,
-    "switchDelaySeconds": 10
+    "switchDelaySeconds": 10,
+    "personal": {
+      "accountSync": false,
+      "folder": null,
+      "folderUnavailable": false
+    }
   },
   "myRules": [
     {
@@ -232,23 +237,6 @@
   ],
   "whatsNew": null,
   "usage": {
-    "noTitleRules": [
-      {
-        "kind": "App",
-        "pattern": "招商银行",
-        "label": "应用 · 招商银行"
-      },
-      {
-        "kind": "Domain",
-        "pattern": "cmbchina.com",
-        "label": "网址 · cmbchina.com"
-      },
-      {
-        "kind": "Title",
-        "pattern": "病历",
-        "label": "标题含 · 病历"
-      }
-    ],
     "viewers": [
       {
         "name": "Bob",
@@ -272,5 +260,22 @@
       "unavailable": false
     }
   },
-  "locale": "zh-CN"
+  "locale": "zh-CN",
+  "noTitleRules": [
+    {
+      "kind": "App",
+      "pattern": "招商银行",
+      "label": "应用 · 招商银行"
+    },
+    {
+      "kind": "Domain",
+      "pattern": "cmbchina.com",
+      "label": "网址 · cmbchina.com"
+    },
+    {
+      "kind": "Title",
+      "pattern": "病历",
+      "label": "标题含 · 病历"
+    }
+  ]
 }

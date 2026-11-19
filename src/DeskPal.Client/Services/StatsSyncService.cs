@@ -27,17 +27,9 @@ public sealed class StatsSyncService : BackgroundService
         _settings = settings;
         _logger = logger;
         var keyPath = Path.Combine(SettingsStore.Directory, "usage", $"{settings.UserId:N}.sync-key");
-        _sync = new StatsSync(usage.Store, new HttpSyncApi(api), new DpapiKeyStore(keyPath), () => UsageService.Today, settings: new SettingsSource(usage, settings));
+        _sync = new StatsSync(usage.Store, new HttpSyncApi(api), new DpapiKeyStore(keyPath), () => UsageService.Today);
         _sync.Changed += () => Changed?.Invoke();
         usage.DaysChanged += () => _allDays = true;
-        usage.SettingsChanged += () =>
-        {
-            Changed?.Invoke();
-            if (_sync.Mode == StatsSyncMode.On)
-            {
-                _ = Task.Run(RunOnceAsync);
-            }
-        };
     }
 
     public event Action? Changed;
@@ -185,42 +177,6 @@ public sealed class StatsSyncService : BackgroundService
             }
         }
 
-        public async Task<long> UploadSettingsAsync(byte[] data) => (await api.UploadStatsSettingsAsync(data)).Revision;
-
-        public async Task<StatsSyncSettingsDto?> DownloadSettingsAsync()
-        {
-            try
-            {
-                return await api.DownloadStatsSettingsAsync();
-            }
-            catch (ApiException ex) when (ex.Status == 404)
-            {
-                return null;
-            }
-        }
-    }
-
-    /// <summary>Which titles are not recorded; nothing else of <see cref="AppSettings"/> follows the account.</summary>
-    private sealed class SettingsSource(UsageService usage, AppSettings settings) : IStatsSettingsSource
-    {
-        public SyncedStatsSettings Read() => new(settings.NoTitleRules.ToList());
-
-        public void Apply(SyncedStatsSettings synced)
-        {
-            var rules = new List<NoTitleRule>();
-            foreach (var rule in synced.NoTitleRules)
-            {
-                if (NoTitleRule.Create(rule.Kind, rule.Pattern) is { } valid && Enum.IsDefined(valid.Kind) && !rules.Any(r => r.SameAs(valid)))
-                {
-                    rules.Add(valid);
-                }
-            }
-
-            if (!rules.SequenceEqual(settings.NoTitleRules))
-            {
-                usage.SetNoTitleRules(rules);
-            }
-        }
     }
 
     /// <summary>The key, encrypted with Windows DPAPI for the current Windows user, next to the account's usage database.</summary>

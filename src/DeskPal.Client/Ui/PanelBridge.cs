@@ -34,6 +34,7 @@ public sealed class PanelBridge
     private readonly StatsExchange _stats;
     private readonly StatsSyncService _sync;
     private readonly FolderSyncService _folder;
+    private readonly PersonalDataService _personal;
 
     /// <summary>UTC offset of each member whose stats I looked at, from their last answer.</summary>
     private readonly ConcurrentDictionary<Guid, int> _peerOffsets = new();
@@ -53,9 +54,13 @@ public sealed class PanelBridge
         UsageService usage,
         StatsExchange stats,
         StatsSyncService sync,
-        FolderSyncService folder)
+        FolderSyncService folder,
+        PersonalDataService personal)
     {
         _usage = usage;
+        _personal = personal;
+        personal.Changed += RaiseChanged;
+        personal.PreferencesApplied += ApplyPreferences;
         _stats = stats;
         _sync = sync;
         _folder = folder;
@@ -135,13 +140,14 @@ public sealed class PanelBridge
             UiLanguage.Normalize(_settings.Language),
             _settings.IsAdmin,
             AccountIdle.Normalize(_settings.IdleMinutes),
-            SwitchDelay.Normalize(_settings.SwitchDelaySeconds)),
+            SwitchDelay.Normalize(_settings.SwitchDelaySeconds),
+            new PersonalView(_personal.AccountSync, _personal.Folder, _personal.FolderUnavailable)),
         WhatsNew = _whatsNew.Pending,
         Pinned = _pins.Users,
         MemberOrder = _rooms.SelectedRoom is { } selected && _settings.MemberOrder.TryGetValue(selected.Id, out var order) ? order : [],
         Now = DateTimeOffset.UtcNow,
         ShowUsage = true,
-        NoTitleRules = _settings.NoTitleRules,
+        NoTitleRules = _personalRules.NoTitle,
         StatsViews = _usage.RecentViews,
         SyncAllowed = _sync.Allowed,
         SyncMode = _sync.Mode,
@@ -404,7 +410,7 @@ public sealed class PanelBridge
                 await _folder.DisableAsync();
                 return CommandResult.Success;
 
-            case "stats.noTitle.add":
+            case "noTitle.add":
             {
                 if (!Enum.TryParse<NoTitleKind>(c.String("kind"), out var kind) || !Enum.IsDefined(kind))
                 {
@@ -416,22 +422,94 @@ public sealed class PanelBridge
                     return CommandResult.Fail(kind == NoTitleKind.Domain ? Strings.Error_NoTitleDomain : UiLanguage.Format(Strings.Error_NoTitleLength, NoTitleRule.MaxLength));
                 }
 
-                if (!_settings.NoTitleRules.Any(r => r.SameAs(rule)))
+                await _personalRules.AddNoTitleAsync(rule);
+                return CommandResult.Success;
+            }
+
+            case "noTitle.remove":
+            {
+                if (Enum.TryParse<NoTitleKind>(c.String("kind"), out var kind))
                 {
-                    _usage.SetNoTitleRules([.. _settings.NoTitleRules, rule]);
+                    await _personalRules.RemoveNoTitleAsync(new NoTitleRule(kind, c.String("pattern")));
                 }
 
                 return CommandResult.Success;
             }
 
-            case "stats.noTitle.remove":
-            {
-                if (Enum.TryParse<NoTitleKind>(c.String("kind"), out var kind))
+            case "personal.sync.enable":
+                if (_personal.Folder is not null)
                 {
-                    var rule = new NoTitleRule(kind, c.String("pattern"));
-                    _usage.SetNoTitleRules(_settings.NoTitleRules.Where(r => !r.SameAs(rule)).ToList());
+                    return CommandResult.Fail(Strings.Personal_AccountFolderOn);
                 }
+
+                await _personal.EnableAccountSyncAsync();
                 return CommandResult.Success;
+
+            case "personal.sync.disable":
+                await _personal.DisableAccountSyncAsync();
+                return CommandResult.Success;
+
+            case "personal.folder.choose":
+            {
+                if (_personal.AccountSync)
+                {
+                    return CommandResult.Fail(Strings.Personal_FolderAccountOn);
+                }
+
+                var dialog = new Microsoft.Win32.OpenFolderDialog { Title = Strings.Personal_FolderDialogTitle };
+                if (dialog.ShowDialog() != true)
+                {
+                    return CommandResult.Success;
+                }
+
+                var path = dialog.FolderName;
+                if (!await Task.Run(() => _personal.CanUseFolder(path)))
+                {
+                    return CommandResult.Fail(Strings.Folder_NotWritable);
+                }
+
+                await _personal.EnableFolderAsync(path);
+                return CommandResult.Success;
+            }
+
+            case "personal.folder.stop":
+                _personal.StopFolder();
+                return CommandResult.Success;
+
+            case "personal.export":
+            {
+                var dialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Title = Strings.Personal_ExportTitle,
+                    FileName = string.Format(Strings.Personal_ExportFileName, DateTime.Now.ToString("yyyyMMdd")),
+                    Filter = Strings.Export_Filter,
+                };
+                if (dialog.ShowDialog() != true)
+                {
+                    return CommandResult.Success;
+                }
+
+                await Task.Run(() => _personal.Export(dialog.FileName));
+                return new CommandResult(true, Data: new { message = UiLanguage.Format(Strings.Export_Done, dialog.FileName) });
+            }
+
+            case "personal.import":
+            {
+                var dialog = new Microsoft.Win32.OpenFileDialog { Title = Strings.Personal_ImportTitle, Filter = Strings.Export_Filter };
+                if (dialog.ShowDialog() != true)
+                {
+                    return CommandResult.Success;
+                }
+
+                try
+                {
+                    var (rules, noTitle) = await _personal.ImportAsync(dialog.FileName);
+                    return new CommandResult(true, Data: new { message = UiLanguage.Format(Strings.Personal_ImportDone, rules, noTitle) });
+                }
+                catch (InvalidDataException ex)
+                {
+                    return CommandResult.Fail(ex.Message);
+                }
             }
 
             case "room.transfer":
@@ -647,9 +725,14 @@ public sealed class PanelBridge
                     return CommandResult.Fail(ApiErrorText.Describe(ApiErrorCodes.IdleMinutesInvalid)!);
                 }
 
-                await _api.SetIdleMinutesAsync(minutes);
+                if (_settings.PersonalSync)
+                {
+                    await _api.SetIdleMinutesAsync(minutes);
+                }
+
                 _settings.IdleMinutes = minutes;
                 _store.Save(_settings);
+                _personal.PreferencesEdited();
                 return CommandResult.Success;
             }
 
@@ -860,5 +943,20 @@ public sealed class PanelBridge
 
     private void RaiseChanged() => Changed?.Invoke();
 
-    private Task SyncAsync(UserPreferences change) => PreferencesSync.UploadAsync(_settings, _store, _api, change);
+    private Task SyncAsync(UserPreferences change)
+    {
+        _personal.PreferencesEdited();
+        return PreferencesSync.UploadAsync(_settings, _store, _api, change);
+    }
+
+    /// <summary>Preferences came from the account, a file or the sync folder. Runs on any thread.</summary>
+    private void ApplyPreferences()
+    {
+        TopmostChanged?.Invoke(_settings.Topmost);
+        ThemeChanged?.Invoke(NormalizeTheme(_settings.Theme));
+        UiLanguage.Apply(UiLanguage.Resolve(UiLanguage.Normalize(_settings.Language), CultureInfo.CurrentUICulture));
+        LanguageChanged?.Invoke();
+        _presence.SetSwitchDelay(SwitchDelay.Normalize(_settings.SwitchDelaySeconds));
+        RaiseChanged();
+    }
 }

@@ -1,6 +1,4 @@
-using DeskPal.Shared.Api;
-
-namespace DeskPal.Client.Core.Usage;
+namespace DeskPal.Shared.Api;
 
 public enum NoTitleKind
 {
@@ -17,7 +15,7 @@ public enum NoTitleKind
     Title,
 }
 
-/// <summary>Keeps titles out of the usage stats. A matching segment keeps its category and app or site name.</summary>
+/// <summary>Keeps titles out of the live status and the usage stats. A match keeps its state, category and app or site name.</summary>
 public sealed record NoTitleRule(NoTitleKind Kind, string Pattern)
 {
     public const int MaxLength = 100;

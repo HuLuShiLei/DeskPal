@@ -51,6 +51,13 @@ public static class ApiErrorCodes
     public const string RuleLimit = "rule.limit";
     public const string SharingOff = "sharing.off";
 
+    /// <summary>The account keeps its personal data only on its computers; turn on account sync first.</summary>
+    public const string PersonalSyncOff = "personalSync.off";
+    public const string NoTitleInvalid = "noTitle.invalid";
+
+    /// <summary>Args: limit.</summary>
+    public const string NoTitleLimit = "noTitle.limit";
+
     public const string StatsSyncNotEnabled = "statsSync.notEnabled";
     public const string StatsSyncInvalid = "statsSync.invalid";
     public const string StatsSyncAlreadyEnabled = "statsSync.alreadyEnabled";

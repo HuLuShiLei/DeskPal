@@ -1,4 +1,5 @@
 using DeskPal.Client.Core.Classification;
+using DeskPal.Client.Core.Personal;
 using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Core.Presence;
 using DeskPal.Shared.Api;
@@ -22,6 +23,7 @@ public sealed class PresenceCoordinator : BackgroundService
     private readonly SettingsStore _store;
     private readonly UnclassifiedUsage _unclassified;
     private readonly UsageService _usage;
+    private readonly PersonalRules _personalRules;
     private readonly ILogger<PresenceCoordinator> _logger;
     private readonly System.Threading.Channels.ChannelReader<ActivitySignal> _signals;
     private readonly PresenceDebouncer _debouncer;
@@ -51,6 +53,7 @@ public sealed class PresenceCoordinator : BackgroundService
         _store = store;
         _unclassified = unclassified;
         _usage = usage;
+        _personalRules = personalRules;
         _signals = bus.Subscribe();
         var delay = SwitchDelay.Normalize(settings.SwitchDelaySeconds);
         _debouncer = new PresenceDebouncer(TimeSpan.FromSeconds(delay), SwitchDelay.DetailInterval(delay));
@@ -140,7 +143,10 @@ public sealed class PresenceCoordinator : BackgroundService
         lock (_lock)
         {
             Classification = _classifier.Classify(Snapshot);
-            Local = PresenceResolver.Resolve(Snapshot, Classification, _settings.Paused);
+            var foreground = Snapshot.Foreground;
+            var domain = foreground?.IsBrowser == true && Snapshot.BrowserDomain is { Length: > 0 } host ? RulePattern.NormalizeHost(host) : null;
+            var noTitle = _personalRules.NoTitle;
+            Local = TitleFilter.Apply(PresenceResolver.Resolve(Snapshot, Classification, _settings.Paused), noTitle, foreground?.ProcessName, domain);
             now = DateTimeOffset.UtcNow;
             var ready = Snapshot.Foreground is not null || Local.State != PresenceState.Other;
             committed = ready ? _debouncer.Offer(Local, now) : null;
@@ -151,10 +157,8 @@ public sealed class PresenceCoordinator : BackgroundService
             _unclassified.Record(unrecognized, now);
 
             // Pausing only stops sharing; the stats keep what I was actually doing.
-            var actual = _settings.Paused ? PresenceResolver.Resolve(Snapshot, Classification, paused: false) : Local;
-            var foreground = Snapshot.Foreground;
-            var domain = foreground?.IsBrowser == true && Snapshot.BrowserDomain is { Length: > 0 } host ? RulePattern.NormalizeHost(host) : null;
-            _usage.Recorder.Record(ready ? actual : null, now, foreground?.ProcessName, domain, Classification.Default, Snapshot.DomainPending, _settings.Paused);
+            var actual = _settings.Paused ? TitleFilter.Apply(PresenceResolver.Resolve(Snapshot, Classification, paused: false), noTitle, foreground?.ProcessName, domain) : Local;
+            _usage.Recorder.Record(ready ? actual : null, now, foreground?.ProcessName, Classification.Default, Snapshot.DomainPending, _settings.Paused);
         }
 
         if (deadline is { } due)

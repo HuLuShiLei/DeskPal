@@ -83,6 +83,17 @@ public sealed class ApiClient(AppSettings settings)
     public Task DeleteMyRuleAsync(RuleKind kind, string pattern) =>
         SendAsync<object?>(HttpMethod.Delete, $"/api/me/rules?kind={kind}&pattern={Uri.EscapeDataString(pattern)}");
 
+    public Task<List<NoTitleRuleDto>> GetMyNoTitleRulesAsync() => SendAsync<List<NoTitleRuleDto>>(HttpMethod.Get, "/api/me/no-title-rules");
+
+    public Task<NoTitleRuleDto> UpsertMyNoTitleRuleAsync(UpsertNoTitleRuleRequest req) => SendAsync<NoTitleRuleDto>(HttpMethod.Put, "/api/me/no-title-rules", req);
+
+    public Task DeleteMyNoTitleRuleAsync(NoTitleKind kind, string pattern) =>
+        SendAsync<object?>(HttpMethod.Delete, $"/api/me/no-title-rules?kind={kind}&pattern={Uri.EscapeDataString(pattern)}");
+
+    public Task<PersonalDataDto> EnablePersonalSyncAsync(PersonalDataDto local) => SendAsync<PersonalDataDto>(HttpMethod.Post, "/api/me/personal-sync", local);
+
+    public Task DisablePersonalSyncAsync() => SendAsync<object?>(HttpMethod.Delete, "/api/me/personal-sync");
+
     public Task SetSharingAsync(bool enabled) => SendAsync<object>(HttpMethod.Put, "/api/me/sharing", new SetSharingRequest(enabled));
 
     public Task ReportUsageAsync(UsageReportRequest req) => SendAsync<object>(HttpMethod.Post, "/api/me/usage", req);
@@ -98,10 +109,6 @@ public sealed class ApiClient(AppSettings settings)
 
     public Task<StatsSyncDayDto> DownloadStatsDayAsync(DateOnly date) => SendAsync<StatsSyncDayDto>(HttpMethod.Get, $"/api/me/stats-sync/days/{DayPath(date)}");
 
-    public Task<StatsSyncSettingsInfo> UploadStatsSettingsAsync(byte[] data) =>
-        SendAsync<StatsSyncSettingsInfo>(HttpMethod.Put, "/api/me/stats-sync/settings", new UploadStatsSettingsRequest(Convert.ToBase64String(data)));
-
-    public Task<StatsSyncSettingsDto> DownloadStatsSettingsAsync() => SendAsync<StatsSyncSettingsDto>(HttpMethod.Get, "/api/me/stats-sync/settings");
 
 
     private static string DayPath(DateOnly date) => date.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);

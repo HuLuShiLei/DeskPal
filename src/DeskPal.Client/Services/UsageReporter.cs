@@ -7,9 +7,10 @@ namespace DeskPal.Client.Services;
 
 /// <summary>
 /// With the user's consent, reports today's unrecognized desktop apps (process name, product name, minutes) so the
-/// builtin rules can learn them. Never window titles, sites or times of use.
+/// builtin rules can learn them. Never window titles, sites or times of use. While personal data stays off the server,
+/// the personal rules for apps (process, category, name) go along for the same purpose.
 /// </summary>
-public sealed class UsageReporter(ApiClient api, AppSettings settings, UnclassifiedUsage usage, ILogger<UsageReporter> logger)
+public sealed class UsageReporter(ApiClient api, AppSettings settings, UnclassifiedUsage usage, PersonalRules personalRules, ILogger<UsageReporter> logger)
     : BackgroundService
 {
     private static readonly TimeSpan Interval = TimeSpan.FromHours(2);
@@ -28,14 +29,17 @@ public sealed class UsageReporter(ApiClient api, AppSettings settings, Unclassif
             var apps = usage.Top(MinUsage, 50)
                 .Select(a => new UnknownAppItem(a.Kind, a.Pattern, a.DisplayName, (int)a.Today.TotalMinutes))
                 .ToList();
-            if (apps.Count == 0)
+            var rules = settings.PersonalSync
+                ? null
+                : personalRules.Rules.Where(r => r.Kind == RuleKind.Process).Select(r => new SharedRuleItem(r.Pattern, r.Category, r.Name)).ToList();
+            if (apps.Count == 0 && rules is null)
             {
                 continue;
             }
 
             try
             {
-                await api.ReportUsageAsync(new UsageReportRequest(apps));
+                await api.ReportUsageAsync(new UsageReportRequest(apps, rules));
                 logger.LogInformation("Reported {Count} unrecognized apps", apps.Count);
             }
             catch (ApiException ex)

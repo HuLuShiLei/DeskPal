@@ -18,24 +18,6 @@ public interface IStatsSyncApi
     Task<StatsSyncDayInfo> UploadAsync(DateOnly date, byte[] data);
 
     Task<StatsSyncDayDto?> DownloadAsync(DateOnly date);
-
-    /// <returns>The new revision.</returns>
-    Task<long> UploadSettingsAsync(byte[] data);
-
-    /// <returns>null when none are stored.</returns>
-    Task<StatsSyncSettingsDto?> DownloadSettingsAsync();
-}
-
-/// <summary>The stats settings that follow the account while sync is on. Everything else stays on each computer.</summary>
-public sealed record SyncedStatsSettings(IReadOnlyList<NoTitleRule> NoTitleRules);
-
-/// <summary>Reads and changes the stats settings of this computer.</summary>
-public interface IStatsSettingsSource
-{
-    SyncedStatsSettings Read();
-
-    /// <summary>Takes the settings from the account. Invalid values are left out.</summary>
-    void Apply(SyncedStatsSettings settings);
 }
 
 /// <summary>Where this computer keeps the sync key of the signed-in account.</summary>
@@ -70,8 +52,7 @@ public enum StatsSyncUnlock
 /// <summary>
 /// Keeps the usage stats of this computer and the encrypted copy on the server in step. Downloads days that changed on the
 /// server first and takes the other computers' records from them (<see cref="SqliteUsageStore.MergeDay"/>), then uploads
-/// days whose content differs from what the server has. The stats settings go the same way: newer ones on the server are
-/// applied here, then changed ones are uploaded. After sync is turned on or unlocked, settings already on the account win.
+/// days whose content differs from what the server has.
 /// </summary>
 public sealed class StatsSync
 {
@@ -80,20 +61,17 @@ public sealed class StatsSync
     private readonly IStatsSyncKeyStore _keys;
     private readonly Func<DateOnly> _today;
     private readonly StatsSyncCrypto.KdfParameters? _kdf;
-    private readonly IStatsSettingsSource? _settings;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private StoredSyncKey? _key;
 
     /// <param name="kdf">Key derivation used when sync is turned on here; null for <see cref="StatsSyncCrypto.DefaultParameters"/>.</param>
-    /// <param name="settings">The stats settings to sync; null to sync only the days.</param>
-    public StatsSync(SqliteUsageStore db, IStatsSyncApi api, IStatsSyncKeyStore keys, Func<DateOnly> today, StatsSyncCrypto.KdfParameters? kdf = null, IStatsSettingsSource? settings = null)
+    public StatsSync(SqliteUsageStore db, IStatsSyncApi api, IStatsSyncKeyStore keys, Func<DateOnly> today, StatsSyncCrypto.KdfParameters? kdf = null)
     {
         _db = db;
         _api = api;
         _keys = keys;
         _today = today;
         _kdf = kdf;
-        _settings = settings;
         _key = keys.Load();
         Mode = _key is null ? StatsSyncMode.Off : StatsSyncMode.On;
     }
@@ -116,7 +94,6 @@ public sealed class StatsSync
             var status = await _api.GetStatusAsync();
             if (Apply(status))
             {
-                await SyncSettingsAsync(status);
                 await DownloadAsync(status);
                 IEnumerable<DateOnly> dates = allDays ? _db.Dates() : [_today().AddDays(-1), _today()];
                 var stored = status.Days.Select(d => d.Date).ToHashSet();
@@ -315,38 +292,6 @@ public sealed class StatsSync
         }
     }
 
-    private async Task SyncSettingsAsync(StatsSyncStatusDto status)
-    {
-        if (_settings is null)
-        {
-            return;
-        }
-
-        var mark = _db.SyncSettingsMark();
-        if (status.SettingsRevision is { } revision && (mark is null || mark.Revision < revision) && await _api.DownloadSettingsAsync() is { } stored)
-        {
-            var plain = StatsSyncCrypto.Open(_key!.Key, Convert.FromBase64String(stored.Data));
-            if (JsonSerializer.Deserialize<SyncedStatsSettings>(plain, DeskPalJson.Options) is { NoTitleRules: not null } settings)
-            {
-                _settings.Apply(settings);
-            }
-
-            mark = new SyncMark(Hash(SerializeSettings()), stored.Revision);
-            _db.SetSyncSettingsMark(mark);
-        }
-
-        var local = SerializeSettings();
-        var hash = Hash(local);
-        if (status.SettingsRevision is not null && mark?.Hash == hash)
-        {
-            return;
-        }
-
-        var saved = await _api.UploadSettingsAsync(StatsSyncCrypto.Seal(_key!.Key, local));
-        _db.SetSyncSettingsMark(new SyncMark(hash, saved));
-    }
-
-    private byte[] SerializeSettings() => JsonSerializer.SerializeToUtf8Bytes(_settings!.Read(), DeskPalJson.Options);
 
     private void SetMode(StatsSyncMode mode)
     {

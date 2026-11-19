@@ -39,6 +39,7 @@ const glyphs = {
   text: "\uE8D2",
   check: "\uE73E",
   copy: "\uE8C8",
+  filter: "\uE71C",
 } as const;
 
 export type IconName = keyof typeof glyphs;

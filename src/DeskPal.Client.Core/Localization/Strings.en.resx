@@ -817,4 +817,37 @@ Restart DeskPal after installing it.</value>
   <data name="ApiError_statsSync_notAllowed" xml:space="preserve">
     <value>Server sync isn't available for this account</value>
   </data>
+  <data name="ApiError_personalSync_off" xml:space="preserve">
+    <value>Account sync is off</value>
+  </data>
+  <data name="ApiError_noTitle_invalid" xml:space="preserve">
+    <value>Invalid rule</value>
+  </data>
+  <data name="ApiError_noTitle_limit" xml:space="preserve">
+    <value>You can save at most {limit} no-title rules. Delete some first.</value>
+  </data>
+  <data name="Personal_AccountFolderOn" xml:space="preserve">
+    <value>The personal data sync folder is on. Stop it first.</value>
+  </data>
+  <data name="Personal_FolderAccountOn" xml:space="preserve">
+    <value>Account sync is on. Turn it off first.</value>
+  </data>
+  <data name="Personal_FolderDialogTitle" xml:space="preserve">
+    <value>Choose a sync folder for personal data</value>
+  </data>
+  <data name="Personal_ExportTitle" xml:space="preserve">
+    <value>Export personal data</value>
+  </data>
+  <data name="Personal_ExportFileName" xml:space="preserve">
+    <value>DeskPal-personal-{0}.json</value>
+  </data>
+  <data name="Personal_ImportTitle" xml:space="preserve">
+    <value>Import personal data</value>
+  </data>
+  <data name="PersonalImport_NotFile" xml:space="preserve">
+    <value>This isn&apos;t a personal data file exported by DeskPal.</value>
+  </data>
+  <data name="Personal_ImportDone" xml:space="preserve">
+    <value>Imported {0} categories and {1} no-title rules.</value>
+  </data>
 </root>

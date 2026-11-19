@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using DeskPal.Client.Collectors;
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Diagnostics;
+using DeskPal.Client.Core.Personal;
 using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Updates;
@@ -89,7 +90,7 @@ public partial class App : Application
         hub.Connected += personalRules.RefreshAsync;
 
         LoadCachedBuiltinRules(services);
-        personalRules.LoadCached();
+        personalRules.Load();
         await _host.StartAsync();
         hub.Start();
         _ = RefreshBuiltinRulesAsync(services);
@@ -120,6 +121,7 @@ public partial class App : Application
                 settings.DisplayName = me.DisplayName;
                 settings.ShareUsage = me.ShareUsage;
                 settings.IsAdmin = me.IsAdmin;
+                settings.PersonalSync = me.PersonalSync;
                 var uploadIdle = IdleSync.Apply(settings, me.IdleMinutes);
                 await PreferencesSync.ApplyAsync(settings, store, api, me.Preferences);
                 if (uploadIdle)
@@ -190,13 +192,14 @@ public partial class App : Application
         s.AddSingleton(api);
         s.AddSingleton<ActivityBus>();
         s.AddSingleton<LayeredClassifier>();
-        s.AddSingleton(new PersonalRuleStore(Path.Combine(SettingsStore.Directory, "personal-rules.json")));
+        s.AddSingleton(new PersonalDataStore(Path.Combine(SettingsStore.Directory, "personal")));
         s.AddSingleton<UnclassifiedUsage>();
         s.AddSingleton<UsageService>();
         s.AddSingleton<StatsExchange>();
         s.AddSingleton<StatsSyncService>();
         s.AddSingleton<FolderSyncService>();
         s.AddSingleton<PersonalRules>();
+        s.AddSingleton<PersonalDataService>();
         s.AddSingleton<BuiltinRuleCache>();
         s.AddSingleton<ForegroundState>();
         s.AddSingleton<HubService>();
@@ -212,6 +215,7 @@ public partial class App : Application
         s.AddHostedService<UsageReporter>();
         s.AddHostedService(sp => sp.GetRequiredService<StatsSyncService>());
         s.AddHostedService(sp => sp.GetRequiredService<FolderSyncService>());
+        s.AddHostedService(sp => sp.GetRequiredService<PersonalDataService>());
         s.AddSingleton<UpdateService>();
         s.AddSingleton(sp => new WhatsNewStore(
             ReadChangelog(),
@@ -355,6 +359,7 @@ public partial class App : Application
         {
             await _host.Services.GetRequiredService<StatsSyncService>().SignOutAsync();
             await _host.Services.GetRequiredService<FolderSyncService>().SignOutAsync();
+            await _host.Services.GetRequiredService<PersonalDataService>().SignOutAsync();
         }
 
         await RestartSignedOutAsync(null);

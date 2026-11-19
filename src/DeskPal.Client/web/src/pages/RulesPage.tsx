@@ -1,17 +1,124 @@
 import { useState } from "preact/hooks";
-import type { MyRuleItem, Option, PanelState, RuleKind } from "../bridge";
+import type { MyRuleItem, NoTitleItem, NoTitleKind, Option, PanelState, RuleKind } from "../bridge";
 import { useHost } from "../host";
-import { t } from "../i18n";
+import { t, type MessageKey } from "../i18n";
 import { categoryTone, Hint, Icon, Section, type IconName } from "../ui";
 
 const kindIcons: Record<RuleKind, IconName> = { Process: "app", Domain: "globe", TitleKeyword: "text" };
+const noTitleIcons: Record<NoTitleKind, IconName> = { App: "app", Process: "app", Domain: "globe", Title: "text" };
+const noTitleKindNames: Record<NoTitleKind, MessageKey> = { App: "noTitle.app", Process: "noTitle.process", Domain: "noTitle.domain", Title: "noTitle.keyword" };
+
+type View = "categories" | "noTitle";
+
+let lastView: View = "categories";
 
 export function RulesPage({ state }: { state: PanelState }) {
+  const [view, setView] = useState<View>(lastView);
+  const show = (next: View) => {
+    lastView = next;
+    setView(next);
+  };
+
   return (
     <>
-      {state.unclassified.length > 0 && <Unclassified state={state} />}
-      <MyRules state={state} />
+      <div class="segmented rules-views" role="tablist" aria-label={t("rules.views")}>
+        <button role="tab" aria-selected={view === "categories"} onClick={() => show("categories")}>
+          {t("rules.viewCategories")}
+        </button>
+        <button role="tab" aria-selected={view === "noTitle"} onClick={() => show("noTitle")}>
+          {t("noTitle.title")}
+        </button>
+      </div>
+      {view === "categories" ? (
+        <>
+          {state.unclassified.length > 0 && <Unclassified state={state} />}
+          <MyRules state={state} />
+        </>
+      ) : (
+        <NoTitleRules items={state.noTitleRules ?? []} />
+      )}
     </>
+  );
+}
+
+function NoTitleRules({ items }: { items: NoTitleItem[] }) {
+  const { ask, run } = useHost();
+
+  const add = async () => {
+    const answer = await ask({
+      title: t("noTitle.addTitle"),
+      message: t("noTitle.addMessage"),
+      select: {
+        presentation: "radio",
+        options: [
+          { value: "App", name: t("noTitle.app") },
+          { value: "Process", name: t("noTitle.process") },
+          { value: "Domain", name: t("noTitle.domain") },
+          { value: "Title", name: t("noTitle.keyword") },
+        ],
+      },
+      input: {
+        placeholders: { App: t("noTitle.exampleApp"), Process: t("noTitle.exampleProcess"), Domain: t("noTitle.exampleDomain"), Title: t("noTitle.exampleTitle") },
+        maxLength: 100,
+        required: true,
+      },
+      okText: t("common.add"),
+    });
+    if (answer.ok) await run({ type: "noTitle.add", kind: answer.selected as NoTitleKind, pattern: answer.text }, t("common.saved"));
+  };
+
+  return (
+    <Section
+      title={
+        <>
+          {t("noTitle.title")}
+          <Hint text={t("noTitle.listHint")} />
+        </>
+      }
+      label={t("noTitle.title")}
+      aside={
+        <div class="section-actions">
+          {items.length > 0 && <span class="section-note">{t("rules.count", { count: items.length })}</span>}
+          <button onClick={() => void add()}>
+            <Icon name="add" />
+            {t("common.add")}
+          </button>
+        </div>
+      }
+    >
+      {items.length === 0 ? (
+        <p class="infobar">
+          <Icon name="info" />
+          {t("noTitle.empty")}
+        </p>
+      ) : (
+        <ul class="card flush list-card">
+          {items.map((r) => (
+            <li key={r.kind + r.pattern} class="card-row">
+              <span class="kind-tile" aria-hidden="true">
+                <Icon name={noTitleIcons[r.kind]} />
+              </span>
+              <div class="row-main">
+                <p class="row-title">
+                  <span class="row-name" title={r.pattern}>
+                    {r.pattern}
+                  </span>
+                </p>
+                <p class="sub">{t(noTitleKindNames[r.kind])}</p>
+              </div>
+              <button
+                class="icon-button"
+                title={t("common.delete")}
+                aria-label={t("noTitle.remove", { label: r.label })}
+                onClick={() => void run({ type: "noTitle.remove", kind: r.kind, pattern: r.pattern }, t("rules.deleted"))}
+              >
+                <Icon name="delete" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Section>
   );
 }
 

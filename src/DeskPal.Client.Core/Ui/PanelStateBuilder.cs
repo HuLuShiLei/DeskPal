@@ -93,7 +93,8 @@ public static class PanelStateBuilder
                 .ToList(),
             input.WhatsNew,
             input.ShowUsage ? Usage(input) : null,
-            UiLanguage.Current);
+            UiLanguage.Current,
+            input.NoTitleRules.Select(r => new NoTitleItem(r.Kind, r.Pattern, NoTitleLabel(r))).ToList());
     }
 
     private static string NoTitleLabel(NoTitleRule rule) => UiLanguage.Format(rule.Kind switch
@@ -105,7 +106,6 @@ public static class PanelStateBuilder
     }, rule.Pattern);
 
     private static UsageView Usage(PanelInput input) => new(
-        input.NoTitleRules.Select(r => new NoTitleItem(r.Kind, r.Pattern, NoTitleLabel(r))).ToList(),
         input.StatsViews
             .Select(v => new StatsViewerItem(v.ViewerName, v.RoomName, When(v.At, input.Now, input.Zone)))
             .ToList(),

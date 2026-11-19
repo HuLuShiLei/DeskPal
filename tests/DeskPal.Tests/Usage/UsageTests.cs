@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using DeskPal.Client.Core.Personal;
 using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Usage;
@@ -65,12 +66,12 @@ public class UsageTests : IDisposable
     }
 
     [Fact]
-    public void Recorder_leaves_out_titles_of_listed_apps_and_details_of_away_time()
+    public void Recorder_leaves_out_filtered_titles_and_details_of_away_time()
     {
         var writer = new FakeWriter();
         var recorder = new UsageRecorder(writer, Zone);
-        recorder.SetNoTitleRules([new(NoTitleKind.App, "招商银行")]);
-        recorder.Record(new LocalPresence(PresenceState.Browsing, ActivityCategory.Browsing, "招商银行", "我的账户 - 余额"), At(9, 0));
+        var bank = TitleFilter.Apply(new LocalPresence(PresenceState.Browsing, ActivityCategory.Browsing, "招商银行", "我的账户 - 余额"), [new(NoTitleKind.App, "招商银行")], "cmb", null);
+        recorder.Record(bank, At(9, 0));
         recorder.Record(new LocalPresence(PresenceState.Away, ActivityCategory.Video, "哔哩哔哩", "猫"), At(9, 0, 5));
         recorder.Record(null, At(9, 0, 10));
 
@@ -90,28 +91,37 @@ public class UsageTests : IDisposable
     [Fact]
     public void No_title_rules_match_by_app_process_site_or_title_keyword()
     {
-        var writer = new FakeWriter();
-        var recorder = new UsageRecorder(writer, Zone);
-        recorder.SetNoTitleRules(
+        NoTitleRule[] rules =
         [
             NoTitleRule.Create(NoTitleKind.Process, "cmb.exe")!,
             NoTitleRule.Create(NoTitleKind.Domain, "zhihu.com")!,
             NoTitleRule.Create(NoTitleKind.Title, "病历")!,
-        ]);
+        ];
 
-        var s = 0;
-        void Record(string app, string title, string process, string? domain = null) =>
-            recorder.Record(new LocalPresence(PresenceState.Other, ActivityCategory.Other, app, title), At(9, 0).AddSeconds(s += 5), process, domain);
-        Record("招商银行", "我的账户", "CMB");
-        Record("zhuanlan.zhihu.com", "如何评价", "chrome", "zhuanlan.zhihu.com");
-        Record("notzhihu.com", "首页", "chrome", "notzhihu.com");
-        Record("医院系统", "张三的病历", "his");
-        Record("记事本", "购物清单", "notepad");
-        recorder.Record(null, At(9, 0).AddSeconds(s + 5));
+        LocalPresence Filter(string app, string title, string process, string? domain = null) =>
+            TitleFilter.Apply(new LocalPresence(PresenceState.Other, ActivityCategory.Other, app, title), rules, process, domain);
+        var results = new[]
+        {
+            Filter("招商银行", "我的账户", "CMB"),
+            Filter("zhuanlan.zhihu.com", "如何评价", "chrome", "zhuanlan.zhihu.com"),
+            Filter("notzhihu.com", "首页", "chrome", "notzhihu.com"),
+            Filter("医院系统", "张三的病历", "his"),
+            Filter("记事本", "购物清单", "notepad"),
+        };
 
-        Assert.Equal([null, null, "首页", null, "购物清单"], writer.Rows.Select(r => r.Title));
-        Assert.Equal(["招商银行", "zhuanlan.zhihu.com", "notzhihu.com", "医院系统", "记事本"], writer.Rows.Select(r => r.App));
+        Assert.Equal([null, null, "首页", null, "购物清单"], results.Select(r => r.Detail));
+        Assert.Equal(["招商银行", "zhuanlan.zhihu.com", "notzhihu.com", "医院系统", "记事本"], results.Select(r => r.AppDisplayName));
         Assert.Null(NoTitleRule.Create(NoTitleKind.Domain, "https://"));
+    }
+
+    [Fact]
+    public void Title_filter_keeps_the_state_and_app_and_leaves_presence_without_rules_alone()
+    {
+        var presence = new LocalPresence(PresenceState.Working, ActivityCategory.Work, "向日葵", "识别码 123 456 789");
+
+        Assert.Same(presence, TitleFilter.Apply(presence, [], "sunloginclient", null));
+        var filtered = TitleFilter.Apply(presence, [new(NoTitleKind.Process, "sunloginclient")], "SunloginClient.exe", null);
+        Assert.Equal(presence with { Detail = null }, filtered);
     }
 
     [Fact]

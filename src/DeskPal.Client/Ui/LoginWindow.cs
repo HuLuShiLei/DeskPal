@@ -89,6 +89,7 @@ public sealed class LoginWindow : Window
             if (_settings.UserId != response.UserId)
             {
                 _settings.PreferencesUnsynced = false;
+                _settings.PersonalFolder = null;
             }
 
             _settings.UserId = response.UserId;
@@ -96,6 +97,7 @@ public sealed class LoginWindow : Window
             _settings.DisplayName = response.DisplayName;
             _settings.ShareUsage = response.ShareUsage;
             _settings.IsAdmin = response.IsAdmin;
+            _settings.PersonalSync = response.PersonalSync;
             _settings.SetToken(response.Token);
             if (IdleSync.Apply(_settings, response.IdleMinutes))
             {

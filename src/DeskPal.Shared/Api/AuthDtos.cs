@@ -9,7 +9,8 @@ public sealed record LoginRequest(string UserName, string Password);
 /// <param name="IsAdmin">Listed in the server's Auth:AdminUserNames; may create signup invites.</param>
 /// <param name="IdleMinutes">null until the account has chosen one. One of <see cref="AccountIdle.MinuteOptions"/>.</param>
 /// <param name="Preferences">null until any of them is set on any computer.</param>
-public sealed record AuthResponse(string Token, Guid UserId, string UserName, string DisplayName, bool? ShareUsage = null, bool IsAdmin = false, int? IdleMinutes = null, UserPreferences? Preferences = null);
+/// <param name="PersonalSync">The account keeps personal rules, no-title rules, away time and preferences on the server. Off: <paramref name="IdleMinutes"/> and <paramref name="Preferences"/> are null.</param>
+public sealed record AuthResponse(string Token, Guid UserId, string UserName, string DisplayName, bool? ShareUsage = null, bool IsAdmin = false, int? IdleMinutes = null, UserPreferences? Preferences = null, bool PersonalSync = false);
 
 public sealed record UpdateDisplayNameRequest(string DisplayName);
 

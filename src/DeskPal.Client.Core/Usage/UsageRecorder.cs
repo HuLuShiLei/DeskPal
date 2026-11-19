@@ -20,30 +20,22 @@ public sealed class UsageRecorder(IUsageWriter writer, TimeZoneInfo? zone = null
     public const int MaxTitleLength = 200;
 
     private readonly Lock _lock = new();
-    private IReadOnlyList<NoTitleRule> _noTitle = [];
     private UsageSegment? _open;
     private long _id;
     private DateTimeOffset _saved;
     private DateTimeOffset? _holdSince;
 
-    public void SetNoTitleRules(IEnumerable<NoTitleRule> rules)
-    {
-        lock (_lock)
-        {
-            _noTitle = rules.ToList();
-        }
-    }
 
     /// <summary>How long the open segment keeps going while the browser's new address is not read yet.</summary>
     public static readonly TimeSpan MaxHold = TimeSpan.FromSeconds(5);
 
-    /// <param name="presence">The resolved presence before debouncing and privacy filtering; null stops the current segment.</param>
-    /// <param name="process">Process in front, for <see cref="NoTitleKind.Process"/>; stored so the segment can be reclassified later.</param>
-    /// <param name="domain">Normalized host when a browser is in front, for <see cref="NoTitleKind.Domain"/>.</param>
+    /// <param name="presence">The resolved presence before debouncing and privacy filtering, with the no-title rules already applied; null stops the current segment.</param>
+    /// <param name="process">Process in front; stored so the segment can be reclassified later.</param>
+
     /// <param name="baseCategory">Category without the personal rules; stored so a removed personal rule stops applying.</param>
     /// <param name="hold">The browser's tab changed and its address is not read yet: keep the open segment instead of starting one with the old site.</param>
     /// <param name="paused">Sharing is paused; <paramref name="presence"/> is still what is actually done.</param>
-    public void Record(LocalPresence? presence, DateTimeOffset now, string? process = null, string? domain = null, ActivityCategory? baseCategory = null, bool hold = false, bool paused = false)
+    public void Record(LocalPresence? presence, DateTimeOffset now, string? process = null, ActivityCategory? baseCategory = null, bool hold = false, bool paused = false)
     {
         now = TimeZoneInfo.ConvertTime(now, zone ?? TimeZoneInfo.Local);
         lock (_lock)
@@ -80,7 +72,7 @@ public sealed class UsageRecorder(IUsageWriter writer, TimeZoneInfo? zone = null
                 }
             }
 
-            var next = Normalize(presence, now, process, domain, baseCategory) with { Paused = paused };
+            var next = Normalize(presence, now, process, baseCategory) with { Paused = paused };
             if (_open is not null && SameKey(_open, next))
             {
                 if (_open.End - _saved >= SaveEvery)
@@ -161,7 +153,7 @@ public sealed class UsageRecorder(IUsageWriter writer, TimeZoneInfo? zone = null
         _saved = _open.End;
     }
 
-    private UsageSegment Normalize(LocalPresence presence, DateTimeOffset now, string? process, string? domain, ActivityCategory? baseCategory)
+    private static UsageSegment Normalize(LocalPresence presence, DateTimeOffset now, string? process, ActivityCategory? baseCategory)
     {
         if (!UsageStates.Counts(presence.State))
         {
@@ -170,7 +162,7 @@ public sealed class UsageRecorder(IUsageWriter writer, TimeZoneInfo? zone = null
 
         var app = Clean(presence.AppDisplayName);
         var title = Clean(presence.Detail);
-        if (title is not null && (string.Equals(title, app, StringComparison.OrdinalIgnoreCase) || _noTitle.Any(r => r.Matches(app, process, domain, title))))
+        if (title is not null && string.Equals(title, app, StringComparison.OrdinalIgnoreCase))
         {
             title = null;
         }
