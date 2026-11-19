@@ -4,7 +4,7 @@ namespace DeskPal.Client.Platform;
 
 /// <summary>
 /// Encrypts secrets kept in local files (the login token, the stats sync keys) so they only open for the current
-/// user on this computer. Windows uses DPAPI; macOS keeps a key in the login keychain.
+/// user on this computer. Windows uses DPAPI; macOS uses a random key in a file only the user can read (FileKeyProtector).
 /// </summary>
 public interface ISecretProtector
 {
