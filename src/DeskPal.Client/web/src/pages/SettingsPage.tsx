@@ -169,6 +169,16 @@ export function SettingsPage({ state }: { state: PanelState }) {
           <SettingRow title={t("settings.beta")} hint={t("settings.betaHint")}>
             <Switch checked={s.receiveBeta} label={t("settings.beta")} onChange={(v) => run({ type: "update.beta", enabled: v })} />
           </SettingRow>
+          <SettingRow title={t("settings.updateSource")} hint={t("settings.updateSourceHint")}>
+            <select
+              aria-label={t("settings.updateSource")}
+              value={s.updateSource}
+              onChange={(e) => run({ type: "update.source", source: e.currentTarget.value as "github" | "ghproxy" })}
+            >
+              <option value="github">{t("settings.updateSourceGithub")}</option>
+              <option value="ghproxy">{t("settings.updateSourceMirror")}</option>
+            </select>
+          </SettingRow>
           <SettingRow title={t("settings.issues")}>
             <button onClick={openIssuePage}>{t("settings.open")}</button>
           </SettingRow>

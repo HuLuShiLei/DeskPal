@@ -108,6 +108,8 @@ export interface PanelState {
     autoStart: boolean;
     topmost: boolean;
     receiveBeta: boolean;
+    /** 检查更新和下载安装包走哪里：github 直连，ghproxy 用 gh-proxy 镜像。 */
+    updateSource: "github" | "ghproxy";
     updateReady: boolean;
     updateActivity: string | null;
     version: string;
@@ -320,6 +322,7 @@ export type Command =
   | { type: "settings.switchDelay"; seconds: number }
   | { type: "update.check" }
   | { type: "update.beta"; enabled: boolean }
+  | { type: "update.source"; source: "github" | "ghproxy" }
   | { type: "update.restart" }
   | { type: "changelog.seen" }
   | { type: "logs.open" }

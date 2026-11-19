@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 设置「关于」新增「更新来源」，默认从 GitHub 检查更新和下载安装包。连不上 GitHub 时可以切换到 gh-proxy 镜像，之后的检查和下载都走镜像；切换后会立即重新检查一次。
+  en: Settings › About now has Update source. Updates are checked and downloaded from GitHub by default. If GitHub cannot be reached, switch to the gh-proxy mirror and both the check and the download go through it. The client checks again right after the switch.
+
 - 新增 macOS 版（测试版，Apple 芯片和 Intel 各一个安装包），和 Windows 用户在同一个房间里互相看到状态，功能和 Windows 版相同。图标在菜单栏。第一次打开时 macOS 会请求「辅助功能」权限，用来读取窗口标题和浏览器网址。macOS 15.4 及以上读不到正在播放的媒体，全屏播放和网页视频显示为当前应用，不显示「在看视频」。
   en: DeskPal is now available for macOS (beta, one installer for Apple silicon and one for Intel). Mac and Windows users see each other in the same rooms, with the same features. The icon lives in the menu bar. On first launch macOS asks for Accessibility access, which DeskPal uses to read window titles and browser addresses. On macOS 15.4 and later media playback can't be read, so full-screen playback and web videos show the current app instead of Watching video.
 

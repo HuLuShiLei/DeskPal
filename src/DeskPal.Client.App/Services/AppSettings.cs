@@ -49,6 +49,9 @@ public sealed class AppSettings
     /// <summary>null 表示沿用安装渠道：测试版安装包继续接收测试版。</summary>
     public bool? IncludePrerelease { get; set; }
 
+    /// <summary>github or ghproxy. Only on this computer: whether GitHub is reachable differs per network.</summary>
+    public string UpdateSource { get; set; } = DeskPal.Client.Core.Updates.UpdatePolicy.GithubSource;
+
     /// <summary>Identifies this computer in exported usage files, so importing them twice does not count twice.</summary>
     public Guid DeviceId { get; set; }
 

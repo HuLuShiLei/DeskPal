@@ -201,7 +201,8 @@
       "accountSync": false,
       "folder": null,
       "folderUnavailable": false
-    }
+    },
+    "updateSource": "github"
   },
   "myRules": [
     {

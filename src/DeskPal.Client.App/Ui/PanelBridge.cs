@@ -144,7 +144,8 @@ public sealed class PanelBridge
             _settings.IsAdmin,
             AccountIdle.Normalize(_settings.IdleMinutes),
             SwitchDelay.Normalize(_settings.SwitchDelaySeconds),
-            new PersonalView(_personal.AccountSync, _personal.Folder, _personal.FolderUnavailable)),
+            new PersonalView(_personal.AccountSync, _personal.Folder, _personal.FolderUnavailable),
+            UpdatePolicy.NormalizeSource(_settings.UpdateSource)),
         WhatsNew = _whatsNew.Pending,
         Pinned = _pins.Users,
         MemberOrder = _rooms.SelectedRoom is { } selected && _settings.MemberOrder.TryGetValue(selected.Id, out var order) ? order : [],
@@ -764,6 +765,18 @@ public sealed class PanelBridge
                 if (_updates.ReceiveBeta != enabled)
                 {
                     _updates.ReceiveBeta = enabled;
+                    await UpdateInteraction.CheckAsync(_updates, _updates.Exit!, quietWhenCurrent: true, Prompt);
+                }
+
+                return CommandResult.Success;
+            }
+
+            case "update.source":
+            {
+                var useGhProxy = UpdatePolicy.UsesGhProxy(c.String("source"));
+                if (_updates.UseGhProxy != useGhProxy)
+                {
+                    _updates.UseGhProxy = useGhProxy;
                     await UpdateInteraction.CheckAsync(_updates, _updates.Exit!, quietWhenCurrent: true, Prompt);
                 }
 

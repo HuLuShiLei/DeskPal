@@ -44,7 +44,7 @@ public sealed class UpdateService
         _store = store;
         try
         {
-            _locator = new InstalledUpdateManager(new GithubSource(UpdatePolicy.RepositoryUrl, null, false));
+            _locator = new InstalledUpdateManager(CreateSource(receiveBeta: false));
             _installed = _locator.IsInstalled;
             _installedPrerelease = _locator.CurrentVersion?.IsPrerelease == true;
             VersionLabel = _locator.CurrentVersion?.ToString() ?? AssemblyVersion();
@@ -118,6 +118,42 @@ public sealed class UpdateService
             }
 
             // 已下载的测试版包留在本地时，下次启动不能把它装上。
+            DeleteDownloadedPackages();
+            Changed?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Pull updates through the gh-proxy mirror instead of GitHub. Only on this computer: whether GitHub is reachable
+    /// depends on the network. Packages downloaded from the previous source are deleted.
+    /// </summary>
+    public bool UseGhProxy
+    {
+        get
+        {
+            lock (_state)
+            {
+                return UpdatePolicy.UsesGhProxy(_settings.UpdateSource);
+            }
+        }
+        set
+        {
+            var source = value ? UpdatePolicy.GhProxySource : UpdatePolicy.GithubSource;
+            lock (_state)
+            {
+                if (UpdatePolicy.NormalizeSource(_settings.UpdateSource) == source)
+                {
+                    return;
+                }
+
+                _settings.UpdateSource = source;
+                _store.Save(_settings);
+                _channelEpoch++;
+                _manager = null;
+                _ready = null;
+                _readyIsDowngrade = false;
+            }
+
             DeleteDownloadedPackages();
             Changed?.Invoke();
         }
@@ -542,13 +578,36 @@ public sealed class UpdateService
         return Directory.EnumerateFiles(directory, "*.nupkg").Any(path => Path.GetFileName(path).Contains(version, StringComparison.OrdinalIgnoreCase));
     }
 
-    private static InstalledUpdateManager CreateManager(bool beta) => new(
-        new GithubSource(UpdatePolicy.RepositoryUrl, null, beta, new GithubApiDownloader()),
+    private InstalledUpdateManager CreateManager(bool beta) => new(
+        CreateSource(beta),
         new UpdateOptions
         {
             ExplicitChannel = UpdatePolicy.Channel(beta, MacArchitecture),
             AllowVersionDowngrade = !beta,
         });
+
+    /// <summary>The saved source decides whether the GitHub API and the download addresses go through the mirror.</summary>
+    private IUpdateSource CreateSource(bool receiveBeta)
+    {
+        var downloader = new GithubApiDownloader();
+        return UpdatePolicy.UsesGhProxy(_settings.UpdateSource)
+            ? new GhProxyGithubSource(receiveBeta, downloader)
+            : new GithubSource(UpdatePolicy.RepositoryUrl, null, receiveBeta, downloader);
+    }
+
+    /// <summary>
+    /// GithubSource with every address routed through gh-proxy. The release list comes back with plain github.com
+    /// asset addresses, so the API base and the asset address both have to be prefixed.
+    /// </summary>
+    private sealed class GhProxyGithubSource(bool receiveBeta, IFileDownloader downloader)
+        : GithubSource(UpdatePolicy.RepositoryUrl, null, receiveBeta, downloader)
+    {
+        protected override Uri GetApiBaseUrl(Uri repoUrl) =>
+            new(UpdatePolicy.SourceUrl(UpdatePolicy.GhProxySource, "https://api.github.com/"));
+
+        protected override string GetAssetUrlFromName(GithubRelease release, string assetName) =>
+            UpdatePolicy.SourceUrl(UpdatePolicy.GhProxySource, base.GetAssetUrlFromName(release, assetName));
+    }
 
     /// <summary>arm64 or x64 on macOS; null on Windows.</summary>
     private static string? MacArchitecture => OperatingSystem.IsMacOS()

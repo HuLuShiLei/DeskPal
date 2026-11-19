@@ -325,6 +325,9 @@ export function createMockTransport(params: URLSearchParams): Transport {
       case "update.beta":
         state.settings.receiveBeta = m.enabled as boolean;
         break;
+      case "update.source":
+        state.settings.updateSource = m.source === "ghproxy" ? "ghproxy" : "github";
+        break;
       case "update.check": {
         const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
         state.settings.updateActivity = L("正在检查更新…", "Checking for updates…");

@@ -1,5 +1,6 @@
 using DeskPal.Client.Core.Localization;
 using DeskPal.Client.Core.Presence;
+using DeskPal.Client.Core.Updates;
 using DeskPal.Client.Core.Usage;
 using DeskPal.Shared.Api;
 using DeskPal.Shared.Presence;
@@ -122,7 +123,8 @@ public sealed record SettingsView(
     bool IsAdmin = false,
     int IdleMinutes = AccountIdle.DefaultMinutes,
     int SwitchDelaySeconds = SwitchDelay.DefaultSeconds,
-    PersonalView? Personal = null);
+    PersonalView? Personal = null,
+    string UpdateSource = UpdatePolicy.GithubSource);
 
 /// <summary>Where the personal rules, no-title rules and preferences are kept besides this computer.</summary>
 /// <param name="AccountSync">Synced with the account on the server.</param>

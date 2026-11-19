@@ -7,6 +7,23 @@ public static class UpdatePolicy
     public const string StableChannel = "win";
     public const string BetaChannel = "beta";
 
+    /// <summary>Where the update check and the packages come from.</summary>
+    public const string GithubSource = "github";
+    public const string GhProxySource = "ghproxy";
+    public const string GhProxyPrefix = "https://gh-proxy.com/";
+
+    /// <summary>Saved value, or github for anything else.</summary>
+    public static string NormalizeSource(string? source) => source == GhProxySource ? GhProxySource : GithubSource;
+
+    public static bool UsesGhProxy(string? source) => NormalizeSource(source) == GhProxySource;
+
+    /// <summary>
+    /// The mirror keeps the whole original address after the prefix:
+    /// https://gh-proxy.com/https://api.github.com/repos/... The prefix is only added when the saved source is the mirror.
+    /// </summary>
+    public static string SourceUrl(string? source, string url) =>
+        UsesGhProxy(source) ? GhProxyPrefix + url : url;
+
     /// <summary>没有保存过选项时，安装的是测试版就继续接收测试版。</summary>
     public static bool ReceiveBeta(bool? setting, bool installedPrerelease) => setting ?? installedPrerelease;
 
