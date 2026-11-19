@@ -316,13 +316,16 @@ select:hover { background: color-mix(in srgb, var(--surface-strong), var(--text)
 .list-row.compact { padding: 6px 8px; }
 .list-row:hover { background: color-mix(in srgb, var(--surface-strong), var(--text) 3%); }
 .list-row .icon-button { opacity: 0.85; }
-.list-row.member { align-items: flex-start; gap: 12px; padding: 10px 10px 10px 12px; }
+/* 首页成员卡片高度固定，不随详情有无、标题长短变化；内容少时垂直居中。 */
+.list-row.member { height: 84px; gap: 12px; padding: 0 10px 0 12px; }
 .list-row.member .row-main { gap: 4px; }
-.list-row.member .presence-detail { margin-top: 0; }
-.list-row.member .avatar { margin-top: 2px; }
-.member-side { flex: none; display: flex; flex-direction: column; align-items: flex-end; margin: -2px -4px 0 0; }
-.member-actions { display: flex; }
-.member-meta { margin: -3px 4px 0 0; font-size: 11px; line-height: 22px; color: var(--faint); white-space: nowrap; }
+.member-line { display: flex; align-items: center; gap: 8px; min-width: 0; height: 22px; }
+.member-line .row-title { flex: 1; }
+.member-actions { flex: none; display: flex; margin: -4px -4px -4px 0; }
+.member-meta { flex: none; margin-left: auto; font-size: 11px; color: var(--faint); white-space: nowrap; }
+.member-detail { font-size: 12px; line-height: 18px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.member-detail-app { font-weight: 500; color: var(--text); }
+.member-detail-sep { color: var(--faint); }
 .list-row.member:not(.offline):hover { background: linear-gradient(135deg, color-mix(in srgb, var(--tv) 16%, var(--surface-strong)), color-mix(in srgb, var(--surface-strong), var(--text) 2%) 55%); }
 .list-row.member { box-shadow: var(--card-shadow); }
 .list-row.member.dragging { opacity: 0.45; }

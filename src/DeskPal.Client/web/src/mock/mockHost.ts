@@ -1,8 +1,8 @@
 // 浏览器里开发用的模拟宿主。初始状态来自 C# 测试生成的 fixtures，命令的效果在这里粗略模拟。
-// 地址参数：?mock=default|no-room|guest|updated 选样例；?lang=en 用英文样例；?fail 让所有命令失败；?page=login 打开登录页；?page=card 打开第一个成员的置顶小卡片；?sync=on|pin|error|folder|unavailable 让统计页的同步处于已开启、待输入 PIN 码、上传失败、同步文件夹已开启、文件夹无法访问；?existing 让选择的文件夹里已有其他电脑的同步数据。
+// 地址参数：?mock=default|no-room|guest|updated 选样例；?lang=en 用英文样例；?fail 让所有命令失败；?page=login 打开登录页；?page=card 打开第一个成员的置顶小卡片；?sync=on|pin|error|folder|unavailable 让统计页的同步处于已开启、待输入 PIN 码、上传失败、同步文件夹已开启、文件夹无法访问；?existing 让选择的文件夹里已有其他电脑的同步数据；?crowd 多加几位各种状态的成员。
 // 发出的命令记在 window.__sent，方便检查。
 
-import type { CommandResult, HostMessage, NoTitleKind, PanelState, PrivacyLevel, SignupInviteItem, StatsAppView, StatsView, Transport } from "../bridge";
+import type { CommandResult, HostMessage, MemberItem, NoTitleKind, PanelState, PrivacyLevel, SignupInviteItem, StatsAppView, StatsView, Transport } from "../bridge";
 import defaultState from "./fixtures/default.json";
 import statsViews from "./fixtures/stats.json";
 import statsApps from "./fixtures/stats-apps.json";
@@ -38,6 +38,43 @@ const enFixtures: Record<string, PanelState> = {
 
 type Incoming = { id?: number; type: string; [key: string]: unknown };
 
+/** ?crowd：再加几位状态各不相同的成员，检查卡片高度是否一致。 */
+function crowd(L: (zh: string, en: string) => string): MemberItem[] {
+  const member = (
+    n: number,
+    name: string,
+    headline: string,
+    tone: MemberItem["view"]["tone"],
+    app: string | null,
+    detail: string | null,
+    meta: string,
+    client: MemberItem["client"],
+    extra: Partial<MemberItem> = {},
+  ): MemberItem => ({
+    userId: `00000000-0000-0000-0000-0000000c${String(n).padStart(4, "0")}`,
+    name,
+    isOwner: false,
+    online: tone !== "offline",
+    view: { headline, app, detail, tone },
+    meta,
+    pinned: false,
+    blocked: false,
+    shareStats: false,
+    client,
+    joined: L(`11 月 ${n} 日加入`, `Joined Nov ${n}`),
+    ...extra,
+  });
+  return [
+    member(1, "summer", L("离线", "Offline"), "offline", null, null, "", null),
+    member(2, "St", L("在看视频", "Watching videos"), "relax", L("抖音", "Douyin"), null, L("已持续 5 分钟", "For 5 min"), "windows", { shareStats: true }),
+    member(3, "xxx", L("已锁屏", "Locked"), "away", null, null, L("已持续 1 小时 1 分钟", "For 1 hr 1 min"), "mac", { shareStats: true }),
+    member(4, "邪能海胆", L("在聊天", "Chatting"), "chat", null, null, L("已持续 2 分钟", "For 2 min"), "windows"),
+    member(5, "Ares Wang", L("正在浏览网页", "Browsing the web"), "browse", "help.github.com", "GitHub Help: GitHub Documentation, guides and API reference for everything", L("刚刚开始", "Just started"), "mac", { shareStats: true }),
+    member(6, "池鱼", L("在聊天", "Chatting"), "chat", "QQ", null, L("刚刚开始", "Just started"), "windows"),
+    member(7, "Mallory", L("已屏蔽", "Blocked"), "offline", null, null, "", null, { blocked: true, online: false }),
+  ];
+}
+
 export function createMockTransport(params: URLSearchParams): Transport {
   const listeners: ((m: HostMessage) => void)[] = [];
   const english = params.get("lang") === "en";
@@ -56,6 +93,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
     const error = syncSample === "error" ? L("同步失败，将自动重试。", "Sync failed and will try again.") : null;
     state.usage.sync = { enabled: true, needsPin: syncSample === "pin", error };
   }
+  if (params.has("crowd") && state.selectedRoomId) state.members.push(...crowd(L));
   const personalSample = params.get("personal");
   if (personalSample === "account") state.settings.personal = { accountSync: true, folder: null, folderUnavailable: false };
   else if (personalSample === "folder" || personalSample === "unavailable")

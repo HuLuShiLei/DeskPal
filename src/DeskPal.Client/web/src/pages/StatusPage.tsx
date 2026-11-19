@@ -1,5 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-import type { MemberItem, PanelState, UnclassifiedItem } from "../bridge";
+import type { MemberItem, PanelState, PresenceView, UnclassifiedItem } from "../bridge";
 import { PresenceDetail, StatusBadge, useCountdown, useHost } from "../host";
 import { t } from "../i18n";
 import { Avatar, ClientIcon, Hint, HoverTip, Icon, Section, Switch } from "../ui";
@@ -104,6 +104,10 @@ type DragProps = {
   onDragEnd?: () => void;
 };
 
+/**
+ * 卡片高度固定：名字、状态、详情各占一行，详情只显示一行（应用名 · 标题），完整内容悬停查看。
+ * 没有详情的成员（离线、锁屏、只公开状态）内容少一行，整体垂直居中。
+ */
 function MemberRow({ member, onViewStats, drag, dragging }: { member: MemberItem; onViewStats: () => void; drag: DragProps; dragging: boolean }) {
   const { run } = useHost();
   const dragClass = dragging ? " dragging" : "";
@@ -112,8 +116,10 @@ function MemberRow({ member, onViewStats, drag, dragging }: { member: MemberItem
       <li class={`list-row member offline${dragClass}`} aria-label={member.name} {...drag}>
         <Avatar name={member.name} tone={member.view.tone} />
         <div class="row-main">
-          <p class="row-title">{member.name}</p>
-          <div>
+          <p class="row-title">
+            <span class="row-name">{member.name}</span>
+          </p>
+          <div class="member-line">
             <StatusBadge view={member.view} />
           </div>
         </div>
@@ -125,36 +131,48 @@ function MemberRow({ member, onViewStats, drag, dragging }: { member: MemberItem
     <li class={`list-row member tv-${member.view.tone}${member.online ? "" : " offline"}${dragClass}`} aria-label={member.name} {...drag}>
       <Avatar name={member.name} tone={member.view.tone} />
       <div class="row-main">
-        <p class="row-title">
-          {member.name}
-          {member.isOwner && <span class="badge">{t("common.owner")}</span>}
-          <ClientIcon client={member.client} />
-        </p>
-        <div>
-          <StatusBadge view={member.view} />
-        </div>
-        <PresenceDetail view={member.view} />
-      </div>
-      <div class="member-side">
-        <div class="member-actions">
-          {member.shareStats && (
-            <button class="icon-button pin-button" title={t("status.viewStats")} aria-label={t("status.viewStatsOf", { name: member.name })} onClick={onViewStats}>
-              <Icon name="chart" />
+        <div class="member-line">
+          <p class="row-title">
+            <span class="row-name">{member.name}</span>
+            {member.isOwner && <span class="badge">{t("common.owner")}</span>}
+            <ClientIcon client={member.client} />
+          </p>
+          <div class="member-actions">
+            {member.shareStats && (
+              <button class="icon-button pin-button" title={t("status.viewStats")} aria-label={t("status.viewStatsOf", { name: member.name })} onClick={onViewStats}>
+                <Icon name="chart" />
+              </button>
+            )}
+            <button
+              class={member.pinned ? "icon-button pin-button active" : "icon-button pin-button"}
+              title={member.pinned ? t("status.unpin") : t("status.pin")}
+              aria-label={label}
+              aria-pressed={member.pinned}
+              onClick={() => run({ type: member.pinned ? "member.unpin" : "member.pin", userId: member.userId })}
+            >
+              <Icon name={member.pinned ? "pinned" : "pin"} />
             </button>
-          )}
-          <button
-            class={member.pinned ? "icon-button pin-button active" : "icon-button pin-button"}
-            title={member.pinned ? t("status.unpin") : t("status.pin")}
-            aria-label={label}
-            aria-pressed={member.pinned}
-            onClick={() => run({ type: member.pinned ? "member.unpin" : "member.pin", userId: member.userId })}
-          >
-            <Icon name={member.pinned ? "pinned" : "pin"} />
-          </button>
+          </div>
         </div>
-        {member.meta && <span class="member-meta">{member.meta}</span>}
+        <div class="member-line">
+          <StatusBadge view={member.view} />
+          {member.meta && <span class="member-meta">{member.meta}</span>}
+        </div>
+        <MemberDetail view={member.view} />
       </div>
     </li>
+  );
+}
+
+function MemberDetail({ view }: { view: PresenceView }) {
+  if (!view.app && !view.detail) return null;
+  const showDetail = view.detail && view.detail.trim() !== view.app?.trim();
+  return (
+    <p class="member-detail" title={[view.app, view.detail].filter(Boolean).join("\n")}>
+      {view.app && <span class="member-detail-app">{view.app}</span>}
+      {view.app && showDetail && <span class="member-detail-sep"> · </span>}
+      {showDetail && view.detail}
+    </p>
   );
 }
 
