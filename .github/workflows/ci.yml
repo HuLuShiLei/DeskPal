@@ -3,6 +3,8 @@ name: CI
 # 测试在 Linux 上跑。
 # 客户端：main 上改了客户端时发布测试版；手动推送 vX.Y.Z 标签时发布正式版。
 # vX.Y.Z-dev.N 是本流程创建的测试版标签，不再重复触发。
+# macOS 客户端（mac 任务）和 Windows 版同一个版本号，发布到同一个 Release，按芯片分 osx-arm64、osx-x64 两个通道。
+# 在其他分支上手动运行（workflow_dispatch）时只编译打包，不发布，安装包在本次运行的 Artifacts 里下载。
 on:
   push:
     branches: [main, master]
@@ -29,6 +31,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       mode: ${{ steps.mode.outputs.mode }}
+      version: ${{ steps.version.outputs.version }}
+      channel: ${{ steps.version.outputs.channel }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,6 +67,8 @@ jobs:
           }
           $prefixes = @(
             'src/DeskPal.Client/',
+            'src/DeskPal.Client.App/',
+            'src/DeskPal.Client.Mac/',
             'src/DeskPal.Client.Core/',
             'src/DeskPal.Shared/',
             'installer/',
@@ -78,6 +85,44 @@ jobs:
             Write-Host "::warning::这次推送改了客户端，但没有更新 CHANGELOG.md。用户更新后看不到这次的改动。"
           }
           Set-Mode $(if ($changed) { 'beta' } else { 'skip' })
+
+      - name: 计算版本
+        id: version
+        shell: pwsh
+        run: |
+          $mode = '${{ steps.mode.outputs.mode }}'
+          $channel = 'win'
+          $pre = 'false'
+          if ($mode -eq 'stable') {
+            $version = $env:GITHUB_REF_NAME.TrimStart('v')
+            if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "正式版标签必须是 vX.Y.Z：$env:GITHUB_REF_NAME" }
+          } elseif ($mode -eq 'beta') {
+            $latest = [version]'0.0.0'
+            git tag -l 'v*' | ForEach-Object {
+              if ($_ -match '^v(\d+)\.(\d+)\.(\d+)$') {
+                $parsed = [version]"$($Matches[1]).$($Matches[2]).$($Matches[3])"
+                if ($parsed -gt $latest) { $latest = $parsed }
+              }
+            }
+            $patch = if ($latest.Build -lt 0) { 1 } else { $latest.Build + 1 }
+            $version = "$($latest.Major).$($latest.Minor).$patch-dev.$($env:GITHUB_RUN_NUMBER)"
+            $channel = 'beta'
+            $pre = 'true'
+          } else {
+            # Velopack 打包要求版本号不低于 0.0.1（mac 任务在 PR 和手动运行时也打包）。
+            $version = '0.0.1-ci'
+          }
+          if ($mode -eq 'stable' -or $mode -eq 'beta') {
+            # 正式版必须一致；测试版只要求不低于，方便先把下一节改成 0.2.0 这类跨版本号再打标签。
+            $base = [version](($version -split '-')[0])
+            $top = Select-String -Path CHANGELOG.md -Pattern '^##\s+v?(\d+\.\d+\.\d+)' | Select-Object -First 1
+            $topVersion = if ($top) { [version]$top.Matches[0].Groups[1].Value } else { $null }
+            if (-not $topVersion -or $topVersion -lt $base -or ($mode -eq 'stable' -and $topVersion -ne $base)) {
+              throw "CHANGELOG.md 最上面一节必须是「## $base」，这次发布的是 $version"
+            }
+          }
+          [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "version=$version`nchannel=$channel`nprerelease=$pre`n")
+          "mode=$mode version=$version channel=$channel"
 
   client:
     needs: [test, changes]
@@ -100,48 +145,11 @@ jobs:
           cache: npm
           cache-dependency-path: src/DeskPal.Client/web/package-lock.json
 
-      - name: 计算版本
-        id: version
-        shell: pwsh
-        run: |
-          $mode = '${{ needs.changes.outputs.mode }}'
-          $channel = 'win'
-          $pre = 'false'
-          if ($mode -eq 'stable') {
-            $version = $env:GITHUB_REF_NAME.TrimStart('v')
-            if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "正式版标签必须是 vX.Y.Z：$env:GITHUB_REF_NAME" }
-          } elseif ($mode -eq 'beta') {
-            $latest = [version]'0.0.0'
-            git tag -l 'v*' | ForEach-Object {
-              if ($_ -match '^v(\d+)\.(\d+)\.(\d+)$') {
-                $parsed = [version]"$($Matches[1]).$($Matches[2]).$($Matches[3])"
-                if ($parsed -gt $latest) { $latest = $parsed }
-              }
-            }
-            $patch = if ($latest.Build -lt 0) { 1 } else { $latest.Build + 1 }
-            $version = "$($latest.Major).$($latest.Minor).$patch-dev.$($env:GITHUB_RUN_NUMBER)"
-            $channel = 'beta'
-            $pre = 'true'
-          } else {
-            $version = '0.0.0-ci'
-          }
-          if ($mode -eq 'stable' -or $mode -eq 'beta') {
-            # 正式版必须一致；测试版只要求不低于，方便先把下一节改成 0.2.0 这类跨版本号再打标签。
-            $base = [version](($version -split '-')[0])
-            $top = Select-String -Path CHANGELOG.md -Pattern '^##\s+v?(\d+\.\d+\.\d+)' | Select-Object -First 1
-            $topVersion = if ($top) { [version]$top.Matches[0].Groups[1].Value } else { $null }
-            if (-not $topVersion -or $topVersion -lt $base -or ($mode -eq 'stable' -and $topVersion -ne $base)) {
-              throw "CHANGELOG.md 最上面一节必须是「## $base」，这次发布的是 $version"
-            }
-          }
-          [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "version=$version`nchannel=$channel`nprerelease=$pre`n")
-          "mode=$mode version=$version channel=$channel"
-
       - name: 发布客户端
         shell: pwsh
         run: >
           dotnet publish src/DeskPal.Client -c Release -r win-x64 --self-contained true
-          -p:Version=${{ steps.version.outputs.version }}
+          -p:Version=${{ needs.changes.outputs.version }}
           -p:IncludeSourceRevisionInInformationalVersion=false
           -p:DebugType=none
           -o publish/DeskPal
@@ -155,9 +163,9 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $false
           dotnet tool install -g vpk --version 1.2.161
           $env:Path = "$env:USERPROFILE\.dotnet\tools;$env:Path"
-          $version = '${{ steps.version.outputs.version }}'
-          $channel = '${{ steps.version.outputs.channel }}'
-          $pre = '${{ steps.version.outputs.prerelease }}' -eq 'true'
+          $version = '${{ needs.changes.outputs.version }}'
+          $channel = '${{ needs.changes.outputs.channel }}'
+          $pre = '${{ needs.changes.outputs.prerelease }}' -eq 'true'
           $repo = "https://github.com/$env:GITHUB_REPOSITORY"
           vpk download github --repoUrl $repo --token $env:GH_TOKEN --channel $channel $(if ($pre) { '--pre' })
           if ($LASTEXITCODE -ne 0) {
@@ -226,5 +234,144 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: needs.changes.outputs.mode != 'build'
         with:
-          name: DeskPal-${{ steps.version.outputs.version }}-Setup
+          name: DeskPal-${{ needs.changes.outputs.version }}-Setup
           path: InstallerOutput/*-Setup.exe
+
+  # macOS 客户端。和 Windows 版共用版本号和 Release，每种芯片一个更新通道：
+  #   正式版 osx-arm64、osx-x64；测试版 osx-arm64-beta、osx-x64-beta（见 UpdatePolicy.Channel）。
+  # 默认不签名（ad-hoc），用户第一次打开要在「系统设置 → 隐私与安全性」里允许。
+  # 有 Apple Developer 账号后，把仓库变量 MAC_SIGN 设为 true，并配置下面这些 secret，就会签名并公证：
+  #   MAC_CERT_P12（Developer ID Application 和 Developer ID Installer 证书导出的 .p12，base64）、MAC_CERT_PASSWORD、
+  #   MAC_SIGN_APP_IDENTITY、MAC_SIGN_INSTALL_IDENTITY（证书全名）、MAC_NOTARY_APPLE_ID、MAC_NOTARY_PASSWORD（App 专用密码）、MAC_NOTARY_TEAM_ID。
+  mac:
+    needs: [test, changes, client]
+    if: always() && needs.test.result == 'success' && needs.changes.result == 'success' && needs.changes.outputs.mode != 'skip' && (needs.client.result == 'success' || needs.changes.outputs.mode == 'build')
+    runs-on: macos-15
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [arm64, x64]
+    env:
+      MAC_SIGN: ${{ vars.MAC_SIGN }}
+      # macos workload 每个版本要求一个固定的 Xcode（26.2.10233 要求 26.3），不固定时会装上要求更新 Xcode 的最新版。
+      # 升级时两个一起改：workload 版本见 NuGet 包 Microsoft.NET.Sdk.macOS.Manifest-10.0.100，Xcode 要在 runner 上存在。
+      XCODE_VERSION: '26.3'
+      MACOS_WORKLOAD: '26.2.10233/10.0.100'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 选择 Xcode
+        run: |
+          xcode="/Applications/Xcode_$XCODE_VERSION.app"
+          if [ ! -d "$xcode" ]; then echo "::error::runner 上没有 Xcode $XCODE_VERSION"; ls -d /Applications/Xcode*.app; exit 1; fi
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+
+      - uses: actions/setup-dotnet@v4
+        id: dotnet
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: src/DeskPal.Client/web/package-lock.json
+
+      - name: 安装 macos workload
+        run: |
+          # runner 上还预装了更高版本的 SDK，不指定时 dotnet 会选它。global.json 只在这个任务里生成，不进仓库。
+          printf '{"sdk": {"version": "%s", "rollForward": "disable"}}\n' '${{ steps.dotnet.outputs.dotnet-version }}' > global.json
+          dotnet --version
+          printf '{"microsoft.net.sdk.macos": "%s"}\n' "$MACOS_WORKLOAD" > "$RUNNER_TEMP/workload-rollback.json"
+          dotnet workload config --update-mode manifests
+          dotnet workload install macos --from-rollback-file "$RUNNER_TEMP/workload-rollback.json"
+          dotnet workload list
+
+      - name: 编译
+        run: >
+          dotnet build src/DeskPal.Client.Mac -c Release -r osx-${{ matrix.arch }}
+          -p:Version=${{ needs.changes.outputs.version }}
+          -p:IncludeSourceRevisionInInformationalVersion=false
+          -o build/osx-${{ matrix.arch }}
+
+      - name: 导入签名证书
+        if: env.MAC_SIGN == 'true'
+        env:
+          MAC_CERT_P12: ${{ secrets.MAC_CERT_P12 }}
+          MAC_CERT_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+          MAC_NOTARY_APPLE_ID: ${{ secrets.MAC_NOTARY_APPLE_ID }}
+          MAC_NOTARY_PASSWORD: ${{ secrets.MAC_NOTARY_PASSWORD }}
+          MAC_NOTARY_TEAM_ID: ${{ secrets.MAC_NOTARY_TEAM_ID }}
+        run: |
+          keychain="$RUNNER_TEMP/deskpal.keychain-db"
+          password=$(uuidgen)
+          echo "$MAC_CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          security import "$RUNNER_TEMP/cert.p12" -P "$MAC_CERT_PASSWORD" -A -t cert -f pkcs12 -k "$keychain"
+          security set-key-partition-list -S apple-tool:,apple: -k "$password" "$keychain"
+          security list-keychain -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          xcrun notarytool store-credentials deskpal --apple-id "$MAC_NOTARY_APPLE_ID" --password "$MAC_NOTARY_PASSWORD" --team-id "$MAC_NOTARY_TEAM_ID" --keychain "$keychain"
+
+      - name: 打包
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAC_SIGN_APP_IDENTITY: ${{ secrets.MAC_SIGN_APP_IDENTITY }}
+          MAC_SIGN_INSTALL_IDENTITY: ${{ secrets.MAC_SIGN_INSTALL_IDENTITY }}
+        run: |
+          set -e
+          dotnet tool install -g vpk --version 1.2.161
+          export PATH="$HOME/.dotnet/tools:$PATH"
+          mode='${{ needs.changes.outputs.mode }}'
+          version='${{ needs.changes.outputs.version }}'
+          channel="osx-${{ matrix.arch }}"
+          pre=''
+          if [ '${{ needs.changes.outputs.prerelease }}' = 'true' ]; then channel="$channel-beta"; pre='--pre'; fi
+          echo "CHANNEL=$channel" >> "$GITHUB_ENV"
+          app=$(ls -d build/osx-${{ matrix.arch }}/*.app | head -1)
+          if [ -z "$app" ]; then echo "::error::没有找到 .app"; ls -la build/osx-${{ matrix.arch }}; exit 1; fi
+          if [ "$mode" != 'build' ]; then
+            vpk download github --repoUrl "https://github.com/$GITHUB_REPOSITORY" --token "$GH_TOKEN" --channel "$channel" $pre || echo "没有可做差异包的上一版，改为完整包。"
+          fi
+          sign=()
+          if [ "$MAC_SIGN" = 'true' ]; then
+            sign=(--signAppIdentity "$MAC_SIGN_APP_IDENTITY" --signInstallIdentity "$MAC_SIGN_INSTALL_IDENTITY" --notaryProfile deskpal --signEntitlements src/DeskPal.Client.Mac/Entitlements.plist)
+          fi
+          vpk pack -u DeskPal -v "$version" -c "$channel" -p "$app" -e DeskPal --packTitle DeskPal \
+            -i src/DeskPal.Client.Mac/Resources/DeskPal.icns --noPortable "${sign[@]}"
+          find Releases -name '*.nupkg' ! -name "*$version*" -delete
+          cp "Releases/DeskPal-$channel-Setup.pkg" "DeskPal-$version-osx-${{ matrix.arch }}-Setup.pkg"
+
+      - name: 发布到 GitHub Release
+        if: needs.changes.outputs.mode != 'build'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          export PATH="$HOME/.dotnet/tools:$PATH"
+          version='${{ needs.changes.outputs.version }}'
+          tag="v$version"
+          pre=''
+          if [ '${{ needs.changes.outputs.prerelease }}' = 'true' ]; then pre='--pre'; fi
+          # Windows 任务已经建好这个 Release；--merge 只追加 macOS 的更新包和清单，不改说明。
+          vpk upload github --repoUrl "https://github.com/$GITHUB_REPOSITORY" --token "$GH_TOKEN" --publish --merge --channel "$CHANNEL" --tag "$tag" $pre
+          gh release upload "$tag" "DeskPal-$version-osx-${{ matrix.arch }}-Setup.pkg" --clobber
+          gh release delete-asset "$tag" "DeskPal-$CHANNEL-Setup.pkg" --yes || true
+          if [ "$MAC_SIGN" != 'true' ]; then
+            notes=$(gh release view "$tag" --json body --jq .body)
+            if ! printf '%s' "$notes" | grep -q 'macOS 安装包没有签名'; then
+              printf '%s\n\n## macOS\n\n按芯片下载 DeskPal-%s-osx-arm64-Setup.pkg（Apple 芯片）或 osx-x64（Intel）。macOS 安装包没有签名：第一次打开时如果提示无法验证开发者，到「系统设置 → 隐私与安全性」点「仍要打开」。DeskPal 需要「辅助功能」权限读取窗口标题和浏览器网址，每次更新后可能要重新勾选。\n' "$notes" "$version" > notes.txt
+              gh release edit "$tag" --notes-file notes.txt
+            fi
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DeskPal-${{ needs.changes.outputs.version }}-osx-${{ matrix.arch }}
+          path: DeskPal-*-osx-*-Setup.pkg

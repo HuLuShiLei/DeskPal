@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    macOS 客户端：菜单栏图标 + WKWebView 面板，和 Windows 版共用 DeskPal.Client.App、Client.Core、Shared 和 web/。
+    只能在 macOS 上编译（需要 Xcode 和 macos workload）：
+      dotnet workload install macos
+      dotnet build src/DeskPal.Client.Mac -r osx-arm64
+    打包见 .github/workflows/ci.yml 的 mac 任务。
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\DeskPal.Client.App\DeskPal.Client.App.csproj" />
+    <ProjectReference Include="..\DeskPal.Client.Core\DeskPal.Client.Core.csproj" />
+    <ProjectReference Include="..\DeskPal.Shared\DeskPal.Shared.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-macos</TargetFramework>
+    <SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
+    <RuntimeIdentifiers>osx-arm64;osx-x64</RuntimeIdentifiers>
+    <AssemblyName>DeskPal</AssemblyName>
+    <RootNamespace>DeskPal.Client</RootNamespace>
+    <ApplicationId>com.hulushilei.deskpal</ApplicationId>
+    <ApplicationTitle>DeskPal</ApplicationTitle>
+    <Version>0.1.0</Version>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- 不进沙盒：要读其他应用的窗口（辅助功能）。签名和公证由 CI 按需打开，见 ci.yml。 -->
+    <EnableCodeSigning>false</EnableCodeSigning>
+    <!-- 只用到 Foundation/AppKit/WebKit 的少量类型，链接器裁剪 SDK 程序集即可。 -->
+    <LinkMode>SdkOnly</LinkMode>
+  </PropertyGroup>
+
+  <!-- 应用图标（由 Assets/make-icns.py 从 icon-source.png 生成）和更新内容。 -->
+  <ItemGroup>
+    <BundleResource Include="Resources\DeskPal.icns" LogicalName="DeskPal.icns" />
+    <BundleResource Include="..\..\CHANGELOG.md" LogicalName="CHANGELOG.md" Link="Resources\CHANGELOG.md" />
+  </ItemGroup>
+
+  <!-- 前端和 Windows 版共用 src/DeskPal.Client/web，构建结果放进 Contents/Resources/web。没有 Node 时可传 -p:SkipWebBuild=true。 -->
+  <PropertyGroup>
+    <WebDir>..\DeskPal.Client\web</WebDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <WebSource Include="$(WebDir)\index.html;$(WebDir)\package.json;$(WebDir)\package-lock.json;$(WebDir)\vite.config.ts;$(WebDir)\tsconfig.json;$(WebDir)\src\**\*" />
+  </ItemGroup>
+
+  <Target Name="MacNpmInstall" Condition="'$(SkipWebBuild)' != 'true'" Inputs="$(WebDir)\package.json;$(WebDir)\package-lock.json" Outputs="$(WebDir)\node_modules\.install-stamp">
+    <Exec Command="npm ci --no-fund --no-audit" WorkingDirectory="$(WebDir)" />
+    <Touch Files="$(WebDir)\node_modules\.install-stamp" AlwaysCreate="true" />
+  </Target>
+
+  <Target Name="MacBuildWeb" DependsOnTargets="MacNpmInstall" Condition="'$(SkipWebBuild)' != 'true'" Inputs="@(WebSource)" Outputs="$(WebDir)\dist\index.html">
+    <Exec Command="npm run build" WorkingDirectory="$(WebDir)" />
+  </Target>
+
+  <Target Name="MacIncludeWeb" DependsOnTargets="MacBuildWeb" BeforeTargets="BeforeBuild">
+    <ItemGroup>
+      <_MacWebDist Include="$(WebDir)\dist\**" />
+      <BundleResource Include="@(_MacWebDist)" LogicalName="web/%(_MacWebDist.RecursiveDir)%(_MacWebDist.Filename)%(_MacWebDist.Extension)" />
+    </ItemGroup>
+  </Target>
+
+</Project>

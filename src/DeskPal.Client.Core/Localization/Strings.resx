@@ -850,4 +850,13 @@
   <data name="Personal_ImportDone" xml:space="preserve">
     <value>已导入 {0} 条分类、{1} 条不记录标题的规则。</value>
   </data>
+  <data name="Common_Ok" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="App_AlreadyRunningMac" xml:space="preserve">
+    <value>DeskPal 已在运行。请点菜单栏上的 DeskPal 图标打开。</value>
+  </data>
 </root>

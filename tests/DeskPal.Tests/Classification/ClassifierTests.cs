@@ -112,6 +112,44 @@ public class ClassifierTests
         Assert.Equal((ActivityCategory.Game, RuleLayer.Heuristic), (result.Category, result.Layer));
     }
 
+    [Theory]
+    [InlineData("/Users/me/Library/Application Support/Steam/steamapps/common/Indie/Indie.app/Contents/MacOS/Indie")]
+    [InlineData("/Users/Shared/Epic Games/Fortnite/FortniteGame/Binaries/Mac/FortniteClient-Mac-Shipping.app/Contents/MacOS/FortniteClient-Mac-Shipping")]
+    public void Mac_game_library_paths_are_games(string path)
+    {
+        var result = Create().Classify(TestData.App("com.example.indie", path: path));
+
+        Assert.Equal((ActivityCategory.Game, RuleLayer.Heuristic), (result.Category, result.Layer));
+    }
+
+    [Fact]
+    public void Mac_launcher_next_to_games_is_not_a_game()
+    {
+        const string path = "/Users/me/Library/Application Support/Steam/steamapps/common/Indie/UnityCrashHandler.app/Contents/MacOS/UnityCrashHandler";
+
+        Assert.Equal(ActivityCategory.Other, Create().Classify(TestData.App("com.unity3d.crashhandler", path: path)).Category);
+    }
+
+    [Theory]
+    [InlineData("com.apple.Safari")]
+    [InlineData("com.google.Chrome")]
+    [InlineData("com.microsoft.edgemac")]
+    [InlineData("org.mozilla.firefox")]
+    [InlineData("company.thebrowser.Browser")]
+    public void Mac_browsers_are_recognized_by_bundle_identifier(string bundleId) =>
+        Assert.True(Browsers.IsBrowser(bundleId));
+
+    [Fact]
+    public void Mac_bundle_identifier_matches_a_process_rule_ignoring_case()
+    {
+        var classifier = Create();
+        classifier.SetBuiltin(new RuleSet([new RuleDto(RuleKind.Process, "com.tencent.xinWeChat", ActivityCategory.Communication, "微信")]));
+
+        var result = classifier.Classify(TestData.App("com.tencent.xinWeChat"));
+
+        Assert.Equal((ActivityCategory.Communication, "微信", RuleLayer.Builtin), (result.Category, result.AppDisplayName, result.Layer));
+    }
+
     [Fact]
     public void Fullscreen_media_app_is_video()
     {

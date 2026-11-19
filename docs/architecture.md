@@ -9,7 +9,9 @@
 | `DeskPal.Shared` | net10.0 | Envelope、消息类型常量、状态和类别枚举、REST DTO、Hub 契约。Server 和客户端都引用 |
 | `DeskPal.Server` | net10.0 | ASP.NET Core：Auth、Rooms、Presence（SignalR Hub）、Rules；SQLite |
 | `DeskPal.Client.Core` | net10.0 | 不依赖 Windows 的纯逻辑：事件总线、分类器、状态判断、防抖、隐私过滤、面板状态（`Ui/PanelStateBuilder`） |
-| `DeskPal.Client` | net10.0-windows10.0.19041.0 | WPF 托盘程序：采集器、Hub 连接、WebView2 宿主窗口，输出文件 `DeskPal.exe`。`web/` 是面板和登录页的前端（Vite + TypeScript + Preact），构建结果复制到输出目录的 `web/` |
+| `DeskPal.Client.App` | net10.0 | Windows 和 macOS 共用的客户端服务：`ApiClient`、`HubService`、`RoomState`、`PresenceCoordinator`、统计和同步、`UpdateService`、面板命令 `PanelBridge`、启动流程 `ClientStartup`。平台能力通过 `Platform/IClientPlatform`（文件对话框、剪贴板、开机自启、打开链接、后备提示框）和 `ISecretProtector`（`SecretProtection.Current`）注入 |
+| `DeskPal.Client` | net10.0-windows10.0.19041.0 | WPF 托盘程序：采集器、`WindowsPlatform`、DPAPI、WebView2 宿主窗口，输出文件 `DeskPal.exe`。`web/` 是面板和登录页的前端（Vite + TypeScript + Preact），构建结果复制到输出目录的 `web/`，macOS 版共用 |
+| `DeskPal.Client.Mac` | net10.0-macos（macOS 13+） | macOS 菜单栏程序：采集器、`MacPlatform`、WKWebView 宿主窗口，输出 `DeskPal.app`。见下文「macOS 客户端」 |
 | `DeskPal.Tests` | net10.0 | xUnit：分类、状态、Room 生命周期、Hub 集成测试 |
 
 ## 数据流
@@ -50,7 +52,7 @@ flowchart LR
 
 `LayeredClassifier` 按层匹配，命中即停止。
 
-- 前台是浏览器：先查个人分类，没有命中时归为 `Browsing`，应用名用域名（没有域名则为空），详情用去掉浏览器后缀的窗口标题。不使用内置的网站和标题规则，也不因为全屏或正在播放而归成视频。个人分类里先按域名（取最具体的后缀），再按标题关键词，最后按进程名。`Shopping`、`Social`、`News`、`Reading` 的规则跳过，结果仍是正在浏览网页。
+- 前台是浏览器：先查个人分类，没有命中时，正在播放当前标签页的视频（媒体标题包含在标签页标题里）归为 `Video`，否则归为 `Browsing`；应用名用域名（没有域名则为空），详情用去掉浏览器后缀的窗口标题。不使用内置的网站和标题规则。个人分类里先按域名（取最具体的后缀），再按标题关键词，最后按进程名。`Shopping`、`Social`、`News`、`Reading` 的规则跳过，结果仍是正在浏览网页。
 - 其他应用：个人分类 → 内置规则 → 推测 → `Other`，只按进程名匹配。
 - 推测层只对非浏览器、且前几层都没命中时生效：路径含 `\steamapps\` 的程序归为 `Game`；全屏且正在播放媒体归为 `Video`。正在播放媒体本身不分类，避免后台音乐盖过当前焦点。
 
@@ -81,7 +83,7 @@ flowchart LR
   - 多人一致：至少 `Rules:MinUsers`（默认 5）个账号设置过同一个应用，占比最高的类别不低于 `Rules:MinAgreement`（默认 0.8），且和内置规则不同。
   - 未识别应用：至少 `MinUsers` 个账号上报过，内置规则和任何人的个人分类都没有覆盖。
 - 该接口要求请求头 `X-DeskPal-Maintainer` 等于 `Rules:MaintainerToken`，口令为空时返回 404。`.github/workflows/rule-candidates.yml` 每周请求一次，把多人一致的结果写进 `builtin-rules.json` 并开 PR，未识别应用列在 PR 说明里，人工审核后合并。
-- 内置规则保存在 `builtin-rules.json`（目前版本 7，343 条，中文名称都带 `names.en`），Server 启动时写入数据库；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。里面的网站和标题规则不参与浏览器的默认分类。版本 3 起没有 `Music`、`Shopping`、`Social`、`News`、`Reading`。
+- 内置规则保存在 `builtin-rules.json`（目前版本 8，411 条，其中约 70 条是 Mac 应用的 Bundle ID，中文名称都带 `names.en`），Server 启动时写入数据库；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。里面的网站和标题规则不参与浏览器的默认分类。版本 3 起没有 `Music`、`Shopping`、`Social`、`News`、`Reading`。
 - 分类口径：桌面应用里，企业微信、飞书、钉钉、Slack、Teams、邮箱和会议软件归为 `Work`；QQ、微信、Telegram 等个人聊天归为 `Communication`。浏览器里的网页不再按网站种类细分。音乐播放器、Kindle、calibre、Discord 没有单独类别，显示为“其他活动”和应用名。
 
 ## 状态判断和防抖
@@ -307,6 +309,35 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 `settings.json` 里还有窗口置顶（`topmost`）。
 
 跟随账号的设置（只在开启同步到账号后保存，见「个人数据」）：暂离时长在 `Users.IdleMinutes`（`PUT /api/me/idle-minutes`）；切换等待、外观、语言、关闭窗口时、窗口置顶、成员排序在 `Users.Preferences`（`UserPreferences` 的 JSON，迁移 `AddUserPreferences`）。`PATCH /api/me/preferences` 只改请求里带的字段，成员排序按房间合并，空列表表示恢复默认顺序，已不在的房间的排序在保存时删除；不认识的取值返回 `prefs.invalid`。`GET /api/me` 和登录的 `AuthResponse.Preferences` 带回当前值。客户端在 `settings.json` 里保留一份：登录后以账号为准，账号上还没有的字段上传本机值（`PreferencesResolver`）；设置页修改时先保存本机再上传，连不上服务器时记 `preferencesUnsynced`，下次登录改为上传本机的全部值，不被账号上的旧值覆盖。同一账号只能在一台电脑上登录，所以不做实时推送。开机自启、加入测试版、暂停分享、选中的房间、两个同步文件夹的路径只在本机。WebView2 的缓存在 `<安装目录>\WebView2`。开机自启写入 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`；用命名 Mutex 保证单实例运行。
+
+## macOS 客户端
+
+`src/DeskPal.Client.Mac`，和 Windows 版共用 `Client.App`、`Client.Core`、`Shared` 和 `web/`，协议、Server、房间、统计、同步都相同，Mac 和 Windows 用户在同一个房间里。只能在 Mac 上编译（`dotnet workload install macos`，Xcode 26）；没有 Mac 时用 `tools/MacCheck` 对 `Microsoft.macOS` 引用程序集做类型检查。
+
+| 部分 | Windows | macOS |
+|---|---|---|
+| 前台应用 | `GetForegroundWindow`，进程名是 exe 名 | `NSWorkspace.FrontmostApplication`，不需要权限。进程名是 Bundle ID（`com.tencent.xinWeChat`），没有时用可执行文件名；显示名称是本地化的应用名 |
+| 窗口标题、全屏 | Win32 | 辅助功能：焦点窗口的 `AXTitle`、`AXFullScreen`，或窗口正好盖住某个屏幕。需要用户在「隐私与安全性 → 辅助功能」允许；没有授权时标题为空、不算全屏。登录后发现没有授权时调用 `AXIsProcessTrustedWithOptions` 弹出系统提示 |
+| 浏览器网址 | UI Automation 读地址栏 | 辅助功能：广度优先找 `AXWebArea` 的 `AXURL`（Safari），找不到时用工具栏里第一个文本框的值（Chrome、Edge、Arc）。只取 host，时机和超时同 Windows |
+| 空闲 | `GetLastInputInfo` | `CGEventSourceSecondsSinceLastEventType`，不需要权限 |
+| 锁屏 | `SessionSwitch` | 分布式通知 `com.apple.screenIsLocked` / `screenIsUnlocked` |
+| 媒体 | SMTC | 私有框架 MediaRemote，尽力而为；macOS 15.4 起读不到，见 known-issues.md |
+| 托盘 | `H.NotifyIcon` | 菜单栏图标（SF Symbol `person.2.fill`）：左键打开或隐藏面板，右键或 Control 点击出现「打开」「退出」。`LSUIElement`，没有程序坞图标 |
+| 面板、登录、置顶卡片 | WPF 窗口 + WebView2 | `NSWindow`（透明标题栏、隐藏红黄绿按钮）+ WKWebView；置顶卡片是不抢焦点的浮动 `NSPanel`，在所有桌面空间显示。`PanelController` 和 Windows 的 `PanelWindow` 行为相同：200 毫秒合并推送、隐藏 5 分钟释放、15 秒没有 `ready` 或网页进程退出时重建 |
+| 页面加载 | 虚拟主机 `app.deskpal.example` | 自定义协议 `deskpal://app/`，从 `Contents/Resources/web` 读文件，不开端口 |
+| 页面通信 | `chrome.webview.postMessage` | 页面 `window.webkit.messageHandlers.deskpal.postMessage(JSON 字符串)`，宿主调用 `window.__deskpal(消息)`；`bridge.ts` 按有哪个通道自动选择 |
+| 拖动窗口 | CSS `app-region: drag` | WKWebView 不支持 `app-region`。地址带 `platform=mac` 时页面在标题栏空白处按下鼠标发 `window.drag`，窗口跟随鼠标移动到松开；置顶卡片双击发 `window.dblclick` 打开面板（`web/src/platform.ts`） |
+| 图标字体 | Segoe Fluent Icons | 系统没有这个字体，`platform=mac` 时 `Icon` 改画 `ui.tsx` 里的 SVG。几条提到 Windows、系统托盘的文案在 `i18n/index.ts` 里换成 macOS 的说法 |
+| 本机密钥 | DPAPI（当前用户） | `local.key`（随机 256 位，权限 600）+ AES-GCM，`FileKeyProtector`。不用钥匙串，原因见 known-issues.md |
+| 开机自启 | `HKCU\...\Run` | `~/Library/LaunchAgents/com.hulushilei.deskpal.autostart.plist`，`open -g -a DeskPal.app --args --minimized` |
+| 单实例 | 命名 Mutex | 设置目录下 `instance.lock` 的排他锁（.NET 用 flock，进程结束即释放） |
+| 通知 | 托盘气泡 | 通知中心（`UNUserNotificationCenter`） |
+| 设置、规则、统计 | `%APPDATA%\DeskPal` | `~/Library/Application Support/DeskPal`，目录结构相同 |
+| 日志 | `<安装目录>\logs` | `~/Library/Logs/DeskPal`，不写进 `.app`（会破坏签名） |
+| 更新内容 | 程序目录下的 `CHANGELOG.md` | `Contents/Resources/CHANGELOG.md` |
+| 安装和更新 | Inno Setup 向导 + Velopack，通道 `win`、`beta` | Velopack 的 `.pkg`，按芯片分通道 `osx-arm64`、`osx-x64`，测试版加 `-beta`（`UpdatePolicy.Channel(beta, arch)`），和 Windows 版发布在同一个 Release |
+
+内置规则库从版本 8 起有一批 Mac 应用的 Bundle ID 规则（`Process` 种类，内容是小写的 Bundle ID），格式和 Server 都没有变化；`Browsers.Processes` 也加了 Mac 浏览器的 Bundle ID。推测层的游戏目录同时按 `/` 和 `\` 匹配（Steam 在 Mac 上是 `~/Library/Application Support/Steam/steamapps/`）。
 
 ## 部署和发布
 

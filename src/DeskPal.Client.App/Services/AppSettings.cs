@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using DeskPal.Client.Platform;
 using DeskPal.Shared;
 using DeskPal.Shared.Api;
 
@@ -75,10 +76,10 @@ public sealed class AppSettings
 
         try
         {
-            var bytes = ProtectedData.Unprotect(Convert.FromBase64String(ProtectedToken), null, DataProtectionScope.CurrentUser);
+            var bytes = SecretProtection.UnprotectFromBase64(ProtectedToken);
             return Encoding.UTF8.GetString(bytes);
         }
-        catch (CryptographicException)
+        catch (Exception ex) when (ex is CryptographicException or FormatException)
         {
             return null;
         }
@@ -86,12 +87,17 @@ public sealed class AppSettings
 
     public void SetToken(string? token) => ProtectedToken = token is null
         ? null
-        : Convert.ToBase64String(ProtectedData.Protect(Encoding.UTF8.GetBytes(token), null, DataProtectionScope.CurrentUser));
+        : SecretProtection.ProtectToBase64(Encoding.UTF8.GetBytes(token));
 }
 
 public sealed class SettingsStore
 {
-    public static readonly string Directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DeskPal");
+    /// <summary>%APPDATA%\DeskPal on Windows, ~/Library/Application Support/DeskPal on macOS.</summary>
+    public static readonly string Directory = Path.Combine(
+        OperatingSystem.IsMacOS()
+            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library", "Application Support")
+            : Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "DeskPal");
 
     private static readonly string FilePath = Path.Combine(Directory, "settings.json");
     private static readonly JsonSerializerOptions Options = new(DeskPalJson.Options) { WriteIndented = true };

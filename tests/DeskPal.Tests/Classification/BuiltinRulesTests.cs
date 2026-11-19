@@ -25,6 +25,11 @@ public class BuiltinRulesTests
     [InlineData("wechat", ActivityCategory.Communication)]
     [InlineData("qq", ActivityCategory.Communication)]
     [InlineData("telegram", ActivityCategory.Communication)]
+    [InlineData("com.tencent.WeWorkMac", ActivityCategory.Work)]
+    [InlineData("com.tinyspeck.slackmacgap", ActivityCategory.Work)]
+    [InlineData("us.zoom.xos", ActivityCategory.Work)]
+    [InlineData("com.tencent.xinWeChat", ActivityCategory.Communication)]
+    [InlineData("com.tencent.qq", ActivityCategory.Communication)]
     public void Office_chat_is_work_and_personal_chat_is_chatting(string process, ActivityCategory expected)
     {
         Assert.Equal(expected, Rules.Match(TestData.App(process))!.Category);

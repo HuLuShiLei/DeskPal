@@ -29,7 +29,10 @@ public sealed record ClassificationResult(ActivityCategory Category, string? App
 /// </summary>
 public sealed class LayeredClassifier
 {
-    /// <summary>Folders of game libraries and launchers. The launchers themselves live elsewhere or have builtin rules.</summary>
+    /// <summary>
+    /// Folders of game libraries and launchers. The launchers themselves live elsewhere or have builtin rules.
+    /// Written with \ and matched on Windows and macOS paths alike (/ is compared as \).
+    /// </summary>
     private static readonly string[] GameFolders =
     [
         @"\steamapps\", @"\Epic Games\", @"\WeGameApps\", @"\XboxGames\", @"\GOG Galaxy\Games\", @"\Riot Games\",
@@ -96,7 +99,7 @@ public sealed class LayeredClassifier
     private static ActivityCategory? Heuristic(ActivitySnapshot snapshot)
     {
         var foreground = snapshot.Foreground!;
-        var path = foreground.ProcessPath;
+        var path = foreground.ProcessPath?.Replace('/', '\\');
         if (path is not null && GameFolders.Any(f => path.Contains(f, StringComparison.OrdinalIgnoreCase)) && !IsGameTool(path))
         {
             return ActivityCategory.Game;
@@ -113,7 +116,7 @@ public sealed class LayeredClassifier
     /// <summary>Launchers, updaters and crash reporters live next to the games but are not playing.</summary>
     private static bool IsGameTool(string path)
     {
-        var file = Path.GetFileNameWithoutExtension(path);
+        var file = Path.GetFileNameWithoutExtension(path[(path.LastIndexOf('\\') + 1)..]);
         return path.Contains(@"\Launcher\", StringComparison.OrdinalIgnoreCase)
             || new[] { "launcher", "helper", "crash", "setup", "update", "install" }.Any(w => file.Contains(w, StringComparison.OrdinalIgnoreCase));
     }

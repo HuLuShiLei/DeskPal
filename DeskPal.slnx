@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/DeskPal.Client.App/DeskPal.Client.App.csproj" />
     <Project Path="src/DeskPal.Client.Core/DeskPal.Client.Core.csproj" />
     <Project Path="src/DeskPal.Client/DeskPal.Client.csproj" />
     <Project Path="src/DeskPal.Server/DeskPal.Server.csproj" />

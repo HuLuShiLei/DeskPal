@@ -850,4 +850,13 @@ Restart DeskPal after installing it.</value>
   <data name="Personal_ImportDone" xml:space="preserve">
     <value>Imported {0} categories and {1} no-title rules.</value>
   </data>
+  <data name="Common_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="App_AlreadyRunningMac" xml:space="preserve">
+    <value>DeskPal is already running. Open it from the DeskPal icon in the menu bar.</value>
+  </data>
 </root>

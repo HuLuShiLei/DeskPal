@@ -19,6 +19,16 @@ public class UpdatePolicyTests
         Assert.Equal(expected, UpdatePolicy.Channel(receiveBeta));
 
     [Theory]
+    [InlineData(false, null, "win")]
+    [InlineData(true, null, "beta")]
+    [InlineData(false, "arm64", "osx-arm64")]
+    [InlineData(true, "arm64", "osx-arm64-beta")]
+    [InlineData(false, "x64", "osx-x64")]
+    [InlineData(true, "x64", "osx-x64-beta")]
+    public void Mac_builds_use_their_own_channel_per_chip(bool receiveBeta, string? arch, string expected) =>
+        Assert.Equal(expected, UpdatePolicy.Channel(receiveBeta, arch));
+
+    [Theory]
     [InlineData(false, true)]
     [InlineData(true, false)]
     public void Downgrade_is_not_applied_without_asking(bool isDowngrade, bool expected) =>

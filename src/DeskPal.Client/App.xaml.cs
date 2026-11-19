@@ -3,16 +3,11 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using DeskPal.Client.Collectors;
-using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Diagnostics;
-using DeskPal.Client.Core.Personal;
-using DeskPal.Client.Core.Pipeline;
-using DeskPal.Client.Core.Ui;
-using DeskPal.Client.Core.Updates;
 using DeskPal.Client.Native;
+using DeskPal.Client.Platform;
 using DeskPal.Client.Services;
 using DeskPal.Client.Ui;
-using DeskPal.Client.Views;
 using H.NotifyIcon;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -80,20 +75,12 @@ public partial class App : Application
         hub.SessionEnded += OnSessionEnded;
         api.Unauthorized += OnSessionEnded;
 
-        var personalRules = services.GetRequiredService<PersonalRules>();
-
         _tray = CreateTray(updates, services.GetRequiredService<PanelBridge>());
         rooms.Notify += (title, message) => Dispatcher.BeginInvoke(() => _tray.ShowNotification(title, message));
-        hub.Received += rooms.Handle;
-        hub.Received += personalRules.Handle;
-        hub.Received += services.GetRequiredService<StatsExchange>().Handle;
-        hub.Connected += personalRules.RefreshAsync;
-
-        LoadCachedBuiltinRules(services);
-        personalRules.Load();
+        ClientStartup.Wire(services);
         await _host.StartAsync();
         hub.Start();
-        _ = RefreshBuiltinRulesAsync(services);
+        _ = ClientStartup.RefreshBuiltinRulesAsync(services);
         _ = RefreshRoomsAsync(rooms);
         _updates = new CancellationTokenSource();
         _ = updates.RunPeriodicAsync(_updates.Token);
@@ -113,49 +100,13 @@ public partial class App : Application
 
     private static async Task<bool> EnsureLoggedInAsync(AppSettings settings, SettingsStore store, ApiClient api, ClientLogFiles logs, string? notice)
     {
-        if (settings.GetToken() is not null)
+        var reason = new Ref<string?>(notice);
+        if (await ClientStartup.RestoreSessionAsync(settings, store, api, logs, reason))
         {
-            try
-            {
-                var me = await api.MeAsync();
-                settings.DisplayName = me.DisplayName;
-                settings.ShareUsage = me.ShareUsage;
-                settings.IsAdmin = me.IsAdmin;
-                settings.PersonalSync = me.PersonalSync;
-                var uploadIdle = IdleSync.Apply(settings, me.IdleMinutes);
-                await PreferencesSync.ApplyAsync(settings, store, api, me.Preferences);
-                if (uploadIdle)
-                {
-                    try
-                    {
-                        await api.SetIdleMinutesAsync(settings.IdleMinutes);
-                    }
-                    catch (ApiException ex)
-                    {
-                        logs.Write("WRN", "DeskPal", $"Saving away time failed ({ex.Status})");
-                    }
-                }
-                logs.Write("INF", "DeskPal", "Saved session restored");
-                return true;
-            }
-            catch (ApiException ex) when (ex.Status == 0)
-            {
-                logs.Write("INF", "DeskPal", "Saved session kept because the server was unreachable");
-                return true;
-            }
-            catch (ApiException ex)
-            {
-                logs.Write("WRN", "DeskPal", $"Saved session rejected ({ex.Status})");
-                if (ex.Status == 401)
-                {
-                    notice ??= Strings.Login_SessionExpired;
-                }
-
-                settings.SetToken(null);
-                store.Save(settings);
-            }
+            return true;
         }
 
+        notice = reason.Value;
         if (!WebUi.RuntimeAvailable())
         {
             WebUi.ShowMissingRuntime(Strings.Runtime_LoginUnavailable);
@@ -186,107 +137,23 @@ public partial class App : Application
         builder.Logging.AddProvider(new ClientFileLoggerProvider(logs));
 
         var s = builder.Services;
-        s.AddSingleton(logs);
-        s.AddSingleton(settings);
-        s.AddSingleton(store);
-        s.AddSingleton(api);
-        s.AddSingleton<ActivityBus>();
-        s.AddSingleton<LayeredClassifier>();
-        s.AddSingleton(new PersonalDataStore(Path.Combine(SettingsStore.Directory, "personal")));
-        s.AddSingleton<UnclassifiedUsage>();
-        s.AddSingleton<UsageService>();
-        s.AddSingleton<StatsExchange>();
-        s.AddSingleton<StatsSyncService>();
-        s.AddSingleton<FolderSyncService>();
-        s.AddSingleton<PersonalRules>();
-        s.AddSingleton<PersonalDataService>();
-        s.AddSingleton<BuiltinRuleCache>();
+        s.AddDeskPalClient(settings, store, api, logs, new WindowsPlatform());
         s.AddSingleton<ForegroundState>();
-        s.AddSingleton<HubService>();
-        s.AddSingleton<RoomState>();
-        s.AddSingleton<PresenceCoordinator>();
-        s.AddHostedService<UnclassifiedUsageStore>();
-        s.AddHostedService(sp => sp.GetRequiredService<PresenceCoordinator>());
         s.AddHostedService<ForegroundCollector>();
         s.AddHostedService<BrowserDomainCollector>();
         s.AddHostedService<IdleCollector>();
         s.AddHostedService<SessionCollector>();
         s.AddHostedService<MediaCollector>();
-        s.AddHostedService<UsageReporter>();
-        s.AddHostedService(sp => sp.GetRequiredService<StatsSyncService>());
-        s.AddHostedService(sp => sp.GetRequiredService<FolderSyncService>());
-        s.AddHostedService(sp => sp.GetRequiredService<PersonalDataService>());
-        s.AddSingleton<UpdateService>();
-        s.AddSingleton(sp => new WhatsNewStore(
-            ReadChangelog(),
-            Path.Combine(SettingsStore.Directory, "changelog-seen.json"),
-            sp.GetRequiredService<UpdateService>().VersionLabel));
-        s.AddSingleton<PinnedMembers>();
-        s.AddSingleton<PanelBridge>();
         s.AddSingleton<PanelWindow>();
         s.AddSingleton<MemberCards>();
         return builder.Build();
     }
 
-    private static string? ReadChangelog()
-    {
-        var path = Path.Combine(AppContext.BaseDirectory, Changelog.FileName);
-        try
-        {
-            return File.Exists(path) ? File.ReadAllText(path) : null;
-        }
-        catch (IOException)
-        {
-            return null;
-        }
-    }
-
-    private static void LoadCachedBuiltinRules(IServiceProvider services)
-    {
-        var cached = services.GetRequiredService<BuiltinRuleCache>().Load();
-        services.GetRequiredService<LayeredClassifier>().SetBuiltin(new RuleSet(cached.Rules));
-        AppNames.SetBuiltin(cached.Rules);
-    }
-
-    private static async Task RefreshBuiltinRulesAsync(IServiceProvider services)
-    {
-        var cache = services.GetRequiredService<BuiltinRuleCache>();
-        var cached = cache.Load();
-        try
-        {
-            var response = await services.GetRequiredService<ApiClient>().GetBuiltinRulesAsync(cached.Version);
-            if (response.Rules is not null)
-            {
-                cache.Save(new DeskPal.Shared.Api.RuleSetDto(response.Version, response.Rules));
-                services.GetRequiredService<LayeredClassifier>().SetBuiltin(new RuleSet(response.Rules));
-                AppNames.SetBuiltin(response.Rules);
-                services.GetRequiredService<PresenceCoordinator>().Reevaluate();
-            }
-        }
-        catch (ApiException ex)
-        {
-            services.GetRequiredService<ILogger<App>>().LogWarning(ex, "Refreshing builtin rules failed");
-        }
-    }
-
     private async Task RefreshRoomsAsync(RoomState rooms)
     {
-        for (var attempt = 0; ; attempt++)
+        if (await ClientStartup.RefreshRoomsAsync(rooms) is { } ex)
         {
-            try
-            {
-                await rooms.RefreshAsync();
-                return;
-            }
-            catch (ApiException) when (attempt < 20)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(Math.Min(60, 5 * (attempt + 1))));
-            }
-            catch (ApiException ex)
-            {
-                _tray?.ShowNotification("DeskPal", UiLanguage.Format(Strings.Tray_LoadRoomsFailed, ex.Message));
-                return;
-            }
+            _tray?.ShowNotification("DeskPal", UiLanguage.Format(Strings.Tray_LoadRoomsFailed, ex.Message));
         }
     }
 
@@ -357,9 +224,7 @@ public partial class App : Application
     {
         if (_host is not null)
         {
-            await _host.Services.GetRequiredService<StatsSyncService>().SignOutAsync();
-            await _host.Services.GetRequiredService<FolderSyncService>().SignOutAsync();
-            await _host.Services.GetRequiredService<PersonalDataService>().SignOutAsync();
+            await ClientStartup.SignOutServicesAsync(_host.Services);
         }
 
         await RestartSignedOutAsync(null);

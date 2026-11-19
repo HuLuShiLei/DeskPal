@@ -1,7 +1,6 @@
 using System.Windows;
 using System.Windows.Media;
 using DeskPal.Client.Services;
-using DeskPal.Shared.Api;
 using Microsoft.Web.WebView2.Wpf;
 
 namespace DeskPal.Client.Ui;
@@ -59,9 +58,7 @@ public sealed class LoginWindow : Window
             return;
         }
 
-        var result = command.Type is "auth.login" or "auth.register"
-            ? await SubmitAsync(command, register: command.Type == "auth.register")
-            : CommandResult.Fail(UiLanguage.Format(Strings.Error_Unsupported, command.Type));
+        var result = await ClientStartup.SubmitLoginAsync(_settings, _store, _api, command);
         if (command.Id is { } id)
         {
             WebUi.Post(_web, new { type = "result", id, ok = result.Ok, error = result.Error });
@@ -70,46 +67,6 @@ public sealed class LoginWindow : Window
         if (result.Ok)
         {
             DialogResult = true;
-        }
-    }
-
-    private async Task<CommandResult> SubmitAsync(WebCommand c, bool register)
-    {
-        var displayName = c.String("displayName").Trim();
-        if (register && displayName.Length == 0)
-        {
-            return CommandResult.Fail(Strings.Login_DisplayNameRequired);
-        }
-
-        try
-        {
-            var response = register
-                ? await _api.RegisterAsync(new RegisterRequest(c.String("userName"), displayName, c.String("password"), c.OptionalString("signupCode")))
-                : await _api.LoginAsync(new LoginRequest(c.String("userName"), c.String("password")));
-            if (_settings.UserId != response.UserId)
-            {
-                _settings.PreferencesUnsynced = false;
-                _settings.PersonalFolder = null;
-            }
-
-            _settings.UserId = response.UserId;
-            _settings.UserName = response.UserName;
-            _settings.DisplayName = response.DisplayName;
-            _settings.ShareUsage = response.ShareUsage;
-            _settings.IsAdmin = response.IsAdmin;
-            _settings.PersonalSync = response.PersonalSync;
-            _settings.SetToken(response.Token);
-            if (IdleSync.Apply(_settings, response.IdleMinutes))
-            {
-                await _api.SetIdleMinutesAsync(_settings.IdleMinutes);
-            }
-
-            await PreferencesSync.ApplyAsync(_settings, _store, _api, response.Preferences);
-            return CommandResult.Success;
-        }
-        catch (ApiException ex)
-        {
-            return CommandResult.Fail(ex.Message);
         }
     }
 }

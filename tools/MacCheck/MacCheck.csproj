@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    没有 Mac 时检查 macOS 客户端能否编译：把 src/DeskPal.Client.Mac 的源码对 Microsoft.macOS 引用程序集编译一遍，
+    不产生可运行的程序，也不检查 Info.plist、资源和链接。引用程序集从 NuGet 包 Microsoft.macOS.Ref.net10.0_26.0
+    （解压后的 ref/net10.0/Microsoft.macOS.dll）取得：
+      dotnet build tools/MacCheck -p:MacRef=<Microsoft.macOS.dll 的路径>
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>DeskPal.Client</RootNamespace>
+    <AssemblyName>DeskPal.MacCheck</AssemblyName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <!-- 真正的 Mac 项目目标是 net10.0-macos，不会有这条平台警告。 -->
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\src\DeskPal.Client.Mac\**\*.cs" Exclude="..\..\src\DeskPal.Client.Mac\bin\**;..\..\src\DeskPal.Client.Mac\obj\**" />
+    <Reference Include="Microsoft.macOS">
+      <HintPath>$(MacRef)</HintPath>
+    </Reference>
+    <ProjectReference Include="..\..\src\DeskPal.Client.App\DeskPal.Client.App.csproj" />
+    <ProjectReference Include="..\..\src\DeskPal.Client.Core\DeskPal.Client.Core.csproj" />
+    <ProjectReference Include="..\..\src\DeskPal.Shared\DeskPal.Shared.csproj" />
+  </ItemGroup>
+</Project>
