@@ -109,7 +109,8 @@ jobs:
             $channel = 'beta'
             $pre = 'true'
           } else {
-            $version = '0.0.0-ci'
+            # Velopack 打包要求版本号不低于 0.0.1（mac 任务在 PR 和手动运行时也打包）。
+            $version = '0.0.1-ci'
           }
           if ($mode -eq 'stable' -or $mode -eq 'beta') {
             # 正式版必须一致；测试版只要求不低于，方便先把下一节改成 0.2.0 这类跨版本号再打标签。
