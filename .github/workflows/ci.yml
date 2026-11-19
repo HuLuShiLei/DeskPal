@@ -239,7 +239,7 @@ jobs:
 
   # macOS 客户端。和 Windows 版共用版本号和 Release，每种芯片一个更新通道：
   #   正式版 osx-arm64、osx-x64；测试版 osx-arm64-beta、osx-x64-beta（见 UpdatePolicy.Channel）。
-  # 默认不签名（ad-hoc），用户第一次打开要在「系统设置 → 隐私与安全性」里允许。
+  # 默认给 .app 做 ad-hoc 签名，.pkg 不签名，用户第一次打开要在「系统设置 → 隐私与安全性」里允许。
   # 有 Apple Developer 账号后，把仓库变量 MAC_SIGN 设为 true，并配置下面这些 secret，就会签名并公证：
   #   MAC_CERT_P12（Developer ID Application 和 Developer ID Installer 证书导出的 .p12，base64）、MAC_CERT_PASSWORD、
   #   MAC_SIGN_APP_IDENTITY、MAC_SIGN_INSTALL_IDENTITY（证书全名）、MAC_NOTARY_APPLE_ID、MAC_NOTARY_PASSWORD（App 专用密码）、MAC_NOTARY_TEAM_ID。
@@ -339,14 +339,34 @@ jobs:
           if [ "$mode" != 'build' ]; then
             vpk download github --repoUrl "https://github.com/$GITHUB_REPOSITORY" --token "$GH_TOKEN" --channel "$channel" $pre || echo "没有可做差异包的上一版，改为完整包。"
           fi
+          app_identity=-
           sign=()
           if [ "$MAC_SIGN" = 'true' ]; then
-            sign=(--signAppIdentity "$MAC_SIGN_APP_IDENTITY" --signInstallIdentity "$MAC_SIGN_INSTALL_IDENTITY" --notaryProfile deskpal --signEntitlements src/DeskPal.Client.Mac/Entitlements.plist)
+            app_identity="$MAC_SIGN_APP_IDENTITY"
+            sign=(--signInstallIdentity "$MAC_SIGN_INSTALL_IDENTITY" --notaryProfile deskpal)
           fi
+          # Velopack 在加入 UpdateMac 后签名，安装包和更新包都使用签名后的 .app。
+          cp src/DeskPal.Client.Mac/Entitlements.plist "$RUNNER_TEMP/DeskPal.entitlements"
           vpk pack -u DeskPal -v "$version" -c "$channel" -p "$app" -e DeskPal --packTitle DeskPal \
-            -i src/DeskPal.Client.Mac/Resources/DeskPal.icns --noPortable "${sign[@]}"
+            -i src/DeskPal.Client.Mac/Resources/DeskPal.icns --noPortable \
+            --signAppIdentity="$app_identity" --signEntitlements "$RUNNER_TEMP/DeskPal.entitlements" "${sign[@]}"
+
+          pkg="Releases/DeskPal-$channel-Setup.pkg"
+          expanded=$(mktemp -d "$RUNNER_TEMP/deskpal-pkg.XXXXXX")/expanded
+          pkgutil --expand-full "$pkg" "$expanded"
+          packaged_app=$(find "$expanded" -type d -name DeskPal.app -print -quit)
+          if [ -z "$packaged_app" ] || [ ! -s "$packaged_app/Contents/Resources/web/index.html" ]; then
+            echo "::error::macOS 安装包缺少 DeskPal.app 或前端入口"
+            exit 1
+          fi
+          codesign --verify --deep --strict --all-architectures "$packaged_app"
+          # codesign --deep 不会检查放在 MonoBundle 中的 .NET 动态库。
+          for dylib in "$packaged_app"/Contents/MonoBundle/*.dylib; do
+            codesign --verify --strict --all-architectures "$dylib"
+          done
+
           find Releases -name '*.nupkg' ! -name "*$version*" -delete
-          cp "Releases/DeskPal-$channel-Setup.pkg" "DeskPal-$version-osx-${{ matrix.arch }}-Setup.pkg"
+          cp "$pkg" "DeskPal-$version-osx-${{ matrix.arch }}-Setup.pkg"
 
       - name: 发布到 GitHub Release
         if: needs.changes.outputs.mode != 'build'
