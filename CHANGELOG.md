@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 统计页按标题排行时，浏览器在标题末尾加的「正在播放音频」「内存用量高 - 917 MB」这类标签页状态不再拆成多行，同一个网页合并成一行，已有记录也会合并。
+  en: In stats ranked by title, tab states a browser adds to the end of a title, such as "Audio playing" or "High memory usage - 917 MB", no longer split one page into many rows. Existing records are merged too.
+
 - 修复 macOS 版安装后无法启动或登录窗口空白的问题。
   en: Fixed an issue where DeskPal could quit at startup or show a blank sign-in window after installation on macOS.
 

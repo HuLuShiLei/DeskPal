@@ -172,6 +172,12 @@ public class TitleAndIdleTests
     [InlineData("\u200e某个群组 – (255549)", "某个群组")]
     [InlineData("Telegram", "Telegram")]
     [InlineData("2026 年计划 (v2)", "2026 年计划 (v2)")]
+    [InlineData("女流66的抖音直播间 - 抖音直播 - 正在播放音频 - 内存用量高 - 917 MB", "女流66的抖音直播间 - 抖音直播")]
+    [InlineData("女流66的抖音直播间 - 抖音直播 - 正在播放音频", "女流66的抖音直播间 - 抖音直播")]
+    [InlineData("Some video - YouTube - Audio playing - High memory usage - 1.2 GB", "Some video - YouTube")]
+    [InlineData("Docs - Memory usage - 512 MB", "Docs")]
+    [InlineData("下载 Ubuntu 24.04 - 5.7 GB", "下载 Ubuntu 24.04 - 5.7 GB")]
+    [InlineData("Audio playing", "Audio playing")]
     [InlineData("  ", null)]
     public void Changing_counters_are_removed_from_titles(string title, string? expected)
     {

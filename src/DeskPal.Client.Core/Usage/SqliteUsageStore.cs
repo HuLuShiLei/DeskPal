@@ -1,4 +1,5 @@
 using System.Globalization;
+using DeskPal.Client.Core.Presence;
 using DeskPal.Shared.Presence;
 using Microsoft.Data.Sqlite;
 
@@ -230,7 +231,7 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                     Enum.Parse<PresenceState>(reader.GetString(2)),
                     Enum.Parse<ActivityCategory>(reader.GetString(3)),
                     reader.IsDBNull(4) ? null : reader.GetString(4),
-                    reader.IsDBNull(5) ? null : reader.GetString(5),
+                    TitleText.Clean(reader.IsDBNull(5) ? null : reader.GetString(5)),
                     reader.IsDBNull(6) ? null : reader.GetString(6),
                     ParseCategory(reader.IsDBNull(7) ? null : reader.GetString(7)),
                     reader.GetInt64(9) != 0));
@@ -279,7 +280,7 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                     Enum.Parse<PresenceState>(reader.GetString(1)),
                     Enum.Parse<ActivityCategory>(reader.GetString(2)),
                     NullIfEmpty(reader.GetString(3)),
-                    NullIfEmpty(reader.GetString(4)),
+                    TitleText.Clean(reader.GetString(4)),
                     reader.GetInt64(5),
                     NullIfEmpty(reader.GetString(6)),
                     ParseCategory(reader.GetString(7)),
