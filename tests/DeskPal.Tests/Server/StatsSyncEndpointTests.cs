@@ -187,6 +187,8 @@ public sealed class StatsSyncEndpointTests : IClassFixture<StatsSyncEndpointTest
         Assert.Null(alice.IdleMinutes);
         Assert.Null((await SendAsync<AuthResponse>(http, HttpMethod.Get, "/api/me", null, alice.Token)).IdleMinutes);
 
+        await ExpectErrorAsync(http, HttpMethod.Put, "/api/me/idle-minutes", new SetIdleMinutesRequest(15), alice.Token, HttpStatusCode.Forbidden, ApiErrorCodes.PersonalSyncOff);
+        await SendAsync<PersonalDataDto>(http, HttpMethod.Post, "/api/me/personal-sync", new PersonalDataDto([], []), alice.Token);
         await ExpectErrorAsync(http, HttpMethod.Put, "/api/me/idle-minutes", new SetIdleMinutesRequest(7), alice.Token, HttpStatusCode.BadRequest, ApiErrorCodes.IdleMinutesInvalid);
         using (var saved = await RawAsync(http, HttpMethod.Put, "/api/me/idle-minutes", new SetIdleMinutesRequest(15), alice.Token))
         {
@@ -205,6 +207,7 @@ public sealed class StatsSyncEndpointTests : IClassFixture<StatsSyncEndpointTest
         var http = _factory.CreateClient();
         var alice = await RegisterAsync(http, "alice");
         Assert.Null(alice.Preferences);
+        await SendAsync<PersonalDataDto>(http, HttpMethod.Post, "/api/me/personal-sync", new PersonalDataDto([], []), alice.Token);
 
         await ExpectErrorAsync(http, HttpMethod.Patch, path, new UserPreferences(SwitchDelaySeconds: 7), alice.Token, HttpStatusCode.BadRequest, ApiErrorCodes.PreferencesInvalid);
         await ExpectErrorAsync(http, HttpMethod.Patch, path, new UserPreferences(Theme: "pink"), alice.Token, HttpStatusCode.BadRequest, ApiErrorCodes.PreferencesInvalid);

@@ -34,13 +34,18 @@ public sealed class UserRuleTests : IClassFixture<UserRuleTests.ServerFactory>
 
         var (_, aliceInbox) = await ConnectAsync(alice.Token);
         var (_, bobInbox) = await ConnectAsync(bob.Token);
+        await EnablePersonalSyncAsync(http, alice.Token);
+        await NextAsync(aliceInbox, e => e.Type == MessageTypes.PersonalRulesChanged);
 
         var saved = await SendAsync<UserRuleDto>(http, HttpMethod.Put, "/api/me/rules", new UpsertUserRuleRequest(RuleKind.Process, "WeChat.exe", ActivityCategory.Work, "微信"), alice.Token);
         Assert.Equal("wechat", saved.Pattern);
         await NextAsync(aliceInbox, e => e.Type == MessageTypes.PersonalRulesChanged);
 
         Assert.Single(await SendAsync<List<UserRuleDto>>(http, HttpMethod.Get, "/api/me/rules", null, alice.Token));
-        Assert.Empty(await SendAsync<List<UserRuleDto>>(http, HttpMethod.Get, "/api/me/rules", null, bob.Token));
+        using (var bobRules = await RawAsync(http, HttpMethod.Get, "/api/me/rules", null, bob.Token))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, bobRules.StatusCode);
+        }
 
         await Task.Delay(300);
         while (bobInbox.TryRead(out var envelope))
@@ -76,13 +81,21 @@ public sealed class UserRuleTests : IClassFixture<UserRuleTests.ServerFactory>
         using var refused = await RawAsync(http, HttpMethod.Post, "/api/me/usage", new UsageReportRequest([new UnknownAppItem(RuleKind.Process, "toolx", "ToolX", 30)]), silent.Token);
         Assert.Equal(HttpStatusCode.Forbidden, refused.StatusCode);
 
+        var toolX = new UnknownAppItem(RuleKind.Process, "ToolX.exe", "ToolX", 30);
+        await EnablePersonalSyncAsync(http, users[0].Token);
         foreach (var user in users)
         {
             await SendAsync<object>(http, HttpMethod.Put, "/api/me/sharing", new SetSharingRequest(true), user.Token);
-            await SendAsync<UserRuleDto>(http, HttpMethod.Put, "/api/me/rules", new UpsertUserRuleRequest(RuleKind.Process, "feishu-lite", ActivityCategory.Work, "飞书轻量版"), user.Token);
-            await SendAsync<object>(http, HttpMethod.Post, "/api/me/usage", new UsageReportRequest([new UnknownAppItem(RuleKind.Process, "ToolX.exe", "ToolX", 30)]), user.Token);
         }
 
+        await SendAsync<UserRuleDto>(http, HttpMethod.Put, "/api/me/rules", new UpsertUserRuleRequest(RuleKind.Process, "feishu-lite", ActivityCategory.Work, "飞书轻量版"), users[0].Token);
+        await SendAsync<object>(http, HttpMethod.Post, "/api/me/usage", new UsageReportRequest([toolX]), users[0].Token);
+        foreach (var user in users.Skip(1))
+        {
+            await SendAsync<object>(http, HttpMethod.Post, "/api/me/usage", new UsageReportRequest([toolX], [new SharedRuleItem("feishu-lite", ActivityCategory.Work, "飞书轻量版")]), user.Token);
+        }
+
+        await EnablePersonalSyncAsync(http, silent.Token);
         await SendAsync<UserRuleDto>(http, HttpMethod.Put, "/api/me/rules", new UpsertUserRuleRequest(RuleKind.Process, "feishu-lite", ActivityCategory.Game, null), silent.Token);
         Assert.True((await SendAsync<AuthResponse>(http, HttpMethod.Get, "/api/me", null, users[0].Token)).ShareUsage);
 
@@ -100,7 +113,22 @@ public sealed class UserRuleTests : IClassFixture<UserRuleTests.ServerFactory>
         var unknown = Assert.Single(candidates.Unknown, c => c.Pattern == "toolx");
         Assert.Equal((3, 90, "ToolX"), (unknown.Users, unknown.TotalMinutes, unknown.DisplayName));
         Assert.DoesNotContain(candidates.Unknown, c => c.Pattern == "feishu-lite");
+
+        await SendAsync<object>(http, HttpMethod.Put, "/api/me/sharing", new SetSharingRequest(false), users[2].Token);
+        Assert.DoesNotContain((await CandidatesAsync(http)).Consensus, c => c.Pattern == "feishu-lite");
     }
+
+    private static async Task<RuleCandidatesResponse> CandidatesAsync(HttpClient http)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/rules/candidates");
+        request.Headers.Add(RuleEndpoints.MaintainerHeader, MaintainerToken);
+        using var response = await http.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<RuleCandidatesResponse>(DeskPalJson.Options))!;
+    }
+
+    private static Task<PersonalDataDto> EnablePersonalSyncAsync(HttpClient http, string token) =>
+        SendAsync<PersonalDataDto>(http, HttpMethod.Post, "/api/me/personal-sync", new PersonalDataDto([], []), token);
 
     private async Task<(HubConnection Hub, ChannelReader<Envelope> Inbox)> ConnectAsync(string token)
     {

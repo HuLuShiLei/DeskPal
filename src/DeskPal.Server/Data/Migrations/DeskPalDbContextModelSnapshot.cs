@@ -185,6 +185,30 @@ namespace DeskPal.Server.Data.Migrations
                     b.ToTable("RoomMembers");
                 });
 
+            modelBuilder.Entity("DeskPal.Server.Data.SharedRuleReport", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Pattern")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(60)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("ReportedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId", "Pattern");
+
+                    b.ToTable("SharedRuleReports");
+                });
+
             modelBuilder.Entity("DeskPal.Server.Data.SignupInvite", b =>
                 {
                     b.Property<Guid>("Id")
@@ -290,6 +314,9 @@ namespace DeskPal.Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("PersonalSync")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Preferences")
                         .HasColumnType("TEXT");
 
@@ -330,6 +357,33 @@ namespace DeskPal.Server.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("DeskPal.Server.Data.UserNoTitleRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Pattern")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserNoTitleRules");
                 });
 
             modelBuilder.Entity("DeskPal.Server.Data.UserRule", b =>
@@ -433,6 +487,15 @@ namespace DeskPal.Server.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DeskPal.Server.Data.SharedRuleReport", b =>
+                {
+                    b.HasOne("DeskPal.Server.Data.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DeskPal.Server.Data.StatsSyncDay", b =>
                 {
                     b.HasOne("DeskPal.Server.Data.User", null)
@@ -443,6 +506,15 @@ namespace DeskPal.Server.Data.Migrations
                 });
 
             modelBuilder.Entity("DeskPal.Server.Data.UnknownAppReport", b =>
+                {
+                    b.HasOne("DeskPal.Server.Data.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DeskPal.Server.Data.UserNoTitleRule", b =>
                 {
                     b.HasOne("DeskPal.Server.Data.User", null)
                         .WithMany()

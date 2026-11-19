@@ -41,7 +41,7 @@ public static class RuleEndpoints
 
         var me = app.MapGroup("/api/me").RequireAuthorization();
 
-        me.MapGet("/rules", async (HttpContext ctx, UserRuleService rules) => Results.Ok(await rules.ListAsync(ctx.User.GetUserId())));
+        me.MapGet("/rules", async (HttpContext ctx, UserRuleService rules) => (await rules.ListAsync(ctx.User.GetUserId())).ToHttp());
 
         me.MapPut("/rules", async (UpsertUserRuleRequest req, HttpContext ctx, UserRuleService rules, RoomNotifier notifier) =>
         {
@@ -58,7 +58,13 @@ public static class RuleEndpoints
         me.MapDelete("/rules", async (RuleKind kind, string pattern, HttpContext ctx, UserRuleService rules, RoomNotifier notifier) =>
         {
             var userId = ctx.User.GetUserId();
-            if (await rules.DeleteAsync(userId, kind, pattern))
+            var result = await rules.DeleteAsync(userId, kind, pattern);
+            if (!result.IsSuccess)
+            {
+                return result.ToHttp();
+            }
+
+            if (result.Value)
             {
                 await notifier.PersonalRulesChangedAsync(userId);
             }

@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using DeskPal.Server.Common;
 using DeskPal.Shared;
 using DeskPal.Server.Data;
+using DeskPal.Server.Features.Personal;
 using DeskPal.Server.Features.Presence;
 using DeskPal.Server.Features.Rooms;
 using DeskPal.Shared.Api;
@@ -113,6 +114,11 @@ public static partial class AuthEndpoints
                 return Fail(401, ApiErrorCodes.AccountMissing);
             }
 
+            if (!user.PersonalSync)
+            {
+                return Fail(403, ApiErrorCodes.PersonalSyncOff);
+            }
+
             if (user.IdleMinutes != req.Minutes)
             {
                 user.IdleMinutes = req.Minutes;
@@ -135,9 +141,14 @@ public static partial class AuthEndpoints
                 return Fail(401, ApiErrorCodes.AccountMissing);
             }
 
+            if (!user.PersonalSync)
+            {
+                return Fail(403, ApiErrorCodes.PersonalSyncOff);
+            }
+
             var roomIds = (await rooms.GetRoomIdsForUserAsync(user.Id)).ToHashSet();
-            var merged = AccountPreferences.Merge(Preferences(user) ?? new UserPreferences(), req, roomIds.Contains);
-            var json = JsonSerializer.Serialize(merged, DeskPalJson.Options);
+            var merged = AccountPreferences.Merge(PersonalSyncService.ReadPreferences(user) ?? new UserPreferences(), req, roomIds.Contains);
+            var json = PersonalSyncService.Write(merged);
             if (user.Preferences != json)
             {
                 user.Preferences = json;
@@ -188,11 +199,9 @@ public static partial class AuthEndpoints
         });
     }
 
-    private static AuthResponse Profile(User user, string token, bool isAdmin) =>
-        new(token, user.Id, user.UserName, user.DisplayName, user.ShareUsage, isAdmin, user.IdleMinutes, Preferences(user));
-
-    private static UserPreferences? Preferences(User user) =>
-        user.Preferences is null ? null : JsonSerializer.Deserialize<UserPreferences>(user.Preferences, DeskPalJson.Options);
+    private static AuthResponse Profile(User user, string token, bool isAdmin) => user.PersonalSync
+        ? new(token, user.Id, user.UserName, user.DisplayName, user.ShareUsage, isAdmin, user.IdleMinutes, PersonalSyncService.ReadPreferences(user), PersonalSync: true)
+        : new(token, user.Id, user.UserName, user.DisplayName, user.ShareUsage, isAdmin);
 
     private const string InvalidDisplayName = ApiErrorCodes.DisplayNameInvalid;
 

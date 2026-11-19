@@ -1,3 +1,4 @@
+using DeskPal.Shared.Api;
 using Microsoft.EntityFrameworkCore;
 
 namespace DeskPal.Server.Data;
@@ -14,6 +15,8 @@ public sealed class DeskPalDbContext(DbContextOptions<DeskPalDbContext> options)
     public DbSet<BuiltinRule> BuiltinRules => Set<BuiltinRule>();
     public DbSet<UserRule> UserRules => Set<UserRule>();
     public DbSet<UnknownAppReport> UnknownAppReports => Set<UnknownAppReport>();
+    public DbSet<UserNoTitleRule> UserNoTitleRules => Set<UserNoTitleRule>();
+    public DbSet<SharedRuleReport> SharedRuleReports => Set<SharedRuleReport>();
     public DbSet<StatsSyncDay> StatsSyncDays => Set<StatsSyncDay>();
     public DbSet<AppMeta> AppMeta => Set<AppMeta>();
 
@@ -87,6 +90,21 @@ public sealed class DeskPalDbContext(DbContextOptions<DeskPalDbContext> options)
             e.HasKey(x => new { x.UserId, x.Kind, x.Pattern });
             e.Property(x => x.Pattern).HasMaxLength(200);
             e.Property(x => x.DisplayName).HasMaxLength(60);
+            e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<UserNoTitleRule>(e =>
+        {
+            e.HasIndex(x => x.UserId);
+            e.Property(x => x.Pattern).HasMaxLength(NoTitleRule.MaxLength);
+            e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<SharedRuleReport>(e =>
+        {
+            e.HasKey(x => new { x.UserId, x.Pattern });
+            e.Property(x => x.Pattern).HasMaxLength(200);
+            e.Property(x => x.Name).HasMaxLength(60);
             e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });
 

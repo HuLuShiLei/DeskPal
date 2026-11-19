@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using DeskPal.Server.Common;
 using DeskPal.Server.Data;
 using DeskPal.Server.Features.Auth;
+using DeskPal.Server.Features.Personal;
 using DeskPal.Server.Features.Presence;
 using DeskPal.Server.Features.Rooms;
 using DeskPal.Server.Features.Rules;
@@ -33,6 +34,8 @@ builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("Auth")
 builder.Services.Configure<StatsSyncOptions>(builder.Configuration.GetSection("StatsSync"));
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<UserRuleService>();
+builder.Services.AddScoped<PersonalSyncService>();
+builder.Services.AddScoped<NoTitleRuleService>();
 builder.Services.AddScoped<RuleCandidateService>();
 builder.Services.AddScoped<SignupInviteService>();
 builder.Services.AddScoped<StatsSyncService>();
@@ -105,6 +108,7 @@ app.MapGet("/health", () => Results.Ok(new { status = "ok", revision }));
 app.MapAuthEndpoints();
 app.MapRoomEndpoints();
 app.MapRuleEndpoints();
+app.MapPersonalEndpoints();
 app.MapStatsSyncEndpoints();
 app.MapHub<PresenceHub>(HubContract.Path);
 

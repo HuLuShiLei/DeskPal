@@ -1,5 +1,6 @@
 using DeskPal.Server.Common;
 using DeskPal.Server.Data;
+using DeskPal.Server.Features.Personal;
 using DeskPal.Shared.Api;
 using DeskPal.Shared.Presence;
 using Microsoft.EntityFrameworkCore;
@@ -7,27 +8,32 @@ using Microsoft.EntityFrameworkCore;
 namespace DeskPal.Server.Features.Rules;
 
 /// <summary>Personal rules belong to the account, so they follow the user into every room and onto every computer.</summary>
-public sealed class UserRuleService(DeskPalDbContext db, TimeProvider time)
+/// <remarks>Only kept while the account has personal sync on; otherwise the computers keep them on their own.</remarks>
+public sealed class UserRuleService(DeskPalDbContext db, TimeProvider time, PersonalSyncService personal)
 {
-    public const int MaxRulesPerUser = 500;
+    public const int MaxRulesPerUser = PersonalLimits.MaxRules;
 
-    public async Task<List<UserRuleDto>> ListAsync(Guid userId)
+    public async Task<ServiceResult<List<UserRuleDto>>> ListAsync(Guid userId)
     {
+        if (!await personal.IsOnAsync(userId))
+        {
+            return ServiceResult<List<UserRuleDto>>.Fail(403, ApiErrorCodes.PersonalSyncOff);
+        }
+
         var rules = await db.UserRules.Where(r => r.UserId == userId).ToListAsync();
-        return rules.OrderByDescending(r => r.UpdatedAt).Select(ToDto).ToList();
+        return ServiceResult<List<UserRuleDto>>.Ok(rules.OrderByDescending(r => r.UpdatedAt).Select(ToDto).ToList());
     }
 
     public async Task<ServiceResult<UserRuleDto>> UpsertAsync(Guid userId, UpsertUserRuleRequest req)
     {
-        var pattern = RulePattern.Normalize(req.Kind, req.Pattern);
-        if (pattern.Length is < 1 or > 200)
+        if (!await personal.IsOnAsync(userId))
         {
-            return ServiceResult<UserRuleDto>.Fail(400, ApiErrorCodes.RulePatternInvalid);
+            return ServiceResult<UserRuleDto>.Fail(403, ApiErrorCodes.PersonalSyncOff);
         }
 
-        if (!Enum.IsDefined(req.Category) || req.Category is ActivityCategory.None or ActivityCategory.Meeting || req.Category.IsRetired())
+        if (PersonalLimits.CheckRule(req.Kind, req.Pattern, req.Category, out var pattern) is { } error)
         {
-            return ServiceResult<UserRuleDto>.Fail(400, ApiErrorCodes.RuleCategoryRequired);
+            return ServiceResult<UserRuleDto>.Fail(400, error);
         }
 
         var rule = await db.UserRules.SingleOrDefaultAsync(r => r.UserId == userId && r.Kind == req.Kind && r.Pattern == pattern);
@@ -42,20 +48,24 @@ public sealed class UserRuleService(DeskPalDbContext db, TimeProvider time)
             db.UserRules.Add(rule);
         }
 
-        var name = req.Name?.Trim();
         rule.Category = req.Category;
-        rule.Name = string.IsNullOrEmpty(name) ? null : name.Length > 60 ? name[..60] : name;
+        rule.Name = PersonalLimits.CleanName(req.Name);
         rule.UpdatedAt = time.GetUtcNow();
         await db.SaveChangesAsync();
         return ServiceResult<UserRuleDto>.Ok(ToDto(rule));
     }
 
     /// <returns>False when there was no such rule.</returns>
-    public async Task<bool> DeleteAsync(Guid userId, RuleKind kind, string pattern)
+    public async Task<ServiceResult<bool>> DeleteAsync(Guid userId, RuleKind kind, string pattern)
     {
+        if (!await personal.IsOnAsync(userId))
+        {
+            return ServiceResult<bool>.Fail(403, ApiErrorCodes.PersonalSyncOff);
+        }
+
         var normalized = RulePattern.Normalize(kind, pattern);
         var deleted = await db.UserRules.Where(r => r.UserId == userId && r.Kind == kind && r.Pattern == normalized).ExecuteDeleteAsync();
-        return deleted > 0;
+        return ServiceResult<bool>.Ok(deleted > 0);
     }
 
     private static UserRuleDto ToDto(UserRule r) => new(r.Kind, r.Pattern, r.Category, r.Name, r.UpdatedAt);

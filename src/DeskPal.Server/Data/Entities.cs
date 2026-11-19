@@ -37,6 +37,12 @@ public sealed class User
 
     /// <summary>JSON of <see cref="UserPreferences"/>; null until any of them is set.</summary>
     public string? Preferences { get; set; }
+
+    /// <summary>
+    /// The user keeps personal rules, no-title rules, away time and preferences on the server. Off by default; turning it
+    /// off deletes them here.
+    /// </summary>
+    public bool PersonalSync { get; set; }
 }
 
 /// <summary>One day of a user's usage stats, encrypted on the user's computer. Only kept while the user has sync on.</summary>
@@ -131,6 +137,26 @@ public sealed class UserRule
     public ActivityCategory Category { get; set; }
     public string? Name { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
+}
+
+/// <summary>An app, site or title keyword whose titles the user keeps out of the live status and the stats. Only kept while personal sync is on.</summary>
+public sealed class UserNoTitleRule
+{
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
+    public NoTitleKind Kind { get; set; }
+    public required string Pattern { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+/// <summary>A personal rule for an app, reported by an account that shares usage data but keeps its personal data off the server. Only for builtin rule candidates.</summary>
+public sealed class SharedRuleReport
+{
+    public Guid UserId { get; set; }
+    public required string Pattern { get; set; }
+    public ActivityCategory Category { get; set; }
+    public string? Name { get; set; }
+    public DateTimeOffset ReportedAt { get; set; }
 }
 
 /// <summary>Latest report per user and app. Only foreground minutes of one day, no titles or times of use.</summary>

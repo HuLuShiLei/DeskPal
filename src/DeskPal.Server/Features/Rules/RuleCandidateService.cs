@@ -9,7 +9,8 @@ namespace DeskPal.Server.Features.Rules;
 
 /// <summary>
 /// Collects what users shared (personal rules and unknown apps) and proposes builtin rules.
-/// Only accounts that agreed to share and are old enough are counted, one vote per account.
+/// Only accounts that agreed to share and are old enough are counted, one vote per account. Personal rules come from the
+/// account's synced rules, or, while personal sync is off, from the rules reported with the usage.
 /// Only processes: builtin rules never classify browser sites.
 /// </summary>
 public sealed class RuleCandidateService(DeskPalDbContext db, TimeProvider time, IOptions<RuleOptions> options)
@@ -29,6 +30,7 @@ public sealed class RuleCandidateService(DeskPalDbContext db, TimeProvider time,
         if (!enabled)
         {
             await db.UnknownAppReports.Where(r => r.UserId == userId).ExecuteDeleteAsync();
+            await db.SharedRuleReports.Where(r => r.UserId == userId).ExecuteDeleteAsync();
         }
 
         await db.SaveChangesAsync();
@@ -69,6 +71,26 @@ public sealed class RuleCandidateService(DeskPalDbContext db, TimeProvider time,
             report.ReportedAt = now;
         }
 
+        if (!user.PersonalSync && req.Rules is not null)
+        {
+            await db.SharedRuleReports.Where(r => r.UserId == userId).ExecuteDeleteAsync();
+            foreach (var rule in req.Rules
+                         .Select(r => (Rule: r, Error: PersonalLimits.CheckRule(RuleKind.Process, r.Pattern, r.Category, out var pattern), Pattern: pattern))
+                         .Where(r => r.Error is null)
+                         .DistinctBy(r => r.Pattern)
+                         .Take(PersonalLimits.MaxRules))
+            {
+                db.SharedRuleReports.Add(new SharedRuleReport
+                {
+                    UserId = userId,
+                    Pattern = rule.Pattern,
+                    Category = rule.Rule.Category,
+                    Name = PersonalLimits.CleanName(rule.Rule.Name),
+                    ReportedAt = now,
+                });
+            }
+        }
+
         await db.SaveChangesAsync();
         return ServiceResult<Unit>.Ok(Unit.Value);
     }
@@ -81,8 +103,13 @@ public sealed class RuleCandidateService(DeskPalDbContext db, TimeProvider time,
         var eligible = sharing.Where(u => u.CreatedAt <= oldest).Select(u => u.Id).ToHashSet();
 
         var builtin = await db.BuiltinRules.Where(r => r.Kind == RuleKind.Process).ToDictionaryAsync(r => r.Pattern, r => r.Category);
-        var rules = (await db.UserRules.Where(r => r.Kind == RuleKind.Process).ToListAsync())
+        var synced = (await db.UserRules.Where(r => r.Kind == RuleKind.Process).ToListAsync())
+            .Select(r => (r.UserId, r.Pattern, r.Category, r.Name));
+        var reported = (await db.SharedRuleReports.ToListAsync())
+            .Select(r => (r.UserId, r.Pattern, r.Category, r.Name));
+        var rules = synced.Concat(reported)
             .Where(r => eligible.Contains(r.UserId))
+            .DistinctBy(r => (r.UserId, r.Pattern))
             .ToList();
 
         var consensus = new List<ConsensusCandidate>();
