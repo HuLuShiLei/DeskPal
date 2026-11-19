@@ -57,7 +57,8 @@
     <Exec Command="npm run build" WorkingDirectory="$(WebDir)" />
   </Target>
 
-  <Target Name="MacIncludeWeb" DependsOnTargets="MacBuildWeb" BeforeTargets="BeforeBuild">
+  <!-- macOS SDK 在 BeforeBuild 之前收集应用资源。 -->
+  <Target Name="MacIncludeWeb" DependsOnTargets="MacBuildWeb" BeforeTargets="_CollectBundleResources">
     <ItemGroup>
       <_MacWebDist Include="$(WebDir)\dist\**" />
       <BundleResource Include="@(_MacWebDist)" LogicalName="web/%(_MacWebDist.RecursiveDir)%(_MacWebDist.Filename)%(_MacWebDist.Extension)" />
