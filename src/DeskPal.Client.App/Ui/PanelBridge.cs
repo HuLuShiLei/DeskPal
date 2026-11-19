@@ -157,6 +157,7 @@ public sealed class PanelBridge
         SyncError = _sync.Error,
         FolderMode = _folder.Mode,
         FolderPath = _folder.Folder,
+        Client = _platform.Name,
     });
 
     /// <summary>Runs on the UI thread.</summary>

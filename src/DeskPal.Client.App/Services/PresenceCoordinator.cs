@@ -210,7 +210,7 @@ public sealed class PresenceCoordinator : BackgroundService
             }
 
             LogPresence(committed);
-            var snapshot = PrivacyFilter.Apply(committed, _rooms.GetPrivacy(selected.Value));
+            var snapshot = PrivacyFilter.Apply(committed, _rooms.GetPrivacy(selected.Value)) with { Client = ClientKinds.Current };
             await _hub.TryPublishAsync(Envelope.Create(MessageTypes.PresenceUpdate, selected.Value, snapshot));
         }
         finally

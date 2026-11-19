@@ -1,6 +1,6 @@
 import type { ComponentChildren, RefObject } from "preact";
 import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
-import type { Bridge, PresenceView, Tone } from "./bridge";
+import type { Bridge, ClientKind, PresenceView, Tone } from "./bridge";
 import { t } from "./i18n";
 import { isMac } from "./platform";
 
@@ -296,6 +296,28 @@ export function roomTone(id: string): Tone {
   let hash = 0;
   for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) | 0;
   return roomTones[Math.abs(hash) % roomTones.length];
+}
+
+const clientLogos: Record<ClientKind, { viewBox: string; path: string }> = {
+  windows: { viewBox: "0 0 16 16", path: "M1 1h6.3v6.3H1zM8.7 1H15v6.3H8.7zM1 8.7h6.3V15H1zM8.7 8.7H15V15H8.7z" },
+  mac: {
+    viewBox: "0 0 24 24",
+    path: "M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701",
+  },
+};
+
+/** 名字旁边的客户端标志（Windows、macOS），淡色小图标，悬停显示名称。 */
+export function ClientIcon({ client }: { client: ClientKind | null | undefined }) {
+  const logo = client && clientLogos[client];
+  if (!logo) return null;
+  const label = t(client === "mac" ? "client.mac" : "client.windows");
+  return (
+    <span class={`client-icon ${client}`} role="img" aria-label={label} title={label}>
+      <svg viewBox={logo.viewBox} aria-hidden="true">
+        <path d={logo.path} />
+      </svg>
+    </span>
+  );
 }
 
 /** 分类的颜色，和统计页的类别图例一致（StatsViewBuilder.CategoryLegend）。 */

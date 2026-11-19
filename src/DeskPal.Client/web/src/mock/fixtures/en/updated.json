@@ -26,7 +26,8 @@
       "full": "Category: Work\nApp: Cursor\nTitle: plan.md - idea1 - Cursor"
     },
     "meta": "For 1 min",
-    "full": "Category: Other\nApp: Cursor\nTitle: roadmap.md - idea1 - Cursor"
+    "full": "Category: Other\nApp: Cursor\nTitle: roadmap.md - idea1 - Cursor",
+    "client": "windows"
   },
   "rooms": [
     {
@@ -63,7 +64,8 @@
       "meta": "For 12 min",
       "pinned": true,
       "blocked": false,
-      "shareStats": true
+      "shareStats": true,
+      "client": "mac"
     },
     {
       "userId": "00000000-0000-0000-0000-0000000ca201",
@@ -79,7 +81,8 @@
       "meta": "",
       "pinned": false,
       "blocked": false,
-      "shareStats": false
+      "shareStats": false,
+      "client": null
     }
   ],
   "privacy": {

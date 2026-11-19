@@ -2,7 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import type { MemberItem, PanelState, PrivacyLevel, RoomItem } from "../bridge";
 import { StatusBadge, useHost } from "../host";
 import { t } from "../i18n";
-import { Avatar, categoryTone, Icon, MoreMenu, RoomBadge, roomTone, Section, SettingRow, Switch, type MenuEntry } from "../ui";
+import { Avatar, categoryTone, ClientIcon, Icon, MoreMenu, RoomBadge, roomTone, Section, SettingRow, Switch, type MenuEntry } from "../ui";
 
 export function RoomPage({ state }: { state: PanelState }) {
   const { ask, run } = useHost();
@@ -171,6 +171,7 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
               <p class="row-title">
                 <span class="row-name">{t("common.me", { name: state.me.displayName })}</span>
                 {room.isOwner && <span class="badge">{t("common.owner")}</span>}
+                <ClientIcon client={state.me.client} />
               </p>
               <div>
                 <StatusBadge view={state.me.view} />
@@ -262,6 +263,7 @@ function MemberRow({ room, member: m }: { room: RoomItem; member: MemberItem }) 
         <p class="row-title">
           <span class="row-name">{m.name}</span>
           {m.isOwner && <span class="badge">{t("common.owner")}</span>}
+          <ClientIcon client={m.client} />
         </p>
         <div>
           <StatusBadge view={m.view} />

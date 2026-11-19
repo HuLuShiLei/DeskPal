@@ -364,6 +364,13 @@ button.pin-card-close {
 }
 .avatar[class*="tv-"] { background: color-mix(in srgb, var(--tv) 24%, transparent); color: color-mix(in srgb, var(--tv) 85%, var(--text)); }
 
+/* 客户端标志：跟在名字后面，比文字更淡，悬停所在行时稍微加深。 */
+.client-icon { display: inline-flex; flex: none; margin-left: 6px; color: var(--faint); opacity: 0.75; transition: opacity 0.15s, color 0.15s; }
+.client-icon svg { display: block; width: 11px; height: 11px; fill: currentColor; }
+.client-icon.windows svg { width: 10px; height: 10px; }
+.badge + .client-icon { margin-left: 7px; }
+:is(.list-row, .card-row, .card.me):hover .client-icon { opacity: 1; color: var(--muted); }
+
 .setting-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; min-height: 52px; }
 .setting-icon { font-size: 16px; color: var(--muted); }
 .setting-text { flex: 1; min-width: 0; }

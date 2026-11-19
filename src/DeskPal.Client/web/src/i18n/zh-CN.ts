@@ -21,6 +21,8 @@ export const zh = {
   "common.add": "添加",
   "common.delete": "删除",
   "common.edit": "修改",
+  "client.windows": "Windows 客户端",
+  "client.mac": "macOS 客户端",
   "tab.status": "首页",
   "tab.stats": "统计",
   "tab.room": "房间",

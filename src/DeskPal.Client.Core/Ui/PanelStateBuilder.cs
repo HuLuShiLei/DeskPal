@@ -57,6 +57,9 @@ public sealed record PanelInput
     public FolderSyncMode FolderMode { get; init; }
     public string? FolderPath { get; init; }
     public TimeZoneInfo Zone { get; init; } = TimeZoneInfo.Local;
+
+    /// <summary>This computer's client, one of <see cref="ClientKinds"/>.</summary>
+    public string? Client { get; init; }
 }
 
 public static class PanelStateBuilder
@@ -158,7 +161,8 @@ public static class PanelStateBuilder
                 view,
                 meta,
                 input.Pinned.Contains(m.UserId),
-                ShareStats: m.ShareStats && online);
+                ShareStats: m.ShareStats && online,
+                Client: online ? snapshot!.Client : null);
         })
         .ToList();
 
@@ -180,7 +184,7 @@ public static class PanelStateBuilder
         var local = input.Local;
         if (local is null)
         {
-            return new MeView(input.DisplayName, new PresenceView(Strings.State_Detecting, null, null), null, null, input.Paused);
+            return new MeView(input.DisplayName, new PresenceView(Strings.State_Detecting, null, null), null, null, input.Paused, Client: input.Client);
         }
 
         var privacy = room is null ? null : input.PrivacyOf(room.Id);
@@ -228,7 +232,8 @@ public static class PanelStateBuilder
             input.Paused,
             pending,
             current is null ? null : Lasted(current.Since, input.Now),
-            Full(shownPresence));
+            Full(shownPresence),
+            input.Client);
     }
 
     /// <summary>My own status without the privacy filter. Never sent; the panel shows it only on hover.</summary>

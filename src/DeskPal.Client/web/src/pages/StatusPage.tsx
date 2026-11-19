@@ -2,7 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import type { MemberItem, PanelState, UnclassifiedItem } from "../bridge";
 import { PresenceDetail, StatusBadge, useCountdown, useHost } from "../host";
 import { t } from "../i18n";
-import { Avatar, Hint, HoverTip, Icon, Section, Switch } from "../ui";
+import { Avatar, ClientIcon, Hint, HoverTip, Icon, Section, Switch } from "../ui";
 
 export function StatusPage({ state, onViewStats }: { state: PanelState; onViewStats: (member: { userId: string; name: string }) => void }) {
   const room = state.rooms.find((r) => r.id === state.selectedRoomId);
@@ -128,6 +128,7 @@ function MemberRow({ member, onViewStats, drag, dragging }: { member: MemberItem
         <p class="row-title">
           {member.name}
           {member.isOwner && <span class="badge">{t("common.owner")}</span>}
+          <ClientIcon client={member.client} />
         </p>
         <div>
           <StatusBadge view={member.view} />
@@ -188,6 +189,7 @@ function MyStatus({ state }: { state: PanelState }) {
           <div class="row-main">
             <div class="row-title">
               <span class="row-name">{me.displayName}</span>
+              <ClientIcon client={me.client} />
               {me.pending ? (
                 <Pending pending={me.pending} source={me.source} />
               ) : (

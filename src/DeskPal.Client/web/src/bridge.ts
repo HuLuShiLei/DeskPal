@@ -37,6 +37,9 @@ export interface RoomItem {
   onlineCount: number | null;
 }
 
+/** 登录的客户端。 */
+export type ClientKind = "windows" | "mac";
+
 export interface MemberItem {
   userId: string;
   name: string;
@@ -50,6 +53,8 @@ export interface MemberItem {
   blocked: boolean;
   /** 该成员在这个房间公开了使用统计，显示「查看统计」。 */
   shareStats: boolean;
+  /** 对方登录的客户端；离线、已屏蔽或旧版客户端时为 null。 */
+  client: ClientKind | null;
 }
 
 /** 置顶小卡片的内容。detail 是应用名和详情合成的一行。 */
@@ -88,6 +93,8 @@ export interface PanelState {
     meta: string | null;
     /** 不经隐私设置过滤的类别、应用和标题，只在悬停时给自己看。 */
     full: string | null;
+    /** 这台电脑的客户端。 */
+    client: ClientKind | null;
   };
   rooms: RoomItem[];
   selectedRoomId: string | null;

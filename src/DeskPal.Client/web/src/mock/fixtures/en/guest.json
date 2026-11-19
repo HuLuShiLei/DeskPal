@@ -16,7 +16,8 @@
     "paused": true,
     "pending": null,
     "meta": "For 5 min",
-    "full": null
+    "full": null,
+    "client": "windows"
   },
   "rooms": [
     {
@@ -53,7 +54,8 @@
       "meta": "",
       "pinned": false,
       "blocked": false,
-      "shareStats": false
+      "shareStats": false,
+      "client": null
     }
   ],
   "privacy": {

@@ -57,6 +57,7 @@ public static class PanelSamples
                 AppDisplayName = "哔哩哔哩",
                 Detail = LongTitle,
                 Since = Now.AddMinutes(-12),
+                Client = ClientKinds.Mac,
             },
         };
         var local = new LocalPresence(PresenceState.Working, ActivityCategory.Work, "Cursor", "plan.md - idea1 - Cursor");
@@ -98,6 +99,7 @@ public static class PanelSamples
                 new StatsViewRecord(TeamRoom, "同事房间", Dave, "Dave", Now.AddDays(-1).AddHours(-3)),
             ],
             Zone = StatsSamples.Zone,
+            Client = ClientKinds.Windows,
         };
     }
 

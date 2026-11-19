@@ -23,6 +23,8 @@ export const en: Record<keyof typeof zh, string> = {
   "common.add": "Add",
   "common.delete": "Delete",
   "common.edit": "Edit",
+  "client.windows": "Windows app",
+  "client.mac": "macOS app",
   "tab.status": "Home",
   "tab.stats": "Stats",
   "tab.room": "Rooms",

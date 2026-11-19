@@ -10,5 +10,16 @@ public sealed record PresenceSnapshot
     public string? CustomText { get; init; }
     public DateTimeOffset Since { get; init; }
 
+    /// <summary>The sender's client, one of <see cref="ClientKinds"/>; null from older clients and in offline snapshots.</summary>
+    public string? Client { get; init; }
+
     public static PresenceSnapshot Offline(DateTimeOffset since) => new() { State = PresenceState.Offline, Since = since };
+}
+
+public static class ClientKinds
+{
+    public const string Windows = "windows";
+    public const string Mac = "mac";
+
+    public static string Current => OperatingSystem.IsMacOS() ? Mac : Windows;
 }

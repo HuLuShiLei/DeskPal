@@ -16,7 +16,8 @@
     "paused": false,
     "pending": null,
     "meta": "For 3 min",
-    "full": "Category: Chat\nApp: QQ\nTitle: 理工生陷入云吸猫 (64)"
+    "full": "Category: Chat\nApp: QQ\nTitle: 理工生陷入云吸猫 (64)",
+    "client": "windows"
   },
   "rooms": [],
   "selectedRoomId": null,

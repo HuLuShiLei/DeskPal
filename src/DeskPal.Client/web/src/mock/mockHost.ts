@@ -277,6 +277,7 @@ export function createMockTransport(params: URLSearchParams): Transport {
         member.blocked = m.type === "member.block";
         member.pinned = false;
         member.online = false;
+        member.client = null;
         member.meta = "";
         member.view = { headline: member.blocked ? L("已屏蔽", "Blocked") : L("离线", "Offline"), app: null, detail: null, tone: "offline" };
         break;

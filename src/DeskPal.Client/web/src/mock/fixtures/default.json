@@ -26,7 +26,8 @@
       "full": "类别：工作\n应用：Cursor\n标题：plan.md - idea1 - Cursor"
     },
     "meta": "已持续 1 分钟",
-    "full": "类别：其他\n应用：Cursor\n标题：roadmap.md - idea1 - Cursor"
+    "full": "类别：其他\n应用：Cursor\n标题：roadmap.md - idea1 - Cursor",
+    "client": "windows"
   },
   "rooms": [
     {
@@ -63,7 +64,8 @@
       "meta": "已持续 12 分钟",
       "pinned": true,
       "blocked": false,
-      "shareStats": true
+      "shareStats": true,
+      "client": "mac"
     },
     {
       "userId": "00000000-0000-0000-0000-0000000ca201",
@@ -79,7 +81,8 @@
       "meta": "",
       "pinned": false,
       "blocked": false,
-      "shareStats": false
+      "shareStats": false,
+      "client": null
     }
   ],
   "privacy": {
