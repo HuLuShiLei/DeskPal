@@ -1,8 +1,8 @@
 import { useEffect, useState } from "preact/hooks";
 import type { MemberItem, PanelState, PrivacyLevel, RoomItem } from "../bridge";
-import { StatusBadge, useHost } from "../host";
+import { useHost } from "../host";
 import { t } from "../i18n";
-import { Avatar, categoryTone, ClientIcon, Icon, MoreMenu, RoomBadge, roomTone, Section, SettingRow, Switch, type MenuEntry } from "../ui";
+import { Avatar, categoryTone, ClientIcon, Icon, memberTone, MoreMenu, RoomBadge, roomTone, Section, SettingRow, Switch, type MenuEntry } from "../ui";
 
 export function RoomPage({ state }: { state: PanelState }) {
   const { ask, run } = useHost();
@@ -165,17 +165,15 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
       </Section>
       <Section title={t("status.members")}>
         <ul class="card flush list-card">
-          <li class="card-row">
-            <Avatar name={state.me.displayName} tone={state.me.view.tone} />
+          <li class="card-row room-member">
+            <Avatar name={state.me.displayName} tone={memberTone(state.me.userId)} />
             <div class="row-main">
               <p class="row-title">
                 <span class="row-name">{t("common.me", { name: state.me.displayName })}</span>
                 {room.isOwner && <span class="badge">{t("common.owner")}</span>}
                 <ClientIcon client={state.me.client} />
               </p>
-              <div>
-                <StatusBadge view={state.me.view} />
-              </div>
+              {room.joined && <p class="sub">{room.joined}</p>}
             </div>
           </li>
           {others.map((m) => (
@@ -257,17 +255,16 @@ function MemberRow({ room, member: m }: { room: RoomItem; member: MemberItem }) 
   if (room.isOwner) items.push({ label: t("room.kickTitle"), icon: "remove", danger: true, onSelect: () => void kick() });
 
   return (
-    <li class={m.online ? "card-row" : "card-row offline"}>
-      <Avatar name={m.name} tone={m.view.tone} />
+    <li class={m.blocked ? "card-row room-member blocked" : "card-row room-member"}>
+      <Avatar name={m.name} tone={memberTone(m.userId)} />
       <div class="row-main">
         <p class="row-title">
           <span class="row-name">{m.name}</span>
           {m.isOwner && <span class="badge">{t("common.owner")}</span>}
+          {m.blocked && <span class="badge muted">{t("room.blocked")}</span>}
           <ClientIcon client={m.client} />
         </p>
-        <div>
-          <StatusBadge view={m.view} />
-        </div>
+        {m.joined && <p class="sub">{m.joined}</p>}
       </div>
       <MoreMenu label={t("room.manageName", { name: m.name })} items={items} />
     </li>

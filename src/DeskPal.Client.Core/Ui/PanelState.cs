@@ -45,6 +45,7 @@ public sealed record MeView(
     PendingView? Pending = null,
     string? Meta = null,
     string? Full = null,
+    Guid UserId = default,
     string? Client = null);
 
 /// <param name="RemainingMs">Time left when the state was built. The page counts down from here.</param>
@@ -52,13 +53,15 @@ public sealed record MeView(
 public sealed record PendingView(PresenceView View, int RemainingMs, int TotalSeconds, string? Full = null);
 
 /// <param name="OnlineCount">Online members of the selected room, me included; null for other rooms and while not connected.</param>
-public sealed record RoomItem(Guid Id, string Name, bool IsOwner, int MemberCount, int MaxMembers, int? OnlineCount = null);
+/// <param name="Joined">When I joined this room, e.g. "11 月 12 日加入".</param>
+public sealed record RoomItem(Guid Id, string Name, bool IsOwner, int MemberCount, int MaxMembers, int? OnlineCount = null, string? Joined = null);
 
 /// <param name="Pinned">Shown as a card on the desktop.</param>
 /// <param name="Blocked">I blocked this member: neither of us sees the other's presence. The member is not told.</param>
 /// <param name="ShareStats">The member shares usage stats, is online in this room, and is not blocked, so "查看统计" is shown. Clears with the offline status.</param>
 /// <param name="Client">The client the member is signed in with, one of <see cref="ClientKinds"/>; null when offline, blocked, or on an older client.</param>
-public sealed record MemberItem(Guid UserId, string Name, bool IsOwner, bool Online, PresenceView View, string Meta, bool Pinned = false, bool Blocked = false, bool ShareStats = false, string? Client = null);
+/// <param name="Joined">When the member joined this room, e.g. "11 月 12 日加入".</param>
+public sealed record MemberItem(Guid UserId, string Name, bool IsOwner, bool Online, PresenceView View, string Meta, bool Pinned = false, bool Blocked = false, bool ShareStats = false, string? Client = null, string? Joined = null);
 
 public sealed record Option<T>(T Value, string Name);
 

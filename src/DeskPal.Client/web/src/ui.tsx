@@ -289,14 +289,19 @@ export function Avatar({ name, tone }: { name: string; tone: PresenceView["tone"
   );
 }
 
-const roomTones = ["work", "chat", "relax", "game", "browse", "other"] as const;
+const idTones = ["work", "chat", "relax", "game", "browse", "other"] as const;
 
-/** 房间的颜色按 id 固定，同一个房间在哪里都是同一种颜色。 */
-export function roomTone(id: string): Tone {
+function idTone(id: string): Tone {
   let hash = 0;
   for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) | 0;
-  return roomTones[Math.abs(hash) % roomTones.length];
+  return idTones[Math.abs(hash) % idTones.length];
 }
+
+/** 房间的颜色按 id 固定，同一个房间在哪里都是同一种颜色。 */
+export const roomTone = idTone;
+
+/** 房间页成员头像的颜色按用户 id 固定，不表示状态。 */
+export const memberTone = idTone;
 
 const clientLogos: Record<ClientKind, { viewBox: string; path: string }> = {
   windows: { viewBox: "0 0 16 16", path: "M1 1h6.3v6.3H1zM8.7 1H15v6.3H8.7zM1 8.7h6.3V15H1zM8.7 8.7H15V15H8.7z" },

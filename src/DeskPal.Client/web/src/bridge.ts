@@ -35,6 +35,8 @@ export interface RoomItem {
   maxMembers: number;
   /** 当前房间的在线人数（含自己）；其他房间和未连接时为 null。 */
   onlineCount: number | null;
+  /** 我加入这个房间的日期，例如「11 月 12 日加入」。 */
+  joined: string | null;
 }
 
 /** 登录的客户端。 */
@@ -55,6 +57,8 @@ export interface MemberItem {
   shareStats: boolean;
   /** 对方登录的客户端；离线、已屏蔽或旧版客户端时为 null。 */
   client: ClientKind | null;
+  /** 加入这个房间的日期，例如「11 月 12 日加入」。 */
+  joined: string | null;
 }
 
 /** 置顶小卡片的内容。detail 是应用名和详情合成的一行。 */
@@ -93,6 +97,7 @@ export interface PanelState {
     meta: string | null;
     /** 不经隐私设置过滤的类别、应用和标题，只在悬停时给自己看。 */
     full: string | null;
+    userId: string;
     /** 这台电脑的客户端。 */
     client: ClientKind | null;
   };

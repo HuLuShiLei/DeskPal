@@ -180,6 +180,9 @@
   <data name="Panel_UsedToday" xml:space="preserve">
     <value>今天 {0}</value>
   </data>
+  <data name="Panel_JoinedOn" xml:space="preserve">
+    <value>{0}加入</value>
+  </data>
   <data name="Connection_Connected" xml:space="preserve">
     <value>已连接</value>
   </data>

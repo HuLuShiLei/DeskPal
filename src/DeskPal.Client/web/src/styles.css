@@ -592,6 +592,13 @@ button.card-row.selectable-row[aria-selected=true]:hover:not(:disabled) { backgr
 .card-row.offline .row-title { color: var(--muted); }
 .card-row.offline .status-badge { color: var(--muted); background: var(--hover); }
 .row-check { color: var(--accent); margin-right: 4px; }
+/* 房间页的成员只用于管理：头像颜色按用户固定，第二行是加入日期，不显示实时状态。 */
+.card-row.room-member { min-height: 56px; }
+.card-row.room-member .row-main { gap: 2px; }
+.card-row.room-member .sub { font-size: 11.5px; color: var(--faint); }
+.card-row.room-member.blocked .avatar { opacity: 0.55; filter: grayscale(1); }
+.card-row.room-member.blocked .row-name { color: var(--muted); }
+.badge.muted { color: var(--muted); background: var(--hover); }
 
 .room-counts { display: flex; align-items: center; gap: 12px; }
 .room-counts > span { display: inline-flex; align-items: center; gap: 5px; }

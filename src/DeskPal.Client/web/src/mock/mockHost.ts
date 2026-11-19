@@ -130,12 +130,12 @@ export function createMockTransport(params: URLSearchParams): Transport {
         );
         break;
       case "room.create":
-        state.rooms.push({ id: crypto.randomUUID(), name: m.name as string, isOwner: true, memberCount: 1, maxMembers: 20, onlineCount: null });
+        state.rooms.push({ id: crypto.randomUUID(), name: m.name as string, isOwner: true, memberCount: 1, maxMembers: 20, onlineCount: null, joined: L("11 月 11 日加入", "Joined Nov 11") });
         state.selectedRoomId = state.rooms.at(-1)!.id;
         break;
       case "room.join":
         if (m.code === "00000000") return { ok: false, error: L("邀请码无效", "The invite code is invalid") };
-        state.rooms.push({ id: crypto.randomUUID(), name: L("加入的房间", "Joined room"), isOwner: false, memberCount: 2, maxMembers: 20, onlineCount: null });
+        state.rooms.push({ id: crypto.randomUUID(), name: L("加入的房间", "Joined room"), isOwner: false, memberCount: 2, maxMembers: 20, onlineCount: null, joined: L("11 月 11 日加入", "Joined Nov 11") });
         break;
       case "room.rename": {
         const r = room(m.roomId);

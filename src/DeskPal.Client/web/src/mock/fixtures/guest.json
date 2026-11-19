@@ -17,6 +17,7 @@
     "pending": null,
     "meta": "已持续 5 分钟",
     "full": null,
+    "userId": "00000000-0000-0000-0000-00000000a11c",
     "client": "windows"
   },
   "rooms": [
@@ -26,7 +27,8 @@
       "isOwner": true,
       "memberCount": 3,
       "maxMembers": 20,
-      "onlineCount": null
+      "onlineCount": null,
+      "joined": "11 月 8 日加入"
     },
     {
       "id": "00000000-0000-0000-0000-0000000000a2",
@@ -34,7 +36,8 @@
       "isOwner": false,
       "memberCount": 2,
       "maxMembers": 20,
-      "onlineCount": null
+      "onlineCount": null,
+      "joined": "11 月 7 日加入"
     }
   ],
   "selectedRoomId": "00000000-0000-0000-0000-0000000000a2",
@@ -55,7 +58,8 @@
       "pinned": false,
       "blocked": false,
       "shareStats": false,
-      "client": null
+      "client": null,
+      "joined": "11 月 6 日加入"
     }
   ],
   "privacy": {

@@ -76,7 +76,14 @@ public static class PanelStateBuilder
         return new PanelState(
             Connection(input.Connection),
             Me(input, room),
-            input.Rooms.Select(r => new RoomItem(r.Id, r.Name, r.OwnerId == input.MyUserId, r.Members.Count, r.MaxMembers, r.Id == room?.Id ? online : null)).ToList(),
+            input.Rooms.Select(r => new RoomItem(
+                r.Id,
+                r.Name,
+                r.OwnerId == input.MyUserId,
+                r.Members.Count,
+                r.MaxMembers,
+                r.Id == room?.Id ? online : null,
+                r.Members.FirstOrDefault(m => m.UserId == input.MyUserId) is { } mine ? Joined(mine.JoinedAt, input) : null)).ToList(),
             room?.Id,
             emptyHint,
             members,
@@ -146,7 +153,7 @@ public static class PanelStateBuilder
         {
             if (room.Blocked?.Contains(m.UserId) == true)
             {
-                return new MemberItem(m.UserId, m.DisplayName, m.Role == RoomRole.Owner, false, new PresenceView(Strings.State_Blocked, null, null), "", Blocked: true);
+                return new MemberItem(m.UserId, m.DisplayName, m.Role == RoomRole.Owner, false, new PresenceView(Strings.State_Blocked, null, null), "", Blocked: true, Joined: Joined(m.JoinedAt, input));
             }
 
             var snapshot = input.PresenceOf(room.Id, m.UserId);
@@ -162,9 +169,20 @@ public static class PanelStateBuilder
                 meta,
                 input.Pinned.Contains(m.UserId),
                 ShareStats: m.ShareStats && online,
-                Client: online ? snapshot!.Client : null);
+                Client: online ? snapshot!.Client : null,
+                Joined: Joined(m.JoinedAt, input));
         })
         .ToList();
+
+    private static string Joined(DateTimeOffset at, PanelInput input)
+    {
+        var local = TimeZoneInfo.ConvertTime(at, input.Zone);
+        var now = TimeZoneInfo.ConvertTime(input.Now, input.Zone);
+        var date = DateOnly.FromDateTime(local.Date);
+        var today = DateOnly.FromDateTime(now.Date);
+        var day = UiLanguage.Format(date.Year == today.Year ? Strings.Date_MonthDay : Strings.Date_YearMonthDay, date);
+        return UiLanguage.Format(Strings.Panel_JoinedOn, day);
+    }
 
     private static int Rank(IReadOnlyList<Guid> order, Guid userId)
     {
@@ -184,7 +202,7 @@ public static class PanelStateBuilder
         var local = input.Local;
         if (local is null)
         {
-            return new MeView(input.DisplayName, new PresenceView(Strings.State_Detecting, null, null), null, null, input.Paused, Client: input.Client);
+            return new MeView(input.DisplayName, new PresenceView(Strings.State_Detecting, null, null), null, null, input.Paused, UserId: input.MyUserId, Client: input.Client);
         }
 
         var privacy = room is null ? null : input.PrivacyOf(room.Id);
@@ -233,6 +251,7 @@ public static class PanelStateBuilder
             pending,
             current is null ? null : Lasted(current.Since, input.Now),
             Full(shownPresence),
+            input.MyUserId,
             input.Client);
     }
 
