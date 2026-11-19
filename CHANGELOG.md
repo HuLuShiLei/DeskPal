@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 修复 macOS 版安装后无法启动或登录窗口空白的问题。
+  en: Fixed an issue where DeskPal could quit at startup or show a blank sign-in window after installation on macOS.
+
 - 设置「关于」新增「更新来源」，默认从 GitHub 检查更新和下载安装包。连不上 GitHub 时可以切换到 gh-proxy 镜像，之后的检查和下载都走镜像；切换后会立即重新检查一次。
   en: Settings › About now has Update source. Updates are checked and downloaded from GitHub by default. If GitHub cannot be reached, switch to the gh-proxy mirror and both the check and the download go through it. The client checks again right after the switch.
 
