@@ -105,8 +105,8 @@ type DragProps = {
 };
 
 /**
- * 卡片高度固定：名字、状态、详情各占一行，详情只显示一行（应用名 · 标题），完整内容悬停查看。
- * 没有详情的成员（离线、锁屏、只公开状态）内容少一行，整体垂直居中。
+ * 卡片里每个元素的位置固定，不随文字长短、有无而移动：名字、状态、详情固定三行，没有详情时留空；
+ * 详情只显示一行（应用名 · 标题），完整内容悬停查看；客户端标志在头像右下角。
  */
 function MemberRow({ member, onViewStats, drag, dragging }: { member: MemberItem; onViewStats: () => void; drag: DragProps; dragging: boolean }) {
   const { run } = useHost();
@@ -116,12 +116,15 @@ function MemberRow({ member, onViewStats, drag, dragging }: { member: MemberItem
       <li class={`list-row member offline${dragClass}`} aria-label={member.name} {...drag}>
         <Avatar name={member.name} tone={member.view.tone} />
         <div class="row-main">
-          <p class="row-title">
-            <span class="row-name">{member.name}</span>
-          </p>
+          <div class="member-line">
+            <p class="row-title">
+              <span class="row-name">{member.name}</span>
+            </p>
+          </div>
           <div class="member-line">
             <StatusBadge view={member.view} />
           </div>
+          <p class="member-detail" />
         </div>
       </li>
     );
@@ -164,7 +167,7 @@ function MemberRow({ member, onViewStats, drag, dragging }: { member: MemberItem
 }
 
 function MemberDetail({ view }: { view: PresenceView }) {
-  if (!view.app && !view.detail) return null;
+  if (!view.app && !view.detail) return <p class="member-detail" />;
   const showDetail = view.detail && view.detail.trim() !== view.app?.trim();
   return (
     <p class="member-detail" title={[view.app, view.detail].filter(Boolean).join("\n")}>
