@@ -1,0 +1,108 @@
+# Dependabot version updates. See:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates
+version: 2
+updates:
+  # GitHub Actions（.github/workflows）
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    groups:
+      github-actions:
+        applies-to: version-updates
+        patterns:
+          - "*"
+      github-actions-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore"
+      include: scope
+
+  # .NET / NuGet（根目录 DeskPal.slnx 展开到各 csproj）
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    groups:
+      # Microsoft / System 小版本一起升，避免 SignalR、EF、Hosting 版本错位
+      microsoft-dotnet:
+        applies-to: version-updates
+        patterns:
+          - "Microsoft.*"
+          - "System.*"
+        update-types:
+          - "minor"
+          - "patch"
+      nuget-other:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "Microsoft.*"
+          - "System.*"
+        update-types:
+          - "minor"
+          - "patch"
+      nuget-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore"
+      include: scope
+
+  # 面板前端（Vite + Preact）
+  - package-ecosystem: "npm"
+    directory: "/src/DeskPal.Client/web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    groups:
+      npm:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      npm-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore"
+      include: scope
+
+  # Server 镜像基础层（deploy/Dockerfile.server）
+  - package-ecosystem: "docker"
+    directory: "/deploy"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore"
+      include: scope

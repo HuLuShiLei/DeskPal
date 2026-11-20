@@ -6,17 +6,15 @@ name: 构建并推送镜像
 on:
   push:
     branches: [main, master]
-    tags: ['v*']
+    tags: ["v*"]
   workflow_dispatch:
-
-env:
-  REGISTRY: ghcr.io
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     permissions:
+      id-token: write
       contents: read
       packages: write
 
@@ -28,24 +26,25 @@ jobs:
       - name: 登录 GHCR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # GHCR 要求镜像名全小写。
-      - name: 规范化镜像归属
-        id: owner
-        run: echo "value=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+          password: ${{ github.token }}
 
       - name: 生成标签
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ steps.owner.outputs.value }}/deskpal-server
+          # 目前会是 ghcr.io/hulushilei/deskpal-server
+          # 实际上 ghcr.io/hulushilei/deskpal/server 或者 deskpal/deskpal-server 更合适
+          images: ${{ github.repository }}-server
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=tag
             type=sha,format=long
+            type=sha,format=short
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
 
       - name: 构建并推送
         uses: docker/build-push-action@v6
