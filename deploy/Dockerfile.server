@@ -14,7 +14,7 @@ COPY src/DeskPal.Shared/ src/DeskPal.Shared/
 COPY src/DeskPal.Server/ src/DeskPal.Server/
 RUN dotnet publish src/DeskPal.Server/DeskPal.Server.csproj -c Release -o /app --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0
+FROM mcr.microsoft.com/dotnet/aspnet:11.0
 
 # HEALTHCHECK 要有个 HTTP 客户端，aspnet 镜像里没带。
 RUN apt-get update \
