@@ -8,8 +8,11 @@
 
 ## 0.1.4
 
-- 首页和房间页的成员名字旁显示对方正在使用的客户端（Windows 或 macOS）。首页的成员卡片改为统一高度，应用名和标题合并为一行，完整内容悬停查看。房间页的成员列表不再显示实时状态，改为显示加入日期。
-  en: Members on Home and Rooms now show which app they're using (Windows or macOS) next to their name. Member cards on Home now all have the same height, with the app and title on one line; hover to see the full text. The member list on Rooms no longer shows live status and shows the join date instead.
+- 首页成员头像的右下角显示对方正在使用的客户端（Windows 或 macOS）。首页的成员卡片改为统一高度，名字、状态、应用和标题的位置固定，不随文字长短移动；应用名和标题合并为一行，完整内容悬停查看。房间页的成员列表不再显示实时状态，改为显示加入日期。
+  en: Member avatars on Home now show which app the member is using (Windows or macOS) in the corner. Member cards on Home now all have the same height, and the name, status, app and title stay in place regardless of text length; the app and title share one line, and you can hover to see the full text. The member list on Rooms no longer shows live status and shows the join date instead.
+
+- 首页「纠正分类」和「恢复默认」按钮改为图标，悬停显示名称。
+  en: Reclassify and Restore default on Home are now icon buttons. Hover to see their names.
 
 - 统计页按标题排行时，浏览器在标题末尾加的「正在播放音频」「内存用量高 - 917 MB」这类标签页状态不再拆成多行，同一个网页合并成一行，已有记录也会合并。
   en: In stats ranked by title, tab states a browser adds to the end of a title, such as "Audio playing" or "High memory usage - 917 MB", no longer split one page into many rows. Existing records are merged too.

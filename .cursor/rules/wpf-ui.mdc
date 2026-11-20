@@ -21,6 +21,7 @@ alwaysApply: false
 - 面板可以拖动边框调整大小：默认 420×680，最小 400×480，不能最大化（去掉了 `WS_MAXIMIZEBOX`，没有系统边框时最大化会超出屏幕）。WebView2 会吃掉鼠标，四周留 `WindowFrame.ResizeBorder` 的空白给调整大小用，内容区下面垫一块 `--surface` 颜色，偏移量跟着 `.rail`（60px）和 `.titlebar`（36px），改了这两个尺寸要一起改 `PanelWindow.Host`。页面在最小宽度下不能横向溢出、设置名称不能折行；内容最宽 640px 居中。登录窗口仍不能调整。
 - 两个窗口都没有系统标题栏：构造时调用 `WindowFrame.Apply`，`OnMessage` 先交给 `WindowFrame.Handle` 处理 `window.minimize`、`window.close`。页面用 `ui.tsx` 的 `TitleBar`，`.titlebar` 是 `app-region: drag`，往里面放可点击的东西要包在 `app-region: no-drag` 的容器里（参考 `.caption-buttons`、`.flyout-root`），否则点不到。
 - 样式按 Windows 11 桌面程序写，不要做成网页：颜色用 `styles.css` 里的变量（浅色、深色两套），图标用 `Icon`（Segoe Fluent Icons），开关、设置行、菜单用 `ui.tsx` 里的组件。不加链接样式、手形光标、大段可选中文字；需要复制的文字加 `.selectable`。
+- 元素位置固定，不随文字变化：列表行、卡片里的图标、按钮、标签不要跟在名字、标题这类长度会变的文字后面，放在固定位置（头像角标、行的右侧、固定的一行）；可选的一行内容没有时留空，不要让其他行上下移动；长文字单行省略，完整内容悬停查看（2026-11-20 用户要求，例如客户端标志放在头像右下角，首页成员卡片固定三行）。只有图标的按钮要写 `title` 和 `aria-label`。
 - 新增 WPF 窗口时背景用 `WebUi.BackgroundBrush`，和页面底色一致，避免加载时闪白。
 - 置顶小卡片（`MemberCards`、`MemberCardWindow`，页面 `page=card`）整页是 `app-region: drag`，页面收不到悬停和双击；双击由窗口处理 `WM_NCLBUTTONDBLCLK`，只有 × 按钮是 `no-drag`。卡片文字同样在 C# 里算好。置顶只在内存里，切换房间或成员离开时移除。
 - 托盘菜单只有「打开 DeskPal」和「退出」。退出登录在设置的账号里。面板点关闭时按 `CloseAction`：每次询问、最小化到任务栏、最小化到系统托盘（隐藏，`AllowClose` 为 false），或直接退出。直接退出发 `window.quit`，和托盘菜单的「退出」走同一条路径：先停止后台服务、断开 Hub、释放单实例 Mutex。
