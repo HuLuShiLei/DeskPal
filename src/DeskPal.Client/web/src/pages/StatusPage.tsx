@@ -226,15 +226,13 @@ function MyStatus({ state }: { state: PanelState }) {
         </div>
         <div class="toolbar">
           {!me.paused && (
-            <button onClick={correct}>
+            <button class="icon-button" title={t("status.correct")} aria-label={t("status.correct")} onClick={correct}>
               <Icon name="tag" />
-              {t("status.correct")}
             </button>
           )}
           {!me.paused && correction.personal && (
-            <button onClick={reset}>
+            <button class="icon-button" title={t("status.reset")} aria-label={t("status.reset")} onClick={reset}>
               <Icon name="undo" />
-              {t("status.reset")}
             </button>
           )}
           <span class="spacer" />
