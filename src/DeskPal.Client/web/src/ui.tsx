@@ -280,11 +280,13 @@ export function Section({ title, aside, children, label }: { title?: ComponentCh
   );
 }
 
-export function Avatar({ name, tone }: { name: string; tone: PresenceView["tone"] }) {
+/** 传 client 时在头像右下角显示客户端标志，位置不随名字长短变化。 */
+export function Avatar({ name, tone, client }: { name: string; tone: PresenceView["tone"]; client?: ClientKind | null }) {
   const initial = Array.from(name.trim())[0]?.toUpperCase() ?? "?";
   return (
-    <span class={`avatar tv-${tone}`} aria-hidden="true">
-      {initial}
+    <span class={`avatar tv-${tone}`}>
+      <span aria-hidden="true">{initial}</span>
+      <ClientIcon client={client} />
     </span>
   );
 }
@@ -311,8 +313,8 @@ const clientLogos: Record<ClientKind, { viewBox: string; path: string }> = {
   },
 };
 
-/** 名字旁边的客户端标志（Windows、macOS），淡色小图标，悬停显示名称。 */
-export function ClientIcon({ client }: { client: ClientKind | null | undefined }) {
+/** 客户端标志（Windows、macOS），头像右下角的小圆标，悬停显示名称。 */
+function ClientIcon({ client }: { client: ClientKind | null | undefined }) {
   const logo = client && clientLogos[client];
   if (!logo) return null;
   const label = t(client === "mac" ? "client.mac" : "client.windows");

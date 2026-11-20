@@ -2,7 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import type { MemberItem, PanelState, PrivacyLevel, RoomItem } from "../bridge";
 import { useHost } from "../host";
 import { t } from "../i18n";
-import { Avatar, categoryTone, ClientIcon, Icon, memberTone, MoreMenu, RoomBadge, roomTone, Section, SettingRow, Switch, type MenuEntry } from "../ui";
+import { Avatar, categoryTone, Icon, memberTone, MoreMenu, RoomBadge, roomTone, Section, SettingRow, Switch, type MenuEntry } from "../ui";
 
 export function RoomPage({ state }: { state: PanelState }) {
   const { ask, run } = useHost();
@@ -171,7 +171,6 @@ function RoomDetail({ state, room }: { state: PanelState; room: RoomItem }) {
               <p class="row-title">
                 <span class="row-name">{t("common.me", { name: state.me.displayName })}</span>
                 {room.isOwner && <span class="badge">{t("common.owner")}</span>}
-                <ClientIcon client={state.me.client} />
               </p>
               {room.joined && <p class="sub">{room.joined}</p>}
             </div>
@@ -262,7 +261,6 @@ function MemberRow({ room, member: m }: { room: RoomItem; member: MemberItem }) 
           <span class="row-name">{m.name}</span>
           {m.isOwner && <span class="badge">{t("common.owner")}</span>}
           {m.blocked && <span class="badge muted">{t("room.blocked")}</span>}
-          <ClientIcon client={m.client} />
         </p>
         {m.joined && <p class="sub">{m.joined}</p>}
       </div>

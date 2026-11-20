@@ -2,7 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import type { MemberItem, PanelState, PresenceView, UnclassifiedItem } from "../bridge";
 import { PresenceDetail, StatusBadge, useCountdown, useHost } from "../host";
 import { t } from "../i18n";
-import { Avatar, ClientIcon, Hint, HoverTip, Icon, Section, Switch } from "../ui";
+import { Avatar, Hint, HoverTip, Icon, Section, Switch } from "../ui";
 
 export function StatusPage({ state, onViewStats }: { state: PanelState; onViewStats: (member: { userId: string; name: string }) => void }) {
   const room = state.rooms.find((r) => r.id === state.selectedRoomId);
@@ -129,13 +129,12 @@ function MemberRow({ member, onViewStats, drag, dragging }: { member: MemberItem
   const label = member.pinned ? t("status.unpinName", { name: member.name }) : t("status.pinName", { name: member.name });
   return (
     <li class={`list-row member tv-${member.view.tone}${member.online ? "" : " offline"}${dragClass}`} aria-label={member.name} {...drag}>
-      <Avatar name={member.name} tone={member.view.tone} />
+      <Avatar name={member.name} tone={member.view.tone} client={member.client} />
       <div class="row-main">
         <div class="member-line">
           <p class="row-title">
             <span class="row-name">{member.name}</span>
             {member.isOwner && <span class="badge">{t("common.owner")}</span>}
-            <ClientIcon client={member.client} />
           </p>
           <div class="member-actions">
             {member.shareStats && (
@@ -203,11 +202,10 @@ function MyStatus({ state }: { state: PanelState }) {
     <Section label={t("status.mine")}>
       <div class={`card me tv-${me.view.tone}`}>
         <div class="me-head">
-          <Avatar name={me.displayName} tone={me.view.tone} />
+          <Avatar name={me.displayName} tone={me.view.tone} client={me.client} />
           <div class="row-main">
             <div class="row-title">
               <span class="row-name">{me.displayName}</span>
-              <ClientIcon client={me.client} />
               {me.pending ? (
                 <Pending pending={me.pending} source={me.source} />
               ) : (
