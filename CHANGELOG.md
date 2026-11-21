@@ -6,13 +6,15 @@
 - 只改 CI、文档、测试，用户感受不到的，不写。
 - 客户端更新后，第一次打开面板时按界面语言显示还没看过的条目。看过与否按中文比对：改了中文会再显示一次，只改英文不会。
 
-## 0.1.4
+## 0.1.5
 
 - 在面板和登录窗口里右键不再弹出网页的右键菜单。
   en: Right-clicking in the panel and sign-in window no longer opens a web page context menu.
 
 - 首页的房间成员中，离线超过 1 分钟和已屏蔽的成员自动排在后面，重新上线后回到你拖动排好的位置；短暂断线重连不会改变顺序。
   en: Members on Home who have been offline for over a minute, and blocked members, now move to the bottom of the list. They return to the place you dragged them to when they come back online, and a brief reconnect doesn't change the order.
+
+## 0.1.4
 
 - 修复使用统计排行里各项使用时长没有对齐的问题。
   en: Fixed usage times in the stats ranking not lining up.
