@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 修复使用统计排行里各项使用时长没有对齐的问题。
+  en: Fixed usage times in the stats ranking not lining up.
+
 - 首页成员头像的右下角显示对方正在使用的客户端（Windows 或 macOS）。首页的成员卡片改为统一高度，名字、状态、应用和标题的位置固定，不随文字长短移动；应用名和标题合并为一行，完整内容悬停查看。房间页的成员列表不再显示实时状态，改为显示加入日期。
   en: Member avatars on Home now show which app the member is using (Windows or macOS) in the corner. Member cards on Home now all have the same height, and the name, status, app and title stay in place regardless of text length; the app and title share one line, and you can hover to see the full text. The member list on Rooms no longer shows live status and shows the join date instead.
 
