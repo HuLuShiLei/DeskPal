@@ -30,13 +30,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
+      - name: 镜像名
+        id: image
+        shell: bash
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}-server" >> "$GITHUB_OUTPUT"
+
       - name: 生成标签
         id: meta
         uses: docker/metadata-action@v6
         with:
-          # 目前会是 ghcr.io/hulushilei/deskpal-server
-          # 实际上 ghcr.io/hulushilei/deskpal/server 或者 deskpal/deskpal-server 更合适
-          images: ${{ github.repository }}-server
+          # v6 不再补 ghcr.io，也不再把仓库名改成小写。不写全会推到 Docker Hub。
+          images: ${{ steps.image.outputs.name }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=tag
