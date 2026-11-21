@@ -56,9 +56,62 @@ public class PanelStateBuilderTests
         {
             Members = [.. PanelSamples.OwnedRoom.Members, new RoomMemberDto(PanelSamples.Dave, "Dave", RoomRole.Member, PanelSamples.Now)],
         };
-        var input = PanelSamples.Default() with { SelectedRoom = room, MemberOrder = [PanelSamples.Carol, Guid.NewGuid(), PanelSamples.Bob] };
+        var working = new PresenceSnapshot { State = PresenceState.Working, Since = PanelSamples.Now };
+        var input = PanelSamples.Default() with
+        {
+            SelectedRoom = room,
+            PresenceOf = (_, _) => working,
+            MemberOrder = [PanelSamples.Carol, Guid.NewGuid(), PanelSamples.Bob],
+        };
 
         Assert.Equal(["Carol", "Bob", "Dave"], PanelStateBuilder.Build(input).Members.Select(m => m.Name));
+    }
+
+    [Fact]
+    public void Offline_and_blocked_members_go_last_and_come_back_to_their_place()
+    {
+        var room = PanelSamples.OwnedRoom with
+        {
+            Members = [.. PanelSamples.OwnedRoom.Members, new RoomMemberDto(PanelSamples.Dave, "Dave", RoomRole.Member, PanelSamples.Now)],
+        };
+        var working = new PresenceSnapshot { State = PresenceState.Working, Since = PanelSamples.Now };
+        var input = PanelSamples.Default() with
+        {
+            SelectedRoom = room,
+            MemberOrder = [PanelSamples.Carol, PanelSamples.Bob, PanelSamples.Dave],
+        };
+        PanelInput Dropped(TimeSpan ago) => input with
+        {
+            PresenceOf = (_, user) => user == PanelSamples.Carol ? PresenceSnapshot.Offline(PanelSamples.Now - ago) : working,
+        };
+
+        var reconnecting = PanelStateBuilder.Build(Dropped(TimeSpan.FromSeconds(59))).Members;
+        Assert.Equal(["Carol", "Bob", "Dave"], reconnecting.Select(m => m.Name));
+        Assert.False(reconnecting[0].Online);
+
+        var away = Dropped(MemberOrder.OfflineDelay);
+        Assert.Equal(["Bob", "Dave", "Carol"], PanelStateBuilder.Build(away).Members.Select(m => m.Name));
+
+        var blocked = away with { SelectedRoom = room with { Blocked = [PanelSamples.Bob] } };
+        Assert.Equal(["Dave", "Carol", "Bob"], PanelStateBuilder.Build(blocked).Members.Select(m => m.Name));
+
+        var back = input with { PresenceOf = (_, _) => working };
+        Assert.Equal(["Carol", "Bob", "Dave"], PanelStateBuilder.Build(back).Members.Select(m => m.Name));
+    }
+
+    [Fact]
+    public void Reorder_keeps_offline_members_in_their_saved_place()
+    {
+        var online = new PresenceView("工作中", null, null);
+        var offline = new PresenceView("离线", null, null);
+        MemberItem Item(Guid id, bool isOnline) => new(id, id.ToString(), false, isOnline, isOnline ? online : offline, "", Trailing: !isOnline);
+        Guid a = Guid.NewGuid(), b = Guid.NewGuid(), c = Guid.NewGuid(), d = Guid.NewGuid(), e = Guid.NewGuid();
+        List<Guid> saved = [a, b, c, d];
+        List<MemberItem> shown = [Item(a, true), Item(c, true), Item(d, true), Item(e, true), Item(b, false)];
+
+        Assert.Equal([d, b, a, c, e], MemberOrder.Merge(saved, shown, [d, a, c, e, b]));
+        Assert.Equal([a, b, c, d, e], MemberOrder.Merge(saved, shown, [b, a, c, d, e]));
+        Assert.Equal([e, b, a, c, d], MemberOrder.Merge(saved, shown, [e, Guid.NewGuid(), e]));
     }
 
     [Fact]

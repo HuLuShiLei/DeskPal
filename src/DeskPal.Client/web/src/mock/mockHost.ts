@@ -55,6 +55,7 @@ function crowd(L: (zh: string, en: string) => string): MemberItem[] {
     name,
     isOwner: false,
     online: tone !== "offline",
+    trailing: tone === "offline",
     view: { headline, app, detail, tone },
     meta,
     pinned: false,
@@ -94,6 +95,11 @@ export function createMockTransport(params: URLSearchParams): Transport {
     state.usage.sync = { enabled: true, needsPin: syncSample === "pin", error };
   }
   if (params.has("crowd") && state.selectedRoomId) state.members.push(...crowd(L));
+  // 和 C# 的 MemberOrder 一致：在线的在前，各组内按拖动的顺序。
+  let memberOrder = state.members.map((x) => x.userId);
+  const sortMembers = () =>
+    state.members.sort((a, b) => Number(a.trailing) - Number(b.trailing) || memberOrder.indexOf(a.userId) - memberOrder.indexOf(b.userId));
+  sortMembers();
   const personalSample = params.get("personal");
   if (personalSample === "account") state.settings.personal = { accountSync: true, folder: null, folderUnavailable: false };
   else if (personalSample === "folder" || personalSample === "unavailable")
@@ -315,9 +321,11 @@ export function createMockTransport(params: URLSearchParams): Transport {
         member.blocked = m.type === "member.block";
         member.pinned = false;
         member.online = false;
+        member.trailing = true;
         member.client = null;
         member.meta = "";
         member.view = { headline: member.blocked ? L("已屏蔽", "Blocked") : L("离线", "Offline"), app: null, detail: null, tone: "offline" };
+        sortMembers();
         break;
       }
       case "member.pin":
@@ -328,8 +336,15 @@ export function createMockTransport(params: URLSearchParams): Transport {
         break;
       }
       case "member.reorder": {
-        const ids = m.userIds as string[];
-        state.members.sort((a, b) => (ids.indexOf(a.userId) + 1 || 1e9) - (ids.indexOf(b.userId) + 1 || 1e9));
+        const current = state.members.map((x) => x.userId);
+        const offline = new Set(state.members.filter((x) => x.trailing).map((x) => x.userId));
+        const all = [...memberOrder.filter((id) => current.includes(id)), ...current.filter((id) => !memberOrder.includes(id))];
+        const dragged = [...new Set(m.userIds as string[])].filter((id) => all.includes(id));
+        dragged.push(...all.filter((id) => !dragged.includes(id)));
+        const online = dragged.filter((id) => !offline.has(id));
+        const away = dragged.filter((id) => offline.has(id));
+        memberOrder = all.map((id) => (offline.has(id) ? away.shift()! : online.shift()!));
+        sortMembers();
         break;
       }
       case "presence.pause":

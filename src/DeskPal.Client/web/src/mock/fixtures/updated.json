@@ -69,7 +69,8 @@
       "blocked": false,
       "shareStats": true,
       "client": "mac",
-      "joined": "11 月 9 日加入"
+      "joined": "11 月 9 日加入",
+      "trailing": false
     },
     {
       "userId": "00000000-0000-0000-0000-0000000ca201",
@@ -87,7 +88,8 @@
       "blocked": false,
       "shareStats": false,
       "client": null,
-      "joined": "11 月 10 日加入"
+      "joined": "11 月 10 日加入",
+      "trailing": true
     }
   ],
   "privacy": {

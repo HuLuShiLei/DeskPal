@@ -59,7 +59,8 @@
       "blocked": false,
       "shareStats": false,
       "client": null,
-      "joined": "11 月 6 日加入"
+      "joined": "11 月 6 日加入",
+      "trailing": true
     }
   ],
   "privacy": {

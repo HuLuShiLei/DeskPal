@@ -61,7 +61,8 @@ public sealed record RoomItem(Guid Id, string Name, bool IsOwner, int MemberCoun
 /// <param name="ShareStats">The member shares usage stats, is online in this room, and is not blocked, so "查看统计" is shown. Clears with the offline status.</param>
 /// <param name="Client">The client the member is signed in with, one of <see cref="ClientKinds"/>; null when offline, blocked, or on an older client.</param>
 /// <param name="Joined">When the member joined this room, e.g. "11 月 12 日加入".</param>
-public sealed record MemberItem(Guid UserId, string Name, bool IsOwner, bool Online, PresenceView View, string Meta, bool Pinned = false, bool Blocked = false, bool ShareStats = false, string? Client = null, string? Joined = null);
+/// <param name="Trailing">Listed with the offline and blocked members at the bottom. Someone who just went offline stays in place for <see cref="MemberOrder.OfflineDelay"/>.</param>
+public sealed record MemberItem(Guid UserId, string Name, bool IsOwner, bool Online, PresenceView View, string Meta, bool Pinned = false, bool Blocked = false, bool ShareStats = false, string? Client = null, string? Joined = null, bool Trailing = false);
 
 public sealed record Option<T>(T Value, string Name);
 

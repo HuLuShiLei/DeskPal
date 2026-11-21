@@ -50,7 +50,7 @@ export const en: Record<keyof typeof zh, string> = {
   "charts.bars": "Usage time chart",
   "status.mine": "My status",
   "status.members": "Members",
-  "status.dragToSort": "Drag to reorder",
+  "status.dragToSortOffline": "Drag to reorder. Offline members move to the bottom.",
   "status.viewStats": "View stats",
   "status.viewStatsOf": "View {name}'s usage stats",
   "status.pin": "Pin to desktop",

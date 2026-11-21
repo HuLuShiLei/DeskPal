@@ -567,7 +567,10 @@ public sealed class PanelBridge
                     _settings.MemberOrder.Remove(gone);
                 }
 
-                var order = c.GuidList("userIds").Distinct().Where(id => room.Members.Any(m => m.UserId == id)).ToList();
+                var requested = c.GuidList("userIds");
+                var order = _rooms.SelectedRoom?.Id == room.Id
+                    ? MemberOrder.Merge(_settings.MemberOrder.GetValueOrDefault(room.Id) ?? [], BuildState().Members, requested)
+                    : requested.Distinct().Where(id => room.Members.Any(m => m.UserId == id)).ToList();
                 _settings.MemberOrder[room.Id] = order;
                 _store.Save(_settings);
                 RaiseChanged();

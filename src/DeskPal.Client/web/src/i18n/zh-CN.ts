@@ -48,7 +48,7 @@ export const zh = {
   "charts.bars": "使用时长柱状图",
   "status.mine": "我的状态",
   "status.members": "房间成员",
-  "status.dragToSort": "拖动可调整顺序",
+  "status.dragToSortOffline": "拖动可调整顺序，离线成员自动排在后面",
   "status.viewStats": "查看统计",
   "status.viewStatsOf": "查看{name}的使用统计",
   "status.pin": "置顶到桌面",

@@ -8,6 +8,9 @@
 
 ## 0.1.4
 
+- 首页的房间成员中，离线超过 1 分钟和已屏蔽的成员自动排在后面，重新上线后回到你拖动排好的位置；短暂断线重连不会改变顺序。
+  en: Members on Home who have been offline for over a minute, and blocked members, now move to the bottom of the list. They return to the place you dragged them to when they come back online, and a brief reconnect doesn't change the order.
+
 - 修复使用统计排行里各项使用时长没有对齐的问题。
   en: Fixed usage times in the stats ranking not lining up.
 

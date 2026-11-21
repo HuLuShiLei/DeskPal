@@ -146,14 +146,13 @@ public static class PanelStateBuilder
         _ => new(false, Strings.Connection_Disconnected),
     };
 
-    private static List<MemberItem> Members(PanelInput input, RoomDto room) => room.Members
+    private static List<MemberItem> Members(PanelInput input, RoomDto room) => MemberOrder.Sort(room.Members
         .Where(m => m.UserId != input.MyUserId)
-        .OrderBy(m => Rank(input.MemberOrder, m.UserId))
         .Select(m =>
         {
             if (room.Blocked?.Contains(m.UserId) == true)
             {
-                return new MemberItem(m.UserId, m.DisplayName, m.Role == RoomRole.Owner, false, new PresenceView(Strings.State_Blocked, null, null), "", Blocked: true, Joined: Joined(m.JoinedAt, input));
+                return new MemberItem(m.UserId, m.DisplayName, m.Role == RoomRole.Owner, false, new PresenceView(Strings.State_Blocked, null, null), "", Blocked: true, Joined: Joined(m.JoinedAt, input), Trailing: true);
             }
 
             var snapshot = input.PresenceOf(room.Id, m.UserId);
@@ -170,9 +169,9 @@ public static class PanelStateBuilder
                 input.Pinned.Contains(m.UserId),
                 ShareStats: m.ShareStats && online,
                 Client: online ? snapshot!.Client : null,
-                Joined: Joined(m.JoinedAt, input));
-        })
-        .ToList();
+                Joined: Joined(m.JoinedAt, input),
+                Trailing: !online && (snapshot is null || input.Now - snapshot.Since >= MemberOrder.OfflineDelay));
+        }), input.MemberOrder);
 
     private static string Joined(DateTimeOffset at, PanelInput input)
     {
@@ -182,19 +181,6 @@ public static class PanelStateBuilder
         var today = DateOnly.FromDateTime(now.Date);
         var day = UiLanguage.Format(date.Year == today.Year ? Strings.Date_MonthDay : Strings.Date_YearMonthDay, date);
         return UiLanguage.Format(Strings.Panel_JoinedOn, day);
-    }
-
-    private static int Rank(IReadOnlyList<Guid> order, Guid userId)
-    {
-        for (var i = 0; i < order.Count; i++)
-        {
-            if (order[i] == userId)
-            {
-                return i;
-            }
-        }
-
-        return int.MaxValue;
     }
 
     private static MeView Me(PanelInput input, RoomDto? room)
