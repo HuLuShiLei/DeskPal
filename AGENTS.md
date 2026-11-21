@@ -30,7 +30,7 @@ src/DeskPal.Client/       WPF 托盘程序：Collectors、Native、Platform（Wi
 src/DeskPal.Client.Mac/   macOS 菜单栏程序（net10.0-macos，AppKit + WKWebView）：Collectors（NSWorkspace、辅助功能）、Native、Platform、Ui。只能在 Mac 上编译
 tools/MacCheck/           没有 Mac 时对 macOS 引用程序集做类型检查
 tests/DeskPal.Tests/      xUnit：Client.Core 逻辑、RoomService、PresenceHub 集成测试
-.github/workflows/        ci（测试 + 客户端 exe）、docker（Server 镜像推 GHCR）、rule-candidates（每周把多人一致的个人分类做成规则库 PR）
+.github/workflows/        ci（测试 + 客户端 exe）、docker（Server 镜像推 GHCR）、rule-candidates（每天把多人一致的个人分类和推测出的游戏做成规则库 PR）
 installer/                Inno Setup 安装向导：选择安装目录，内嵌 Velopack 的 Setup.exe
 deploy/                   Dockerfile.server、Portainer stack.yml、Traefik 路由（已部署到 192.168.66.10）、部署说明
 ```

@@ -10,7 +10,8 @@ description: 维护 DeskPal 内置分类规则库 builtin-rules.json：新增或
 ## 改之前先想清楚是哪一层的问题
 
 - 只是某个人的习惯（例如他的微信用来工作）：让他点「纠正分类」或在「待归类」里归类。写入他的个人分类，只影响他自己，所有房间和电脑通用，**不要改内置规则库**。
-- 对大多数人成立：才改内置规则库。多人一致的个人分类和多人在用的未识别应用，会由每周的 `.github/workflows/rule-candidates.yml` 开 PR（分支 `rules/candidates`），审核这个 PR 时同样按下面的步骤和口径检查。
+- 对大多数人成立：才改内置规则库。多人一致的个人分类和多人推测一致的游戏，会由每天的 `.github/workflows/rule-candidates.yml` 开 PR（分支 `rules/candidates`），审核这个 PR 时同样按下面的步骤和口径检查。只有一两个人改过的分类、没有识别的应用写在 PR 说明和 issue「内置规则库：待人工确认」里，由你判断要不要手动加。
+- 游戏没识别出来、但它装在某个启动器的固定目录下：在 `folders` 里加目录，比逐个加进程规则好。
 
 ## 步骤
 
@@ -22,7 +23,7 @@ description: 维护 DeskPal 内置分类规则库 builtin-rules.json：新增或
    powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/skills/deskpal-builtin-rules/scripts/validate-rules.ps1
    ```
 
-   它会检查类别名、规则种类、写法（`.exe`、`www.`、协议头、大写）、标准化之后的重复项，以及浏览器进程不该有 `Process` 规则，还会检查 `names` 的键，并对没有 `names.en` 的中文名称给出警告。每周候选 PR 新增的规则只有 `name`，审核时补上 `names.en`，否则 `BuiltinRulesTests` 不通过。
+   它会检查类别名、规则种类、写法（`.exe`、`www.`、协议头、大写）、标准化之后的重复项，以及浏览器进程不该有 `Process` 规则，还会检查 `names` 的键，并对没有 `names.en` 的中文名称给出警告。每天候选 PR 新增的规则只有 `name`，审核时补上 `names.en`，否则 `BuiltinRulesTests` 不通过。
 4. `dotnet test`。`ClassifierTests` 用的是 `TestData` 里手写的规则，不会读取真实文件；要锁定某条新规则的行为，就在里面加一条用例，规则写成和 JSON 里一样。`BuiltinRulesTests` 读取真实的 JSON，锁定办公聊天、个人聊天和 Discord 的分类，改了这几类要同步它的用例。
 5. 启动 Server，日志里应该出现规则库更新到新版本。客户端下次启动时会请求 `/api/rules/builtin?version=旧版本` 拿到新规则，并缓存到 `%APPDATA%\DeskPal\builtin-rules.json`。
 

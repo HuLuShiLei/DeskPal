@@ -8,6 +8,12 @@
 
 ## 0.1.5
 
+- 按安装目录识别为游戏时，名称改为取 Steam 库里的游戏名或游戏文件夹名，不再显示「xxx-Win64-Shipping」这类文件名；不在游戏库目录里的 Unreal 引擎游戏也能识别为在玩游戏。
+  en: Games recognized by their install folder now show the name from the Steam library or the game folder instead of file names like "xxx-Win64-Shipping". Unreal Engine games outside game libraries are also recognized as playing a game.
+
+- 同意分享使用数据后，按安装目录推测出类别的应用也会上传，用于改进默认分类。同意分享的说明已相应更新。
+  en: If you share usage data, apps whose category was guessed from the install folder are also uploaded to improve the defaults. The sharing notice is updated to say so.
+
 - 在面板和登录窗口里右键不再弹出网页的右键菜单。
   en: Right-clicking in the panel and sign-in window no longer opens a web page context menu.
 
