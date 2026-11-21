@@ -38,6 +38,16 @@ foreach ($r in $json.rules) {
     if ($seen.ContainsKey($key)) { $problems.Add("${label}: duplicate") } else { $seen[$key] = $true }
 }
 
+$folders = @{}
+foreach ($f in $json.folders) {
+    $label = "[Folder] $($f.folder)"
+    if ([string]::IsNullOrWhiteSpace($f.folder) -or -not $f.folder.StartsWith('\')) { $problems.Add("${label}: must start with \ (write / as \)") }
+    elseif ($f.folder.Contains('/')) { $problems.Add("${label}: write / as \") }
+    if ($categories -notcontains $f.category) { $problems.Add("${label}: category '$($f.category)' is not an ActivityCategory member") }
+    $key = "$($f.folder)".ToLowerInvariant()
+    if ($folders.ContainsKey($key)) { $problems.Add("${label}: duplicate") } else { $folders[$key] = $true }
+}
+
 $warnings | ForEach-Object { Write-Host "warning: $_" }
 
 if ($problems.Count -gt 0) {
@@ -45,4 +55,4 @@ if ($problems.Count -gt 0) {
     Write-Host "$($problems.Count) problem(s)"
     exit 1
 }
-Write-Host "OK: version $($json.version), $($json.rules.Count) rules"
+Write-Host "OK: version $($json.version), $($json.rules.Count) rules, $(@($json.folders).Count) folders"

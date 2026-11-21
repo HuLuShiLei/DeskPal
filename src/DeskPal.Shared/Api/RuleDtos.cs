@@ -13,10 +13,18 @@ public enum RuleKind
 /// <param name="Names">Name in other UI languages, keyed by language (en). Each client shows the default name in its own language.</param>
 public sealed record RuleDto(RuleKind Kind, string Pattern, ActivityCategory Category, string? Name = null, IReadOnlyDictionary<string, string>? Names = null);
 
-public sealed record RuleSetDto(int Version, IReadOnlyList<RuleDto> Rules);
+/// <summary>
+/// A desktop app installed under this folder gets the category, named after the folder below it (the game).
+/// Written with \ and matched on Windows and macOS paths alike. Ending with \ names the next folder; otherwise the folder
+/// that contains the match.
+/// </summary>
+public sealed record FolderRuleDto(string Folder, ActivityCategory Category);
 
-/// <summary>Response of GET /api/rules/builtin. Rules is null when the client already has the current version.</summary>
-public sealed record BuiltinRulesResponse(int Version, IReadOnlyList<RuleDto>? Rules);
+/// <param name="Folders">Null from an older server or cache: the client keeps its own list.</param>
+public sealed record RuleSetDto(int Version, IReadOnlyList<RuleDto> Rules, IReadOnlyList<FolderRuleDto>? Folders = null);
+
+/// <summary>Response of GET /api/rules/builtin. Rules and Folders are null when the client already has the current version.</summary>
+public sealed record BuiltinRulesResponse(int Version, IReadOnlyList<RuleDto>? Rules, IReadOnlyList<FolderRuleDto>? Folders = null);
 
 /// <summary>A personal rule. It belongs to the account and applies in every room and on every computer.</summary>
 public sealed record UserRuleDto(RuleKind Kind, string Pattern, ActivityCategory Category, string? Name, DateTimeOffset UpdatedAt);

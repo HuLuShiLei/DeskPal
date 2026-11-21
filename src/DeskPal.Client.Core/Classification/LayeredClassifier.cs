@@ -30,21 +30,32 @@ public sealed record ClassificationResult(ActivityCategory Category, string? App
 public sealed class LayeredClassifier
 {
     /// <summary>
-    /// Folders of game libraries and launchers. The launchers themselves live elsewhere or have builtin rules.
-    /// Written with \ and matched on Windows and macOS paths alike (/ is compared as \).
+    /// Folders of game libraries, used until the builtin rules bring their own list (an older server or cache has none).
+    /// The launchers themselves live elsewhere or have builtin rules.
     /// </summary>
-    private static readonly string[] GameFolders =
+    public static readonly IReadOnlyList<FolderRuleDto> DefaultFolders =
     [
-        @"\steamapps\", @"\Epic Games\", @"\WeGameApps\", @"\XboxGames\", @"\GOG Galaxy\Games\", @"\Riot Games\",
-        @"\HoYoPlay\games\", @"\miHoYo\", @"\Ubisoft Game Launcher\games\", @"\EA Games\", @"\FINAL FANTASY XIV",
+        .. new[]
+        {
+            @"\steamapps\common\", @"\Epic Games\", @"\WeGameApps\", @"\XboxGames\", @"\GOG Galaxy\Games\", @"\Riot Games\",
+            @"\HoYoPlay\games\", @"\miHoYo\", @"\Ubisoft Game Launcher\games\", @"\EA Games\", @"\FINAL FANTASY XIV",
+        }.Select(f => new FolderRuleDto(f, ActivityCategory.Game)),
     ];
 
+    private readonly GameNames _gameNames;
     private volatile RuleSet _personal = RuleSet.Empty;
     private volatile RuleSet _builtin = RuleSet.Empty;
+    private volatile IReadOnlyList<FolderRuleDto> _folders = DefaultFolders;
+
+    public LayeredClassifier(GameNames? gameNames = null) => _gameNames = gameNames ?? new GameNames();
 
     public void SetPersonal(RuleSet rules) => _personal = rules;
 
     public void SetBuiltin(RuleSet rules) => _builtin = rules;
+
+    /// <param name="folders">Null keeps <see cref="DefaultFolders"/>.</param>
+    public void SetFolders(IReadOnlyList<FolderRuleDto>? folders) =>
+        _folders = folders?.Select(f => f with { Folder = f.Folder.Replace('/', '\\') }).Where(f => f.Folder.Length > 0).ToList() ?? DefaultFolders;
 
     public ClassificationResult Classify(ActivitySnapshot snapshot)
     {
@@ -71,9 +82,9 @@ public sealed class LayeredClassifier
             return new ClassificationResult(rule.Category, rule.Name ?? DefaultName(snapshot), RuleLayer.Builtin);
         }
 
-        if (Heuristic(snapshot) is { } category)
+        if (Heuristic(snapshot) is { } guess)
         {
-            return new ClassificationResult(category, DefaultName(snapshot), RuleLayer.Heuristic);
+            return new ClassificationResult(guess.Category, guess.Name, RuleLayer.Heuristic);
         }
 
         return new ClassificationResult(ActivityCategory.Other, DefaultName(snapshot), RuleLayer.Fallback);
@@ -96,18 +107,27 @@ public sealed class LayeredClassifier
         return tab.Contains(media, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static ActivityCategory? Heuristic(ActivitySnapshot snapshot)
+    /// <summary>A library folder from the builtin rules, then an Unreal shipping build anywhere, then full screen and playing.</summary>
+    private (ActivityCategory Category, string Name)? Heuristic(ActivitySnapshot snapshot)
     {
         var foreground = snapshot.Foreground!;
-        var path = foreground.ProcessPath?.Replace('/', '\\');
-        if (path is not null && GameFolders.Any(f => path.Contains(f, StringComparison.OrdinalIgnoreCase)) && !IsGameTool(path))
+        if (foreground.ProcessPath is { } original && original.Replace('/', '\\') is var path && !IsGameTool(path))
         {
-            return ActivityCategory.Game;
+            var folder = _folders.FirstOrDefault(f => !f.Category.IsRetired() && path.Contains(f.Folder, StringComparison.OrdinalIgnoreCase));
+            if (folder is not null)
+            {
+                return (folder.Category, _gameNames.Resolve(original, folder.Folder, foreground.AppDisplayName, foreground.ProcessName));
+            }
+
+            if (GameNames.IsUnrealShipping(GameNames.FileName(path)))
+            {
+                return (ActivityCategory.Game, _gameNames.Resolve(original, null, foreground.AppDisplayName, foreground.ProcessName));
+            }
         }
 
         if (foreground.IsFullscreen && MediaSources.PlayingInForeground(snapshot))
         {
-            return ActivityCategory.Video;
+            return (ActivityCategory.Video, DefaultName(snapshot));
         }
 
         return null;
