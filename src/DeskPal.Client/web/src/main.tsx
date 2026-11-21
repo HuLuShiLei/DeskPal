@@ -8,6 +8,8 @@ import { installWindowDrag, setPlatform } from "./platform";
 import { applyTheme, watchSystemTheme } from "./theme";
 import "./styles.css";
 
+document.addEventListener("contextmenu", (e) => e.preventDefault());
+
 const params = new URLSearchParams(location.search);
 setPlatform(params.get("platform"));
 setLocale(params.get("lang"));
