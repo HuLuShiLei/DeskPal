@@ -38,8 +38,8 @@ updates:
     labels:
       - dependencies
     groups:
-      # 主版本、小版本都进同一个 PR。SignalR、Hosting 只在客户端引用，
-      # JwtBearer、EF 只在服务端引用，不分组的话主版本只会改到引用了那个包的工程。
+      # Microsoft / System 的主版本和小版本放进同一个 PR。
+      # 只提供 net11.0 的包在工程仍是 net10.0 时不会被选中，例如服务端的 JwtBearer 和 EF。
       microsoft-dotnet:
         applies-to: version-updates
         patterns:
