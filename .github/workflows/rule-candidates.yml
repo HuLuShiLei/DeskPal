@@ -1,12 +1,12 @@
 name: 内置规则库候选
 
-# 每周从生产环境请求 /api/rules/candidates：多人一致的个人分类写进 builtin-rules.json，
-# 没有识别的应用列在 PR 说明里，人工审核后合并。
+# 每天从生产环境请求 /api/rules/candidates：多人一致的个人分类和多人推测一致的游戏写进 builtin-rules.json 开 PR；
+# 只有一两个人改过的分类和没有识别的应用写进 issue「内置规则库：待人工确认」，人工判断。
 # 需要 secret DESKPAL_MAINTAINER_TOKEN，和 Server 环境变量 Rules__MaintainerToken 一致；
 # 仓库设置里要允许 GitHub Actions 创建 PR（Settings → Actions → General → Workflow permissions）。
 on:
   schedule:
-    - cron: '0 1 * * 1'
+    - cron: '0 1 * * *'
   workflow_dispatch:
 
 jobs:
@@ -16,6 +16,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write
 
     steps:
       - uses: actions/checkout@v7
@@ -33,6 +34,7 @@ jobs:
           if [ -z "$DESKPAL_MAINTAINER_TOKEN" ]; then
             echo "未配置 secret DESKPAL_MAINTAINER_TOKEN，跳过"
             echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "review=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           node .github/scripts/merge-rule-candidates.mjs --body "$RUNNER_TEMP/rule-candidates.md"
@@ -53,3 +55,17 @@ jobs:
           commit-message: 'chore(rules): 根据用户分类更新内置规则库到版本 ${{ steps.merge.outputs.version }}'
           title: 'chore(rules): 根据用户分类更新内置规则库到版本 ${{ steps.merge.outputs.version }}'
           body-path: ${{ runner.temp }}/rule-candidates.md
+
+      # 只有待确认的内容时没有文件改动，开不了 PR，改为更新同一个 issue。
+      - name: 更新待确认的 issue
+        if: steps.merge.outputs.review == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="内置规则库：待人工确认"
+          number=$(gh issue list --state open --search "\"$title\" in:title" --json number,title --jq ".[] | select(.title == \"$title\") | .number" | head -n 1)
+          if [ -n "$number" ]; then
+            gh issue edit "$number" --body-file "$RUNNER_TEMP/rule-candidates.md"
+          else
+            gh issue create --title "$title" --body-file "$RUNNER_TEMP/rule-candidates.md"
+          fi
