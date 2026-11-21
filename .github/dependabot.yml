@@ -38,13 +38,15 @@ updates:
     labels:
       - dependencies
     groups:
-      # Microsoft / System 小版本一起升，避免 SignalR、EF、Hosting 版本错位
+      # 主版本、小版本都进同一个 PR。SignalR、Hosting 只在客户端引用，
+      # JwtBearer、EF 只在服务端引用，不分组的话主版本只会改到引用了那个包的工程。
       microsoft-dotnet:
         applies-to: version-updates
         patterns:
           - "Microsoft.*"
           - "System.*"
         update-types:
+          - "major"
           - "minor"
           - "patch"
       nuget-other:
