@@ -56,7 +56,7 @@ export function SettingsPage({ state }: { state: PanelState }) {
 
   const sharing = async (enabled: boolean) => {
     if (enabled) {
-      const a = await ask({ title: t("sharing.title"), message: t("sharing.message"), okText: t("sharing.agree") });
+      const a = await ask({ title: t("sharing.title"), message: t("sharing.details"), okText: t("sharing.agree") });
       if (!a.ok) return;
     }
     await run({ type: "settings.shareUsage", enabled }, enabled ? t("settings.sharingOn") : t("settings.sharingOff"));

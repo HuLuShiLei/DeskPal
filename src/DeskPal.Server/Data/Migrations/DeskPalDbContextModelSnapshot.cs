@@ -15,7 +15,7 @@ namespace DeskPal.Server.Data.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.14");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.15");
 
             modelBuilder.Entity("DeskPal.Server.Data.AppMeta", b =>
                 {
@@ -281,6 +281,9 @@ namespace DeskPal.Server.Data.Migrations
                     b.Property<string>("DisplayName")
                         .HasMaxLength(60)
                         .HasColumnType("TEXT");
+
+                    b.Property<int?>("Guessed")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Minutes")
                         .HasColumnType("INTEGER");

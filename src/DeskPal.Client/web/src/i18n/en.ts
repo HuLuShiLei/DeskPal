@@ -41,7 +41,7 @@ export const en: Record<keyof typeof zh, string> = {
   "app.onlineCount": "{count} online",
   "app.manageRooms": "Manage rooms",
   "sharing.title": "Improve categories",
-  "sharing.message": "If you agree, this is uploaded to improve the defaults:\n· Unrecognized desktop apps: process name, product name, and minutes per day\n· Categories you set for desktop apps\n\nWindow titles, web addresses, media titles, and exact times are not uploaded. A result is added only when many people agree. You can turn this off in Settings.",
+  "sharing.details": "If you agree, this is uploaded to improve the defaults:\n· Desktop apps not in the defaults: process name, app name, category guessed from the install location (such as games), and minutes per day\n· Categories you set for desktop apps\n\nWindow titles, web addresses, media titles, and exact times are not uploaded. Results are added to the defaults only after review. You can turn this off in Settings.",
   "sharing.agree": "Share",
   "sharing.decline": "Not now",
   "sharing.thanks": "Sharing is on. You can turn it off in Settings.",

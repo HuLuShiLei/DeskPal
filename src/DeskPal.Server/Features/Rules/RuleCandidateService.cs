@@ -69,6 +69,7 @@ public sealed class RuleCandidateService(DeskPalDbContext db, TimeProvider time,
             report.DisplayName = string.IsNullOrEmpty(name) ? null : name.Length > 60 ? name[..60] : name;
             report.Minutes = Math.Clamp(app.Minutes, 0, 24 * 60);
             report.ReportedAt = now;
+            report.Guessed = app.Guessed is ActivityCategory.Game or ActivityCategory.Video ? app.Guessed : null;
         }
 
         if (!user.PersonalSync && req.Rules is not null)
@@ -112,40 +113,56 @@ public sealed class RuleCandidateService(DeskPalDbContext db, TimeProvider time,
             .DistinctBy(r => (r.UserId, r.Pattern))
             .ToList();
 
+        // A personal rule that differs from the builtin rules is either agreed enough to be written,
+        // or listed for a person to decide, even when only one account set it.
         var consensus = new List<ConsensusCandidate>();
+        var signals = new List<ConsensusCandidate>();
         foreach (var group in rules.GroupBy(r => r.Pattern))
         {
             var users = group.Count();
             var top = group.GroupBy(r => r.Category).OrderByDescending(g => g.Count()).First();
             ActivityCategory? current = builtin.TryGetValue(group.Key, out var c) ? c : null;
-            if (users < o.MinUsers || top.Count() < users * o.MinAgreement || current == top.Key)
+            if (current == top.Key)
             {
                 continue;
             }
 
-            var name = top.Where(r => r.Name is not null).GroupBy(r => r.Name).OrderByDescending(g => g.Count()).FirstOrDefault()?.Key;
-            consensus.Add(new ConsensusCandidate(RuleKind.Process, group.Key, name, top.Key, users, top.Count(), current));
+            var candidate = new ConsensusCandidate(RuleKind.Process, group.Key, MostCommon(top.Select(r => r.Name)), top.Key, users, top.Count(), current);
+            if (users >= o.MinUsers && top.Count() >= users * o.MinAgreement)
+            {
+                consensus.Add(candidate);
+            }
+            else if (users >= o.ReviewMinUsers)
+            {
+                signals.Add(candidate);
+            }
         }
 
         var known = builtin.Keys.Concat(rules.Select(r => r.Pattern)).ToHashSet();
-        var reports = (await db.UnknownAppReports.Where(r => r.Kind == RuleKind.Process).ToListAsync())
+        var apps = (await db.UnknownAppReports.Where(r => r.Kind == RuleKind.Process).ToListAsync())
             .Where(r => eligible.Contains(r.UserId) && !known.Contains(r.Pattern))
             .GroupBy(r => r.Pattern)
-            .Where(g => g.Count() >= o.MinUsers)
             .Select(g => new UnknownAppCandidate(
                 RuleKind.Process,
                 g.Key,
-                g.Where(r => r.DisplayName is not null).GroupBy(r => r.DisplayName).OrderByDescending(n => n.Count()).FirstOrDefault()?.Key,
+                MostCommon(g.Select(r => r.DisplayName)),
                 g.Count(),
-                g.Sum(r => r.Minutes)))
-            .OrderByDescending(c => c.Users)
-            .ThenByDescending(c => c.TotalMinutes)
-            .Take(MaxUnknown)
+                g.Sum(r => r.Minutes),
+                g.GroupBy(r => r.Guessed).OrderByDescending(x => x.Count()).ThenBy(x => x.Key is null).First().Key))
+            .OrderByDescending(a => a.Users)
+            .ThenByDescending(a => a.TotalMinutes)
             .ToList();
+        var guessed = apps.Where(a => a.Guessed is not null && a.Users >= o.MinUsers).ToList();
+        var unknown = apps.Except(guessed).Where(a => a.Users >= o.ReviewMinUsers).Take(MaxUnknown).ToList();
 
         return new RuleCandidatesResponse(
             await BuiltinRuleSeeder.GetStoredVersionAsync(db),
             consensus.OrderByDescending(c => c.Users).ToList(),
-            reports);
+            unknown,
+            guessed,
+            signals.OrderByDescending(c => c.Users).ThenBy(c => c.Pattern, StringComparer.Ordinal).ToList());
     }
+
+    private static string? MostCommon(IEnumerable<string?> names) =>
+        names.Where(n => n is not null).GroupBy(n => n).OrderByDescending(g => g.Count()).FirstOrDefault()?.Key;
 }

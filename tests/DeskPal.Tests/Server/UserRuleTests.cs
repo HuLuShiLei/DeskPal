@@ -118,6 +118,43 @@ public sealed class UserRuleTests : IClassFixture<UserRuleTests.ServerFactory>
         Assert.DoesNotContain((await CandidatesAsync(http)).Consensus, c => c.Pattern == "feishu-lite");
     }
 
+    [Fact]
+    public async Task Candidates_include_guessed_games_and_single_changes()
+    {
+        var http = _factory.CreateClient();
+        var users = new List<AuthResponse>();
+        for (var i = 0; i < 3; i++)
+        {
+            var user = await RegisterAsync(http, $"guess{i}");
+            await SendAsync<object>(http, HttpMethod.Put, "/api/me/sharing", new SetSharingRequest(true), user.Token);
+            users.Add(user);
+        }
+
+        var stray = new UnknownAppItem(RuleKind.Process, "Stray-Win64-Shipping", "Stray", 40, ActivityCategory.Game);
+        foreach (var user in users)
+        {
+            await SendAsync<object>(http, HttpMethod.Post, "/api/me/usage", new UsageReportRequest([stray]), user.Token);
+        }
+
+        await SendAsync<object>(http, HttpMethod.Post, "/api/me/usage", new UsageReportRequest(
+            [stray, new UnknownAppItem(RuleKind.Process, "rare-tool", "Rare Tool", 15), new UnknownAppItem(RuleKind.Process, "rare-game", "Rare", 20, ActivityCategory.Game)],
+            [new SharedRuleItem("codex", ActivityCategory.Other, "Codex")]), users[0].Token);
+
+        var candidates = await CandidatesAsync(http);
+
+        var guessed = Assert.Single(candidates.Guessed!, g => g.Pattern == "stray-win64-shipping");
+        Assert.Equal(("Stray", 3, ActivityCategory.Game), (guessed.DisplayName, guessed.Users, guessed.Guessed!.Value));
+        Assert.DoesNotContain(candidates.Unknown, u => u.Pattern == "stray-win64-shipping");
+        Assert.Contains(candidates.Unknown, u => u.Pattern == "rare-tool" && u.Users == 1 && u.Guessed is null);
+        Assert.Contains(candidates.Unknown, u => u.Pattern == "rare-game" && u.Guessed == ActivityCategory.Game);
+        var signal = Assert.Single(candidates.Signals!, s => s.Pattern == "codex");
+        Assert.Equal((ActivityCategory.Other, ActivityCategory.Work, 1), (signal.Category, signal.Builtin!.Value, signal.Users));
+        Assert.DoesNotContain(candidates.Consensus, c => c.Pattern == "codex");
+
+        var builtin = await SendAsync<BuiltinRulesResponse>(http, HttpMethod.Get, "/api/rules/builtin?version=0", null, users[0].Token);
+        Assert.Contains(builtin.Folders!, f => f.Folder == @"\steamapps\common\" && f.Category == ActivityCategory.Game);
+    }
+
     private static async Task<RuleCandidatesResponse> CandidatesAsync(HttpClient http)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, "/api/rules/candidates");
