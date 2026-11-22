@@ -8,6 +8,9 @@
 
 ## 0.1.5
 
+- ChatGPT、OpenCode、WorkBuddy 归为工作中。
+  en: ChatGPT, OpenCode, and WorkBuddy now count as working.
+
 - 按安装目录识别为游戏时，名称改为取 Steam 库里的游戏名或游戏文件夹名，不再显示「xxx-Win64-Shipping」这类文件名；不在游戏库目录里的 Unreal 引擎游戏也能识别为在玩游戏。
   en: Games recognized by their install folder now show the name from the Steam library or the game folder instead of file names like "xxx-Win64-Shipping". Unreal Engine games outside game libraries are also recognized as playing a game.
 

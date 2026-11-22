@@ -89,7 +89,7 @@ flowchart LR
   - 推测一致（`guessed`）：内置规则和任何人的个人分类都没有覆盖，至少 `MinUsers` 个账号上报过，多数人推测的类别不为空。
   - 未识别应用（`unknown`）：内置规则和个人分类都没有覆盖、不属于 `guessed` 的，至少 `ReviewMinUsers` 个账号上报过，最多 100 个。
 - 该接口要求请求头 `X-DeskPal-Maintainer` 等于 `Rules:MaintainerToken`，口令为空时返回 404。`.github/workflows/rule-candidates.yml` 每天北京时间 9:17 请求一次（避开整点）：`consensus` 和 `guessed` 写进 `builtin-rules.json` 并开 PR（`guessed` 写成带名称的规则，以后不再依赖安装路径），人工审核后合并；`signals` 和 `unknown` 需要人工判断，写进 PR 说明，同时更新 issue「内置规则库：待人工确认」（没有文件改动时开不了 PR）。
-- 内置规则保存在 `builtin-rules.json`（目前版本 9，411 条，其中约 70 条是 Mac 应用的 Bundle ID，中文名称都带 `names.en`；另有 `folders` 列出 11 个游戏库目录），Server 启动时把规则写入数据库、目录写入 `AppMeta`；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。缓存里还没有目录的客户端按版本 0 请求，拿一次完整的规则库。目录放在单独的字段里，不是新的 `RuleKind`，旧客户端不认识新枚举值会读不了整个规则库。里面的网站和标题规则不参与浏览器的默认分类。版本 3 起没有 `Music`、`Shopping`、`Social`、`News`、`Reading`。
+- 内置规则保存在 `builtin-rules.json`（目前版本 10，413 条，其中约 70 条是 Mac 应用的 Bundle ID，中文名称都带 `names.en`；另有 `folders` 列出 11 个游戏库目录），Server 启动时把规则写入数据库、目录写入 `AppMeta`；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。缓存里还没有目录的客户端按版本 0 请求，拿一次完整的规则库。目录放在单独的字段里，不是新的 `RuleKind`，旧客户端不认识新枚举值会读不了整个规则库。里面的网站和标题规则不参与浏览器的默认分类。版本 3 起没有 `Music`、`Shopping`、`Social`、`News`、`Reading`。
 - 分类口径：桌面应用里，企业微信、飞书、钉钉、Slack、Teams、邮箱和会议软件归为 `Work`；QQ、微信、Telegram 等个人聊天归为 `Communication`。浏览器里的网页不再按网站种类细分。音乐播放器、Kindle、calibre、Discord 没有单独类别，显示为“其他活动”和应用名。
 
 ## 状态判断和防抖

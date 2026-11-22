@@ -21,7 +21,7 @@
 | 识别不出来 | 归为 `Other`，标题显示“其他活动”，应用名在下一行，不算放松 | 宁可少报放松，不误报；用户要求和其他状态一样分两行 |
 | 麦克风 | 不采集，没有“会议中” | 麦克风被占用也可能是语音聊天或打游戏 |
 | 聊天软件分类 | QQ、微信、Telegram 等个人聊天归为 `Communication`（在聊天）；企业微信、飞书、钉钉、Outlook、会议软件归为 `Work` | 用户选定 |
-| 工作和生活都常用的应用 | 内置规则归为 `Other`，显示“其他活动”和应用名：远程桌面（向日葵、ToDesk、远程桌面连接等）、虚拟机和安卓模拟器、文件资源管理器、Everything、记事本、PDF 阅读器、AI 助手（Claude、Codex 归为工作）、翻译、笔记软件、个人邮箱（QQ 邮箱、网易邮箱、Gmail、Foxmail 等）、剪映。只有对大多数人明确是工作或放松的应用才归为 `Work`、`Video`、`Game`；个人习惯用「纠正分类」 | 用户认为远程桌面这类应用不该被强行归为工作 |
+| 工作和生活都常用的应用 | 内置规则归为 `Other`，显示“其他活动”和应用名：远程桌面（向日葵、ToDesk、远程桌面连接等）、虚拟机和安卓模拟器、文件资源管理器、Everything、记事本、PDF 阅读器、AI 助手（Claude、Codex、ChatGPT、OpenCode、WorkBuddy 归为工作）、翻译、笔记软件、个人邮箱（QQ 邮箱、网易邮箱、Gmail、Foxmail 等）、剪映。只有对大多数人明确是工作或放松的应用才归为 `Work`、`Video`、`Game`；个人习惯用「纠正分类」 | 用户认为远程桌面这类应用不该被强行归为工作 |
 | 界面文案 | 书面用语：工作中、在聊天、正在浏览网页、其他活动、在看视频、在玩游戏；不用“忙”“摸鱼”。本机识别分标题、应用、详情三行。页面上写「房间」，不写 Room | 用户要求 |
 | 多语言 | 简体中文和英文。所有给用户看的文字都在客户端（resx 和 `web/src/i18n/`），Server 只返回错误码和参数，不做多语言。设置里可选跟随系统、简体中文、English，立即生效。更新内容同样按界面语言显示。内置规则的应用名在规则库里写 `names.en`，发送和保存的仍是默认名称（中文），由接收方按自己的界面语言翻译，不改协议 | 用户要求文案从代码里抽出来、只由客户端提供；用户要求内置规则库支持多语言 |
 | 服务器地址 | 登录页和设置页不显示、不能修改服务器地址，连接失败的提示不带地址。联调只改 `settings.json` | 用户要求不让用户看到服务器地址 |
@@ -218,3 +218,4 @@
 | 2026-11-21 | 首页成员排序：`MemberItem` 增加 `Trailing`（已屏蔽，或离线满 `MemberOrder.OfflineDelay` 即 1 分钟，按离线快照的 `Since` 算，面板每 30 秒重推一次），`MemberOrder.Sort` 先按 `Trailing` 分组，组内按本机保存的拖动顺序。`member.reorder` 在选中的房间里改用 `MemberOrder.Merge`：拖动结果只重排同一组成员在保存顺序里占的位置，离线成员的位置不变，重新上线后回到原处；跨组拖动不生效，页面也只允许在同组内拖动。提示改为新键 `status.dragToSortOffline` |
 | 2026-11-21 | 规则库改进（用户反馈游戏名显示成 `xxx-Win64-Shipping`、规则库里已有的应用分错了没有改进入口）：游戏库目录从 `LayeredClassifier` 移到 `builtin-rules.json` 的 `folders`（`FolderRuleDto`，规则库版本 9），Server 存进 `AppMeta`，`/api/rules/builtin` 一起返回；单独的字段而不是新 `RuleKind`，旧客户端不受影响；客户端缓存里没有目录时按版本 0 请求一次。`\steamapps\` 改为 `\steamapps\common\`。推测层新增 Unreal 发行版（`-Win64-Shipping`）归为游戏。新增 `GameNames`：Steam 清单 → 能读的文件描述 → 游戏文件夹名 → Unreal 根目录。`UnclassifiedUsage` 也统计推测层的应用（`Guessed`），「待归类」不列；`UnknownAppItem`、`UnknownAppReports` 增加 `Guessed`（迁移 `AddUnknownAppGuessed`）。候选接口新增 `guessed`、`signals`，门槛改为 `MinUsers` 2、`MinAgreement` 0.66，新增 `ReviewMinUsers` 1。`rule-candidates.yml` 改为每天运行，有待确认内容时更新 issue「内置规则库：待人工确认」。同意分享的说明换成新键 `sharing.details` |
 | 2026-11-22 | `rule-candidates.yml` 的定时从 UTC 1:00（北京时间 9:00 整点）改为 `17 9 * * *`、`timezone: Asia/Shanghai`（北京时间 9:17）。GitHub 在每小时整点负载高，schedule 会推迟，严重时丢掉 |
+| 2026-11-22 | 内置规则库版本 10：`chatgpt` 从其他改为工作，新增 `opencode`、`workbuddy` 为工作；`chatgpt.com` 与桌面版一致。浏览器前台仍不使用网站规则 |
