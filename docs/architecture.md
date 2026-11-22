@@ -88,7 +88,7 @@ flowchart LR
   - 待确认的改动（`signals`）：达不到上面的门槛，但至少 `Rules:ReviewMinUsers`（默认 1）个账号设置过。内置规则里已有、只是有人改了分类的应用在这里出现，例如一个人把 Codex 改成其他。
   - 推测一致（`guessed`）：内置规则和任何人的个人分类都没有覆盖，至少 `MinUsers` 个账号上报过，多数人推测的类别不为空。
   - 未识别应用（`unknown`）：内置规则和个人分类都没有覆盖、不属于 `guessed` 的，至少 `ReviewMinUsers` 个账号上报过，最多 100 个。
-- 该接口要求请求头 `X-DeskPal-Maintainer` 等于 `Rules:MaintainerToken`，口令为空时返回 404。`.github/workflows/rule-candidates.yml` 每天请求一次：`consensus` 和 `guessed` 写进 `builtin-rules.json` 并开 PR（`guessed` 写成带名称的规则，以后不再依赖安装路径），人工审核后合并；`signals` 和 `unknown` 需要人工判断，写进 PR 说明，同时更新 issue「内置规则库：待人工确认」（没有文件改动时开不了 PR）。
+- 该接口要求请求头 `X-DeskPal-Maintainer` 等于 `Rules:MaintainerToken`，口令为空时返回 404。`.github/workflows/rule-candidates.yml` 每天北京时间 9:17 请求一次（避开整点）：`consensus` 和 `guessed` 写进 `builtin-rules.json` 并开 PR（`guessed` 写成带名称的规则，以后不再依赖安装路径），人工审核后合并；`signals` 和 `unknown` 需要人工判断，写进 PR 说明，同时更新 issue「内置规则库：待人工确认」（没有文件改动时开不了 PR）。
 - 内置规则保存在 `builtin-rules.json`（目前版本 9，411 条，其中约 70 条是 Mac 应用的 Bundle ID，中文名称都带 `names.en`；另有 `folders` 列出 11 个游戏库目录），Server 启动时把规则写入数据库、目录写入 `AppMeta`；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。缓存里还没有目录的客户端按版本 0 请求，拿一次完整的规则库。目录放在单独的字段里，不是新的 `RuleKind`，旧客户端不认识新枚举值会读不了整个规则库。里面的网站和标题规则不参与浏览器的默认分类。版本 3 起没有 `Music`、`Shopping`、`Social`、`News`、`Reading`。
 - 分类口径：桌面应用里，企业微信、飞书、钉钉、Slack、Teams、邮箱和会议软件归为 `Work`；QQ、微信、Telegram 等个人聊天归为 `Communication`。浏览器里的网页不再按网站种类细分。音乐播放器、Kindle、calibre、Discord 没有单独类别，显示为“其他活动”和应用名。
 
@@ -353,7 +353,7 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 |---|---|
 | Server 镜像 | `.github/workflows/docker.yml`：推送默认分支或 `v*` 标签时用 `deploy/Dockerfile.server` 构建，推到 `ghcr.io/hulushilei/deskpal-server` |
 | Server 运行 | Portainer Stack（`deploy/stack.yml`），在 192.168.66.5 上发布 18820 端口；`Jwt__Key` 来自 Stack 环境变量 `DESKPAL_JWT_KEY`，`Rules__MaintainerToken` 来自可选的 `DESKPAL_MAINTAINER_TOKEN`；`Auth__RequireSignupInvite`、`Auth__AdminUserNames__0` 来自可选的 `DESKPAL_REQUIRE_SIGNUP_INVITE`、`DESKPAL_ADMIN_USER`（多个用户名用逗号分隔） |
-| 规则库候选 | `.github/workflows/rule-candidates.yml`：每天和手动运行，用 secret `DESKPAL_MAINTAINER_TOKEN` 请求 `/api/rules/candidates`，`.github/scripts/merge-rule-candidates.mjs` 合并进 `builtin-rules.json`，校验后开 PR（分支 `rules/candidates`） |
+| 规则库候选 | `.github/workflows/rule-candidates.yml`：每天北京时间 9:17 和手动运行，用 secret `DESKPAL_MAINTAINER_TOKEN` 请求 `/api/rules/candidates`，`.github/scripts/merge-rule-candidates.mjs` 合并进 `builtin-rules.json`，校验后开 PR（分支 `rules/candidates`） |
 | 自动更新 | main 上的镜像同时推 `latest` 和 `sha-<提交号>`。GitHub Actions POST `PORTAINER_WEBHOOK_URL?tag=sha-<提交号>`，再等到 `/health` 的 `revision` 等于该提交号。Traefik 只在 36443 上公开 webhook token 路径 |
 | HTTPS | 192.168.66.10 上已有的 Traefik：`deskpal.hafuhafu.cn` 走 443 和 36443 两个入口，`*.hafuhafu.cn` 泛域名证书（阿里云 DNS challenge）；路由文件 `/etc/traefik/conf/deskpal.yml`，仓库里的副本是 `deploy/traefik-dynamic.yml` |
 | 客户端 | `.github/workflows/ci.yml`：main 上改了客户端时用 Velopack 发测试版 Pre-release（通道 `beta`，版本 `x.y.z-dev.<运行号>`，安装包 `DeskPal-<版本>-Setup.exe`，测试版版本号形如 `0.1.2-dev.15`），只保留最近 8 个；手动推送 `vX.Y.Z` 发正式版（通道 `win`，安装包同样是 `DeskPal-<版本>-Setup.exe`，例如 `DeskPal-0.1.2-Setup.exe`）。安装包是 Inno Setup 向导（`installer/DeskPal.iss`，CI 下载 Inno Setup 6.7.3 并校验 SHA256 后编译），内嵌 `vpk pack` 生成的 Setup.exe；用户选好目录后用 `--installto` 静默安装。Release 上只放这个向导，Velopack 自带的 Setup.exe 上传后删除，自动更新只用 nupkg 和 releases 清单。已安装的客户端启动后和每 6 小时向 GitHub Release 检查更新，后台下载；只在退出或选择立即重启时安装，启动时不自动安装。取消测试版会删除已下载的包。打包时带 `--framework webview2`，安装程序和每次更新前都会检查 WebView2 Runtime，缺少时自动安装。CI 先用 Node 22 构建 `web/`。Release 说明附带更新内容：测试版列出上一次发布以来的提交标题，正式版列出上一个正式版以来的提交标题。客户端弹出的更新内容另取自 `CHANGELOG.md`，CI 发布时要求最上面一节是本次的正式版版本号（测试版取 `x.y.z-dev.N` 的 `x.y.z`） |

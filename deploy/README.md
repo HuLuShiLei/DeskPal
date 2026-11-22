@@ -57,7 +57,7 @@ GitHub Actions 在 main 的镜像推送成功后，POST 仓库 secret `PORTAINER
 
 ## 5. 内置规则库候选
 
-用户改的分类只对自己生效（个人分类）。`.github/workflows/rule-candidates.yml` 每天北京时间 9 点自动运行一次，也可以在 Actions 页面手动运行：
+用户改的分类只对自己生效（个人分类）。`.github/workflows/rule-candidates.yml` 每天北京时间 9:17 自动运行一次（避开整点，减少 GitHub 推迟或丢掉这次运行），也可以在 Actions 页面手动运行：
 
 1. 请求生产环境的 `/api/rules/candidates`。只统计同意分享使用数据、注册满 `Rules__MinAccountAgeDays` 天的账号，一个账号一票。
 2. 多人一致、且和当前内置规则不同的应用分类，以及多人按安装目录推测为同一类别的应用（例如游戏，名称取自 Steam 清单或游戏文件夹），写进 `builtin-rules.json` 并把 `version` 加 1。

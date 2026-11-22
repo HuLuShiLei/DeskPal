@@ -6,7 +6,9 @@ name: 内置规则库候选
 # 仓库设置里要允许 GitHub Actions 创建 PR（Settings → Actions → General → Workflow permissions）。
 on:
   schedule:
-    - cron: '0 1 * * *'
+    # 避开每小时整点。GitHub 在整点负载高，schedule 会推迟，严重时这次运行直接丢掉。
+    - cron: '17 9 * * *'
+      timezone: Asia/Shanghai
   workflow_dispatch:
 
 jobs:
