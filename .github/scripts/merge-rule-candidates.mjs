@@ -15,7 +15,7 @@ const { values: opt } = parseArgs({
 // 内置规则库只收这些类别，Browsing 和已退役的类别不写入，见 rule builtin-rules-json。
 const builtinCategories = new Set(["Work", "Communication", "Video", "Game", "Other"]);
 const browsers = new Set(["chrome", "msedge", "firefox", "brave", "opera", "vivaldi", "360se", "360chrome", "qqbrowser", "sogouexplorer", "2345explorer"]);
-const categoryNames = { Work: "工作", Communication: "聊天", Video: "放松 · 视频", Game: "放松 · 游戏", Browsing: "浏览网页", Other: "其他" };
+const categoryNames = { Work: "工作", Communication: "聊天", Video: "视频", Game: "游戏", Browsing: "浏览网页", Other: "其他" };
 const label = (c) => (c ? categoryNames[c] ?? c : "（无）");
 
 async function loadCandidates() {
