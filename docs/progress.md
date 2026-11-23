@@ -86,7 +86,7 @@
 - Server 已通过 Portainer webhook 部署。从带 `revision` 的版本起，CI 会等到 `/health` 返回本次提交号。两台真实电脑登录还没验证。
 
 - macOS 客户端从没在真实的 Mac 上运行过，只在 Windows 上对 `Microsoft.macOS` 引用程序集做过类型检查（`tools/MacCheck`），CI 的 `mac` 任务也还没跑过。第一次要在 Mac 上依次验证：安装包能装上并打开、辅助功能授权、窗口标题和全屏、Safari 和 Chrome 的网址、空闲和锁屏、MediaRemote 在 15.4 之前和之后的表现、菜单栏图标左右键、面板拖动和关闭方式、置顶卡片、登录和退出登录后重启、开机自启、文件和文件夹选择、自动更新（更新后辅助功能授权是否要重新勾选）、和 Windows 电脑在同一个房间互看状态和统计。
-- Linux 客户端在 Ubuntu 24.04、GNOME Shell 46 上实际运行并验证过（X11 和 GNOME Wayland 两种会话、识别插件、托盘、AppImage），但还没在朋友的两台电脑上跑过：Ubuntu 26.04（GNOME Shell 50）和 Arch（环境未知）。CI 的 `linux` 任务还没跑过，它的改动在 `.local/ci-linux.patch`，要手动应用（ci.yml 是受保护文件）。锁屏信号、开机自启、自动更新、真实浏览器的进程名和媒体来源都没验证。清单见 changes-2026-11-23-linux.md 的「没有验证的」。
+- Linux 客户端在 Ubuntu 24.04、GNOME Shell 46 上实际运行并验证过（X11 和 GNOME Wayland 两种会话、识别插件、托盘、AppImage），但还没在朋友的两台电脑上跑过：Ubuntu 26.04（GNOME Shell 50）和 Arch（环境未知）。CI 的 `linux` 任务在 PR 上只跑过编译和打包（AppImage 能生成，包内资源齐全），还没发布过 Release。锁屏信号、开机自启、自动更新、真实浏览器的进程名和媒体来源都没验证。清单见 changes-2026-11-23-linux.md 的「没有验证的」。
 
 ## 偏离方案
 

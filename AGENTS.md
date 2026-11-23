@@ -43,7 +43,7 @@ dotnet build DeskPal.slnx
 dotnet test tests/DeskPal.Tests
 cd src/DeskPal.Server; dotnet run            # http://localhost:5180
 dotnet run --project src/DeskPal.Client      # 本机客户端
-dotnet build src/DeskPal.Client.Mac -r osx-arm64   # 只能在 Mac 上：用 .NET SDK 10.0.2xx，dotnet workload install macos --version 10.0.204，Xcode 26.2（三者配套，见 ci.yml 的 mac 任务）
+dotnet build src/DeskPal.Client.Mac -r osx-arm64   # 只能在 Mac 上：macos workload 和 Xcode 要配套，版本以 ci.yml 的 mac 任务的 XCODE_VERSION、MACOS_WORKLOAD 为准
 dotnet build tools/MacCheck -p:MacRef=<Microsoft.macOS.dll>   # Windows 上检查 Mac 客户端能否编译，见 tools/MacCheck
 dotnet build src/DeskPal.Client.Linux      # Linux 客户端。运行要在 Linux 桌面上，系统里有 GTK 4 和 WebKitGTK 6.0
 cd src/DeskPal.Client/web; npm run dev  # 面板前端，http://localhost:5190/，用模拟数据
