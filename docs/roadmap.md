@@ -110,7 +110,7 @@
 
 ## 八、以后（可选）
 
-- 创意工坊：用户上传宠物皮肤和摆件。
+- 创意工坊：用户上传宠物皮肤和摆件。分两层：本地皮肤只在自己的桌面显示；精选投稿经过审核后才在房间里显示。见第九节「收费方式调研」。
 - 端到端加密：成员本地生成密钥对，Room 密钥在成员之间分发，成员退出时轮换；`Envelope.Enc` 改为加密算法标识，Payload 改为密文，Server 不需要改。`game.*` 消息不加密。
 - 数据库按需从 SQLite 换成 PostgreSQL（换 EF Core Provider，重新生成迁移）。
 - 季节活动和限定外观。
@@ -124,9 +124,64 @@
 | 产品定位 | 「带游戏的状态共享工具」还是「带状态共享的挂机游戏」。影响店铺分类、首次打开的体验和宣传重点。建议后者：Steam 用户是冲着桌宠和收集来的，状态共享让它和别的挂机游戏不一样 |
 | 掉落依据 | 按在线时长、按输入次数，还是按工作时长。建议按在线时长，理由见阶段 B |
 | 道具能不能赠送、交易 | 只能赠送给房间成员、完全不能流通，或接入 Steam 交易。建议先只能赠送 |
-| 收费方式 | 免费加外观 DLC（支持者包）、低价买断，或完全免费。Bongo Cat 是免费加道具 |
+| 收费方式 | 倾向低价买断加付费外观，免费游玩作为备选，尚未最终确认。依据见下方「收费方式调研」 |
 | 是否保留独立版 | 很多公司电脑不允许装 Steam，上班开着 Steam 也不合适，而 DeskPal 的主要使用场景就是上班。可以同时保留独立版（现在这套安装和更新），账号互通 |
 | 房间历史能不能存在 Server | 只存每人每天的在线分钟数，房间周历和房间共同目标才能做准确。要改硬约束 4 |
+
+### 收费方式调研（2026-11-23）
+
+担心的问题：DeskPal 有服务器成本，买断制如果销量不达预期，会不会入不敷出；卖外观的话，是不是就不能开放创意工坊。
+
+**结论**：倾向低价买断，加支持者包和官方外观付费内容，再开放免费创意工坊，但工坊皮肤默认只在自己的桌面显示。真正容易入不敷出的是「免费游玩加可在 Steam 市场交易的掉落」，不是买断制。
+
+**服务器成本**
+
+- 空闲的 SignalR 连接每个约 16 到 31 KB 内存（[实测](https://www.mertozen.com/en/blog/real-time-secenekleri-polling-long-polling-sse-websocket-signalr)、[.NET 6 优化](https://devblogs.microsoft.com/dotnet/performance-improvements-in-aspnet-core-6/)）。有人用 2 核云主机压测，承载了约 10 万个连接（[压测记录](https://staffordwilliams.com/blog/2019/06/10/load-testing-aspnet-core-signalr/)）。在线人数到几万之前，一台每月几十美元的云主机就够用。
+- 粗算：4.99 美元一份，扣除折扣、退款、地区差价和 Steam 30% 分成后，开发者到手约 2.4 美元（按 Rusty's Retirement 每份约 7 美元、扣分成前到手约 5 美元的比例）。每月卖出二十几份可以付一台云主机。
+- 买断制下，每个连接的用户都付过钱，销量低时在线人数也低，成本和收入一起涨跌。免费游玩时，成本跟着免费用户和机器人账号一起涨。
+
+**同类产品**（第三方销量估算误差可能达到四成，只看数量级）
+
+| 产品 | 收费方式 | 结果 |
+|---|---|---|
+| Bongo Cat | 免费；单个皮肤 2.50 美元；2026 年 9 月起每月通行证 4.99 美元，同时有免费档 | 同时在线 15 万以上，开发者估计约一半是机器人，每月净收入 2000 到 4000 美元，开发者说在亏钱。收入主要来自付费皮肤，市场交易抽成不到一成（[GameSpot](https://www.gamespot.com/articles/viral-steam-hit-bongo-cat-doesnt-actually-make-any-money/1100-6532777/)、[Paw Pass 公告](https://steamdb.info/patchnotes/25057778/)） |
+| Rusty's Retirement | 买断约 7 美元，加 4 美元支持者包 | 4 个月卖出约 33 万份；约 11% 的玩家买了支持者包，这一项约 11 万美元（[GameDiscover](https://newsletter.gamediscover.co/p/how-rustys-retirement-idle-farmed)） |
+| Spirit City: Lofi Sessions | 买断 11.99 美元；扩展区域 7.99 美元；外观包、支持者包各约 5 美元 | 估算几十万份。定位（游戏化的专注工具，可收集）和 DeskPal 最接近 |
+| Desktop Mate | 免费；付费角色 DLC 每个 14.99 美元 | 开发者公开说开放模组和自定义模型会影响 DLC 销量，所以一直限制（[开发者说明](https://steamcommunity.com/app/3301060/discussions/0/612037567209022276/)） |
+| Wallpaper Engine | 买断约 4 美元，创意工坊完全免费 | 估算约 2900 万份，工坊 320 万件作品（[估算](https://gamestats.ai/steam-sales/431960-wallpaper-engine)） |
+
+**外观分三层，付费和创意工坊并存**
+
+DeskPal 的宠物会被房间成员看到。自制皮肤如果别人也能看到，会违反第一条原则（图片里可以写字），带来不雅和侵权内容的审核负担，也让官方外观失去「别人看得到」的价值。
+
+| 层 | 做法 | 房间里别人能否看到 |
+|---|---|---|
+| 本地皮肤 | 现成模式创意工坊（Ready-to-use Workshop），免费随便做、随便订阅 | 不能，别人看到的是你的官方外观 |
+| 精选投稿 | 精选模式创意工坊（Curated Workshop）：投稿、社区投票、审核通过后成为官方道具，放进免费掉落池或在商店出售并分成给作者，类似 Dota 2、TF2（[Steamworks 文档](https://partner.steamgames.com/doc/features/workshop)）。Valve 工坊条款写明可以按开发者指示代付分成（[条款](https://steamcommunity.com/workshop/workshoplegalagreement/?appid=0)），上架前和 Valve 确认 | 能 |
+| 官方付费 | 支持者包、季节外观包、新宠物种类。可以做跟随状态变化的动画（工作时戴眼镜、玩游戏时拿手柄） | 能 |
+
+精选投稿要吸取 2015 年 Skyrim 付费模组的教训：上线 4 天撤下，原因是作者只分到 25%，而且像「原来免费的东西现在要收钱」（[Ars Technica](https://arstechnica.com/gaming/2015/04/valve-yanks-new-mod-sales-feature-from-steam-after-only-four-days/)）。分成比例要大方，已经免费的东西不改成收费。
+
+**Steam 规则**
+
+- Steam 版的游戏内购买必须用 Steam 钱包，不能把玩家引到不支持 Steam 钱包的站外商店（[免费游戏文档](https://partner.steamgames.com/doc/store/freetoplay)）。
+- Steam 支持自动续费，但官方文档写明「支持得不好」，很多产品后来改回一次性付费（[订阅文档](https://partner.steamgames.com/doc/store/pricing/subscriptions)）。不做订阅制主收入。
+- 2026 年 6 月 Task Bar Hero 因物品量太大，被 Valve 要求只开放传说级以上物品交易（[GamesRadar](https://www.gamesradar.com/games/rpg/rpg-devs-apologize-to-steam-staff-and-all-of-our-players-after-their-game-draws-164-000-concurrent-players-and-starts-breaking-valves-marketplace/)）。道具不接入 Steam 市场交易，和第七节「道具存储」的建议一致。
+
+**分阶段**
+
+| 时间 | 内容 |
+|---|---|
+| 上架时 | 买断定在 4.99 美元这一档，同时上架支持者包（专属外观，不影响数值） |
+| 有稳定用户后 | 每个季度一个外观包 DLC；开放本地皮肤创意工坊 |
+| 社区成熟后 | 开放精选投稿和作者分成 |
+
+- 拉朋友：做一个免费试玩版（Steam Demo），能加入房间、看到状态，但不掉落道具。试玩版能否用 Steam 登录并连接 Server，在第七节的 Steamworks 技术验证里一起确认。
+- 兜底：Server 不可用时客户端仍能单独运行（桌宠、本地统计）。可以考虑承诺停服时公开 Server 供玩家自己部署，消除「买了以后服务器关了怎么办」的顾虑。
+
+**备选**：仿照 Bongo Cat 免费游玩，道具不能交易，靠付费皮肤和带免费档的月度通行证。用户多、容易出名，但每个用户贡献的收入低，服务器成本跟着免费用户涨。
+
+**不做**：订阅制作为主要收入、可在 Steam 市场交易的掉落、任何影响数值的付费。
 
 ### 可以继续想的方向
 
