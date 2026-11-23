@@ -39,6 +39,7 @@
     <Content Include="Resources\deskpal.png" Link="deskpal.png" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\..\CHANGELOG.md" Link="CHANGELOG.md" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="gnome-extension\**\*" Link="gnome-extension\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="browser-extension\**\*" Link="browser-extension\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- 前端和 Windows 版共用 src/DeskPal.Client/web，构建结果复制到输出目录的 web/。没有 Node 时可传 -p:SkipWebBuild=true。 -->

@@ -862,10 +862,16 @@ Restart DeskPal after installing it.</value>
   <data name="App_AlreadyRunningMac" xml:space="preserve">
     <value>DeskPal is already running. Open it from the DeskPal icon in the menu bar.</value>
   </data>
-  <data name="Provider_NotFound" xml:space="preserve">
-    <value>Can't find the provider plugin “{0}”. Check that it is in the plugins folder and is executable.</value>
+  <data name="Plugin_NotFound" xml:space="preserve">
+    <value>Can’t find the plugin “{0}”. It may have been moved or deleted. Click Refresh to read the plugins folder again.</value>
   </data>
-  <data name="Provider_ExtensionInstalled" xml:space="preserve">
-    <value>The extension is installed. Log out of your desktop and back in so DeskPal can see which app you're using.</value>
+  <data name="Plugin_GnomeExtensionInstalled" xml:space="preserve">
+    <value>The extension is installed. Log out of your desktop and back in so DeskPal can see which app you’re using.</value>
+  </data>
+  <data name="Plugin_BrowserExtensionReady" xml:space="preserve">
+    <value>The browser extension is in the folder that opened. On your browser’s extensions page, turn on Developer mode, click Load unpacked, and choose this folder.</value>
+  </data>
+  <data name="Plugin_UnknownAction" xml:space="preserve">
+    <value>This plugin has no such action.</value>
   </data>
 </root>

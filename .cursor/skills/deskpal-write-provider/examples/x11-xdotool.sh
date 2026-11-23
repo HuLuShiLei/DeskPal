@@ -3,7 +3,7 @@
 # DeskPal 内置识别已经支持 X11，这个例子只是用来演示一个完整可用的插件。
 # 需要：xdotool、xprop、jq。
 set -u
-echo '{"v":1,"type":"hello","name":"x11-xdotool","version":"1.0"}'
+echo '{"v":1,"type":"hello","name":"x11-xdotool","version":"1.0","provides":["foreground"]}'
 
 last=""
 while :; do

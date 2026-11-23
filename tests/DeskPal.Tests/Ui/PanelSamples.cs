@@ -44,7 +44,18 @@ public static class PanelSamples
         UpdateActivity: null,
         ShareUsage: true,
         Theme: "system",
-        Personal: new PersonalView(AccountSync: false));
+        Personal: new PersonalView(AccountSync: false),
+        Plugins: new PluginsView(
+            [
+                new PluginView("user:vscode-title.ps1", "VS Code 标题", "0.2", Official: false, Enabled: true,
+                    ["foreground"], ["foreground"], "running", [], []),
+                new PluginView("user:spotify.py", "spotify.py", null, Official: false, Enabled: false,
+                    ["foreground", "domain"], [], "disabled", [], []),
+                new PluginView("official:windows", "Windows", null, Official: true, Enabled: true,
+                    ["foreground", "domain", "idle", "lock", "media"], ["domain", "idle", "lock", "media"], "running", [], []),
+            ],
+            [],
+            @"C:\Users\alice\AppData\Roaming\DeskPal\plugins"));
 
     public static PanelInput Default()
     {

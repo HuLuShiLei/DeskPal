@@ -1,5 +1,6 @@
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Pipeline;
+using DeskPal.Client.Providers;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Windows.Media.Control;
@@ -10,7 +11,7 @@ namespace DeskPal.Client.Collectors;
 /// Reads what the system media controls show (song or video title), the same info as the volume flyout.
 /// When several apps have a session, the one of the foreground program wins over the one Windows shows.
 /// </summary>
-public sealed class MediaCollector(ActivityBus bus, ForegroundState foreground, ILogger<MediaCollector> logger) : BackgroundService
+public sealed class MediaCollector(SignalSink bus, ForegroundState foreground, ILogger<MediaCollector> logger) : BackgroundService
 {
     private static readonly MediaSignal Stopped = new(false, null, null, null);
 

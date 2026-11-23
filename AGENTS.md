@@ -25,10 +25,10 @@ Windows、macOS 和 Linux 状态共享客户端：同一个房间的成员实时
 src/DeskPal.Shared/       Envelope、MessageTypes、状态枚举、DTO、RulePattern（Server 和客户端共用）
 src/DeskPal.Server/       ASP.NET Core：Features/{Auth,Rooms,Presence,Rules}、Data（EF Core + SQLite + 迁移）
 src/DeskPal.Client.Core/  纯逻辑，无 Windows 依赖：事件总线、分层分类器、状态判定、防抖、隐私过滤、文案
-src/DeskPal.Client.App/   Windows、macOS、Linux 共用的客户端服务：连接、房间、状态推送、统计、同步、更新、面板命令（PanelBridge）、启动流程（ClientStartup）。平台能力走 Platform/IClientPlatform、ISecretProtector
-src/DeskPal.Client/       WPF 托盘程序：Collectors、Native、Platform（WindowsPlatform、DPAPI）、Ui（WebView2 宿主）；web/ 是面板和登录页的前端（Vite + Preact），三个平台共用
-src/DeskPal.Client.Mac/   macOS 菜单栏程序（net10.0-macos，AppKit + WKWebView）：Collectors（NSWorkspace、辅助功能）、Native、Platform、Ui。只能在 Mac 上编译
-src/DeskPal.Client.Linux/ Linux 托盘程序（net10.0，GTK 4 + WebKitGTK 6.0，GirCore）：Providers（前台窗口的来源：X11、GNOME 扩展、识别插件）、Collectors（空闲、锁屏、MPRIS）、Native、Platform、Ui；gnome-extension/ 是随包发布的 GNOME Shell 扩展。任何系统都能编译，只能在 Linux 上运行
+src/DeskPal.Client.App/   Windows、macOS、Linux 共用的客户端服务：连接、房间、状态推送、统计、同步、更新、面板命令（PanelBridge）、启动流程（ClientStartup）、插件宿主（Providers/ProviderHost，官方插件和用户插件按列表路由）。平台能力走 Platform/IClientPlatform、ISecretProtector
+src/DeskPal.Client/       WPF 托盘程序：Collectors（Windows 官方插件的部件）、Native、Platform（WindowsPlatform、DPAPI）、Ui（WebView2 宿主）；web/ 是面板和登录页的前端（Vite + Preact），三个平台共用
+src/DeskPal.Client.Mac/   macOS 菜单栏程序（net10.0-macos，AppKit + WKWebView）：Collectors（macOS 官方插件的部件：NSWorkspace、辅助功能）、Native、Platform、Ui。只能在 Mac 上编译
+src/DeskPal.Client.Linux/ Linux 托盘程序（net10.0，GTK 4 + WebKitGTK 6.0，GirCore）：Providers（Linux 官方插件：X11 或 GNOME 扩展读窗口、BrowserBridge 收浏览器扩展报的网站）、Collectors（空闲、锁屏、MPRIS）、Native、Platform、Ui；gnome-extension/ 是随包发布的 GNOME Shell 扩展，browser-extension/ 是随包发布的浏览器扩展。任何系统都能编译，只能在 Linux 上运行
 tools/MacCheck/           没有 Mac 时对 macOS 引用程序集做类型检查
 tests/DeskPal.Tests/      xUnit：Client.Core 逻辑、RoomService、PresenceHub 集成测试
 .github/workflows/        ci（测试 + 客户端 exe）、docker（Server 镜像推 GHCR）、rule-candidates（每天把多人一致的个人分类和推测出的游戏做成规则库 PR）
@@ -51,7 +51,8 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 ```
 
 - macOS 客户端：CI 的 `mac` 任务在 macos-15 上按芯片打 `DeskPal-<版本>-osx-arm64-Setup.pkg` 和 `osx-x64`，和 Windows 版同一个版本号、同一个 Release，更新通道是 `osx-arm64`、`osx-x64`（测试版加 `-beta`）。默认不签名；仓库变量 `MAC_SIGN=true` 并配好 ci.yml 里列出的 secret 后签名并公证。在其他分支手动运行 CI 只打包不发布，安装包在 Artifacts 里。
-- Linux 客户端：CI 的 `linux` 任务在 ubuntu-24.04 上打 `DeskPal-<版本>-linux-x64.AppImage`，同一个版本号、同一个 Release，更新通道是 `linux-x64`（测试版 `linux-x64-beta`）。当前窗口的来源见 `docs/architecture.md` 的「Linux 客户端」；写识别插件见 `docs/provider-guide.md`。
+- Linux 客户端：CI 的 `linux` 任务在 ubuntu-24.04 上打 `DeskPal-<版本>-linux-x64.AppImage`，同一个版本号、同一个 Release，更新通道是 `linux-x64`（测试版 `linux-x64-beta`）。窗口和网站的来源见 `docs/architecture.md` 的「Linux 客户端」。
+- 插件：三个平台的活动信息（当前窗口、网站、暂离、锁屏、媒体）都来自插件。各平台的采集器组成官方插件（在程序内运行），用户插件是插件文件夹里的程序，按设置里的列表顺序逐项决定用谁的。采集器构造函数收 `SignalSink`，不要直接往 `ActivityBus` 发布，也不要用 `AddHostedService` 单独注册。见 `docs/architecture.md` 的「插件」和 `docs/provider-guide.md`。
 - 发布：推送 main 会自动构建 Server 镜像（`ghcr.io/hulushilei/deskpal-server:latest`），构建成功后调用 Portainer webhook 拉取并重建容器。webhook 地址放在 GitHub secret `PORTAINER_WEBHOOK_URL`，不进仓库。main 上改了客户端时，CI 会发测试版 Pre-release（`DeskPal-<版本>-Setup.exe`，例如 `DeskPal-0.1.2-dev.15-Setup.exe`）；打 `vX.Y.Z` 标签并推送，会发正式版 `DeskPal-<版本>-Setup.exe`（例如 `DeskPal-0.1.2-Setup.exe`）。远程仓库是 `https://github.com/HuLuShiLei/DeskPal.git`。
 - **推送 main 前先更新根目录的 `CHANGELOG.md`**：把这次要推送、用户能感受到的改动整理成书面中文条目，写进最上面一节，和代码一起推送。最上面一节是下一个正式版的版本号（例如 `## 0.1.2`），测试版的改动也写在这一节。发布正式版 `vX.Y.Z` 后，下一次推送先新开 `## X.Y.(Z+1)`。CI 发布时检查最上面一节的版本号：正式版必须和标签一致，测试版不能低于自动算出的版本号，否则发布失败；改了客户端却没改 `CHANGELOG.md` 时只给出警告。客户端更新后，第一次打开面板时按界面语言显示还没看过的条目。每条下面缩进一行 `en:` 写英文；看过与否按中文比对，改了中文会再显示一次。
 - 安装包是 `installer/DeskPal.iss` 编译的 Inno Setup 向导，用户可以选择安装目录（默认 `%LocalAppData%\Programs\DeskPal`）。安装版的日志在 `<安装目录>\logs`，设置和规则在 `%APPDATA%\DeskPal`。
@@ -88,7 +89,7 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 | `deskpal-add-signal` | 新增一种采集信号或采集器 |
 | `deskpal-db-change` | 新增实体、字段，生成 EF Core 迁移 |
 | `deskpal-builtin-rules` | 增删改内置分类规则库 |
-| `deskpal-write-provider` | 给 Linux 客户端写识别插件（provider），或修改插件协议 |
+| `deskpal-write-provider` | 写插件（provider）提供当前窗口、网站、暂离、锁屏或媒体（三个平台），或修改插件协议、插件宿主 |
 | `deskpal-ui-copy` | 新增或修改任何用户可见文字（中英文、对话框、提示、错误、CHANGELOG） |
 
 ## 项目 rule

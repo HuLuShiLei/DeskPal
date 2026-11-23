@@ -479,7 +479,7 @@ jobs:
           gh release delete-asset "$tag" "DeskPal-$CHANNEL.AppImage" --yes || true
           notes=$(gh release view "$tag" --json body --jq .body)
           if ! printf '%s' "$notes" | grep -q '## Linux'; then
-            printf '%s\n\n## Linux\n\n下载 DeskPal-%s-linux-x64.AppImage，执行 chmod +x 后运行。需要系统里有 GTK 4 和 WebKitGTK 6.0（Ubuntu 24.04 及以上、Arch 的 webkitgtk-6.0）。GNOME 的 Wayland 会话要在「设置 → 应用识别」里安装扩展并重新登录；其他 Wayland 桌面需要识别插件，见 docs/provider-guide.md。\n' "$notes" "$version" > notes.txt
+            printf '%s\n\n## Linux\n\n下载 DeskPal-%s-linux-x64.AppImage，执行 chmod +x 后运行。需要系统里有 GTK 4 和 WebKitGTK 6.0（Ubuntu 24.04 及以上、Arch 的 webkitgtk-6.0）。GNOME 的 Wayland 会话要在「设置 → 插件 → Linux 内置」里安装 GNOME 扩展并重新登录；按网站分类要装 DeskPal 浏览器扩展（同一处获取）；其他 Wayland 桌面需要一个提供当前窗口的插件，见 docs/provider-guide.md。\n' "$notes" "$version" > notes.txt
             gh release edit "$tag" --notes-file notes.txt
           fi
 

@@ -8,8 +8,10 @@
 
 ## 0.1.5
 
-- 新增 Linux 版（测试版，x64 的 AppImage），和 Windows、macOS 用户在同一个房间里互相看到状态。需要系统里有 GTK 4 和 WebKitGTK 6.0。使用 Wayland 的 GNOME 要在「设置 → 应用识别」里安装扩展并重新登录；其他 Wayland 桌面需要识别插件。Linux 版没有置顶卡片，不读取浏览器网址。
-  en: DeskPal is now available for Linux (beta, an x64 AppImage). Linux, Windows, and Mac users see each other in the same room. GTK 4 and WebKitGTK 6.0 must be installed. On GNOME with Wayland, install the extension from Settings → App detection and sign in again; other Wayland desktops need a detection plugin. The Linux app has no pinned cards and does not read the browser address.
+- 新增 Linux 版（测试版，x64 的 AppImage），和 Windows、macOS 用户在同一个房间里互相看到状态。需要系统里有 GTK 4 和 WebKitGTK 6.0。使用 Wayland 的 GNOME 要在「设置 → 插件 → Linux 内置」里安装 GNOME 扩展并重新登录；装上 DeskPal 浏览器扩展（同一处获取）后可以按网站分类；其他 Wayland 桌面需要一个提供当前窗口的插件。Linux 版没有置顶卡片。
+  en: DeskPal is now available for Linux (beta, an x64 AppImage). Linux, Windows, and Mac users see each other in the same room. GTK 4 and WebKitGTK 6.0 must be installed. On GNOME with Wayland, install the GNOME extension from Settings → Plugins → Linux built-in and sign in again; install the DeskPal browser extension (from the same place) to classify browsing by site; other Wayland desktops need a plugin that supplies the active window. The Linux app has no pinned cards.
+- 设置里新增「插件」：当前窗口、网站、暂离、锁屏和正在播放的媒体都由插件提供。每个系统自带一个内置插件；也可以把自己写的插件放进插件文件夹，排在内置插件上面，替换其中某几项。插件默认关闭，开启前会确认。编写方法见仓库里的插件编写指南。
+  en: Settings has a new Plugins section. The active window, the site, away, lock, and playing media all come from plugins. Each system has a built-in plugin, and you can put your own plugins in the plugins folder and rank them above the built-in one to replace some of these. New plugins start turned off and ask before turning on. See the plugin guide in the repository for how to write one.
 - ChatGPT、OpenCode、WorkBuddy 归为工作中。
   en: ChatGPT, OpenCode, and WorkBuddy now count as working.
 

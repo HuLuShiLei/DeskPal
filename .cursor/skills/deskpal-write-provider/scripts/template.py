@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-"""DeskPal 识别插件模板（Python，只用标准库）。把 read_window 换成你的环境的查询方式即可。
+"""DeskPal 插件模板（Python，只用标准库，三个平台都能用）。把 read_window 换成你的环境的查询方式即可。
 
-用法：复制到 ~/.config/DeskPal/providers/，chmod +x，然后在 DeskPal「设置 → 应用识别」里选它。
+用法：复制到插件文件夹（Windows %APPDATA%\\DeskPal\\plugins，macOS ~/Library/Application Support/DeskPal/plugins，
+Linux ~/.config/DeskPal/plugins），Linux 和 macOS 上 chmod +x，然后在 DeskPal「设置 → 插件」里点“刷新”并开启它。
+Windows 上 .py 插件需要装好 Python 并能在命令行里直接运行 python。
+这个模板只提供“当前窗口”（PROVIDES）。要提供更多，在 PROVIDES 里加上，并输出对应的行，见 emit_* 函数。
 """
 import json
 import os
@@ -27,8 +30,23 @@ def executable(pid):
         return None
 
 
+# 这个插件提供哪几项：foreground（当前窗口）、domain（网站）、idle（暂离）、lock（锁屏）、media（媒体）。
+# 没写的几项由 DeskPal 插件列表里排在下面的插件提供。
+PROVIDES = ["foreground"]
+
+
+def emit_idle(seconds):
+    """距上次键盘鼠标输入的秒数。提供 idle 时每隔几秒输出一次；是否算暂离由 DeskPal 按用户的设置判断。"""
+    emit({"v": 1, "type": "idle", "seconds": seconds})
+
+
+def emit_media(playing, title=None, artist=None, source=None):
+    """正在播放的内容；source 是播放器的程序名。停止时 playing=False。"""
+    emit({"v": 1, "type": "media", "playing": playing, "title": title, "artist": artist, "source": source})
+
+
 def main():
-    emit({"v": 1, "type": "hello", "name": "my-provider", "version": "0.1"})
+    emit({"v": 1, "type": "hello", "name": "my-plugin", "version": "0.1", "provides": PROVIDES})
     last = None
     while True:
         try:

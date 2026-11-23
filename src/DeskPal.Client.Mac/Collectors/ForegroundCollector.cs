@@ -4,6 +4,7 @@ using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Native;
 using DeskPal.Client.Platform;
+using DeskPal.Client.Providers;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -15,7 +16,7 @@ namespace DeskPal.Client.Collectors;
 /// The process name published is the bundle identifier (com.tencent.xinWeChat), so rules work across languages
 /// and versions; apps without one use their executable name.
 /// </summary>
-public sealed class ForegroundCollector(ActivityBus bus, ForegroundState state, ILogger<ForegroundCollector> logger) : BackgroundService
+public sealed class ForegroundCollector(SignalSink bus, ForegroundState state, ILogger<ForegroundCollector> logger) : BackgroundService
 {
     private readonly int _ownProcessId = Environment.ProcessId;
 

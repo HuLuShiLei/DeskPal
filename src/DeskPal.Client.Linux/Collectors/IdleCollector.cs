@@ -12,7 +12,7 @@ namespace DeskPal.Client.Collectors;
 /// touched. GNOME answers through org.gnome.Mutter.IdleMonitor, X11 through the screen saver extension. Elsewhere
 /// the session's IdleHint from systemd-logind is used, which the desktop sets after its own idle time.
 /// </summary>
-public sealed class IdleCollector(ActivityBus bus, AppSettings settings, ILogger<IdleCollector> logger) : BackgroundService
+public sealed class IdleCollector(SignalSink bus, AppSettings settings, ILogger<IdleCollector> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

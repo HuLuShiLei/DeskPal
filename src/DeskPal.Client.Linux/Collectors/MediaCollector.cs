@@ -11,7 +11,7 @@ namespace DeskPal.Client.Collectors;
 /// org.mpris.MediaPlayer2 and exposes its playback status, title and artist. The source app is the executable of
 /// the process that owns the name, the same word the foreground window uses, so "the foreground app is playing" works.
 /// </summary>
-public sealed class MediaCollector(ActivityBus bus, ILogger<MediaCollector> logger) : BackgroundService
+public sealed class MediaCollector(SignalSink bus, ILogger<MediaCollector> logger) : BackgroundService
 {
     private const string Prefix = "org.mpris.MediaPlayer2.";
     private const string PlayerPath = "/org/mpris/MediaPlayer2";

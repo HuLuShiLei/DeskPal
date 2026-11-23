@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Globalization;
-using DeskPal.Client.Collectors;
 using DeskPal.Client.Core.Diagnostics;
 using DeskPal.Client.Platform;
 using DeskPal.Client.Providers;
@@ -188,12 +187,8 @@ public sealed class LinuxApp
         var s = builder.Services;
         s.AddDeskPalClient(settings, store, api, logs, new LinuxPlatform());
         s.AddSingleton(application);
-        s.AddSingleton<ForegroundService>();
-        s.AddSingleton<IProviderControl>(sp => sp.GetRequiredService<ForegroundService>());
-        s.AddHostedService(sp => sp.GetRequiredService<ForegroundService>());
-        s.AddHostedService<IdleCollector>();
-        s.AddHostedService<SessionCollector>();
-        s.AddHostedService<MediaCollector>();
+        s.AddSingleton<LinuxStatus>();
+        s.AddSingleton<IActivityProvider, LinuxOfficialProvider>();
         s.AddSingleton<PanelController>();
         return builder.Build();
     }

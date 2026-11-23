@@ -68,10 +68,11 @@ public sealed class AppSettings
     public Dictionary<Guid, List<Guid>> MemberOrder { get; set; } = [];
 
     /// <summary>
-    /// Linux only. File name of the provider plugin in the providers folder that reports the foreground window;
-    /// null uses the built-in detection. Only on this computer.
+    /// The plugin list in the user's order, with which ones are on. Plugins not listed yet are added by
+    /// <see cref="DeskPal.Client.Providers.ProviderHost"/>: built-in ones on, the user's own off. Only on this computer.
+    /// Replaced as a whole, never changed in place, so saving on another thread never sees it half-changed.
     /// </summary>
-    public string? Provider { get; set; }
+    public List<PluginSetting> Plugins { get; set; } = [];
 
     public string? GetToken()
     {
@@ -94,6 +95,18 @@ public sealed class AppSettings
     public void SetToken(string? token) => ProtectedToken = token is null
         ? null
         : SecretProtection.ProtectToBase64(Encoding.UTF8.GetBytes(token));
+}
+
+/// <summary>One row of the plugin list.</summary>
+public sealed class PluginSetting
+{
+    /// <summary>official:&lt;platform&gt; or user:&lt;file name&gt;.</summary>
+    public string Id { get; set; } = "";
+
+    public bool Enabled { get; set; }
+
+    /// <summary>A user plugin's capabilities from its last hello line, so the list is right before it has started.</summary>
+    public List<string>? Provides { get; set; }
 }
 
 public sealed class SettingsStore

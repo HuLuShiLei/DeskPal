@@ -1,0 +1,6 @@
+{
+  "name": { "message": "DeskPal" },
+  "description": { "message": "Tells DeskPal on this computer which site you are on, so it can share browsing by site. Sends only the site's host name, only to 127.0.0.1, never from private windows." },
+  "connected": { "message": "DeskPal: connected" },
+  "disconnected": { "message": "DeskPal: not connected. Is DeskPal running, with its Linux plugin on?" }
+}

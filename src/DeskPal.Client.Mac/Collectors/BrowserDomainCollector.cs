@@ -1,5 +1,6 @@
 using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Native;
+using DeskPal.Client.Providers;
 using DeskPal.Shared.Api;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,7 @@ namespace DeskPal.Client.Collectors;
 /// Safari and Chromium browsers expose the page's URL on their web area (AXURL); otherwise the first text field in
 /// the toolbar is taken as the address bar, like the Windows collector does. Same timing as on Windows.
 /// </summary>
-public sealed class BrowserDomainCollector(ActivityBus bus, ForegroundState foreground, ILogger<BrowserDomainCollector> logger) : BackgroundService
+public sealed class BrowserDomainCollector(SignalSink bus, ForegroundState foreground, ILogger<BrowserDomainCollector> logger) : BackgroundService
 {
     private const int MaxDepth = 14;
     private const int MaxNodes = 600;

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import type { CloseAction, Language, PanelState, SignupInviteItem } from "../bridge";
+import type { CloseAction, Language, PanelState, PluginCapability, PluginNote, PluginsView, PluginView, SignupInviteItem } from "../bridge";
 import { useHost } from "../host";
-import { t } from "../i18n";
+import { hasMessage, t, type MessageKey } from "../i18n";
 import { isLinux } from "../platform";
-import { Avatar, Icon, Section, SettingRow, Switch } from "../ui";
+import { Avatar, Hint, Icon, Section, SettingRow, Switch } from "../ui";
 
 const issuePageUrl = "https://github.com/HuLuShiLei/DeskPal/issues/new/choose";
 
@@ -181,79 +181,129 @@ export function SettingsPage({ state }: { state: PanelState }) {
           </SettingRow>
         </div>
       </Section>
-      {s.provider && <ProviderSettings provider={s.provider} />}
+      {s.plugins && <PluginSettings plugins={s.plugins} />}
       {s.isAdmin && <SignupInvites />}
     </>
   );
 }
 
-const providerGuideUrl = "https://github.com/HuLuShiLei/DeskPal/blob/main/docs/provider-guide.md";
+const pluginGuideUrl = "https://github.com/HuLuShiLei/DeskPal/blob/main/docs/provider-guide.md";
 
-/** 只有 Linux 有：当前窗口从哪里读（内置识别或识别插件），以及它现在是否正常。 */
-function ProviderSettings({ provider }: { provider: NonNullable<PanelState["settings"]["provider"]> }) {
+const capabilityOrder: PluginCapability[] = ["foreground", "domain", "idle", "lock", "media"];
+
+function pluginName(plugin: PluginView): string {
+  const key = `plugins.officialName.${plugin.id.replace(/^official:/, "")}`;
+  return plugin.official && hasMessage(key) ? t(key) : plugin.name;
+}
+
+function noteText(note: PluginNote): string {
+  const key = `plugins.note.${note.key}`;
+  return hasMessage(key) ? t(key, { text: note.text ?? "" }) : (note.text ?? note.key);
+}
+
+function capabilityName(capability: PluginCapability): string {
+  return t(`plugins.cap.${capability}` as MessageKey);
+}
+
+/**
+ * 插件列表：每个平台的内置插件（原来的采集器）和用户放进插件文件夹的插件放在一起，像 mod 列表一样排先后。
+ * 每一项信息（当前窗口、网站、暂离、锁屏、媒体）取最上面一个开启的插件提供的；高亮的标签是正在使用的。
+ */
+function PluginSettings({ plugins }: { plugins: PluginsView }) {
   const { run, ask, toast } = useHost();
-  const status = () => {
-    switch (provider.status) {
-      case "ok":
-        if (provider.source === "x11") return t("provider.okX11");
-        if (provider.source === "gnome") return t("provider.okGnome");
-        return provider.detail ? t("provider.okPluginNamed", { name: provider.detail }) : t("provider.okPlugin");
-      case "starting":
-        return t("provider.starting");
-      case "needsExtension":
-        return t("provider.needsExtension");
-      case "needsRelogin":
-        return t("provider.needsRelogin");
-      case "needsPlugin":
-        return t("provider.needsPlugin");
-      default:
-        return provider.detail ? t("provider.failedDetail", { detail: provider.detail }) : t("provider.failed");
+  const setEnabled = async (plugin: PluginView, enabled: boolean) => {
+    if (enabled && !plugin.official) {
+      const answer = await ask({
+        title: t("plugins.enableTitle", { name: pluginName(plugin) }),
+        message: t("plugins.enableMessage"),
+        okText: t("plugins.enable"),
+      });
+      if (!answer.ok) return;
     }
+    await run({ type: "plugins.setEnabled", id: plugin.id, enabled });
   };
-  const install = async () => {
-    const answer = await ask({ title: t("provider.installTitle"), message: t("provider.installMessage"), okText: t("provider.install") });
-    if (!answer.ok) return;
-    const result = await run({ type: "provider.installHelper" });
+  const action = async (plugin: PluginView, id: string) => {
+    if (id === "linux.installGnomeExtension") {
+      const answer = await ask({ title: t("plugins.installTitle"), message: t("plugins.installMessage"), okText: t("plugins.action.linux.installGnomeExtension") });
+      if (!answer.ok) return;
+    }
+    const result = await run({ type: "plugins.action", id: plugin.id, action: id });
     const message = (result.data as { message?: string } | undefined)?.message;
     if (result.ok && message) toast(message);
   };
   const openGuide = () => {
     const link = document.createElement("a");
-    link.href = providerGuideUrl;
+    link.href = pluginGuideUrl;
     link.target = "_blank";
     link.rel = "noreferrer";
     link.click();
   };
+  const last = plugins.items.length - 1;
   return (
-    <Section title={t("provider.heading")}>
-      <div class="card flush">
-        <SettingRow title={t("provider.source")} hint={t("provider.sourceHint")}>
-          <select
-            aria-label={t("provider.source")}
-            value={provider.selected ?? ""}
-            onChange={(e) => void run({ type: "provider.select", plugin: e.currentTarget.value || null })}
-          >
-            <option value="">{t("provider.builtin")}</option>
-            {provider.selected !== null && !provider.plugins.includes(provider.selected) && <option value={provider.selected}>{provider.selected}</option>}
-            {provider.plugins.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </SettingRow>
-        <div class="setting-row setting-desc provider-status">{status()}</div>
-        {provider.status === "needsExtension" && (
-          <SettingRow title={t("provider.installTitle")}>
-            <button class="primary" onClick={install}>
-              {t("provider.install")}
-            </button>
-          </SettingRow>
+    <Section title={t("plugins.heading")} aside={<Hint text={t("plugins.hint")} />}>
+      <div class="card flush plugin-list">
+        {plugins.unprovided.length > 0 && (
+          <div class="setting-row plugin-warning">
+            <Icon name="warning" class="setting-icon" />
+            <p class="setting-desc">{t("plugins.unprovided", { list: plugins.unprovided.map(capabilityName).join(t("common.listSeparator")) })}</p>
+          </div>
         )}
-        <SettingRow title={t("provider.folder")}>
-          <button onClick={() => run({ type: "provider.openFolder" })}>{t("settings.open")}</button>
+        {plugins.items.map((plugin, index) => {
+          const name = pluginName(plugin);
+          const state = plugin.state === "running" ? null : t(`plugins.state.${plugin.state}`);
+          const lines = [...(state ? [{ text: state, tone: plugin.state === "failed" ? "warn" : "info" }] : []), ...plugin.notes.map((n) => ({ text: noteText(n), tone: n.tone }))];
+          return (
+            <div class={plugin.enabled ? "setting-row plugin-row" : "setting-row plugin-row off"} key={plugin.id}>
+              <div class="plugin-order">
+                <button class="icon-button" aria-label={t("plugins.moveUp")} title={t("plugins.moveUp")} disabled={index === 0} onClick={() => run({ type: "plugins.move", id: plugin.id, offset: -1 })}>
+                  <Icon name="chevronUp" />
+                </button>
+                <button class="icon-button" aria-label={t("plugins.moveDown")} title={t("plugins.moveDown")} disabled={index === last} onClick={() => run({ type: "plugins.move", id: plugin.id, offset: 1 })}>
+                  <Icon name="chevronDown" />
+                </button>
+              </div>
+              <div class="setting-text">
+                <div class="setting-title">
+                  <span>{name}</span>
+                  {plugin.version && <span class="plugin-version">{plugin.version}</span>}
+                </div>
+                <div class="plugin-caps">
+                  <span class={plugin.official ? "badge" : "badge muted"}>{plugin.official ? t("plugins.official") : t("plugins.user")}</span>
+                  {capabilityOrder.filter((c) => plugin.provides.includes(c)).map((c) => {
+                    const used = plugin.owns.includes(c);
+                    return (
+                      <span class={used ? "plugin-cap used" : "plugin-cap"} key={c} title={plugin.enabled ? t(used ? "plugins.capUsed" : "plugins.capOverridden", { cap: capabilityName(c) }) : undefined}>
+                        {capabilityName(c)}
+                      </span>
+                    );
+                  })}
+                </div>
+                {lines.map((line, i) => (
+                  <p class={line.tone === "warn" ? "setting-desc plugin-note warn" : "setting-desc plugin-note"} key={i}>
+                    {line.text}
+                  </p>
+                ))}
+                {plugin.enabled && plugin.actions.length > 0 && (
+                  <div class="plugin-actions">
+                    {plugin.actions.map((id) => (
+                      <button key={id} onClick={() => void action(plugin, id)}>
+                        {hasMessage(`plugins.action.${id}`) ? t(`plugins.action.${id}` as MessageKey) : id}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div class="setting-control plugin-control">
+                <Switch checked={plugin.enabled} label={name} onChange={(v) => void setEnabled(plugin, v)} />
+              </div>
+            </div>
+          );
+        })}
+        <SettingRow title={t("plugins.folder")} hint={t("plugins.folderHint")}>
+          <button onClick={() => run({ type: "plugins.refresh" })}>{t("plugins.refresh")}</button>
+          <button onClick={() => run({ type: "plugins.openFolder" })}>{t("settings.open")}</button>
         </SettingRow>
-        <SettingRow title={t("provider.guide")}>
+        <SettingRow title={t("plugins.guide")}>
           <button onClick={openGuide}>{t("settings.open")}</button>
         </SettingRow>
       </div>

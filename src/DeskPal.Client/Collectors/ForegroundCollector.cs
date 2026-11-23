@@ -3,13 +3,14 @@ using System.Diagnostics;
 using DeskPal.Client.Core.Classification;
 using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Native;
+using DeskPal.Client.Providers;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace DeskPal.Client.Collectors;
 
 /// <summary>Polls the foreground window once per second. Polling avoids global hooks, which security software tends to flag.</summary>
-public sealed class ForegroundCollector(ActivityBus bus, ForegroundState state, ILogger<ForegroundCollector> logger) : BackgroundService
+public sealed class ForegroundCollector(SignalSink bus, ForegroundState state, ILogger<ForegroundCollector> logger) : BackgroundService
 {
     private static readonly HashSet<string> ShellClasses = new(StringComparer.Ordinal) { "Progman", "WorkerW", "Shell_TrayWnd" };
 

@@ -2,7 +2,7 @@
 # 例子：Hyprland。按 hyprctl 的文档编写，【未在真机上验证】，用之前请先用 check_provider.py 检查。
 # 需要：hyprctl（Hyprland 自带）、jq。
 set -u
-echo '{"v":1,"type":"hello","name":"hyprland","version":"0.1"}'
+echo '{"v":1,"type":"hello","name":"hyprland","version":"0.1","provides":["foreground"]}'
 
 last=""
 while :; do

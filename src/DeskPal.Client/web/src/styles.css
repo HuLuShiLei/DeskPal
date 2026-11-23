@@ -386,7 +386,26 @@ button.pin-card-close {
 .setting-title { font-weight: 500; display: flex; align-items: center; gap: 6px; min-width: 0; }
 .setting-title > span { min-width: 0; }
 .setting-desc { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
-.setting-row.provider-status { min-height: 0; padding-top: 0; border-top: 0; }
+.plugin-row { align-items: flex-start; gap: 8px; padding-left: 6px; }
+.plugin-order { flex: none; display: flex; flex-direction: column; }
+.plugin-order .icon-button { width: 24px; height: 22px; min-height: 22px; }
+.plugin-row .setting-control { padding-top: 2px; }
+.plugin-row.off .setting-title > span:first-child { color: var(--muted); }
+.plugin-version { font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.plugin-caps { display: flex; flex-wrap: wrap; gap: 4px; margin: 5px 0 2px; }
+.plugin-caps .badge { margin-left: 0; margin-right: 2px; }
+.plugin-row .setting-title > span:first-child { overflow-wrap: anywhere; }
+.plugin-cap {
+  font-size: 11px; line-height: 18px; padding: 0 7px; border-radius: 999px;
+  color: var(--faint); border: 1px solid var(--line);
+}
+.plugin-cap.used { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
+.plugin-row.off .plugin-cap.used { color: var(--faint); background: transparent; border-color: var(--line); }
+.plugin-note { margin-top: 3px; }
+.plugin-note.warn { color: var(--warn-text); }
+.plugin-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.plugin-warning { min-height: 0; }
+.plugin-warning .setting-icon { color: var(--warn-text); }
 .hint { display: inline-flex; flex: none; }
 button.hint-button {
   width: 18px; height: 18px; min-height: 18px; padding: 0; border-radius: 50%;

@@ -9,8 +9,10 @@ namespace DeskPal.Client.Core.Providers;
 /// <summary>What a provider plugin said in one line of its output.</summary>
 public abstract record ProviderMessage;
 
-/// <summary>Optional first line: who the plugin is. Only written to the log.</summary>
-public sealed record ProviderHello(string Name, string? Version) : ProviderMessage;
+/// <summary>Optional first line: who the plugin is and what it supplies.</summary>
+/// <param name="Provides">The capabilities the plugin supplies; null when the line does not say (then
+/// <see cref="ProviderCapabilities.PluginDefault"/>). Names this version does not know are left out.</param>
+public sealed record ProviderHello(string Name, string? Version, IReadOnlySet<ProviderCapability>? Provides = null) : ProviderMessage;
 
 /// <summary>The window the user is working in.</summary>
 /// <param name="Process">Program name used by the rules: file name without folder and without ".exe".</param>
@@ -21,14 +23,24 @@ public sealed record ProviderForeground(string Process, string? Name, string Tit
 /// <summary>Host of the page in the foreground browser window; null when it cannot be read.</summary>
 public sealed record ProviderDomain(string? Domain) : ProviderMessage;
 
+/// <summary>Seconds since the last keyboard or mouse input. DeskPal compares it with the user's idle setting.</summary>
+public sealed record ProviderIdle(double Seconds) : ProviderMessage;
+
+/// <summary>Whether the screen is locked.</summary>
+public sealed record ProviderLock(bool Locked) : ProviderMessage;
+
+/// <summary>What is playing. <paramref name="Source"/> is the program name of the player, like a foreground process.</summary>
+public sealed record ProviderMedia(bool Playing, string? Title, string? Artist, string? Source) : ProviderMessage;
+
 /// <summary>One parsed line. Both null: nothing to do (blank line, or a message type this version does not know).</summary>
 public readonly record struct ProviderParseResult(ProviderMessage? Message, string? Error);
 
 /// <summary>
-/// The line protocol between DeskPal and a provider plugin, version 1. A plugin is any program that writes one JSON
+/// The line protocol between DeskPal and a plugin, version 1. A plugin is any program that writes one JSON
 /// object per line to its standard output, for example
 /// <c>{"v":1,"type":"foreground","process":"firefox","name":"Firefox","title":"Inbox","fullscreen":false}</c>.
-/// Described for plugin authors in docs/provider-guide.md; keep the two in step.
+/// Described for plugin authors in docs/provider-guide.md and checked by the skill's check_provider.py; keep the three
+/// in step.
 /// A plugin can only state these facts. Classification, the no-title rules and the privacy filter run afterwards,
 /// the same as for the built-in collectors.
 /// </summary>
@@ -85,6 +97,9 @@ public static class ProviderProtocol
                 "foreground" => ParseForeground(root),
                 "domain" => ParseDomain(root),
                 "hello" => ParseHello(root),
+                "idle" => ParseIdle(root),
+                "lock" => ParseLock(root),
+                "media" => ParseMedia(root),
                 _ => default,
             };
         }
@@ -98,6 +113,28 @@ public static class ProviderProtocol
         foreground.Title,
         foreground.Fullscreen,
         Browsers.IsBrowser(foreground.Process));
+
+    /// <summary>The signal the built-in collectors would publish for the same playback.</summary>
+    public static MediaSignal ToSignal(ProviderMedia media) => media.Playing
+        ? new MediaSignal(true, media.Title, media.Artist, media.Source)
+        : new MediaSignal(false, null, null, null);
+
+    /// <summary>
+    /// The host of a site as the rules compare it, or null when the value is not one: lower case, no "www.", no scheme,
+    /// path or port. Accepts a full address too, though plugins should only pass the host.
+    /// </summary>
+    public static string? NormalizeDomain(string? raw)
+    {
+        var value = Clean(raw, MaxPathLength);
+        if (value.Length == 0 || value.Contains(' '))
+        {
+            return null;
+        }
+
+        var host = RulePattern.NormalizeHost(value);
+        var valid = host == "localhost" || (host.Contains('.') && !host.StartsWith('.') && !host.EndsWith('.'));
+        return valid ? host : null;
+    }
 
     /// <summary>Folder and ".exe" removed, so a plugin may pass a full path or a Windows file name.</summary>
     public static string NormalizeProcess(string? value)
@@ -165,15 +202,53 @@ public static class ProviderProtocol
             return Fail("\"domain\" must be a string or null");
         }
 
-        var value = Clean(raw, MaxPathLength);
-        if (value.Length == 0 || value.Contains(' '))
+        return new ProviderParseResult(new ProviderDomain(NormalizeDomain(raw)), null);
+    }
+
+    private static ProviderParseResult ParseIdle(JsonElement root)
+    {
+        if (!root.TryGetProperty("seconds", out var value) || value.ValueKind != JsonValueKind.Number
+            || !value.TryGetDouble(out var seconds) || seconds < 0 || double.IsNaN(seconds) || double.IsInfinity(seconds))
         {
-            return new ProviderParseResult(new ProviderDomain(null), null);
+            return Fail("idle needs \"seconds\" (a number of seconds since the last input, 0 or more)");
         }
 
-        var host = RulePattern.NormalizeHost(value);
-        var valid = host == "localhost" || (host.Contains('.') && !host.StartsWith('.') && !host.EndsWith('.'));
-        return new ProviderParseResult(new ProviderDomain(valid ? host : null), null);
+        return new ProviderParseResult(new ProviderIdle(seconds), null);
+    }
+
+    private static ProviderParseResult ParseLock(JsonElement root)
+    {
+        if (!root.TryGetProperty("locked", out var value) || value.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+        {
+            return Fail("lock needs \"locked\" (true or false)");
+        }
+
+        return new ProviderParseResult(new ProviderLock(value.GetBoolean()), null);
+    }
+
+    private static ProviderParseResult ParseMedia(JsonElement root)
+    {
+        if (!root.TryGetProperty("playing", out var value) || value.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+        {
+            return Fail("media needs \"playing\" (true or false)");
+        }
+
+        if (!TryString(root, "title", out var title) || !TryString(root, "artist", out var artist) || !TryString(root, "source", out var source))
+        {
+            return Fail("\"title\", \"artist\" and \"source\" must be strings");
+        }
+
+        var playing = value.GetBoolean();
+        var cleanTitle = Clean(title, MaxTitleLength);
+        var cleanArtist = Clean(artist, MaxTitleLength);
+        var cleanSource = NormalizeProcess(source);
+        return new ProviderParseResult(
+            new ProviderMedia(
+                playing,
+                playing && cleanTitle.Length > 0 ? cleanTitle : null,
+                playing && cleanArtist.Length > 0 ? cleanArtist : null,
+                playing && cleanSource.Length > 0 ? cleanSource : null),
+            null);
     }
 
     private static ProviderParseResult ParseHello(JsonElement root)
@@ -185,9 +260,31 @@ public static class ProviderProtocol
 
         var cleanName = Clean(name, MaxNameLength);
         var cleanVersion = Clean(version, MaxNameLength);
-        return cleanName.Length == 0
-            ? Fail("hello needs \"name\"")
-            : new ProviderParseResult(new ProviderHello(cleanName, cleanVersion.Length == 0 ? null : cleanVersion), null);
+        if (cleanName.Length == 0)
+        {
+            return Fail("hello needs \"name\"");
+        }
+
+        HashSet<ProviderCapability>? provides = null;
+        if (root.TryGetProperty("provides", out var list) && list.ValueKind != JsonValueKind.Null)
+        {
+            if (list.ValueKind != JsonValueKind.Array)
+            {
+                return Fail("\"provides\" must be a list of names, like [\"foreground\", \"domain\"]");
+            }
+
+            provides = [];
+            foreach (var item in list.EnumerateArray())
+            {
+                // Names a later version adds are skipped, so a newer plugin still works with this DeskPal.
+                if (item.ValueKind == JsonValueKind.String && ProviderCapabilities.TryParse(item.GetString(), out var capability))
+                {
+                    provides.Add(capability);
+                }
+            }
+        }
+
+        return new ProviderParseResult(new ProviderHello(cleanName, cleanVersion.Length == 0 ? null : cleanVersion, provides), null);
     }
 
     /// <summary>False when the property is there but is neither a string nor null.</summary>

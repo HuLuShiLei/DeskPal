@@ -3,23 +3,24 @@ using DeskPal.Client.Ui;
 
 namespace DeskPal.Client.Providers;
 
-/// <summary>
-/// Lets the settings page show and change where the foreground window comes from. Only the Linux client registers
-/// one; without it the panel has no provider setting.
-/// </summary>
+/// <summary>The settings page's view of the plugin list and the changes it can make.</summary>
 public interface IProviderControl
 {
-    ProviderView View { get; }
+    PluginsView View { get; }
 
     /// <summary>Raised from any thread when <see cref="View"/> changed.</summary>
     event Action? Changed;
 
-    /// <summary>Switches to a plugin in the providers folder, or back to the built-in detection with null.</summary>
-    CommandResult Select(string? plugin);
+    CommandResult SetEnabled(string id, bool enabled);
 
-    /// <summary>Installs what the built-in detection needs on this desktop (the GNOME Shell extension).</summary>
-    Task<CommandResult> InstallHelperAsync();
+    /// <summary>Moves a plugin up (negative) or down (positive) the list; higher in the list wins.</summary>
+    CommandResult Move(string id, int offset);
 
-    /// <summary>The folder plugins are loaded from. Created when missing.</summary>
+    Task<CommandResult> RunActionAsync(string id, string action);
+
+    /// <summary>Reads the plugins folder again.</summary>
+    void Refresh();
+
+    /// <summary>Where the user's own plugins go. Created when missing.</summary>
     string Folder { get; }
 }

@@ -10,9 +10,9 @@
 | `DeskPal.Server` | net10.0 | ASP.NET Core：Auth、Rooms、Presence（SignalR Hub）、Rules；SQLite |
 | `DeskPal.Client.Core` | net10.0 | 不依赖 Windows 的纯逻辑：事件总线、分类器、状态判断、防抖、隐私过滤、面板状态（`Ui/PanelStateBuilder`） |
 | `DeskPal.Client.App` | net10.0 | Windows、macOS、Linux 共用的客户端服务：`ApiClient`、`HubService`、`RoomState`、`PresenceCoordinator`、统计和同步、`UpdateService`、面板命令 `PanelBridge`、启动流程 `ClientStartup`。平台能力通过 `Platform/IClientPlatform`（文件对话框、剪贴板、开机自启、打开链接、后备提示框）和 `ISecretProtector`（`SecretProtection.Current`）注入 |
-| `DeskPal.Client` | net10.0-windows10.0.19041.0 | WPF 托盘程序：采集器、`WindowsPlatform`、DPAPI、WebView2 宿主窗口，输出文件 `DeskPal.exe`。`web/` 是面板和登录页的前端（Vite + TypeScript + Preact），构建结果复制到输出目录的 `web/`，macOS 版共用 |
-| `DeskPal.Client.Mac` | net10.0-macos（macOS 13+） | macOS 菜单栏程序：采集器、`MacPlatform`、WKWebView 宿主窗口，输出 `DeskPal.app`。见下文「macOS 客户端」 |
-| `DeskPal.Client.Linux` | net10.0 | Linux 托盘程序：识别来源（X11、GNOME 扩展、识别插件）、采集器、`LinuxPlatform`、WebKitGTK 宿主窗口，发布为 AppImage。见下文「Linux 客户端」 |
+| `DeskPal.Client` | net10.0-windows10.0.19041.0 | WPF 托盘程序：Windows 官方插件（采集器）、`WindowsPlatform`、DPAPI、WebView2 宿主窗口，输出文件 `DeskPal.exe`。`web/` 是面板和登录页的前端（Vite + TypeScript + Preact），构建结果复制到输出目录的 `web/`，macOS 版共用 |
+| `DeskPal.Client.Mac` | net10.0-macos（macOS 13+） | macOS 菜单栏程序：macOS 官方插件（采集器）、`MacPlatform`、WKWebView 宿主窗口，输出 `DeskPal.app`。见下文「macOS 客户端」 |
+| `DeskPal.Client.Linux` | net10.0 | Linux 托盘程序：Linux 官方插件（X11 或 GNOME 扩展读窗口、浏览器扩展读网站、空闲、锁屏、媒体）、`LinuxPlatform`、WebKitGTK 宿主窗口，发布为 AppImage。见下文「Linux 客户端」 |
 | `DeskPal.Tests` | net10.0 | xUnit：分类、状态、Room 生命周期、Hub 集成测试 |
 
 ## 数据流
@@ -20,7 +20,9 @@
 ```mermaid
 flowchart LR
   subgraph client [DeskPal.Client]
-    Collectors["采集器（每秒轮询）"] --> Bus["ActivityBus"]
+    Official["官方插件（平台采集器）"] --> Host["ProviderHost（按插件列表路由）"]
+    User["用户插件（插件文件夹里的程序）"] --> Host
+    Host --> Bus["ActivityBus"]
     Bus --> Coordinator["PresenceCoordinator"]
     Coordinator --> Classifier["LayeredClassifier"]
     Coordinator --> Resolver["PresenceResolver"]
@@ -34,12 +36,35 @@ flowchart LR
   Notifier --> Hub
 ```
 
-1. 采集器把事实发布到 `ActivityBus`（基于 Channel 的一对多广播）。
+1. 插件提供事实：每个平台的官方插件（原来的采集器）和用户放进插件文件夹的插件。`ProviderHost` 按插件列表决定每一项事实用谁的（见下文「插件」），只把被采用的发布到 `ActivityBus`（基于 Channel 的一对多广播）。
 2. `PresenceCoordinator` 把信号合并进 `ActivitySnapshot`，分类后得到 `LocalPresence`，交给防抖器。
 3. 防抖器提交 `CommittedPresence` 以后，只按当前进入的房间做隐私过滤并发布。切换房间时，先给上一个房间发离线，再给当前房间发状态。已加入但没进入的房间留在列表里，再次进入不用邀请码。选「无房间」（`AppSettings.NoRoom`，或一个房间都没有）时 `RoomState.SelectedRoom` 为 null，所有房间都收到离线，之后不发布状态；选择、创建或加入房间时清除。分类和房间无关，切换房间不改变分类结果。
 4. Server 只检查发送者是否为该房间的成员，然后转发给同一 Group 的其他连接，并把最新状态缓存在内存里。
 
-## 采集信号
+## 插件
+
+活动事实分五项能力（`ProviderCapability`）：`foreground` 当前窗口、`domain` 浏览器网站、`idle` 暂离、`lock` 锁屏、`media` 正在播放。三个平台都由插件提供，没有绕过插件的采集路径。
+
+| 部件 | 位置 | 作用 |
+|---|---|---|
+| `IActivityProvider` | Client.App/Providers | 一个插件：Id、提供哪几项（可以运行中变化）、健康状态、状态说明（`PluginNote`）、按钮 |
+| `OfficialProvider` | Client.App/Providers | 平台官方插件：把采集器作为一组在程序内运行。每次启动用 `ActivatorUtilities` 新建采集器，传入这次运行的 `SignalSink`；关掉插件就真正停掉采集器。平台用 `AddOfficialProvider` 注册；Linux 用子类 `LinuxOfficialProvider` |
+| `ExternalProvider` | Client.App/Providers | 用户插件：插件文件夹里的程序，标准输出每行一个 JSON（协议 v1，`Client.Core/Providers/ProviderProtocol`）。每秒最多 50 行，退出后按 1/2/5/10/30/60 秒重启；暂离把插件报的秒数交给 `IdleTracker` 按用户设置判断 |
+| `PluginFiles` | Client.App/Providers | 哪些文件算插件、怎么启动。Windows：`.exe`、`.cmd`/`.bat`、`.ps1`、`.py`；macOS、Linux：有可执行位的文件 |
+| `ProviderRouting` / `CapabilityRouter` | Client.Core/Providers | 路由：每项能力取列表里最上面一个开启且没有出错的、声明了它的插件。主人变了，补发新主人上次报的值（采集器只在变化时报）；没人提供时发清空值（无网站、不暂离、不锁屏、没在播放；当前窗口保持上一个） |
+| `ProviderHost` | Client.App/Providers | 管理列表：合并官方插件、设置里的顺序和插件文件夹（每 10 秒和点“刷新”时重新读）；启停插件；把信号按路由发到 `ActivityBus`；实现设置页用的 `IProviderControl` |
+
+列表顺序和开关存在 `AppSettings.Plugins`（`{ id, enabled, provides }`），只在本机。新出现的官方插件加在末尾并开启；插件文件夹里新出现的文件加在最上面并关闭，开启时界面会确认。用户插件 hello 里声明的能力记在 `provides`，下次启动前列表就能显示对。
+
+插件文件夹：Windows `%APPDATA%\DeskPal\plugins`，macOS `~/Library/Application Support/DeskPal/plugins`，Linux `~/.config/DeskPal/plugins`。
+
+设置页「插件」一节（`PluginsView`）全平台都有：每个插件显示提供的能力，高亮的是实际在用的；可以开关、上下移动；显示状态说明和插件提供的按钮；没人提供的能力在顶部提示。
+
+插件只陈述事实。分类、不记录标题、隐私过滤都在插件之后执行，和以前一样。写插件见 [provider-guide.md](provider-guide.md)。
+
+## 官方插件的采集方式
+
+Windows 官方插件（`official:windows`）：
 
 | 信号 | 来源 | 说明 |
 |---|---|---|
@@ -48,6 +73,8 @@ flowchart LR
 | `IdleSignal` | `GetLastInputInfo` | 超过 `IdleMinutes`（默认 5）无输入 |
 | `LockSignal` | `SystemEvents.SessionSwitch` | 锁屏和解锁 |
 | `MediaSignal` | WinRT `GlobalSystemMediaTransportControlsSessionManager` | 是否在播放、标题、来源应用 |
+
+macOS 官方插件（`official:macos`）见下文「macOS 客户端」，Linux 官方插件（`official:linux`）见「Linux 客户端」。
 
 ## 分类
 
@@ -321,6 +348,8 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 
 `src/DeskPal.Client.Mac`，和 Windows 版共用 `Client.App`、`Client.Core`、`Shared` 和 `web/`，协议、Server、房间、统计、同步都相同，Mac 和 Windows 用户在同一个房间里。只能在 Mac 上编译，.NET SDK、macos workload 和 Xcode 要配套：SDK 10.0.2xx、`dotnet workload install macos --version 10.0.204`（Microsoft.macOS 26.2）、Xcode 26.2，和 CI 一致；不指定版本会装最新的 workload，可能要求 runner 上没有的 Xcode。没有 Mac 时用 `tools/MacCheck` 对 `Microsoft.macOS` 引用程序集做类型检查。
 
+表里前台应用、窗口标题、浏览器网址、空闲、锁屏、媒体几行是两个平台官方插件（`official:windows`、`official:macos`）里的采集器。
+
 | 部分 | Windows | macOS |
 |---|---|---|
 | 前台应用 | `GetForegroundWindow`，进程名是 exe 名 | `NSWorkspace.FrontmostApplication`，不需要权限。进程名是 Bundle ID（`com.tencent.xinWeChat`），没有时用可执行文件名；显示名称是本地化的应用名 |
@@ -350,22 +379,29 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 
 `src/DeskPal.Client.Linux`，.NET 10，界面用 GTK 4 和 WebKitGTK 6.0（GirCore 绑定），D-Bus 用 Tmds.DBus.Protocol。和另外两个客户端共用 `Client.App`、`Client.Core`、`Shared` 和前端。GTK 和 WebKitGTK 用系统里的库，不打进安装包。
 
-### 当前窗口从哪里来
+采集由 Linux 官方插件（`official:linux`，`Providers/LinuxOfficialProvider`）完成，部件：`LinuxWindowSource`（当前窗口）、`BrowserBridge`（网站）、`IdleCollector`、`SessionCollector`、`MediaCollector`。部件的状态写进 `LinuxStatus`，插件据此在设置页显示说明和按钮（安装 GNOME 扩展、获取浏览器扩展）。
 
-Linux 没有统一的办法问“当前在用哪个窗口”，所以这部分是可替换的**识别来源**，由 `Providers/ForegroundService` 选择。任何来源最后都产生同样的 `ForegroundSignal`，之后的分类、防抖、不记录标题、隐私过滤与其他平台完全相同。
+### 当前窗口
 
-| 顺序 | 条件 | 来源 | 说明 |
-|---|---|---|---|
-| 1 | 设置里选了插件 | 识别插件 | `~/.config/DeskPal/providers/` 下的可执行文件，标准输出每行一个 JSON（协议 v1，`Client.Core/Providers/ProviderProtocol`）。由 `Client.App/Providers/ExternalProvider` 运行：每秒最多 50 行，退出后按 1/2/5/10/30/60 秒重启 |
-| 2 | X11 会话 | Xlib | 读 `_NET_ACTIVE_WINDOW`、标题、`WM_CLASS`、`_NET_WM_PID`、是否全屏，每秒一次 |
-| 3 | GNOME + Wayland | DeskPal 的 GNOME 扩展 | 扩展在会话总线上（`org.gnome.Shell` 的 `/io/github/hulushilei/DeskPal`）提供 `GetFocused`，DeskPal 每秒问一次。扩展从设置页安装到 `~/.local/share/gnome-shell/extensions/`，装后要重新登录 |
-| 4 | 其他 Wayland 桌面 | 无 | 设置页提示需要插件；这时只共享在线、暂离、锁屏和媒体 |
+Linux 没有统一的办法问“当前在用哪个窗口”。`LinuxWindowSource` 按会话类型（`LinuxSession`）选择：
 
-设置页的“应用识别”显示当前来源和状态（`ProviderView`：`source` 为 x11/gnome/plugin/none，`status` 为 ok/starting/needsExtension/needsRelogin/needsPlugin/failed）。这一节只在 Linux 出现，其他平台的 `SettingsView.Provider` 为 null。
+| 会话 | 来源 | 说明 |
+|---|---|---|
+| X11 | Xlib | 读 `_NET_ACTIVE_WINDOW`、标题、`WM_CLASS`、`_NET_WM_PID`、是否全屏，每秒一次。没有进程号也没有窗口类的窗口（窗口管理器自己的）不报 |
+| GNOME + Wayland | DeskPal 的 GNOME 扩展 | 扩展在会话总线上（`org.gnome.Shell` 的 `/io/github/hulushilei/DeskPal`）提供 `GetFocused`，每秒问一次。扩展从插件的按钮安装到 `~/.local/share/gnome-shell/extensions/`，装后要重新登录 |
+| 其他 Wayland 桌面 | 无 | 官方插件这时不声明 `foreground`，设置页提示需要一个提供当前窗口的插件放在它上面；网站、暂离、锁屏、媒体照常 |
 
 进程名的取法（`Native/LinuxProcess`）：窗口所属进程的可执行文件名，与 Windows 规则里的名字一致（`code`、`msedge`、`steam`）；可执行文件只是运行时（electron、python、java、wine 等）时改用窗口的应用标识；Wine 程序用命令行里的 `.exe`。
 
-内置来源不读浏览器网址，浏览器只显示“浏览中”和标题；插件可以用 `domain` 消息提供域名。
+### 网站
+
+Linux 上从浏览器外面读不到可靠的网址，所以网站由 DeskPal 浏览器扩展提供（`browser-extension/`，MV3，Chromium 系和 Firefox 121+，随程序发布）。
+
+- 扩展把当前标签页的域名、浏览器种类、是否有焦点 POST 到 `http://127.0.0.1:24913/v1/tab`（事件触发，外加每 30 秒一次心跳）。只发域名，不发网址；不在无痕窗口运行。
+- `BrowserBridge` 用 `HttpListener` 只监听 127.0.0.1。带 http(s) 或 `null` Origin 的请求（网页）一律 403；必须有 `X-DeskPal: 1` 和 JSON 内容类型，网页跨域发这种请求要先预检，预检只放行 `chrome-extension://`、`moz-extension://`；请求体不超过 4 KB；只回空响应。所以扩展不需要额外的站点权限（Firefox MV3 默认不授予）。
+- 它订阅 `ActivityBus` 上**已被采用的** `ForegroundSignal`（不管来自哪个插件），前台是浏览器时，按浏览器种类（`BrowserFamilies`）选那个浏览器扩展报的域名：同种且有焦点的优先，其次最近有焦点的；种类对不上时，只有一个浏览器有焦点就用它。2.5 分钟没消息的扩展作废。
+- 每次浏览器窗口变化后都发一次 `BrowserDomainSignal`（哪怕没变），管线等的就是它（`ActivitySnapshot.DomainPending`）。
+- “获取浏览器扩展”把扩展复制到 `~/.local/share/DeskPal/browser-extension/`：AppImage 每次启动挂载到不同的临时路径，浏览器又从选中的位置加载未打包的扩展，所以要放到固定位置。
 
 ### 其他信号
 

@@ -1,10 +1,11 @@
 using DeskPal.Client.Core.Pipeline;
+using DeskPal.Client.Providers;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Win32;
 
 namespace DeskPal.Client.Collectors;
 
-public sealed class SessionCollector(ActivityBus bus) : IHostedService
+public sealed class SessionCollector(SignalSink bus) : IHostedService
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {

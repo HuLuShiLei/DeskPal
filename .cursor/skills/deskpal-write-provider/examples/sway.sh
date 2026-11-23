@@ -3,7 +3,7 @@
 # 用之前请先用 check_provider.py 检查。
 # 需要：swaymsg（Sway 自带）、jq。
 set -u
-echo '{"v":1,"type":"hello","name":"sway","version":"0.1"}'
+echo '{"v":1,"type":"hello","name":"sway","version":"0.1","provides":["foreground"]}'
 
 last=""
 while :; do

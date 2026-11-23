@@ -1,3 +1,4 @@
+using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Core.Providers;
 
 namespace DeskPal.Tests.Providers;
@@ -103,5 +104,65 @@ public class ProviderProtocolTests
         var line = System.Text.Json.JsonSerializer.Serialize(new { type = "foreground", process = "a", title = new string('x', ProviderProtocol.MaxLineLength) });
 
         Assert.NotNull(ProviderProtocol.Parse(line).Error);
+    }
+
+    [Fact]
+    public void Hello_lists_what_the_plugin_supplies_and_skips_unknown_names()
+    {
+        var hello = Assert.IsType<ProviderHello>(ProviderProtocol.Parse("""{"type":"hello","name":"sway","provides":["foreground","media","teleport"]}""").Message);
+
+        Assert.Equal(new HashSet<ProviderCapability> { ProviderCapability.Foreground, ProviderCapability.Media }, hello.Provides);
+    }
+
+    [Fact]
+    public void Hello_without_provides_leaves_it_to_the_default()
+    {
+        var hello = Assert.IsType<ProviderHello>(ProviderProtocol.Parse("""{"type":"hello","name":"x"}""").Message);
+
+        Assert.Null(hello.Provides);
+        Assert.Equal(new HashSet<ProviderCapability> { ProviderCapability.Foreground, ProviderCapability.Domain }, ProviderCapabilities.PluginDefault);
+    }
+
+    [Fact]
+    public void Idle_lock_and_media_lines_are_read()
+    {
+        Assert.Equal(42.5, Assert.IsType<ProviderIdle>(ProviderProtocol.Parse("""{"type":"idle","seconds":42.5}""").Message).Seconds);
+        Assert.True(Assert.IsType<ProviderLock>(ProviderProtocol.Parse("""{"type":"lock","locked":true}""").Message).Locked);
+
+        var media = Assert.IsType<ProviderMedia>(ProviderProtocol.Parse("""{"type":"media","playing":true,"title":"Blue in Green","artist":"Miles Davis","source":"/usr/bin/spotify"}""").Message);
+        Assert.Equal(new MediaSignal(true, "Blue in Green", "Miles Davis", "spotify"), ProviderProtocol.ToSignal(media));
+    }
+
+    [Fact]
+    public void Stopped_media_carries_no_details()
+    {
+        var media = Assert.IsType<ProviderMedia>(ProviderProtocol.Parse("""{"type":"media","playing":false,"title":"left over"}""").Message);
+
+        Assert.Equal(new MediaSignal(false, null, null, null), ProviderProtocol.ToSignal(media));
+    }
+
+    [Theory]
+    [InlineData("""{"type":"idle"}""")]
+    [InlineData("""{"type":"idle","seconds":-1}""")]
+    [InlineData("""{"type":"idle","seconds":"10"}""")]
+    [InlineData("""{"type":"lock","locked":"yes"}""")]
+    [InlineData("""{"type":"media","title":"x"}""")]
+    [InlineData("""{"type":"media","playing":true,"title":5}""")]
+    [InlineData("""{"type":"hello","name":"x","provides":"foreground"}""")]
+    public void Malformed_new_messages_are_rejected(string line)
+    {
+        Assert.NotNull(ProviderProtocol.Parse(line).Error);
+    }
+
+    [Theory]
+    [InlineData("GitHub.com", "github.com")]
+    [InlineData("https://www.github.com/a/b", "github.com")]
+    [InlineData("localhost", "localhost")]
+    [InlineData("not a host", null)]
+    [InlineData("intranet", null)]
+    [InlineData("", null)]
+    public void Domains_are_normalized(string raw, string? expected)
+    {
+        Assert.Equal(expected, ProviderProtocol.NormalizeDomain(raw));
     }
 }

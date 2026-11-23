@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# DeskPal 识别插件模板（bash）。把 read_window 换成你的桌面环境的查询方式即可。
-# 用法：复制到 ~/.config/DeskPal/providers/，chmod +x，然后在 DeskPal「设置 → 应用识别」里选它。
+# DeskPal 插件模板（bash，Linux 和 macOS）。把 read_window 换成你的桌面环境的查询方式即可。
+# 用法：复制到插件文件夹（Linux ~/.config/DeskPal/plugins/，macOS ~/Library/Application Support/DeskPal/plugins/），
+# chmod +x，然后在 DeskPal「设置 → 插件」里点“刷新”并开启它，放在内置插件上面。
+# 这个模板只提供“当前窗口”。网站、暂离、锁屏、媒体仍由列表里下面的插件（通常是内置插件）提供。
 # 需要 jq（用来生成正确的 JSON；手拼 JSON 遇到带引号的标题会出错）。
 set -u
 
-echo '{"v":1,"type":"hello","name":"my-provider","version":"0.1"}'
+echo '{"v":1,"type":"hello","name":"my-plugin","version":"0.1","provides":["foreground"]}'
 
 # 设置这四个变量：PID（没有就留空）、APP（应用标识或窗口类名）、TITLE、FULLSCREEN（true/false）。
 read_window() {

@@ -788,13 +788,20 @@ public sealed class PanelBridge
                 _whatsNew.Acknowledge();
                 return CommandResult.Success;
 
-            case "provider.select" when _provider is not null:
-                return _provider.Select(c.OptionalString("plugin"));
+            case "plugins.setEnabled" when _provider is not null:
+                return _provider.SetEnabled(c.String("id"), c.Bool("enabled"));
 
-            case "provider.installHelper" when _provider is not null:
-                return await _provider.InstallHelperAsync();
+            case "plugins.move" when _provider is not null:
+                return _provider.Move(c.String("id"), c.Args.TryGetProperty("offset", out var offset) && offset.TryGetInt32(out var by) ? by : 0);
 
-            case "provider.openFolder" when _provider is not null:
+            case "plugins.action" when _provider is not null:
+                return await _provider.RunActionAsync(c.String("id"), c.String("action"));
+
+            case "plugins.refresh" when _provider is not null:
+                _provider.Refresh();
+                return CommandResult.Success;
+
+            case "plugins.openFolder" when _provider is not null:
                 _platform.OpenExternal(_provider.Folder);
                 return CommandResult.Success;
 

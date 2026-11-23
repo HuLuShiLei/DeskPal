@@ -1,36 +1,76 @@
 using System.Diagnostics;
 using System.Text;
+using DeskPal.Client.Core.Localization;
 using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Core.Providers;
+using DeskPal.Client.Core.Ui;
+using DeskPal.Client.Ui;
 using Microsoft.Extensions.Logging;
 
 namespace DeskPal.Client.Providers;
 
 /// <summary>
-/// Runs a provider plugin: a program the user put in the providers folder that prints one JSON object per line
-/// (<see cref="ProviderProtocol"/>). Its lines become the same signals the built-in collectors publish.
-/// The plugin runs as its own process with the user's rights; DeskPal gives it no token and no settings, only reads
-/// its output, and starts it again with a growing pause when it exits.
+/// A plugin the user put in the plugins folder: a program that prints one JSON object per line
+/// (<see cref="ProviderProtocol"/>). Its lines become the same signals the official plugins publish.
+/// It runs as its own process with the user's rights; DeskPal gives it no token and no settings, only reads its output,
+/// and starts it again with a growing pause when it exits.
 /// </summary>
-public sealed class ExternalProvider(string path, ActivityBus bus, ILogger logger)
+public sealed class ExternalProvider : IActivityProvider
 {
     private const int MaxLinesPerSecond = 50;
     private const int MaxLoggedProblems = 5;
     private static readonly int[] RestartDelaysSeconds = [1, 2, 5, 10, 30, 60];
+    private static readonly TimeSpan IdleCheck = TimeSpan.FromSeconds(5);
 
-    /// <summary>What the plugin called itself in its hello line.</summary>
-    public string? Hello { get; private set; }
+    private readonly string _path;
+    private readonly Func<TimeSpan> _idleThreshold;
+    private readonly ILogger _logger;
+    private readonly Lock _lock = new();
+    private string? _helloName;
+    private string? _version;
+    private IReadOnlySet<ProviderCapability> _provides;
+    private ProviderHealth _health = ProviderHealth.Starting;
+    private string? _error;
 
-    /// <summary>Why the plugin is not delivering; null while it runs.</summary>
-    public string? Error { get; private set; }
+    /// <param name="knownProvides">What the plugin said it supplies the last time it ran; null when it never said.</param>
+    public ExternalProvider(string path, IReadOnlySet<ProviderCapability>? knownProvides, Func<TimeSpan> idleThreshold, ILogger logger)
+    {
+        _path = path;
+        _idleThreshold = idleThreshold;
+        _logger = logger;
+        _provides = knownProvides ?? ProviderCapabilities.PluginDefault;
+        File = Path.GetFileName(path);
+    }
 
-    /// <summary>At least one valid foreground line arrived since the last start.</summary>
-    public bool Delivering { get; private set; }
+    public static string IdFor(string file) => "user:" + file;
+
+    public string File { get; }
+
+    public string Id => IdFor(File);
+
+    public string Name => _helloName ?? File;
+
+    public string? Version => _version;
+
+    public bool Official => false;
+
+    public IReadOnlySet<ProviderCapability> Provides => _provides;
+
+    public ProviderHealth Health => _health;
+
+    public IReadOnlyList<PluginNote> Notes => _error is null ? [] : [new PluginNote("plugin.error", _error, "warn")];
+
+    public IReadOnlyList<string> Actions => [];
 
     public event Action? Changed;
 
+    /// <summary>Raised when the hello line changed what the plugin supplies, so the host can remember it.</summary>
+    public event Action<IReadOnlySet<ProviderCapability>>? ProvidesAnnounced;
+
+    public Task<CommandResult> RunActionAsync(string action) => Task.FromResult(CommandResult.Fail(Strings.Plugin_UnknownAction));
+
     /// <summary>Runs until cancelled.</summary>
-    public async Task RunAsync(CancellationToken cancellation)
+    public async Task RunAsync(SignalSink sink, CancellationToken cancellation)
     {
         var attempt = 0;
         while (!cancellation.IsCancellationRequested)
@@ -38,16 +78,16 @@ public sealed class ExternalProvider(string path, ActivityBus bus, ILogger logge
             var started = Stopwatch.StartNew();
             try
             {
-                await RunOnceAsync(cancellation);
+                await RunOnceAsync(sink, cancellation);
             }
             catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
             {
-                return;
+                break;
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Provider {Path} could not be run", path);
-                Set(error: ex.Message);
+                _logger.LogWarning(ex, "Plugin {Path} could not be run", _path);
+                SetHealth(ProviderHealth.Failed, ex.Message);
             }
 
             // A plugin that worked for a while and then stopped gets a quick restart; one that fails at once backs off.
@@ -58,111 +98,47 @@ public sealed class ExternalProvider(string path, ActivityBus bus, ILogger logge
             }
             catch (OperationCanceledException)
             {
-                return;
+                break;
             }
         }
+
+        // Turned off: next time it starts fresh.
+        SetHealth(ProviderHealth.Starting, null);
     }
 
-    private async Task RunOnceAsync(CancellationToken cancellation)
+    private async Task RunOnceAsync(SignalSink sink, CancellationToken cancellation)
     {
-        var info = new ProcessStartInfo(path)
-        {
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            RedirectStandardInput = true,
-            StandardOutputEncoding = Encoding.UTF8,
-            StandardErrorEncoding = Encoding.UTF8,
-            CreateNoWindow = true,
-            WorkingDirectory = Path.GetDirectoryName(path) ?? "",
-        };
+        var info = PluginFiles.StartInfo(_path);
+        info.UseShellExecute = false;
+        info.RedirectStandardOutput = true;
+        info.RedirectStandardError = true;
+        info.RedirectStandardInput = true;
+        info.StandardOutputEncoding = Encoding.UTF8;
+        info.StandardErrorEncoding = Encoding.UTF8;
+        info.CreateNoWindow = true;
+        info.WorkingDirectory = Path.GetDirectoryName(_path) ?? "";
         info.Environment["DESKPAL_PROTOCOL"] = ProviderProtocol.Version.ToString();
+        info.Environment["PYTHONIOENCODING"] = "utf-8";
 
         using var process = Process.Start(info) ?? throw new InvalidOperationException("The program did not start.");
-        logger.LogInformation("Provider {Path} started (pid {Pid})", path, process.Id);
-        Delivering = false;
-        Set(error: null);
+        _logger.LogInformation("Plugin {Path} started (pid {Pid})", _path, process.Id);
         process.StandardInput.Close();
-        var problems = 0;
         var errors = ReadErrorsAsync(process);
+        using var stop = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+        var idle = new IdleTracker();
+        var idleLoop = RunIdleAsync(idle, sink, stop.Token);
         try
         {
-            ForegroundSignal? lastForeground = null;
-            BrowserDomainSignal? lastDomain = null;
-            var window = Stopwatch.StartNew();
-            var inWindow = 0;
-            var dropped = 0L;
-            while (await process.StandardOutput.ReadLineAsync(cancellation) is { } line)
-            {
-                if (window.ElapsedMilliseconds >= 1000)
-                {
-                    window.Restart();
-                    inWindow = 0;
-                }
-
-                if (++inWindow > MaxLinesPerSecond)
-                {
-                    if (dropped++ == 0)
-                    {
-                        logger.LogWarning("Provider {Path} writes more than {Max} lines a second; the extra lines are dropped", path, MaxLinesPerSecond);
-                    }
-
-                    continue;
-                }
-
-                var result = ProviderProtocol.Parse(line);
-                if (result.Error is not null)
-                {
-                    if (problems++ < MaxLoggedProblems)
-                    {
-                        logger.LogWarning("Provider {Path} wrote a line DeskPal cannot use: {Error}", path, result.Error);
-                    }
-
-                    continue;
-                }
-
-                switch (result.Message)
-                {
-                    case ProviderHello hello:
-                        logger.LogInformation("Provider {Path} is {Name} {Version}", path, hello.Name, hello.Version);
-                        Hello = hello.Version is null ? hello.Name : $"{hello.Name} {hello.Version}";
-                        Changed?.Invoke();
-                        break;
-                    case ProviderForeground foreground:
-                        var signal = ProviderProtocol.ToSignal(foreground);
-                        if (signal != lastForeground)
-                        {
-                            lastForeground = signal;
-                            bus.Publish(signal);
-                        }
-
-                        if (!Delivering)
-                        {
-                            Delivering = true;
-                            Changed?.Invoke();
-                        }
-
-                        break;
-                    case ProviderDomain domain:
-                        var domainSignal = new BrowserDomainSignal(domain.Domain);
-                        if (domainSignal != lastDomain)
-                        {
-                            lastDomain = domainSignal;
-                            bus.Publish(domainSignal);
-                        }
-
-                        break;
-                }
-            }
-
+            await ReadLinesAsync(process, sink, idle, cancellation);
             await process.WaitForExitAsync(cancellation);
             var tail = await errors;
-            logger.LogWarning("Provider {Path} exited with code {Code}", path, process.ExitCode);
-            Delivering = false;
-            Set(error: tail is { Length: > 0 } ? tail : $"exit code {process.ExitCode}");
+            _logger.LogWarning("Plugin {Path} exited with code {Code}", _path, process.ExitCode);
+            SetHealth(ProviderHealth.Failed, tail is { Length: > 0 } ? tail : $"exit code {process.ExitCode}");
         }
         finally
         {
+            stop.Cancel();
+            await idleLoop;
             if (!process.HasExited)
             {
                 try
@@ -171,10 +147,152 @@ public sealed class ExternalProvider(string path, ActivityBus bus, ILogger logge
                 }
                 catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception)
                 {
-                    logger.LogDebug(ex, "Stopping provider {Path} failed", path);
+                    _logger.LogDebug(ex, "Stopping plugin {Path} failed", _path);
                 }
             }
         }
+    }
+
+    private async Task ReadLinesAsync(Process process, SignalSink sink, IdleTracker idle, CancellationToken cancellation)
+    {
+        var problems = 0;
+        ActivitySignal? lastForeground = null, lastLock = null, lastMedia = null;
+        var window = Stopwatch.StartNew();
+        var inWindow = 0;
+        var dropped = 0L;
+        while (await process.StandardOutput.ReadLineAsync(cancellation) is { } line)
+        {
+            if (window.ElapsedMilliseconds >= 1000)
+            {
+                window.Restart();
+                inWindow = 0;
+            }
+
+            if (++inWindow > MaxLinesPerSecond)
+            {
+                if (dropped++ == 0)
+                {
+                    _logger.LogWarning("Plugin {Path} writes more than {Max} lines a second; the extra lines are dropped", _path, MaxLinesPerSecond);
+                }
+
+                continue;
+            }
+
+            var result = ProviderProtocol.Parse(line);
+            if (result.Error is not null)
+            {
+                if (problems++ < MaxLoggedProblems)
+                {
+                    _logger.LogWarning("Plugin {Path} wrote a line DeskPal cannot use: {Error}", _path, result.Error);
+                }
+
+                continue;
+            }
+
+            if (result.Message is null)
+            {
+                continue;
+            }
+
+            if (result.Message is ProviderHello hello)
+            {
+                OnHello(hello);
+                continue;
+            }
+
+            switch (result.Message)
+            {
+                case ProviderForeground foreground:
+                    Emit(sink, ProviderProtocol.ToSignal(foreground), ref lastForeground);
+                    break;
+                case ProviderDomain domain:
+                    // Not deduplicated: after every browser window change the pipeline waits for the site to be read
+                    // again (ActivitySnapshot.DomainPending), and a repeat of the same site is that answer.
+                    if (_provides.Contains(ProviderCapability.Domain))
+                    {
+                        sink.Publish(new BrowserDomainSignal(domain.Domain));
+                    }
+
+                    break;
+                case ProviderLock locked:
+                    Emit(sink, new LockSignal(locked.Locked), ref lastLock);
+                    break;
+                case ProviderMedia media:
+                    Emit(sink, ProviderProtocol.ToSignal(media), ref lastMedia);
+                    break;
+                case ProviderIdle report:
+                    lock (_lock)
+                    {
+                        idle.Report(report.Seconds, DateTimeOffset.UtcNow);
+                    }
+
+                    break;
+            }
+
+            // Any valid fact means it works; a plugin may never report a window (one that only supplies media).
+            if (_health != ProviderHealth.Running)
+            {
+                SetHealth(ProviderHealth.Running, null);
+            }
+        }
+    }
+
+    /// <summary>Publishes a fact once when it changes. Facts outside what the plugin declared are not used.</summary>
+    private void Emit(SignalSink sink, ActivitySignal signal, ref ActivitySignal? last)
+    {
+        if (signal == last)
+        {
+            return;
+        }
+
+        last = signal;
+        if (_provides.Contains(ProviderCapabilities.Of(signal)))
+        {
+            sink.Publish(signal);
+        }
+    }
+
+    /// <summary>Checks the idle reports against the user's setting every few seconds and publishes the changes.</summary>
+    private async Task RunIdleAsync(IdleTracker idle, SignalSink sink, CancellationToken cancellation)
+    {
+        bool? last = null;
+        try
+        {
+            using var timer = new PeriodicTimer(IdleCheck);
+            while (await timer.WaitForNextTickAsync(cancellation))
+            {
+                bool now;
+                lock (_lock)
+                {
+                    now = idle.IsIdle(DateTimeOffset.UtcNow, _idleThreshold());
+                }
+
+                if (now != last && _provides.Contains(ProviderCapability.Idle))
+                {
+                    last = now;
+                    sink.Publish(new IdleSignal(now));
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private void OnHello(ProviderHello hello)
+    {
+        _logger.LogInformation("Plugin {Path} is {Name} {Version}, supplies {Provides}",
+            _path, hello.Name, hello.Version, hello.Provides is null ? "(default)" : string.Join(",", hello.Provides.Select(c => c.Name())));
+        _helloName = hello.Name;
+        _version = hello.Version;
+        var provides = hello.Provides ?? ProviderCapabilities.PluginDefault;
+        if (!provides.SetEquals(_provides))
+        {
+            _provides = provides;
+            ProvidesAnnounced?.Invoke(provides);
+        }
+
+        Changed?.Invoke();
     }
 
     /// <summary>The plugin's error output goes to the log; the last line is shown in Settings when it exits.</summary>
@@ -194,7 +312,7 @@ public sealed class ExternalProvider(string path, ActivityBus bus, ILogger logge
                 last = line.Length > 200 ? line[..200] : line;
                 if (logged++ < 20)
                 {
-                    logger.LogWarning("Provider {Path}: {Line}", path, last);
+                    _logger.LogWarning("Plugin {Path}: {Line}", _path, last);
                 }
             }
         }
@@ -205,9 +323,15 @@ public sealed class ExternalProvider(string path, ActivityBus bus, ILogger logge
         return last;
     }
 
-    private void Set(string? error)
+    private void SetHealth(ProviderHealth health, string? error)
     {
-        Error = error;
+        if (_health == health && _error == error)
+        {
+            return;
+        }
+
+        _health = health;
+        _error = error;
         Changed?.Invoke();
     }
 }

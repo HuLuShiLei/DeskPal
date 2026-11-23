@@ -11,7 +11,7 @@ namespace DeskPal.Client.Collectors;
 /// (org.gnome.ScreenSaver, org.freedesktop.ScreenSaver). Lockers that only talk to systemd-logind are covered by
 /// reading the session's LockedHint every few seconds.
 /// </summary>
-public sealed class SessionCollector(ActivityBus bus, ILogger<SessionCollector> logger) : BackgroundService
+public sealed class SessionCollector(SignalSink bus, ILogger<SessionCollector> logger) : BackgroundService
 {
     private static readonly (string Name, string Path)[] ScreenSavers =
     [

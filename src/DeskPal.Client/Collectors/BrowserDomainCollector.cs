@@ -1,5 +1,6 @@
 using System.Windows.Automation;
 using DeskPal.Client.Core.Pipeline;
+using DeskPal.Client.Providers;
 using DeskPal.Shared.Api;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,7 @@ namespace DeskPal.Client.Collectors;
 /// Reads the address bar of the foreground browser through UI Automation and publishes only the host.
 /// When it fails, classification falls back to the window title.
 /// </summary>
-public sealed class BrowserDomainCollector(ActivityBus bus, ForegroundState foreground, ILogger<BrowserDomainCollector> logger) : BackgroundService
+public sealed class BrowserDomainCollector(SignalSink bus, ForegroundState foreground, ILogger<BrowserDomainCollector> logger) : BackgroundService
 {
     private IntPtr _cachedHwnd;
     private AutomationElement? _cachedAddressBar;

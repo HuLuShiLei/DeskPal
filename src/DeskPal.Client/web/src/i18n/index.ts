@@ -49,6 +49,11 @@ const linux: Record<Locale, Partial<Record<MessageKey, string>>> = {
   },
 };
 
+/** 用于拼出来的键（例如插件状态 plugins.note.<key>）：没有这条文字时返回 false，调用方改用原文。 */
+export function hasMessage(key: string): key is MessageKey {
+  return key in zh;
+}
+
 /** {name} 换成 vars.name；没给的占位符原样保留。 */
 export function t(key: MessageKey, vars?: Record<string, string | number>): string {
   const override = isMac() ? mac[current][key] : isLinux() ? linux[current][key] : undefined;
