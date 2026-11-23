@@ -129,7 +129,16 @@ public sealed record SettingsView(
     bool IsAdmin = false,
     int IdleMinutes = AccountIdle.DefaultMinutes,
     int SwitchDelaySeconds = SwitchDelay.DefaultSeconds,
-    PersonalView? Personal = null);
+    PersonalView? Personal = null,
+    ProviderView? Provider = null);
+
+/// <summary>Linux only: where the foreground window comes from. null on Windows and macOS, which hides the setting.</summary>
+/// <param name="Selected">File name of the chosen plugin; null for the built-in detection.</param>
+/// <param name="Plugins">Executable files in the providers folder.</param>
+/// <param name="Source">What is in use: x11, gnome, plugin or none.</param>
+/// <param name="Status">ok, starting, needsExtension, needsRelogin, needsPlugin or failed.</param>
+/// <param name="Detail">The plugin's own name, or the reason it failed.</param>
+public sealed record ProviderView(string? Selected, IReadOnlyList<string> Plugins, string Source, string Status, string? Detail = null);
 
 /// <summary>Where the personal rules, no-title rules and preferences are kept besides this computer.</summary>
 /// <param name="AccountSync">Synced with the account on the server.</param>

@@ -142,7 +142,10 @@
 
 - 计算版本从 Windows 的 `client` 任务移到 `changes` 任务，作为输出给 Windows 和 Mac 共用，保证两边版本号相同。计算逻辑和 `CHANGELOG.md` 检查不变。
 - 判断客户端是否有改动时，加上 `src/DeskPal.Client.App/` 和 `src/DeskPal.Client.Mac/`。
-- 新增 `mac` 任务：在 macos-15 上，arm64 和 x64 各跑一次；选择 Xcode 26，安装 macos workload，编译 `.app`，用 vpk 打 `.pkg`。
+- 新增 `mac` 任务：在 macos-15 上，arm64 和 x64 各跑一次；编译 `.app`，用 vpk 打 `.pkg`。
+  - .NET SDK、macos workload 和 Xcode 固定为配套的版本：SDK `10.0.2xx`、workload `10.0.204`（带 Microsoft.macOS 26.2.10233）、Xcode 26.2，写在任务的 `env` 里（`MAC_DOTNET_SDK`、`MAC_WORKLOAD_VERSION`、`MAC_XCODE`）。runner 上没有 Xcode 26.2 时，改用同一大版本里不低于 26.2 的最低版本并给出警告。
+  - 原因（2026-11-19 审查发现后补上）：最初写的是不带版本的 `dotnet workload install macos`，会装 NuGet 上最新的 workload。当时最新的带 Microsoft.macOS 27.2，要求 Xcode 27.2，而 macos-15 runner 上最高只有 Xcode 26.3，编译会在第一步失败。各 workload 版本带的 macOS 包：`10.0.204` → 26.2，`10.0.203.1` → 26.4，`10.0.401` → 26.5，`10.0.402`、`10.0.403` → 27.0，`10.0.404` → 27.2。
+  - 以后升级：用 `dotnet workload search version <workload 版本>` 查它带的 `microsoft.net.sdk.macos`，确认 runner 上有对应的 Xcode，再把三个值一起改。
   - 正式版和测试版发布时，等 Windows 任务建好 Release 后，用 `vpk upload --merge` 追加 Mac 的更新包和清单，上传 `DeskPal-<版本>-osx-<芯片>-Setup.pkg`。未签名时在 Release 说明末尾加一段 macOS 安装说明（只加一次）。
   - 其他分支手动运行或 PR 时只编译打包，不发布，安装包在本次运行的 Artifacts 里。
   - 仓库变量 `MAC_SIGN=true` 时导入证书、签名并公证，需要的 secret：`MAC_CERT_P12`、`MAC_CERT_PASSWORD`、`MAC_SIGN_APP_IDENTITY`、`MAC_SIGN_INSTALL_IDENTITY`、`MAC_NOTARY_APPLE_ID`、`MAC_NOTARY_PASSWORD`、`MAC_NOTARY_TEAM_ID`。

@@ -862,4 +862,10 @@ Restart DeskPal after installing it.</value>
   <data name="App_AlreadyRunningMac" xml:space="preserve">
     <value>DeskPal is already running. Open it from the DeskPal icon in the menu bar.</value>
   </data>
+  <data name="Provider_NotFound" xml:space="preserve">
+    <value>Can't find the provider plugin “{0}”. Check that it is in the plugins folder and is executable.</value>
+  </data>
+  <data name="Provider_ExtensionInstalled" xml:space="preserve">
+    <value>The extension is installed. Log out of your desktop and back in so DeskPal can see which app you're using.</value>
+  </data>
 </root>

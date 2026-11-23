@@ -67,6 +67,12 @@ public sealed class AppSettings
     /// <summary>Per room, the order the user dragged the other members into. Only affects this computer.</summary>
     public Dictionary<Guid, List<Guid>> MemberOrder { get; set; } = [];
 
+    /// <summary>
+    /// Linux only. File name of the provider plugin in the providers folder that reports the foreground window;
+    /// null uses the built-in detection. Only on this computer.
+    /// </summary>
+    public string? Provider { get; set; }
+
     public string? GetToken()
     {
         if (string.IsNullOrEmpty(ProtectedToken))
@@ -92,7 +98,7 @@ public sealed class AppSettings
 
 public sealed class SettingsStore
 {
-    /// <summary>%APPDATA%\DeskPal on Windows, ~/Library/Application Support/DeskPal on macOS.</summary>
+    /// <summary>%APPDATA%\DeskPal on Windows, ~/Library/Application Support/DeskPal on macOS, ~/.config/DeskPal on Linux.</summary>
     public static readonly string Directory = Path.Combine(
         OperatingSystem.IsMacOS()
             ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library", "Application Support")

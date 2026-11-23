@@ -1,0 +1,8 @@
+{
+  "uuid": "deskpal@hulushilei.github.io",
+  "name": "DeskPal",
+  "description": "Lets the DeskPal app on this computer ask which window is in use (title, application, process). Needed on Wayland, where apps cannot ask the desktop directly. It sends nothing anywhere by itself.",
+  "url": "https://github.com/HuLuShiLei/DeskPal",
+  "shell-version": ["45", "46", "47", "48", "49", "50"],
+  "version": 1
+}

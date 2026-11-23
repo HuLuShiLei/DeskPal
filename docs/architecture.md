@@ -9,9 +9,10 @@
 | `DeskPal.Shared` | net10.0 | Envelope、消息类型常量、状态和类别枚举、REST DTO、Hub 契约。Server 和客户端都引用 |
 | `DeskPal.Server` | net10.0 | ASP.NET Core：Auth、Rooms、Presence（SignalR Hub）、Rules；SQLite |
 | `DeskPal.Client.Core` | net10.0 | 不依赖 Windows 的纯逻辑：事件总线、分类器、状态判断、防抖、隐私过滤、面板状态（`Ui/PanelStateBuilder`） |
-| `DeskPal.Client.App` | net10.0 | Windows 和 macOS 共用的客户端服务：`ApiClient`、`HubService`、`RoomState`、`PresenceCoordinator`、统计和同步、`UpdateService`、面板命令 `PanelBridge`、启动流程 `ClientStartup`。平台能力通过 `Platform/IClientPlatform`（文件对话框、剪贴板、开机自启、打开链接、后备提示框）和 `ISecretProtector`（`SecretProtection.Current`）注入 |
+| `DeskPal.Client.App` | net10.0 | Windows、macOS、Linux 共用的客户端服务：`ApiClient`、`HubService`、`RoomState`、`PresenceCoordinator`、统计和同步、`UpdateService`、面板命令 `PanelBridge`、启动流程 `ClientStartup`。平台能力通过 `Platform/IClientPlatform`（文件对话框、剪贴板、开机自启、打开链接、后备提示框）和 `ISecretProtector`（`SecretProtection.Current`）注入 |
 | `DeskPal.Client` | net10.0-windows10.0.19041.0 | WPF 托盘程序：采集器、`WindowsPlatform`、DPAPI、WebView2 宿主窗口，输出文件 `DeskPal.exe`。`web/` 是面板和登录页的前端（Vite + TypeScript + Preact），构建结果复制到输出目录的 `web/`，macOS 版共用 |
 | `DeskPal.Client.Mac` | net10.0-macos（macOS 13+） | macOS 菜单栏程序：采集器、`MacPlatform`、WKWebView 宿主窗口，输出 `DeskPal.app`。见下文「macOS 客户端」 |
+| `DeskPal.Client.Linux` | net10.0 | Linux 托盘程序：识别来源（X11、GNOME 扩展、识别插件）、采集器、`LinuxPlatform`、WebKitGTK 宿主窗口，发布为 AppImage。见下文「Linux 客户端」 |
 | `DeskPal.Tests` | net10.0 | xUnit：分类、状态、Room 生命周期、Hub 集成测试 |
 
 ## 数据流
@@ -318,7 +319,7 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 
 ## macOS 客户端
 
-`src/DeskPal.Client.Mac`，和 Windows 版共用 `Client.App`、`Client.Core`、`Shared` 和 `web/`，协议、Server、房间、统计、同步都相同，Mac 和 Windows 用户在同一个房间里。只能在 Mac 上编译（`dotnet workload install macos`，Xcode 26）；没有 Mac 时用 `tools/MacCheck` 对 `Microsoft.macOS` 引用程序集做类型检查。
+`src/DeskPal.Client.Mac`，和 Windows 版共用 `Client.App`、`Client.Core`、`Shared` 和 `web/`，协议、Server、房间、统计、同步都相同，Mac 和 Windows 用户在同一个房间里。只能在 Mac 上编译，.NET SDK、macos workload 和 Xcode 要配套：SDK 10.0.2xx、`dotnet workload install macos --version 10.0.204`（Microsoft.macOS 26.2）、Xcode 26.2，和 CI 一致；不指定版本会装最新的 workload，可能要求 runner 上没有的 Xcode。没有 Mac 时用 `tools/MacCheck` 对 `Microsoft.macOS` 引用程序集做类型检查。
 
 | 部分 | Windows | macOS |
 |---|---|---|
@@ -344,6 +345,45 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 | 安装和更新 | Inno Setup 向导 + Velopack，通道 `win`、`beta` | Velopack 的 `.pkg`，按芯片分通道 `osx-arm64`、`osx-x64`，测试版加 `-beta`（`UpdatePolicy.Channel(beta, arch)`），和 Windows 版发布在同一个 Release |
 
 内置规则库从版本 8 起有一批 Mac 应用的 Bundle ID 规则（`Process` 种类，内容是小写的 Bundle ID），格式和 Server 都没有变化；`Browsers.Processes` 也加了 Mac 浏览器的 Bundle ID。推测层的游戏目录同时按 `/` 和 `\` 匹配（Steam 在 Mac 上是 `~/Library/Application Support/Steam/steamapps/`）。
+
+## Linux 客户端
+
+`src/DeskPal.Client.Linux`，.NET 10，界面用 GTK 4 和 WebKitGTK 6.0（GirCore 绑定），D-Bus 用 Tmds.DBus.Protocol。和另外两个客户端共用 `Client.App`、`Client.Core`、`Shared` 和前端。GTK 和 WebKitGTK 用系统里的库，不打进安装包。
+
+### 当前窗口从哪里来
+
+Linux 没有统一的办法问“当前在用哪个窗口”，所以这部分是可替换的**识别来源**，由 `Providers/ForegroundService` 选择。任何来源最后都产生同样的 `ForegroundSignal`，之后的分类、防抖、不记录标题、隐私过滤与其他平台完全相同。
+
+| 顺序 | 条件 | 来源 | 说明 |
+|---|---|---|---|
+| 1 | 设置里选了插件 | 识别插件 | `~/.config/DeskPal/providers/` 下的可执行文件，标准输出每行一个 JSON（协议 v1，`Client.Core/Providers/ProviderProtocol`）。由 `Client.App/Providers/ExternalProvider` 运行：每秒最多 50 行，退出后按 1/2/5/10/30/60 秒重启 |
+| 2 | X11 会话 | Xlib | 读 `_NET_ACTIVE_WINDOW`、标题、`WM_CLASS`、`_NET_WM_PID`、是否全屏，每秒一次 |
+| 3 | GNOME + Wayland | DeskPal 的 GNOME 扩展 | 扩展在会话总线上（`org.gnome.Shell` 的 `/io/github/hulushilei/DeskPal`）提供 `GetFocused`，DeskPal 每秒问一次。扩展从设置页安装到 `~/.local/share/gnome-shell/extensions/`，装后要重新登录 |
+| 4 | 其他 Wayland 桌面 | 无 | 设置页提示需要插件；这时只共享在线、暂离、锁屏和媒体 |
+
+设置页的“应用识别”显示当前来源和状态（`ProviderView`：`source` 为 x11/gnome/plugin/none，`status` 为 ok/starting/needsExtension/needsRelogin/needsPlugin/failed）。这一节只在 Linux 出现，其他平台的 `SettingsView.Provider` 为 null。
+
+进程名的取法（`Native/LinuxProcess`）：窗口所属进程的可执行文件名，与 Windows 规则里的名字一致（`code`、`msedge`、`steam`）；可执行文件只是运行时（electron、python、java、wine 等）时改用窗口的应用标识；Wine 程序用命令行里的 `.exe`。
+
+内置来源不读浏览器网址，浏览器只显示“浏览中”和标题；插件可以用 `domain` 消息提供域名。
+
+### 其他信号
+
+| 信号 | 来源（按顺序尝试） |
+|---|---|
+| 空闲 | `org.gnome.Mutter.IdleMonitor` → X11 屏保扩展 → logind 的 `IdleHint` |
+| 锁屏 | `org.freedesktop.ScreenSaver` / `org.gnome.ScreenSaver` 的 `ActiveChanged`，logind 会话的 `LockedHint` |
+| 媒体 | MPRIS（`org.mpris.MediaPlayer2.*`），来源应用取播放器进程的可执行文件名 |
+
+### 界面和系统集成
+
+- 页面通过自定义协议 `deskpal://app/` 从程序目录的 `web/` 加载，不监听端口。页面到宿主用 `window.webkit.messageHandlers.deskpal`，宿主到页面用 `window.__deskpal`，与 macOS 相同。
+- 系统标题栏隐藏，标题栏由页面绘制；拖动交给桌面（`gdk_toplevel_begin_move`）。
+- 托盘是 StatusNotifierItem 加 dbusmenu。GNOME 需要 AppIndicator 扩展（Ubuntu 默认带）；没有托盘宿主时不显示图标，带 `--minimized` 启动也会打开面板。
+- `Gtk.Application` 保证单实例，再次启动只是让已运行的实例打开面板。
+- Wayland 不允许程序自己定位窗口或置顶，所以 Linux 上没有置顶小卡片、面板置顶和面板定位。
+- 以 AppImage 运行时，启动时写 `~/.local/share/applications/io.github.hulushilei.DeskPal.desktop` 和图标；开机自启写 `~/.config/autostart/deskpal.desktop`。
+- 本机密钥和 macOS 一样用 `FileKeyProtector`（`~/.config/DeskPal/local.key`，权限 600）。日志在 `~/.local/state/DeskPal/logs`。
 
 ## 部署和发布
 

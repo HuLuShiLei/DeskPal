@@ -20,6 +20,7 @@ public static class ClientKinds
 {
     public const string Windows = "windows";
     public const string Mac = "mac";
+    public const string Linux = "linux";
 
-    public static string Current => OperatingSystem.IsMacOS() ? Mac : Windows;
+    public static string Current => OperatingSystem.IsMacOS() ? Mac : OperatingSystem.IsLinux() ? Linux : Windows;
 }

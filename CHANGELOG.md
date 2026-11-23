@@ -8,6 +8,8 @@
 
 ## 0.1.5
 
+- 新增 Linux 版（测试版，x64 的 AppImage），和 Windows、macOS 用户在同一个房间里互相看到状态。需要系统里有 GTK 4 和 WebKitGTK 6.0。使用 Wayland 的 GNOME 要在「设置 → 应用识别」里安装扩展并重新登录；其他 Wayland 桌面需要识别插件。Linux 版没有置顶卡片，不读取浏览器网址。
+  en: DeskPal is now available for Linux (beta, an x64 AppImage). Linux, Windows, and Mac users see each other in the same room. GTK 4 and WebKitGTK 6.0 must be installed. On GNOME with Wayland, install the extension from Settings → App detection and sign in again; other Wayland desktops need a detection plugin. The Linux app has no pinned cards and does not read the browser address.
 - ChatGPT、OpenCode、WorkBuddy 归为工作中。
   en: ChatGPT, OpenCode, and WorkBuddy now count as working.
 

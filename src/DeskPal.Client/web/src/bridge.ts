@@ -40,7 +40,7 @@ export interface RoomItem {
 }
 
 /** 登录的客户端。 */
-export type ClientKind = "windows" | "mac";
+export type ClientKind = "windows" | "mac" | "linux";
 
 export interface MemberItem {
   userId: string;
@@ -142,6 +142,14 @@ export interface PanelState {
     switchDelaySeconds: number;
     /** 个人数据（个人分类、不记录标题、偏好设置）除本机外还保存在哪里。同步到账号和同步文件夹只能开启一种。 */
     personal: { accountSync: boolean; folder: string | null; folderUnavailable: boolean } | null;
+    /** 只有 Linux 有：当前窗口从哪里读。selected 是选中的识别插件文件名，null 是内置识别。 */
+    provider?: {
+      selected: string | null;
+      plugins: string[];
+      source: "x11" | "gnome" | "plugin" | "none";
+      status: "ok" | "starting" | "needsExtension" | "needsRelogin" | "needsPlugin" | "failed";
+      detail: string | null;
+    } | null;
   };
   myRules: MyRuleItem[];
   /** 不记录标题：命中时房间、首页和使用统计都不显示标题。 */
@@ -337,6 +345,9 @@ export type Command =
   | { type: "update.restart" }
   | { type: "changelog.seen" }
   | { type: "logs.open" }
+  | { type: "provider.select"; plugin: string | null }
+  | { type: "provider.installHelper" }
+  | { type: "provider.openFolder" }
   | { type: "auth.login"; userName: string; password: string }
   | { type: "signupInvites.list" }
   | { type: "signupInvites.create" }
@@ -365,7 +376,7 @@ export type Notice =
   | { type: "window.minimize" }
   | { type: "window.close" }
   | { type: "window.quit" }
-  | { type: "window.drag" }
+  | { type: "window.drag"; x: number; y: number }
   | { type: "window.dblclick" };
 
 export interface CommandResult {

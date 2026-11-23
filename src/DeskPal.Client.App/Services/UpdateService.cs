@@ -546,14 +546,15 @@ public sealed class UpdateService
         new GithubSource(UpdatePolicy.RepositoryUrl, null, beta, new GithubApiDownloader()),
         new UpdateOptions
         {
-            ExplicitChannel = UpdatePolicy.Channel(beta, MacArchitecture),
+            ExplicitChannel = OperatingSystem.IsLinux() ? UpdatePolicy.LinuxChannel(beta, Architecture) : UpdatePolicy.Channel(beta, MacArchitecture),
             AllowVersionDowngrade = !beta,
         });
 
-    /// <summary>arm64 or x64 on macOS; null on Windows.</summary>
-    private static string? MacArchitecture => OperatingSystem.IsMacOS()
-        ? System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64 ? "arm64" : "x64"
-        : null;
+    private static string Architecture =>
+        System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64 ? "arm64" : "x64";
+
+    /// <summary>arm64 or x64 on macOS; null elsewhere.</summary>
+    private static string? MacArchitecture => OperatingSystem.IsMacOS() ? Architecture : null;
 
     private static string RateLimitedMessage(DateTimeOffset until) =>
         UiLanguage.Format(Strings.Update_RateLimited, until.ToLocalTime().ToString("t", UiLanguage.Culture));

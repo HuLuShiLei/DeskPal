@@ -20,6 +20,10 @@ public static class UpdatePolicy
         ? Channel(receiveBeta)
         : receiveBeta ? $"osx-{macArchitecture}-beta" : $"osx-{macArchitecture}";
 
+    /// <summary>Linux 的 AppImage 按芯片分开发布（linux-x64、linux-arm64），测试版加 -beta。</summary>
+    public static string LinuxChannel(bool receiveBeta, string architecture) =>
+        receiveBeta ? $"linux-{architecture}-beta" : $"linux-{architecture}";
+
     /// <summary>降级（从测试版回到较低的正式版）必须先问过用户。</summary>
     public static bool ApplyWithoutAsking(bool isDowngrade) => !isDowngrade;
 }

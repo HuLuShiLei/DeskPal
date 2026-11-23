@@ -2,6 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import type { MemberItem, PanelState, PresenceView, UnclassifiedItem } from "../bridge";
 import { PresenceDetail, StatusBadge, useCountdown, useHost } from "../host";
 import { t } from "../i18n";
+import { isLinux } from "../platform";
 import { Avatar, Hint, HoverTip, Icon, Section, Switch } from "../ui";
 
 export function StatusPage({ state, onViewStats }: { state: PanelState; onViewStats: (member: { userId: string; name: string }) => void }) {
@@ -146,15 +147,18 @@ function MemberRow({ member, onViewStats, drag, dragging }: { member: MemberItem
                 <Icon name="chart" />
               </button>
             )}
-            <button
-              class={member.pinned ? "icon-button pin-button active" : "icon-button pin-button"}
-              title={member.pinned ? t("status.unpin") : t("status.pin")}
-              aria-label={label}
-              aria-pressed={member.pinned}
-              onClick={() => run({ type: member.pinned ? "member.unpin" : "member.pin", userId: member.userId })}
-            >
-              <Icon name={member.pinned ? "pinned" : "pin"} />
-            </button>
+            {/* Linux 版没有置顶小卡片：Wayland 不允许应用把窗口放到指定位置或保持在最前。 */}
+            {!isLinux() && (
+              <button
+                class={member.pinned ? "icon-button pin-button active" : "icon-button pin-button"}
+                title={member.pinned ? t("status.unpin") : t("status.pin")}
+                aria-label={label}
+                aria-pressed={member.pinned}
+                onClick={() => run({ type: member.pinned ? "member.unpin" : "member.pin", userId: member.userId })}
+              >
+                <Icon name={member.pinned ? "pinned" : "pin"} />
+              </button>
+            )}
           </div>
         </div>
         <div class="member-line">

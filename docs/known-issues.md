@@ -55,6 +55,21 @@
 - **开机自启**用 `~/Library/LaunchAgents/com.hulushilei.deskpal.autostart.plist`，macOS 13 起第一次会在通知中心提示「已添加后台项目」。
 - **通知**：踢出、加载房间失败等提示走通知中心，第一次会请求通知权限；拒绝后不再显示。
 
+## Linux
+
+- **还没在朋友的电脑上运行过**：在 Ubuntu 24.04、GNOME Shell 46 上实际运行并验证过（见 changes-2026-11-23-linux.md），Ubuntu 26.04（GNOME Shell 50）和 Arch 没有。
+- **需要系统里有 GTK 4 和 WebKitGTK 6.0**：安装包不带这两个库。Ubuntu 24.04 及以上自带；Arch 要装 `webkitgtk-6.0`。缺少时程序启动即退出，终端里能看到找不到库的报错。
+- **只有 x64 的 AppImage**：没有 deb、rpm、AUR、Flatpak，也没有 ARM 版。运行 AppImage 需要 FUSE（`libfuse2`），没有时用 `--appimage-extract-and-run`。
+- **GNOME 的 Wayland 会话要装扩展**：Wayland 下普通程序读不到当前窗口。要在「设置 → 应用识别」里安装 DeskPal 的 GNOME 扩展，然后注销并重新登录。扩展把“当前窗口的标题、应用、进程”放在会话总线上，本机同一用户的其他程序也能读到。锁屏期间 GNOME 会停用扩展，解锁后恢复。GNOME 升级大版本后，如果新版本不在扩展声明的范围（45 到 50）内，扩展会被停用，要等 DeskPal 更新。
+- **其他 Wayland 桌面要自己写识别插件**：KDE、Hyprland、Sway、niri 等没有内置识别，见 provider-guide.md。仓库里的 Hyprland 和 Sway 例子没有在真机上验证。没有插件时只共享在线、暂离、锁屏和正在播放的媒体。
+- **不读浏览器网址**：内置识别下浏览器只显示“浏览中”和标题，按网站分类的规则不生效。识别插件可以提供域名。
+- **没有置顶小卡片、面板置顶和面板定位**：Wayland 不允许程序自己放置窗口或置顶。面板出现在桌面决定的位置。
+- **托盘**：用 StatusNotifierItem。GNOME 要有 AppIndicator 扩展（Ubuntu 默认带，其他发行版的 GNOME 要自己装），并且左键点图标打开的是菜单而不是面板。没有托盘的桌面上不显示图标，再次启动 DeskPal 可以打开面板。
+- **窗口最小化后再次启动 DeskPal 不一定能把它带到前面**：Wayland 下由桌面决定，GNOME 可能只弹出“DeskPal 已就绪”的通知。
+- **识别插件是以当前用户身份运行的普通程序**：DeskPal 不限制它能做什么，只运行信得过的插件。插件给出的内容仍然经过分类和隐私过滤。
+- **内置规则按 Windows 的进程名匹配**：多数应用在 Linux 上可执行文件同名（`code`、`steam`、`obs`），不同名的会归到“其他活动”，要在规则库里补。
+- **本机密钥是文件**：和 macOS 一样用 `~/.config/DeskPal/local.key`（权限 600），不用系统的密钥环。
+
 ## 工程
 
 - Velopack 在同一目录重新安装或卸载时会清空整个安装目录，指向已有文件的目录时会删掉其中的文件。安装向导拒绝已有其他文件的目录，覆盖安装时保留 `logs\`；绕过向导直接运行 Velopack 的 Setup.exe 没有这层保护。

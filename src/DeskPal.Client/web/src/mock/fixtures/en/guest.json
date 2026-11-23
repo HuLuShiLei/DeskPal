@@ -182,7 +182,8 @@
       "accountSync": false,
       "folder": null,
       "folderUnavailable": false
-    }
+    },
+    "provider": null
   },
   "myRules": [],
   "unclassified": [],

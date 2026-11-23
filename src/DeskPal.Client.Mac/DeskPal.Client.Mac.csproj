@@ -2,9 +2,11 @@
 
   <!--
     macOS 客户端：菜单栏图标 + WKWebView 面板，和 Windows 版共用 DeskPal.Client.App、Client.Core、Shared 和 web/。
-    只能在 macOS 上编译（需要 Xcode 和 macos workload）：
-      dotnet workload install macos
+    只能在 macOS 上编译。.NET SDK、macos workload 和 Xcode 要配套（和 ci.yml 的 mac 任务一致）：
+      .NET SDK 10.0.2xx
+      dotnet workload install macos --version 10.0.204   （带 Microsoft.macOS 26.2，对应 Xcode 26.2）
       dotnet build src/DeskPal.Client.Mac -r osx-arm64
+    不加 --version 会装最新的 workload，它可能要求更新的 Xcode（例如 macOS 27.2 要 Xcode 27.2）。
     打包见 .github/workflows/ci.yml 的 mac 任务。
   -->
   <ItemGroup>

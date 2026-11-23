@@ -862,4 +862,10 @@
   <data name="App_AlreadyRunningMac" xml:space="preserve">
     <value>DeskPal 已在运行。请点菜单栏上的 DeskPal 图标打开。</value>
   </data>
+  <data name="Provider_NotFound" xml:space="preserve">
+    <value>找不到识别插件「{0}」。请确认它在插件文件夹里，并且有可执行权限。</value>
+  </data>
+  <data name="Provider_ExtensionInstalled" xml:space="preserve">
+    <value>扩展已安装。请注销后重新登录系统，DeskPal 才能识别当前使用的应用。</value>
+  </data>
 </root>
