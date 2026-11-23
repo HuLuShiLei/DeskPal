@@ -59,7 +59,7 @@
 ### 其他
 
 - `.cursor/skills/deskpal-write-provider/.gitattributes`：这个目录里的 `*.sh`、`*.py` 固定用 LF（带 CRLF 的脚本在 Linux 上跑不起来）。仓库其他文件不受影响。
-- `.github/workflows/ci.yml` 是受保护文件，改动以补丁形式放在 `.local/ci-linux.patch`，没有直接改。内容：新增 `linux` 任务（ubuntu-24.04，发布、`vpk pack` 出 AppImage、合并进同一个 Release），并把 `src/DeskPal.Client.Linux/` 加入“客户端有改动”的判断。应用方法：`git apply .local/ci-linux.patch`。
+- `.github/workflows/ci.yml`：已应用 Linux CI 补丁，新增 `linux` 任务（ubuntu-24.04，发布、`vpk pack` 出 AppImage、合并进同一个 Release），并把 `src/DeskPal.Client.Linux/` 加入“客户端有改动”的判断。
 
 ## 验证
 
@@ -84,7 +84,7 @@
 ## 没有验证的
 
 - **朋友的两台机器**：Ubuntu 26.04（GNOME Shell 候选版本 50.1，扩展声明支持到 50，但 50 上没跑过）和 Arch（环境信息还没拿到）。
-- CI 的 `linux` 任务没有跑过（补丁还没应用）。打包命令在本地按同样的参数跑通过。
+- CI 的 `linux` 任务没有跑过（补丁已应用并纳入 PR）。打包命令在本地按同样的参数跑通过。
 - 真实浏览器（Edge、Snap 版 Firefox）的进程名和媒体来源是否与规则库一致。
 - 锁屏信号（测试环境里的 logind 是模拟的）、开机自启、自动更新的下载和替换、睡眠唤醒后的重连。
 - KDE、Hyprland、Sway 等其他桌面。

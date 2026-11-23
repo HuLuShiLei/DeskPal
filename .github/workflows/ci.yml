@@ -69,6 +69,7 @@ jobs:
             'src/DeskPal.Client/',
             'src/DeskPal.Client.App/',
             'src/DeskPal.Client.Mac/',
+            'src/DeskPal.Client.Linux/',
             'src/DeskPal.Client.Core/',
             'src/DeskPal.Shared/',
             'installer/',
@@ -395,3 +396,94 @@ jobs:
         with:
           name: DeskPal-${{ needs.changes.outputs.version }}-osx-${{ matrix.arch }}
           path: DeskPal-*-osx-*-Setup.pkg
+
+  linux:
+    # mac 排在前面只是为了不同时改 Release 说明；它失败与否不影响这个任务。
+    needs: [test, changes, client, mac]
+    if: always() && needs.test.result == 'success' && needs.changes.result == 'success' && needs.changes.outputs.mode != 'skip' && (needs.client.result == 'success' || needs.changes.outputs.mode == 'build')
+    # 在较旧的 Ubuntu 上编译：.NET 自带运行时，GTK4 和 WebKitGTK 6.0 用的是用户系统里的库，不打进安装包。
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: src/DeskPal.Client/web/package-lock.json
+
+      - name: 发布
+        run: >
+          dotnet publish src/DeskPal.Client.Linux -c Release -r linux-x64 --self-contained
+          -p:Version=${{ needs.changes.outputs.version }}
+          -p:IncludeSourceRevisionInInformationalVersion=false
+          -o publish/linux-x64
+
+      - name: 打包
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq squashfs-tools
+          dotnet tool install -g vpk --version 1.2.161
+          export PATH="$HOME/.dotnet/tools:$PATH"
+          mode='${{ needs.changes.outputs.mode }}'
+          version='${{ needs.changes.outputs.version }}'
+          channel='linux-x64'
+          pre=''
+          if [ '${{ needs.changes.outputs.prerelease }}' = 'true' ]; then channel="$channel-beta"; pre='--pre'; fi
+          echo "CHANNEL=$channel" >> "$GITHUB_ENV"
+          for required in DeskPal web/index.html gnome-extension/deskpal@hulushilei.github.io/extension.js deskpal.png; do
+            if [ ! -s "publish/linux-x64/$required" ]; then echo "::error::发布目录缺少 $required"; exit 1; fi
+          done
+          if [ "$mode" != 'build' ]; then
+            vpk download github --repoUrl "https://github.com/$GITHUB_REPOSITORY" --token "$GH_TOKEN" --channel "$channel" $pre || echo "没有可做差异包的上一版，改为完整包。"
+          fi
+          vpk pack -u DeskPal -v "$version" -c "$channel" -p publish/linux-x64 -e DeskPal --packTitle DeskPal \
+            -i src/DeskPal.Client.Linux/Resources/deskpal.png
+
+          image="Releases/DeskPal-$channel.AppImage"
+          if [ ! -s "$image" ]; then echo "::error::没有生成 $image"; ls -la Releases; exit 1; fi
+          # 解开检查一遍：前端入口和 GNOME 扩展都要在包里。
+          (cd "$RUNNER_TEMP" && "$GITHUB_WORKSPACE/$image" --appimage-extract >/dev/null)
+          for required in web/index.html gnome-extension/deskpal@hulushilei.github.io/metadata.json; do
+            if [ ! -s "$RUNNER_TEMP/squashfs-root/usr/bin/$required" ]; then echo "::error::AppImage 缺少 $required"; exit 1; fi
+          done
+
+          find Releases -name '*.nupkg' ! -name "*$version*" -delete
+          cp "$image" "DeskPal-$version-linux-x64.AppImage"
+
+      - name: 发布到 GitHub Release
+        if: needs.changes.outputs.mode != 'build'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          export PATH="$HOME/.dotnet/tools:$PATH"
+          version='${{ needs.changes.outputs.version }}'
+          tag="v$version"
+          pre=''
+          if [ '${{ needs.changes.outputs.prerelease }}' = 'true' ]; then pre='--pre'; fi
+          # Windows 任务已经建好这个 Release；--merge 只追加 Linux 的更新包和清单，不改说明。
+          vpk upload github --repoUrl "https://github.com/$GITHUB_REPOSITORY" --token "$GH_TOKEN" --publish --merge --channel "$CHANNEL" --tag "$tag" $pre
+          gh release upload "$tag" "DeskPal-$version-linux-x64.AppImage" --clobber
+          gh release delete-asset "$tag" "DeskPal-$CHANNEL.AppImage" --yes || true
+          notes=$(gh release view "$tag" --json body --jq .body)
+          if ! printf '%s' "$notes" | grep -q '## Linux'; then
+            printf '%s\n\n## Linux\n\n下载 DeskPal-%s-linux-x64.AppImage，执行 chmod +x 后运行。需要系统里有 GTK 4 和 WebKitGTK 6.0（Ubuntu 24.04 及以上、Arch 的 webkitgtk-6.0）。GNOME 的 Wayland 会话要在「设置 → 应用识别」里安装扩展并重新登录；其他 Wayland 桌面需要识别插件，见 docs/provider-guide.md。\n' "$notes" "$version" > notes.txt
+            gh release edit "$tag" --notes-file notes.txt
+          fi
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: DeskPal-${{ needs.changes.outputs.version }}-linux-x64
+          path: DeskPal-*-linux-x64.AppImage
