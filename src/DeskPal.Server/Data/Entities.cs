@@ -168,6 +168,9 @@ public sealed class UnknownAppReport
     public string? DisplayName { get; set; }
     public int Minutes { get; set; }
     public DateTimeOffset ReportedAt { get; set; }
+
+    /// <summary>Category the client guessed without a rule; null when the app fell back to Other.</summary>
+    public ActivityCategory? Guessed { get; set; }
 }
 
 public sealed class AppMeta

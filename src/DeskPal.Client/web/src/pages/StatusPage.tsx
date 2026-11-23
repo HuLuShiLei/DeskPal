@@ -13,7 +13,7 @@ export function StatusPage({ state, onViewStats }: { state: PanelState; onViewSt
         title={
           <>
             {t("status.members")}
-            {room && state.members.length > 1 && <Hint text={t("status.dragToSort")} />}
+            {room && state.members.length > 1 && <Hint text={t("status.dragToSortOffline")} />}
           </>
         }
         label={t("status.members")}
@@ -31,16 +31,17 @@ export function StatusPage({ state, onViewStats }: { state: PanelState; onViewSt
   );
 }
 
-/** 拖动成员调整顺序，只保存在本机。宿主推回新顺序之前先按本地顺序显示，避免松手后闪回。 */
+/**
+ * 拖动成员调整顺序。宿主推回新顺序之前先按本地顺序显示，避免松手后闪回。
+ * 宿主把离线成员排在后面（`trailing`），所以只能在同一组里拖动。
+ */
 function MemberList({ roomId, members, onViewStats }: { roomId: string; members: MemberItem[]; onViewStats: (member: { userId: string; name: string }) => void }) {
   const { run } = useHost();
   const [drag, setDrag] = useState<{ id: string; order: string[] } | null>(null);
   const [saved, setSaved] = useState<string[] | null>(null);
   const hostOrder = members.map((m) => m.userId);
   const hostKey = hostOrder.join();
-  useEffect(() => {
-    if (saved && saved.join() === hostKey) setSaved(null);
-  }, [hostKey]);
+  useEffect(() => setSaved(null), [hostKey]);
 
   const base = saved ? [...saved.filter((id) => hostOrder.includes(id)), ...hostOrder.filter((id) => !saved.includes(id))] : hostOrder;
   const order = drag?.order ?? base;
@@ -50,7 +51,7 @@ function MemberList({ roomId, members, onViewStats }: { roomId: string; members:
   const over = (e: DragEvent, targetId: string) => {
     if (!drag) return;
     e.preventDefault();
-    if (targetId === drag.id) return;
+    if (targetId === drag.id || byId.get(targetId)!.trailing !== byId.get(drag.id)!.trailing) return;
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const rest = drag.order.filter((id) => id !== drag.id);
     rest.splice(rest.indexOf(targetId) + (e.clientY > rect.top + rect.height / 2 ? 1 : 0), 0, drag.id);

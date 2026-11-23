@@ -36,8 +36,9 @@ SQLite 数据库在 Docker 卷 `deskpal-data` 里（容器内 `/data/deskpal.db`
 
 - `Rooms__MaxOwnedRoomsPerUser`：每人最多创建的 Room 数，默认 5。
 - `Rooms__MaxMembersPerRoom`：每个房间的人数上限，默认 20。已有房间在列出或有人加入时改成这个数。
-- `Rules__MinUsers`：一个应用至少有几个账号设置过个人分类或上报过，才进入候选，默认 5。
-- `Rules__MinAgreement`：个人分类里占比最高的类别至少占多少，才算多人一致，默认 0.8。
+- `Rules__MinUsers`：一个应用至少有几个账号设置过个人分类，或上报过同一个推测类别，才自动写进规则库候选 PR，默认 2。
+- `Rules__MinAgreement`：个人分类里占比最高的类别至少占多少，才算多人一致，默认 0.66。
+- `Rules__ReviewMinUsers`：至少几个账号改过分类或上报过，才列进 PR 说明和 issue 由人判断，默认 1。这些列表会出现在 GitHub 上，仓库公开时可以调到 2 以上，避免看出某一个人用了什么应用。
 - `Rules__MinAccountAgeDays`：注册满几天的账号才计票，默认 3。
 - `Rules__MaintainerToken`：`GET /api/rules/candidates` 的口令（请求头 `X-DeskPal-Maintainer`）。由 Stack 变量 `DESKPAL_MAINTAINER_TOKEN` 传入，为空时该接口返回 404。
 - `Auth__AdminUserNames__0`：管理员的用户名，可以在客户端设置页生成和作废注册邀请码。由 Stack 变量 `DESKPAL_ADMIN_USER` 传入，多个用逗号分隔（例如 `alice,bob`），前后空格忽略，不区分大小写。
@@ -56,11 +57,12 @@ GitHub Actions 在 main 的镜像推送成功后，POST 仓库 secret `PORTAINER
 
 ## 5. 内置规则库候选
 
-用户改的分类只对自己生效（个人分类）。`.github/workflows/rule-candidates.yml` 每周一自动运行一次，也可以在 Actions 页面手动运行：
+用户改的分类只对自己生效（个人分类）。`.github/workflows/rule-candidates.yml` 每天北京时间 9:17 自动运行一次（避开整点，减少 GitHub 推迟或丢掉这次运行），也可以在 Actions 页面手动运行：
 
 1. 请求生产环境的 `/api/rules/candidates`。只统计同意分享使用数据、注册满 `Rules__MinAccountAgeDays` 天的账号，一个账号一票。
-2. 多人一致、且和当前内置规则不同的应用分类，写进 `builtin-rules.json` 并把 `version` 加 1；多人在用但没有识别的应用，只列在 PR 说明里，由人判断类别。
-3. 校验规则库后创建或更新分支 `rules/candidates` 的 PR。审核、修改后合并，镜像和 Portainer 更新照常自动完成。
+2. 多人一致、且和当前内置规则不同的应用分类，以及多人按安装目录推测为同一类别的应用（例如游戏，名称取自 Steam 清单或游戏文件夹），写进 `builtin-rules.json` 并把 `version` 加 1。
+3. 只有一两个人改过的分类（包括规则库里已有、但有人改了的应用）和没有识别的应用，列在 PR 说明里，同时更新 issue「内置规则库：待人工确认」，由人判断类别。
+4. 有文件改动时，校验规则库后创建或更新分支 `rules/candidates` 的 PR。审核、修改后合并，镜像和 Portainer 更新照常自动完成。
 
 需要的设置：
 

@@ -151,10 +151,10 @@ public sealed class PresenceCoordinator : BackgroundService
             var ready = Snapshot.Foreground is not null || Local.State != PresenceState.Other;
             committed = ready ? _debouncer.Offer(Local, now) : null;
             deadline = _debouncer.PendingDeadline;
-            var unrecognized = Classification.Layer == RuleLayer.Fallback && Local.State == PresenceState.Other
+            var unrecognized = Classification.Layer is RuleLayer.Fallback or RuleLayer.Heuristic && Local.Category == Classification.Category
                 ? CorrectionTarget.From(Snapshot, Classification.AppDisplayName)
                 : null;
-            _unclassified.Record(unrecognized, now);
+            _unclassified.Record(unrecognized, now, guessed: Classification.Layer == RuleLayer.Heuristic ? Classification.Category : null);
 
             // Pausing only stops sharing; the stats keep what I was actually doing.
             var actual = _settings.Paused ? TitleFilter.Apply(PresenceResolver.Resolve(Snapshot, Classification, paused: false), noTitle, foreground?.ProcessName, domain) : Local;

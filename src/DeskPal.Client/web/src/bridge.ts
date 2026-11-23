@@ -59,6 +59,8 @@ export interface MemberItem {
   client: ClientKind | null;
   /** 加入这个房间的日期，例如「11 月 12 日加入」。 */
   joined: string | null;
+  /** 和离线、已屏蔽的成员一起排在后面。刚下线的成员先留在原位，1 分钟后才移下去。 */
+  trailing: boolean;
 }
 
 /** 置顶小卡片的内容。detail 是应用名和详情合成的一行。 */

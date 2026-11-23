@@ -105,7 +105,7 @@ public static class WebUi
         const bool debug = false;
 #endif
         core.Settings.AreDevToolsEnabled = debug;
-        core.Settings.AreDefaultContextMenusEnabled = debug;
+        core.Settings.AreDefaultContextMenusEnabled = false;
         core.Settings.AreBrowserAcceleratorKeysEnabled = debug;
         core.Settings.IsZoomControlEnabled = false;
         core.Settings.IsPinchZoomEnabled = false;

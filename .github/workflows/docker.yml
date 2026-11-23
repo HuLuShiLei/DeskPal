@@ -6,49 +6,52 @@ name: 构建并推送镜像
 on:
   push:
     branches: [main, master]
-    tags: ['v*']
+    tags: ["v*"]
   workflow_dispatch:
-
-env:
-  REGISTRY: ghcr.io
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     permissions:
+      id-token: write
       contents: read
       packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       - name: 登录 GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ github.token }}
 
-      # GHCR 要求镜像名全小写。
-      - name: 规范化镜像归属
-        id: owner
-        run: echo "value=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+      - name: 镜像名
+        id: image
+        shell: bash
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}-server" >> "$GITHUB_OUTPUT"
 
       - name: 生成标签
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
-          images: ${{ env.REGISTRY }}/${{ steps.owner.outputs.value }}/deskpal-server
+          # v6 不再补 ghcr.io，也不再把仓库名改成小写。不写全会推到 Docker Hub。
+          images: ${{ steps.image.outputs.name }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=tag
             type=sha,format=long
+            type=sha,format=short
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
 
       - name: 构建并推送
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: deploy/Dockerfile.server

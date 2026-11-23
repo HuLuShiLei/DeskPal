@@ -24,7 +24,7 @@ public static class RuleEndpoints
             }
 
             var rules = await db.BuiltinRules.OrderBy(r => r.Id).ToListAsync();
-            return Results.Ok(new BuiltinRulesResponse(current, rules.Select(BuiltinRuleSeeder.ToDto).ToList()));
+            return Results.Ok(new BuiltinRulesResponse(current, rules.Select(BuiltinRuleSeeder.ToDto).ToList(), await BuiltinRuleSeeder.GetStoredFoldersAsync(db)));
         }).RequireAuthorization();
 
         app.MapGet("/api/rules/candidates", async (HttpContext ctx, RuleCandidateService candidates, IOptions<RuleOptions> options) =>

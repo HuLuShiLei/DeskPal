@@ -181,7 +181,9 @@ public static class ClientStartup
     public static void LoadCachedBuiltinRules(IServiceProvider services)
     {
         var cached = services.GetRequiredService<BuiltinRuleCache>().Load();
-        services.GetRequiredService<LayeredClassifier>().SetBuiltin(new RuleSet(cached.Rules));
+        var classifier = services.GetRequiredService<LayeredClassifier>();
+        classifier.SetBuiltin(new RuleSet(cached.Rules));
+        classifier.SetFolders(cached.Folders);
         AppNames.SetBuiltin(cached.Rules);
     }
 
@@ -191,11 +193,14 @@ public static class ClientStartup
         var cached = cache.Load();
         try
         {
-            var response = await services.GetRequiredService<ApiClient>().GetBuiltinRulesAsync(cached.Version);
+            // A cache saved before the rules had folders asks for everything again.
+            var response = await services.GetRequiredService<ApiClient>().GetBuiltinRulesAsync(cached.Folders is null ? 0 : cached.Version);
             if (response.Rules is not null)
             {
-                cache.Save(new RuleSetDto(response.Version, response.Rules));
-                services.GetRequiredService<LayeredClassifier>().SetBuiltin(new RuleSet(response.Rules));
+                cache.Save(new RuleSetDto(response.Version, response.Rules, response.Folders));
+                var classifier = services.GetRequiredService<LayeredClassifier>();
+                classifier.SetBuiltin(new RuleSet(response.Rules));
+                classifier.SetFolders(response.Folders);
                 AppNames.SetBuiltin(response.Rules);
                 services.GetRequiredService<PresenceCoordinator>().Reevaluate();
             }

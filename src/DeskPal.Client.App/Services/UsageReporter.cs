@@ -6,7 +6,8 @@ using Microsoft.Extensions.Logging;
 namespace DeskPal.Client.Services;
 
 /// <summary>
-/// With the user's consent, reports today's unrecognized desktop apps (process name, product name, minutes) so the
+/// With the user's consent, reports today's unrecognized desktop apps (process name, product name, minutes, and the
+/// category guessed for an app in a game library) so the
 /// builtin rules can learn them. Never window titles, sites or times of use. While personal data stays off the server,
 /// the personal rules for apps (process, category, name) go along for the same purpose.
 /// </summary>
@@ -26,8 +27,8 @@ public sealed class UsageReporter(ApiClient api, AppSettings settings, Unclassif
                 continue;
             }
 
-            var apps = usage.Top(MinUsage, 50)
-                .Select(a => new UnknownAppItem(a.Kind, a.Pattern, a.DisplayName, (int)a.Today.TotalMinutes))
+            var apps = usage.Top(MinUsage, 50, includeGuessed: true)
+                .Select(a => new UnknownAppItem(a.Kind, a.Pattern, a.DisplayName, (int)a.Today.TotalMinutes, a.Guessed))
                 .ToList();
             var rules = settings.PersonalSync
                 ? null

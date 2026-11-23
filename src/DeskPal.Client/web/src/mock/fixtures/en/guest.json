@@ -59,7 +59,8 @@
       "blocked": false,
       "shareStats": false,
       "client": null,
-      "joined": "Joined Nov 6"
+      "joined": "Joined Nov 6",
+      "trailing": true
     }
   ],
   "privacy": {

@@ -54,7 +54,11 @@ flowchart LR
 
 - 前台是浏览器：先查个人分类，没有命中时，正在播放当前标签页的视频（媒体标题包含在标签页标题里）归为 `Video`，否则归为 `Browsing`；应用名用域名（没有域名则为空），详情用去掉浏览器后缀的窗口标题。不使用内置的网站和标题规则。个人分类里先按域名（取最具体的后缀），再按标题关键词，最后按进程名。`Shopping`、`Social`、`News`、`Reading` 的规则跳过，结果仍是正在浏览网页。
 - 其他应用：个人分类 → 内置规则 → 推测 → `Other`，只按进程名匹配。
-- 推测层只对非浏览器、且前几层都没命中时生效：路径含 `\steamapps\` 的程序归为 `Game`；全屏且正在播放媒体归为 `Video`。正在播放媒体本身不分类，避免后台音乐盖过当前焦点。
+- 推测层只对非浏览器、且前几层都没命中时生效，依次是：
+  - 路径落在规则库 `folders` 列出的游戏库目录（`\steamapps\common\`、`\Epic Games\`、`\WeGameApps\` 等）的程序，归为该目录的类别（目前都是 `Game`）。启动器、崩溃上报、更新程序除外。规则库还没下发目录时（旧 Server 或旧缓存）用 `LayeredClassifier.DefaultFolders`。
+  - 文件名是 Unreal 发行版（`xxx-Win64-Shipping`、`xxx-Mac-Shipping`）的程序，在哪里都归为 `Game`。
+  - 全屏且正在播放媒体，归为 `Video`。正在播放媒体本身不分类，避免后台音乐盖过当前焦点。
+- 推测出来的游戏由 `GameNames` 取名，因为游戏程序的文件描述常常是 `b1-Win64-Shipping`、引擎名，或者是空的。取名顺序：Steam 库里 `appmanifest_*.acf` 的 `name`（按 `installdir` 对应 `steamapps\common\` 下的文件夹，每个库最多 5 分钟重扫一次）→ 能读的文件描述 → 游戏库目录下一级的文件夹名 → Unreal 项目的根目录（`<游戏>\<项目>\Binaries\Win64\`）→ 去掉 `-Win64-Shipping` 后的文件名。
 
 ### 个人分类
 
@@ -76,14 +80,16 @@ flowchart LR
 
 ### 未识别应用和规则库候选
 
-- `UnclassifiedUsage` 统计当天每个未识别桌面应用（落到 `Other` 层）的前台时长：两次记录间隔超过 30 秒的不计，本地零点清零。`UnclassifiedUsageStore` 每分钟和退出时写入 `unclassified-<userId>.json`，启动时只恢复当天的记录，重启后继续累计，上报的分钟数不会变小。浏览器网页不统计。状态页的「待归类」列出今天用了 5 分钟以上的前 5 个。
+- `UnclassifiedUsage` 统计当天每个没有规则的桌面应用的前台时长，包括落到 `Other` 的，和推测层推测出类别的（记下推测的类别 `Guessed`）：两次记录间隔超过 30 秒的不计，本地零点清零。`UnclassifiedUsageStore` 每分钟和退出时写入 `unclassified-<userId>.json`，启动时只恢复当天的记录，重启后继续累计，上报的分钟数不会变小。浏览器网页不统计。状态页的「待归类」只列出落到 `Other` 的，今天用了 5 分钟以上的前 5 个；推测出类别的已经显示为在玩游戏，不列。
 - 第一次打开面板时询问是否分享使用数据（`Users.ShareUsage`，空表示还没问过），设置页可以随时改。关闭时删除已上报的数据。
-- 同意分享时，`UsageReporter` 每 2 小时上报今天用了 10 分钟以上的未识别应用（进程名、产品名、分钟数，`POST /api/me/usage`），不含窗口标题、网页和具体时间。
-- `GET /api/rules/candidates` 只统计同意分享、注册满 `Rules:MinAccountAgeDays`（默认 3）天的账号，一个账号一票：
-  - 多人一致：至少 `Rules:MinUsers`（默认 5）个账号设置过同一个应用，占比最高的类别不低于 `Rules:MinAgreement`（默认 0.8），且和内置规则不同。
-  - 未识别应用：至少 `MinUsers` 个账号上报过，内置规则和任何人的个人分类都没有覆盖。
-- 该接口要求请求头 `X-DeskPal-Maintainer` 等于 `Rules:MaintainerToken`，口令为空时返回 404。`.github/workflows/rule-candidates.yml` 每周请求一次，把多人一致的结果写进 `builtin-rules.json` 并开 PR，未识别应用列在 PR 说明里，人工审核后合并。
-- 内置规则保存在 `builtin-rules.json`（目前版本 8，411 条，其中约 70 条是 Mac 应用的 Bundle ID，中文名称都带 `names.en`），Server 启动时写入数据库；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。里面的网站和标题规则不参与浏览器的默认分类。版本 3 起没有 `Music`、`Shopping`、`Social`、`News`、`Reading`。
+- 同意分享时，`UsageReporter` 每 2 小时上报今天用了 10 分钟以上的这些应用（进程名、应用名称、推测的类别、分钟数，`POST /api/me/usage`），不含窗口标题、网页和具体时间。推测出来的游戏，应用名称就是上面 `GameNames` 取的名字。Server 只接受 `Game`、`Video` 作为推测的类别。
+- `GET /api/rules/candidates` 只统计同意分享、注册满 `Rules:MinAccountAgeDays`（默认 3）天的账号，一个账号一票。个人分类按应用分组，取占比最高的类别，和内置规则相同的跳过：
+  - 多人一致（`consensus`）：至少 `Rules:MinUsers`（默认 2）个账号设置过，占比最高的类别不低于 `Rules:MinAgreement`（默认 0.66）。
+  - 待确认的改动（`signals`）：达不到上面的门槛，但至少 `Rules:ReviewMinUsers`（默认 1）个账号设置过。内置规则里已有、只是有人改了分类的应用在这里出现，例如一个人把 Codex 改成其他。
+  - 推测一致（`guessed`）：内置规则和任何人的个人分类都没有覆盖，至少 `MinUsers` 个账号上报过，多数人推测的类别不为空。
+  - 未识别应用（`unknown`）：内置规则和个人分类都没有覆盖、不属于 `guessed` 的，至少 `ReviewMinUsers` 个账号上报过，最多 100 个。
+- 该接口要求请求头 `X-DeskPal-Maintainer` 等于 `Rules:MaintainerToken`，口令为空时返回 404。`.github/workflows/rule-candidates.yml` 每天北京时间 9:17 请求一次（避开整点）：`consensus` 和 `guessed` 写进 `builtin-rules.json` 并开 PR（`guessed` 写成带名称的规则，以后不再依赖安装路径），人工审核后合并；`signals` 和 `unknown` 需要人工判断，写进 PR 说明，同时更新 issue「内置规则库：待人工确认」（没有文件改动时开不了 PR）。
+- 内置规则保存在 `builtin-rules.json`（目前版本 10，413 条，其中约 70 条是 Mac 应用的 Bundle ID，中文名称都带 `names.en`；另有 `folders` 列出 11 个游戏库目录），Server 启动时把规则写入数据库、目录写入 `AppMeta`；客户端启动时带上已缓存的版本号请求，版本相同就不返回规则。缓存里还没有目录的客户端按版本 0 请求，拿一次完整的规则库。目录放在单独的字段里，不是新的 `RuleKind`，旧客户端不认识新枚举值会读不了整个规则库。里面的网站和标题规则不参与浏览器的默认分类。版本 3 起没有 `Music`、`Shopping`、`Social`、`News`、`Reading`。
 - 分类口径：桌面应用里，企业微信、飞书、钉钉、Slack、Teams、邮箱和会议软件归为 `Work`；QQ、微信、Telegram 等个人聊天归为 `Communication`。浏览器里的网页不再按网站种类细分。音乐播放器、Kindle、calibre、Discord 没有单独类别，显示为“其他活动”和应用名。
 
 ## 状态判断和防抖
@@ -244,7 +250,7 @@ flowchart LR
 | PUT | `/api/rooms/{id}` | 所有者修改 Room 名称（`RenameRoomRequest`，去掉首尾空格后 1 到 30 个字符）；名称有变化时广播 `room.renamed` |
 | DELETE | `/api/rooms/{id}` | 所有者解散，级联删除成员、邀请码、踢出记录和屏蔽记录 |
 | GET/PUT | `/api/rooms/{id}/privacy` | 我在该 Room 的隐私配置。`PrivacyProfileDto` 的 `shareStats`、`statsDays`、`sharePausedStats` 为空时保留原值；`statsDays` 只能是 1、3、7、30，否则返回 400。公开开关变化，或公开时天数变化，广播 `room.memberSharingChanged`。`RoomMemberDto` 带每个成员的 `shareStats`、`statsDays` |
-| GET | `/api/rules/builtin?version=N` | 内置规则；版本相同时 `rules` 为 null |
+| GET | `/api/rules/builtin?version=N` | 内置规则和游戏库目录（`folders`）；版本相同时 `rules`、`folders` 为 null |
 | GET | `/api/rules/candidates` | 规则库候选（`RuleCandidatesResponse`），请求头 `X-DeskPal-Maintainer` 要等于 `Rules:MaintainerToken`，否则 404 |
 | GET | `/health` | 健康检查，返回 `status` 和 `revision`（镜像构建时的 Git 提交号，本地运行为空） |
 
@@ -282,9 +288,9 @@ flowchart LR
 | `UserRules` | UserId + Kind + Pattern（唯一）、Category、Name、UpdatedAt。个人分类，只在开启同步到账号后写入 |
 | `UserNoTitleRules` | Id、UserId、Kind、Pattern、UpdatedAt。不记录标题的规则，只在开启同步到账号后写入，明文 |
 | `SharedRuleReports` | UserId + Pattern、Category、Name、ReportedAt。未开启同步到账号、同意分享的账号上报的应用个人分类，只用于规则库候选 |
-| `UnknownAppReports` | UserId + Kind + Pattern、DisplayName、Minutes（最近一次上报的当天分钟数）、ReportedAt |
+| `UnknownAppReports` | UserId + Kind + Pattern、DisplayName、Minutes（最近一次上报的当天分钟数）、ReportedAt、Guessed（客户端推测的类别，落到其他时为空） |
 | `StatsSyncDays` | UserId + Date、Revision、Data（用 PIN 码加密的一天使用统计，Server 不解析）、UpdatedAt。只在用户开启同步后写入，关闭时删除，删除账号时级联删除 |
-| `BuiltinRules` / `AppMeta` | 内置规则（`Names` 列是其他语言名称的 JSON）和规则库版本号 |
+| `BuiltinRules` / `AppMeta` | 内置规则（`Names` 列是其他语言名称的 JSON），规则库版本号和游戏库目录（JSON） |
 
 Server 启动时自动执行还没应用的迁移，部署不需要手动删除或重建数据库。
 
@@ -347,7 +353,7 @@ Server 启动时自动执行还没应用的迁移，部署不需要手动删除�
 |---|---|
 | Server 镜像 | `.github/workflows/docker.yml`：推送默认分支或 `v*` 标签时用 `deploy/Dockerfile.server` 构建，推到 `ghcr.io/hulushilei/deskpal-server` |
 | Server 运行 | Portainer Stack（`deploy/stack.yml`），在 192.168.66.5 上发布 18820 端口；`Jwt__Key` 来自 Stack 环境变量 `DESKPAL_JWT_KEY`，`Rules__MaintainerToken` 来自可选的 `DESKPAL_MAINTAINER_TOKEN`；`Auth__RequireSignupInvite`、`Auth__AdminUserNames__0` 来自可选的 `DESKPAL_REQUIRE_SIGNUP_INVITE`、`DESKPAL_ADMIN_USER`（多个用户名用逗号分隔） |
-| 规则库候选 | `.github/workflows/rule-candidates.yml`：每周一和手动运行，用 secret `DESKPAL_MAINTAINER_TOKEN` 请求 `/api/rules/candidates`，`.github/scripts/merge-rule-candidates.mjs` 合并进 `builtin-rules.json`，校验后开 PR（分支 `rules/candidates`） |
+| 规则库候选 | `.github/workflows/rule-candidates.yml`：每天北京时间 9:17 和手动运行，用 secret `DESKPAL_MAINTAINER_TOKEN` 请求 `/api/rules/candidates`，`.github/scripts/merge-rule-candidates.mjs` 合并进 `builtin-rules.json`，校验后开 PR（分支 `rules/candidates`） |
 | 自动更新 | main 上的镜像同时推 `latest` 和 `sha-<提交号>`。GitHub Actions POST `PORTAINER_WEBHOOK_URL?tag=sha-<提交号>`，再等到 `/health` 的 `revision` 等于该提交号。Traefik 只在 36443 上公开 webhook token 路径 |
 | HTTPS | 192.168.66.10 上已有的 Traefik：`deskpal.hafuhafu.cn` 走 443 和 36443 两个入口，`*.hafuhafu.cn` 泛域名证书（阿里云 DNS challenge）；路由文件 `/etc/traefik/conf/deskpal.yml`，仓库里的副本是 `deploy/traefik-dynamic.yml` |
 | 客户端 | `.github/workflows/ci.yml`：main 上改了客户端时用 Velopack 发测试版 Pre-release（通道 `beta`，版本 `x.y.z-dev.<运行号>`，安装包 `DeskPal-<版本>-Setup.exe`，测试版版本号形如 `0.1.2-dev.15`），只保留最近 8 个；手动推送 `vX.Y.Z` 发正式版（通道 `win`，安装包同样是 `DeskPal-<版本>-Setup.exe`，例如 `DeskPal-0.1.2-Setup.exe`）。安装包是 Inno Setup 向导（`installer/DeskPal.iss`，CI 下载 Inno Setup 6.7.3 并校验 SHA256 后编译），内嵌 `vpk pack` 生成的 Setup.exe；用户选好目录后用 `--installto` 静默安装。Release 上只放这个向导，Velopack 自带的 Setup.exe 上传后删除，自动更新只用 nupkg 和 releases 清单。已安装的客户端启动后和每 6 小时向 GitHub Release 检查更新，后台下载；只在退出或选择立即重启时安装，启动时不自动安装。取消测试版会删除已下载的包。打包时带 `--framework webview2`，安装程序和每次更新前都会检查 WebView2 Runtime，缺少时自动安装。CI 先用 Node 22 构建 `web/`。Release 说明附带更新内容：测试版列出上一次发布以来的提交标题，正式版列出上一个正式版以来的提交标题。客户端弹出的更新内容另取自 `CHANGELOG.md`，CI 发布时要求最上面一节是本次的正式版版本号（测试版取 `x.y.z-dev.N` 的 `x.y.z`） |

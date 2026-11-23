@@ -98,4 +98,20 @@ public class PersonalRulesTests
 
         Assert.Empty(usage.Top(TimeSpan.Zero, 5));
     }
+
+    [Fact]
+    public void Guessed_apps_are_reported_but_not_listed_for_classifying()
+    {
+        var usage = new UnclassifiedUsage();
+        var game = new CorrectionTarget(RuleKind.Process, "b1-win64-shipping", "Black Myth Wukong");
+        usage.Record(game, Start, TimeZoneInfo.Utc, ActivityCategory.Game);
+        usage.Record(XMind, Start.AddSeconds(20), TimeZoneInfo.Utc);
+        usage.Record(null, Start.AddSeconds(30), TimeZoneInfo.Utc);
+
+        Assert.Equal("xmind", Assert.Single(usage.Top(TimeSpan.Zero, 5)).Pattern);
+        var reported = usage.Top(TimeSpan.Zero, 5, includeGuessed: true);
+        Assert.Equal(2, reported.Count);
+        Assert.Equal((ActivityCategory?)ActivityCategory.Game, reported.Single(a => a.Pattern == "b1-win64-shipping").Guessed);
+        Assert.Null(reported.Single(a => a.Pattern == "xmind").Guessed);
+    }
 }

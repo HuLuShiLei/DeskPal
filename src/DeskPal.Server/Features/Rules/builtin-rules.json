@@ -1,5 +1,51 @@
 {
-    "version": 8,
+    "version": 10,
+    "folders": [
+        {
+            "folder": "\\steamapps\\common\\",
+            "category": "Game"
+        },
+        {
+            "folder": "\\Epic Games\\",
+            "category": "Game"
+        },
+        {
+            "folder": "\\WeGameApps\\",
+            "category": "Game"
+        },
+        {
+            "folder": "\\XboxGames\\",
+            "category": "Game"
+        },
+        {
+            "folder": "\\GOG Galaxy\\Games\\",
+            "category": "Game"
+        },
+        {
+            "folder": "\\Riot Games\\",
+            "category": "Game"
+        },
+        {
+            "folder": "\\HoYoPlay\\games\\",
+            "category": "Game"
+        },
+        {
+            "folder": "\\miHoYo\\",
+            "category": "Game"
+        },
+        {
+            "folder": "\\Ubisoft Game Launcher\\games\\",
+            "category": "Game"
+        },
+        {
+            "folder": "\\EA Games\\",
+            "category": "Game"
+        },
+        {
+            "folder": "\\FINAL FANTASY XIV",
+            "category": "Game"
+        }
+    ],
     "rules": [
         {
             "kind": "Process",
@@ -820,7 +866,7 @@
         {
             "kind": "Process",
             "pattern": "chatgpt",
-            "category": "Other",
+            "category": "Work",
             "name": "ChatGPT"
         },
         {
@@ -834,6 +880,18 @@
             "pattern": "codex",
             "category": "Work",
             "name": "Codex"
+        },
+        {
+            "kind": "Process",
+            "pattern": "opencode",
+            "category": "Work",
+            "name": "OpenCode"
+        },
+        {
+            "kind": "Process",
+            "pattern": "workbuddy",
+            "category": "Work",
+            "name": "WorkBuddy"
         },
         {
             "kind": "Process",
@@ -2044,7 +2102,7 @@
         {
             "kind": "Domain",
             "pattern": "chatgpt.com",
-            "category": "Other",
+            "category": "Work",
             "name": "ChatGPT"
         },
         {

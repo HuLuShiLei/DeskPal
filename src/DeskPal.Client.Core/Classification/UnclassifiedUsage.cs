@@ -1,13 +1,16 @@
 using DeskPal.Shared.Api;
+using DeskPal.Shared.Presence;
 
 namespace DeskPal.Client.Core.Classification;
 
-public sealed record UnclassifiedApp(RuleKind Kind, string Pattern, string DisplayName, TimeSpan Today);
+/// <param name="Guessed">Category guessed without a rule (a game library folder); null when the app fell back to Other.</param>
+public sealed record UnclassifiedApp(RuleKind Kind, string Pattern, string DisplayName, TimeSpan Today, ActivityCategory? Guessed = null);
 
 /// <summary>
-/// Today's foreground time of desktop apps that no rule recognized. Cleared at local midnight.
+/// Today's foreground time of desktop apps that no rule recognized: those that fell back to Other, and those only guessed
+/// (a game library folder). Cleared at local midnight.
 /// The client saves it to a local file and restores it after a restart, so the reported minutes do not start over.
-/// The panel lists the busiest ones so the user can classify them; with consent the totals are also reported.
+/// The panel lists the busiest unguessed ones so the user can classify them; with consent all are also reported.
 /// </summary>
 public sealed class UnclassifiedUsage
 {
@@ -16,11 +19,13 @@ public sealed class UnclassifiedUsage
     private readonly Dictionary<string, UnclassifiedApp> _apps = new(StringComparer.Ordinal);
     private readonly Lock _lock = new();
     private CorrectionTarget? _current;
+    private ActivityCategory? _guessed;
     private DateTimeOffset _since;
     private DateOnly _day;
 
     /// <param name="target">What is in front now, or null when it should not count (recognized, browser, idle, locked, paused).</param>
-    public void Record(CorrectionTarget? target, DateTimeOffset now, TimeZoneInfo? zone = null)
+    /// <param name="guessed">The category of a guessed app, null when it fell back to Other.</param>
+    public void Record(CorrectionTarget? target, DateTimeOffset now, TimeZoneInfo? zone = null, ActivityCategory? guessed = null)
     {
         lock (_lock)
         {
@@ -36,11 +41,12 @@ public sealed class UnclassifiedUsage
                 if (elapsed <= MaxGap)
                 {
                     var app = _apps.GetValueOrDefault(previous.Pattern) ?? new UnclassifiedApp(previous.Kind, previous.Pattern, previous.DisplayName, TimeSpan.Zero);
-                    _apps[previous.Pattern] = app with { DisplayName = previous.DisplayName, Today = app.Today + elapsed };
+                    _apps[previous.Pattern] = app with { DisplayName = previous.DisplayName, Today = app.Today + elapsed, Guessed = _guessed };
                 }
             }
 
             _current = target is { Kind: RuleKind.Process } ? target : null;
+            _guessed = _current is null ? null : guessed;
             _since = now;
         }
     }
@@ -85,11 +91,16 @@ public sealed class UnclassifiedUsage
         }
     }
 
-    public IReadOnlyList<UnclassifiedApp> Top(TimeSpan atLeast, int count)
+    /// <param name="includeGuessed">False for the panel: a guessed app is already shown as a game.</param>
+    public IReadOnlyList<UnclassifiedApp> Top(TimeSpan atLeast, int count, bool includeGuessed = false)
     {
         lock (_lock)
         {
-            return _apps.Values.Where(a => a.Today >= atLeast).OrderByDescending(a => a.Today).Take(count).ToList();
+            return _apps.Values
+                .Where(a => a.Today >= atLeast && (includeGuessed || a.Guessed is null))
+                .OrderByDescending(a => a.Today)
+                .Take(count)
+                .ToList();
         }
     }
 }
