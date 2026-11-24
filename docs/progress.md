@@ -230,3 +230,4 @@
 | 2026-11-23 | 全平台插件化（完整改动、问过用户的和我决定的做法、验证结果见 [changes-2026-11-23-plugins.md](changes-2026-11-23-plugins.md)）：插件宿主 `ProviderHost` 和按能力的路由；Windows、macOS、Linux 的采集器改为官方插件；协议加 `provides`、`idle`、`lock`、`media`；设置页「插件」列表；Linux 浏览器扩展和 `BrowserBridge`；插件教程、skill、模板（新增 Windows PowerShell 模板）更新；修掉 Linux 浏览器时长一直等网站的问题。 |
 | 2026-11-24 | 插件页：设置页「常规」只留一行「插件」入口，点进去是独立插件页。每个插件折叠成两行，点开看能力、适用应用、说明和按钮；需要处理的默认展开。「编写插件」在页面顶部，在浏览器打开指南。 |
 | 2026-11-24 | 按标题分类：RuleKind.AppTitle（RulePattern.AppTitle、SplitAppTitle），RuleSet.MatchAppTitle 排在进程名之前，UsageReclassifier 按标题重新归类，LayeredClassifier.PersonalRule 给「恢复默认」找实际命中的规则；纠正分类对话框的勾选框（sk 的 checkbox.reveals）、统计标题详情的更改分类、规则页「标题包含」。 |
+| 2026-11-24 | 微信会话插件：`plugins/windows-wechat.ps1`，只提供 `detail`，用 UI Automation 按 AutomationId（`…current_chat_name_label`）读微信 4.x 的当前会话名，找到后缓存元素。已在微信 4.2.0.53 主窗口上验证（读到会话名、输出通过检查工具）；单独弹出的聊天窗口和微信 3.x 不支持或未验证。现成插件从 skill 的 `examples/` 移到仓库根目录新建的 `plugins/`（QQ、微信各一个），插件指南、skill、AGENTS.md 的引用已更新。 |

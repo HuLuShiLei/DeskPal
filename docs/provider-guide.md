@@ -175,7 +175,7 @@ goto loop
 - 补充的标题和普通窗口标题一样处理：受“不记录标题”和房间的隐私设置控制，只有把“在聊天”设为显示详情的房间才能看到。
 - 这类插件不用移到官方插件上面，放在列表任何位置都可以。多个插件都给同一个程序补充时，用最上面的那个。
 
-现成的样例是 `examples/windows-qq.ps1`（Windows，QQ NT）：它通过 Windows 的 UI Automation（系统的无障碍接口）只读会话顶部的名称，不读消息内容，不注入 QQ，也不读 QQ 的数据文件。QQ 改版后界面结构可能变化，读不到时它什么都不报，DeskPal 显示原来的窗口标题。
+现成的插件在仓库根目录的 `plugins/` 文件夹：`windows-qq.ps1`（QQ NT）和 `windows-wechat.ps1`（微信 4.x），复制到插件文件夹就能用。它们通过 Windows 的 UI Automation（系统的无障碍接口）只读会话顶部的名称，不读消息内容，不注入，也不读数据文件。软件改版后界面结构可能变化，读不到时它们什么都不报，DeskPal 显示原来的窗口标题。
 
 ## 插件做不到的事
 
@@ -209,10 +209,11 @@ Linux 上没有可靠的办法从浏览器外面读到网址，所以 Linux 内�
 | `scripts/template.ps1` | Windows 模板，用系统自带的 PowerShell，读前台窗口和暂离时间，已在 Windows 上验证 |
 | `scripts/check_provider.py` | 检查工具 |
 | `examples/x11-xdotool.sh` | X11 + xdotool，已验证 |
-| `examples/windows-qq.ps1` | Windows，补充 QQ NT 的当前会话名，已在 QQ NT 9.9.37 上验证 |
 | `examples/hyprland.sh` | Hyprland，按文档编写，未在真机验证 |
 | `examples/sway.sh` | Sway，按文档编写，未在真机验证 |
 | `examples/macos-frontmost.sh` | macOS，用 osascript，未在真机验证 |
+
+可以直接用的插件（QQ、微信的当前会话）不在这里，在仓库根目录的 `plugins/`，见上文“补充标题”。
 
 写完先检查再开启：
 
