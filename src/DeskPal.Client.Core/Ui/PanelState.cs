@@ -129,7 +129,40 @@ public sealed record SettingsView(
     bool IsAdmin = false,
     int IdleMinutes = AccountIdle.DefaultMinutes,
     int SwitchDelaySeconds = SwitchDelay.DefaultSeconds,
-    PersonalView? Personal = null);
+    PersonalView? Personal = null,
+    PluginsView? Plugins = null);
+
+/// <summary>
+/// The plugin list: where the window, the browser's site, idle, lock and media come from. Ordered like a mod list;
+/// for each capability the first enabled plugin that supplies it is used. null only in tests and old fixtures.
+/// </summary>
+/// <param name="Unprovided">Capabilities no enabled plugin supplies right now (names as in <see cref="Providers.ProviderCapabilities"/>).</param>
+/// <param name="Folder">Where the user's own plugins go.</param>
+public sealed record PluginsView(IReadOnlyList<PluginView> Items, IReadOnlyList<string> Unprovided, string Folder);
+
+/// <param name="Id">official:windows, official:macos, official:linux, or user:&lt;file name&gt;.</param>
+/// <param name="Official">Comes with DeskPal (like the base game and its DLC in a mod list) rather than from the user.</param>
+/// <param name="Provides">Capabilities the plugin supplies.</param>
+/// <param name="Owns">The part of <paramref name="Provides"/> it is actually used for; the rest is covered by a plugin above it.</param>
+/// <param name="State">disabled, starting, running or failed.</param>
+/// <param name="Notes">Status lines; the panel translates <see cref="PluginNote.Key"/>.</param>
+/// <param name="Actions">Buttons the plugin offers, by id; the panel translates them.</param>
+public sealed record PluginView(
+    string Id,
+    string Name,
+    string? Version,
+    bool Official,
+    bool Enabled,
+    IReadOnlyList<string> Provides,
+    IReadOnlyList<string> Owns,
+    string State,
+    IReadOnlyList<PluginNote> Notes,
+    IReadOnlyList<string> Actions);
+
+/// <param name="Key">Translation key, for example linux.needsExtension or plugin.error.</param>
+/// <param name="Text">Untranslated detail put into the sentence: an error message, a desktop or browser name.</param>
+/// <param name="Tone">info or warn.</param>
+public sealed record PluginNote(string Key, string? Text = null, string Tone = "info");
 
 /// <summary>Where the personal rules, no-title rules and preferences are kept besides this computer.</summary>
 /// <param name="AccountSync">Synced with the account on the server.</param>

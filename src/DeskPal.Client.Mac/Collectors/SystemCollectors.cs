@@ -1,5 +1,6 @@
 using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Native;
+using DeskPal.Client.Providers;
 using DeskPal.Client.Services;
 using Foundation;
 using Microsoft.Extensions.Hosting;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 namespace DeskPal.Client.Collectors;
 
 /// <summary>Only reads the time since the last input. Keys and mouse positions are never recorded. No permission needed.</summary>
-public sealed class IdleCollector(ActivityBus bus, AppSettings settings) : BackgroundService
+public sealed class IdleCollector(SignalSink bus, AppSettings settings) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -27,7 +28,7 @@ public sealed class IdleCollector(ActivityBus bus, AppSettings settings) : Backg
 }
 
 /// <summary>Screen lock and unlock, from the notifications the login window posts. No permission needed.</summary>
-public sealed class SessionCollector(ActivityBus bus) : IHostedService
+public sealed class SessionCollector(SignalSink bus) : IHostedService
 {
     private NSObject? _locked;
     private NSObject? _unlocked;

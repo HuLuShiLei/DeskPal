@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Linux 客户端：GTK4 窗口 + WebKitGTK 面板，托盘图标走 StatusNotifierItem（D-Bus）。
+    和 Windows、macOS 版共用 DeskPal.Client.App、Client.Core、Shared 和 web/。
+    纯托管代码，在 Windows、macOS、Linux 上都能编译；运行需要系统里有 GTK 4（4.10 起）和 WebKitGTK 6.0。
+      dotnet build src/DeskPal.Client.Linux
+      cd src/DeskPal.Client.Linux && dotnet run
+    打包见 .github/workflows/ci.yml 的 linux 任务。
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\DeskPal.Client.App\DeskPal.Client.App.csproj" />
+    <ProjectReference Include="..\DeskPal.Client.Core\DeskPal.Client.Core.csproj" />
+    <ProjectReference Include="..\DeskPal.Shared\DeskPal.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GirCore.Gtk-4.0" Version="0.7.0" />
+    <PackageReference Include="GirCore.WebKit-6.0" Version="0.7.0" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.95.2" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>DeskPal</AssemblyName>
+    <RootNamespace>DeskPal.Client</RootNamespace>
+    <Version>0.1.0</Version>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+  <!-- 托盘图标（由 Assets/make-icons.py 从 icon-source.png 生成）、更新内容、GNOME Shell 扩展。 -->
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\tray-*.argb" LogicalName="%(Filename)%(Extension)" />
+    <Content Include="Resources\deskpal.png" Link="deskpal.png" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\CHANGELOG.md" Link="CHANGELOG.md" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="gnome-extension\**\*" Link="gnome-extension\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="browser-extension\**\*" Link="browser-extension\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- 前端和 Windows 版共用 src/DeskPal.Client/web，构建结果复制到输出目录的 web/。没有 Node 时可传 -p:SkipWebBuild=true。 -->
+  <PropertyGroup>
+    <WebDir>..\DeskPal.Client\web</WebDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <WebSource Include="$(WebDir)\index.html;$(WebDir)\package.json;$(WebDir)\package-lock.json;$(WebDir)\vite.config.ts;$(WebDir)\tsconfig.json;$(WebDir)\src\**\*" />
+  </ItemGroup>
+
+  <Target Name="LinuxNpmInstall" Condition="'$(SkipWebBuild)' != 'true'" Inputs="$(WebDir)\package.json;$(WebDir)\package-lock.json" Outputs="$(WebDir)\node_modules\.install-stamp">
+    <Exec Command="npm ci --no-fund --no-audit" WorkingDirectory="$(WebDir)" />
+    <Touch Files="$(WebDir)\node_modules\.install-stamp" AlwaysCreate="true" />
+  </Target>
+
+  <Target Name="LinuxBuildWeb" DependsOnTargets="LinuxNpmInstall" Condition="'$(SkipWebBuild)' != 'true'" Inputs="@(WebSource)" Outputs="$(WebDir)\dist\index.html">
+    <Exec Command="npm run build" WorkingDirectory="$(WebDir)" />
+  </Target>
+
+  <Target Name="LinuxIncludeWeb" DependsOnTargets="LinuxBuildWeb" BeforeTargets="AssignTargetPaths">
+    <ItemGroup>
+      <_LinuxWebDist Include="$(WebDir)\dist\**" />
+      <Content Include="@(_LinuxWebDist)" Link="web\%(_LinuxWebDist.RecursiveDir)%(_LinuxWebDist.Filename)%(_LinuxWebDist.Extension)" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
+
+</Project>

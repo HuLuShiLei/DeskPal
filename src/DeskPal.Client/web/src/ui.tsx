@@ -2,7 +2,7 @@ import type { ComponentChildren, RefObject } from "preact";
 import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import type { Bridge, ClientKind, PresenceView, Tone } from "./bridge";
 import { t } from "./i18n";
-import { isMac } from "./platform";
+import { isWindows } from "./platform";
 
 // Segoe Fluent Icons（Windows 11）/ Segoe MDL2 Assets（Windows 10）里的字形。
 const glyphs = {
@@ -13,6 +13,7 @@ const glyphs = {
   minimize: "\uE921",
   close: "\uE8BB",
   chevronDown: "\uE70D",
+  chevronUp: "\uE70E",
   add: "\uE710",
   edit: "\uE70F",
   delete: "\uE74D",
@@ -51,7 +52,7 @@ const person = (x: number, y: number) => `${circle(x, y, 2.3)}M${x - 4.3} ${y + 
 const pin = "M9.6 2.4l4 4-2 1-2.4 2.4.5 2.6-1.1 1.1-5.1-5.1 1.1-1.1 2.6.5 2.4-2.4z";
 
 /**
- * macOS 没有 Segoe Fluent Icons，改用同样含义的线条图标（16×16，描边，跟随文字颜色和字号）。
+ * macOS 和 Linux 没有 Segoe Fluent Icons，改用同样含义的线条图标（16×16，描边，跟随文字颜色和字号）。
  * 和上面的字形一一对应，Windows 上不使用。
  */
 const paths: Record<IconName, string> = {
@@ -62,6 +63,7 @@ const paths: Record<IconName, string> = {
   minimize: "M3.5 8h9",
   close: "M4 4l8 8M12 4l-8 8",
   chevronDown: "M4 6l4 4 4-4",
+  chevronUp: "M4 10l4-4 4 4",
   add: "M8 3v10M3 8h10",
   edit: "M10.6 2.6l2.8 2.8L6 12.8H3.2V10zM9.2 4l2.8 2.8",
   delete: "M3 4.5h10M6.4 4.5V2.8h3.2v1.7M4.5 4.5l.7 9h5.6l.7-9M7 7v4.3M9 7v4.3",
@@ -93,7 +95,7 @@ const paths: Record<IconName, string> = {
 };
 
 export function Icon({ name, class: cls }: { name: IconName; class?: string }) {
-  if (isMac()) {
+  if (!isWindows()) {
     return (
       <svg
         class={cls ? `icon svg-icon ${cls}` : "icon svg-icon"}
@@ -311,13 +313,15 @@ const clientLogos: Record<ClientKind, { viewBox: string; path: string }> = {
     viewBox: "0 0 24 24",
     path: "M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701",
   },
+  // Linux：终端提示符 >_
+  linux: { viewBox: "0 0 16 16", path: "M2 3.2 3.4 1.8 9.6 8 3.4 14.2 2 12.8 6.8 8zM9 12.2h5v2H9z" },
 };
 
-/** 客户端标志（Windows、macOS），头像右下角的小圆标，悬停显示名称。 */
+/** 客户端标志（Windows、macOS、Linux），头像右下角的小圆标，悬停显示名称。 */
 function ClientIcon({ client }: { client: ClientKind | null | undefined }) {
   const logo = client && clientLogos[client];
   if (!logo) return null;
-  const label = t(client === "mac" ? "client.mac" : "client.windows");
+  const label = t(client === "mac" ? "client.mac" : client === "linux" ? "client.linux" : "client.windows");
   return (
     <span class={`client-icon ${client}`} role="img" aria-label={label} title={label}>
       <svg viewBox={logo.viewBox} aria-hidden="true">

@@ -862,4 +862,16 @@
   <data name="App_AlreadyRunningMac" xml:space="preserve">
     <value>DeskPal 已在运行。请点菜单栏上的 DeskPal 图标打开。</value>
   </data>
+  <data name="Plugin_NotFound" xml:space="preserve">
+    <value>找不到插件「{0}」。可能已被移走或删除，请点「刷新」重新读取插件文件夹。</value>
+  </data>
+  <data name="Plugin_GnomeExtensionInstalled" xml:space="preserve">
+    <value>扩展已安装。请注销后重新登录系统，DeskPal 才能识别当前使用的应用。</value>
+  </data>
+  <data name="Plugin_BrowserExtensionReady" xml:space="preserve">
+    <value>浏览器扩展已放到打开的文件夹中。请在浏览器的扩展管理页开启「开发者模式」，选择「加载已解压的扩展程序」并选中这个文件夹。</value>
+  </data>
+  <data name="Plugin_UnknownAction" xml:space="preserve">
+    <value>这个插件没有这项操作。</value>
+  </data>
 </root>

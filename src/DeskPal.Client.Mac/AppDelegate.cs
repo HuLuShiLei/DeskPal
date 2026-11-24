@@ -2,8 +2,10 @@ using System.Globalization;
 using AppKit;
 using DeskPal.Client.Collectors;
 using DeskPal.Client.Core.Diagnostics;
+using DeskPal.Client.Core.Providers;
 using DeskPal.Client.Native;
 using DeskPal.Client.Platform;
+using DeskPal.Client.Providers;
 using DeskPal.Client.Services;
 using DeskPal.Client.Ui;
 using Foundation;
@@ -210,11 +212,18 @@ public sealed class AppDelegate : NSApplicationDelegate
         var s = builder.Services;
         s.AddDeskPalClient(settings, store, api, logs, new MacPlatform());
         s.AddSingleton<ForegroundState>();
-        s.AddHostedService<ForegroundCollector>();
-        s.AddHostedService<BrowserDomainCollector>();
-        s.AddHostedService<IdleCollector>();
-        s.AddHostedService<SessionCollector>();
-        s.AddHostedService<MediaCollector>();
+
+        // The collectors are the official macOS plugin: listed in Settings with the user's plugins, and their facts
+        // reach the presence pipeline only for what no plugin above them supplies.
+        s.AddOfficialProvider(
+            "official:macos",
+            "macOS",
+            ProviderCapabilities.All.ToHashSet(),
+            typeof(ForegroundCollector),
+            typeof(BrowserDomainCollector),
+            typeof(IdleCollector),
+            typeof(SessionCollector),
+            typeof(MediaCollector));
         s.AddSingleton<PanelController>();
         s.AddSingleton<MemberCards>();
         return builder.Build();

@@ -8,6 +8,7 @@ using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Updates;
 using DeskPal.Client.Core.Usage;
 using DeskPal.Client.Platform;
+using DeskPal.Client.Providers;
 using DeskPal.Client.Services;
 using DeskPal.Shared.Api;
 using DeskPal.Shared.Presence;
@@ -35,6 +36,7 @@ public sealed class PanelBridge
     private readonly FolderSyncService _folder;
     private readonly PersonalDataService _personal;
     private readonly IClientPlatform _platform;
+    private readonly IProviderControl? _provider;
 
     /// <summary>UTC offset of each member whose stats I looked at, from their last answer.</summary>
     private readonly ConcurrentDictionary<Guid, int> _peerOffsets = new();
@@ -56,9 +58,16 @@ public sealed class PanelBridge
         StatsSyncService sync,
         FolderSyncService folder,
         PersonalDataService personal,
-        IClientPlatform platform)
+        IClientPlatform platform,
+        IProviderControl? provider = null)
     {
         _platform = platform;
+        _provider = provider;
+        if (provider is not null)
+        {
+            provider.Changed += RaiseChanged;
+        }
+
         Prompt = platform.FallbackPrompt;
         _usage = usage;
         _personal = personal;
@@ -144,7 +153,8 @@ public sealed class PanelBridge
             _settings.IsAdmin,
             AccountIdle.Normalize(_settings.IdleMinutes),
             SwitchDelay.Normalize(_settings.SwitchDelaySeconds),
-            new PersonalView(_personal.AccountSync, _personal.Folder, _personal.FolderUnavailable)),
+            new PersonalView(_personal.AccountSync, _personal.Folder, _personal.FolderUnavailable),
+            _provider?.View),
         WhatsNew = _whatsNew.Pending,
         Pinned = _pins.Users,
         MemberOrder = _rooms.SelectedRoom is { } selected && _settings.MemberOrder.TryGetValue(selected.Id, out var order) ? order : [],
@@ -776,6 +786,23 @@ public sealed class PanelBridge
 
             case "changelog.seen":
                 _whatsNew.Acknowledge();
+                return CommandResult.Success;
+
+            case "plugins.setEnabled" when _provider is not null:
+                return _provider.SetEnabled(c.String("id"), c.Bool("enabled"));
+
+            case "plugins.move" when _provider is not null:
+                return _provider.Move(c.String("id"), c.Args.TryGetProperty("offset", out var offset) && offset.TryGetInt32(out var by) ? by : 0);
+
+            case "plugins.action" when _provider is not null:
+                return await _provider.RunActionAsync(c.String("id"), c.String("action"));
+
+            case "plugins.refresh" when _provider is not null:
+                _provider.Refresh();
+                return CommandResult.Success;
+
+            case "plugins.openFolder" when _provider is not null:
+                _platform.OpenExternal(_provider.Folder);
                 return CommandResult.Success;
 
             case "logs.open":

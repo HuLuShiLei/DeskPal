@@ -5,6 +5,7 @@ using DeskPal.Client.Core.Pipeline;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Client.Core.Updates;
 using DeskPal.Client.Platform;
+using DeskPal.Client.Providers;
 using DeskPal.Client.Ui;
 using DeskPal.Shared.Api;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,13 +14,13 @@ using Microsoft.Extensions.Logging;
 namespace DeskPal.Client.Services;
 
 /// <summary>
-/// Startup steps shared by the Windows and macOS clients: restoring the saved session, signing in from the login
-/// page, registering the background services, and loading the builtin rules.
-/// The platform adds its own collectors and windows.
+/// Startup steps shared by the Windows, macOS and Linux clients: restoring the saved session, signing in from the
+/// login page, registering the background services and the plugin host, and loading the builtin rules.
+/// The platform adds its official plugin (its collectors) and its windows.
 /// </summary>
 public static class ClientStartup
 {
-    /// <summary>Everything except the collectors and the windows.</summary>
+    /// <summary>Everything except the platform's official plugin and the windows.</summary>
     public static IServiceCollection AddDeskPalClient(
         this IServiceCollection s,
         AppSettings settings,
@@ -53,6 +54,9 @@ public static class ClientStartup
         s.AddHostedService(sp => sp.GetRequiredService<StatsSyncService>());
         s.AddHostedService(sp => sp.GetRequiredService<FolderSyncService>());
         s.AddHostedService(sp => sp.GetRequiredService<PersonalDataService>());
+
+        // After the presence coordinator, so it is listening on the bus before the first plugin reports.
+        s.AddPluginHost();
         s.AddSingleton<UpdateService>();
         s.AddSingleton(sp => new WhatsNewStore(
             ReadChangelog(),

@@ -40,7 +40,7 @@ export interface RoomItem {
 }
 
 /** 登录的客户端。 */
-export type ClientKind = "windows" | "mac";
+export type ClientKind = "windows" | "mac" | "linux";
 
 export interface MemberItem {
   userId: string;
@@ -83,6 +83,40 @@ export interface PrivacyRow {
   category: string;
   name: string;
   level: PrivacyLevel;
+}
+
+/** 插件能提供的几类信息。和 C# 的 ProviderCapability 一致。 */
+export type PluginCapability = "foreground" | "domain" | "idle" | "lock" | "media";
+
+export interface PluginNote {
+  /** 翻译键，前面加 plugins.note. 查文字；找不到时显示 text。 */
+  key: string;
+  text: string | null;
+  tone: "info" | "warn";
+}
+
+export interface PluginView {
+  /** official:windows、official:macos、official:linux，或 user:文件名。 */
+  id: string;
+  name: string;
+  version: string | null;
+  /** DeskPal 自带的插件（相当于 mod 列表里的本体和 DLC）。 */
+  official: boolean;
+  enabled: boolean;
+  provides: PluginCapability[];
+  /** provides 里实际在用的部分；其余被列表上方的插件覆盖。 */
+  owns: PluginCapability[];
+  state: "disabled" | "starting" | "running" | "failed";
+  notes: PluginNote[];
+  /** 插件提供的按钮，按钮文字用 plugins.action.<id> 翻译。 */
+  actions: string[];
+}
+
+export interface PluginsView {
+  items: PluginView[];
+  /** 现在没有任何开启的插件提供的信息。 */
+  unprovided: PluginCapability[];
+  folder: string;
 }
 
 export interface PanelState {
@@ -142,6 +176,8 @@ export interface PanelState {
     switchDelaySeconds: number;
     /** 个人数据（个人分类、不记录标题、偏好设置）除本机外还保存在哪里。同步到账号和同步文件夹只能开启一种。 */
     personal: { accountSync: boolean; folder: string | null; folderUnavailable: boolean } | null;
+    /** 插件列表（像 mod 列表一样有先后）：当前窗口、网站、暂离、锁屏、媒体各取最上面一个开启的插件提供的。 */
+    plugins?: PluginsView | null;
   };
   myRules: MyRuleItem[];
   /** 不记录标题：命中时房间、首页和使用统计都不显示标题。 */
@@ -337,6 +373,11 @@ export type Command =
   | { type: "update.restart" }
   | { type: "changelog.seen" }
   | { type: "logs.open" }
+  | { type: "plugins.setEnabled"; id: string; enabled: boolean }
+  | { type: "plugins.move"; id: string; offset: number }
+  | { type: "plugins.action"; id: string; action: string }
+  | { type: "plugins.refresh" }
+  | { type: "plugins.openFolder" }
   | { type: "auth.login"; userName: string; password: string }
   | { type: "signupInvites.list" }
   | { type: "signupInvites.create" }
@@ -365,7 +406,7 @@ export type Notice =
   | { type: "window.minimize" }
   | { type: "window.close" }
   | { type: "window.quit" }
-  | { type: "window.drag" }
+  | { type: "window.drag"; x: number; y: number }
   | { type: "window.dblclick" };
 
 export interface CommandResult {

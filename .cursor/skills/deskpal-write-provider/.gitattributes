@@ -1,0 +1,3 @@
+# 插件模板和例子固定用 LF：带 CRLF 的脚本在 Linux 上无法运行。
+*.sh text eol=lf
+*.py text eol=lf

@@ -26,6 +26,8 @@
 | 多语言 | 简体中文和英文。所有给用户看的文字都在客户端（resx 和 `web/src/i18n/`），Server 只返回错误码和参数，不做多语言。设置里可选跟随系统、简体中文、English，立即生效。更新内容同样按界面语言显示。内置规则的应用名在规则库里写 `names.en`，发送和保存的仍是默认名称（中文），由接收方按自己的界面语言翻译，不改协议 | 用户要求文案从代码里抽出来、只由客户端提供；用户要求内置规则库支持多语言 |
 | 服务器地址 | 登录页和设置页不显示、不能修改服务器地址，连接失败的提示不带地址。联调只改 `settings.json` | 用户要求不让用户看到服务器地址 |
 | macOS 版 | 2026-11-19 起有 macOS 客户端（`src/DeskPal.Client.Mac`，AppKit + WKWebView，macOS 13+），功能和 Windows 版相同，和 Windows 用户同房间。平台无关的服务抽到 `DeskPal.Client.App` 两端共用，Windows 版行为不变。先出未签名的测试版，Apple 芯片和 Intel 各一个安装包，CI 预留签名和公证开关（`MAC_SIGN`）。读窗口标题和网址只申请「辅助功能」，不申请屏幕录制和输入监控 | 用户要做 Mac 版；没有 Apple Developer 账号；要求两种芯片都支持、抽共享层而不是复制一份 |
+| Linux 版 | 2026-11-23 起有 Linux 客户端（`src/DeskPal.Client.Linux`，GTK 4 + WebKitGTK 6.0，AppImage），和 Windows、macOS 用户同房间，Server 不改。“当前在用哪个窗口”由识别来源提供：X11 和 GNOME（自带扩展）内置，其他桌面由用户写识别插件（外部程序，标准输出每行一个 JSON）。插件只在 Linux 开放，Windows 和 macOS 不变。Linux 上没有置顶小卡片和面板置顶，内置来源不读浏览器网址 |
+| 插件 | 2026-11-23 起三个平台的当前窗口、网站、暂离、锁屏、媒体都由插件提供。各平台的采集器是官方插件（在程序内运行），用户插件是插件文件夹里的程序；设置里的插件列表有先后，每一项分别取最上面一个开启的、提供它的插件。Linux 官方插件带浏览器扩展（本机 HTTP）读网站。用户插件默认关闭 |
 | 浏览器 | 前台是浏览器且正在播放当前页的视频时显示“在看视频”，否则显示“正在浏览网页”，后面是域名和页面标题。不按网站名单细分。个人分类可以把某个网站改成其他类别。隐私设为“只显示状态”时仍能看出是在看视频；“显示类别和应用”时看到域名；标题只在“显示详情”时发出 | 用户要求浏览网页不做网站名单细分；正在播放的当前页视频单独算视频 |
 | Room 改名 | 只有所有者可以改，1 到 30 个字符 | 用户选定 |
 | 显示名称 | 设置页「账号」可以修改，1 到 20 个字符，允许重名。修改后广播 `room.memberRenamed`，房间成员和自己的其他电脑重新拉取 Room 列表 | 用户要求显示名称可以改，允许重名 |
@@ -85,6 +87,8 @@
 - Server 已通过 Portainer webhook 部署。从带 `revision` 的版本起，CI 会等到 `/health` 返回本次提交号。两台真实电脑登录还没验证。
 
 - macOS 客户端从没在真实的 Mac 上运行过，只在 Windows 上对 `Microsoft.macOS` 引用程序集做过类型检查（`tools/MacCheck`），CI 的 `mac` 任务也还没跑过。第一次要在 Mac 上依次验证：安装包能装上并打开、辅助功能授权、窗口标题和全屏、Safari 和 Chrome 的网址、空闲和锁屏、MediaRemote 在 15.4 之前和之后的表现、菜单栏图标左右键、面板拖动和关闭方式、置顶卡片、登录和退出登录后重启、开机自启、文件和文件夹选择、自动更新（更新后辅助功能授权是否要重新勾选）、和 Windows 电脑在同一个房间互看状态和统计。
+- Linux 客户端在 Ubuntu 24.04、GNOME Shell 46 上实际运行并验证过（X11 和 GNOME Wayland 两种会话、识别插件、托盘、AppImage），但还没在朋友的两台电脑上跑过：Ubuntu 26.04（GNOME Shell 50）和 Arch（环境未知）。CI 的 `linux` 任务在 PR 上只跑过编译和打包（AppImage 能生成，包内资源齐全），还没发布过 Release。锁屏信号、开机自启、自动更新、真实浏览器的进程名和媒体来源都没验证。清单见 changes-2026-11-23-linux.md 的「没有验证的」。
+- 全平台插件化（2026-11-23 第二轮）在 Linux 上实际运行验证过（插件列表、用户插件只接管部分能力、Chrome 和 Firefox 的浏览器扩展）；Windows 客户端只编译过、没有运行过新代码，macOS 只做了类型检查。合并前要在 Windows 上打开一次看「设置 → 插件」和首页状态。CI 的 Linux Release 说明有一句要改，补丁在 `.local/ci-plugins.patch`。详见 changes-2026-11-23-plugins.md 的「没有验证的」。
 
 ## 偏离方案
 
@@ -219,3 +223,5 @@
 | 2026-11-21 | 规则库改进（用户反馈游戏名显示成 `xxx-Win64-Shipping`、规则库里已有的应用分错了没有改进入口）：游戏库目录从 `LayeredClassifier` 移到 `builtin-rules.json` 的 `folders`（`FolderRuleDto`，规则库版本 9），Server 存进 `AppMeta`，`/api/rules/builtin` 一起返回；单独的字段而不是新 `RuleKind`，旧客户端不受影响；客户端缓存里没有目录时按版本 0 请求一次。`\steamapps\` 改为 `\steamapps\common\`。推测层新增 Unreal 发行版（`-Win64-Shipping`）归为游戏。新增 `GameNames`：Steam 清单 → 能读的文件描述 → 游戏文件夹名 → Unreal 根目录。`UnclassifiedUsage` 也统计推测层的应用（`Guessed`），「待归类」不列；`UnknownAppItem`、`UnknownAppReports` 增加 `Guessed`（迁移 `AddUnknownAppGuessed`）。候选接口新增 `guessed`、`signals`，门槛改为 `MinUsers` 2、`MinAgreement` 0.66，新增 `ReviewMinUsers` 1。`rule-candidates.yml` 改为每天运行，有待确认内容时更新 issue「内置规则库：待人工确认」。同意分享的说明换成新键 `sharing.details` |
 | 2026-11-22 | `rule-candidates.yml` 的定时从 UTC 1:00（北京时间 9:00 整点）改为 `17 9 * * *`、`timezone: Asia/Shanghai`（北京时间 9:17）。GitHub 在每小时整点负载高，schedule 会推迟，严重时丢掉 |
 | 2026-11-22 | 内置规则库版本 10：`chatgpt` 从其他改为工作，新增 `opencode`、`workbuddy` 为工作；`chatgpt.com` 与桌面版一致。浏览器前台仍不使用网站规则 |
+| 2026-11-23 | Linux 客户端和识别插件（完整的文件改动、由我决定的做法、验证结果见 [changes-2026-11-23-linux.md](changes-2026-11-23-linux.md)）：新项目 `DeskPal.Client.Linux`；识别来源（X11、GNOME 扩展、识别插件）和插件协议 v1（`ProviderProtocol`、`ExternalProvider`）；`FileKeyProtector` 从 Mac 项目移到 `Client.App` 共用；`SettingsView.Provider` 和设置页“应用识别”；更新通道 `linux-x64`；插件教程 `docs/provider-guide.md` 和 skill `deskpal-write-provider`。 |
+| 2026-11-23 | 全平台插件化（完整改动、问过用户的和我决定的做法、验证结果见 [changes-2026-11-23-plugins.md](changes-2026-11-23-plugins.md)）：插件宿主 `ProviderHost` 和按能力的路由；Windows、macOS、Linux 的采集器改为官方插件；协议加 `provides`、`idle`、`lock`、`media`；设置页「插件」列表；Linux 浏览器扩展和 `BrowserBridge`；插件教程、skill、模板（新增 Windows PowerShell 模板）更新；修掉 Linux 浏览器时长一直等网站的问题。 |

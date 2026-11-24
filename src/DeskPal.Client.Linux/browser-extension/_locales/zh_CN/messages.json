@@ -1,0 +1,6 @@
+{
+  "name": { "message": "DeskPal" },
+  "description": { "message": "告诉本机的 DeskPal 你正在看哪个网站，让它能按网站显示浏览状态。只发送网站的域名，只发给 127.0.0.1，不读取无痕窗口。" },
+  "connected": { "message": "DeskPal：已连接" },
+  "disconnected": { "message": "DeskPal：没有连上。请确认 DeskPal 正在运行，并且 Linux 内置插件已开启。" }
+}

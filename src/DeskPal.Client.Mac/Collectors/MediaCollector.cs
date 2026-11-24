@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using AppKit;
 using CoreFoundation;
 using DeskPal.Client.Core.Pipeline;
+using DeskPal.Client.Providers;
 using Foundation;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,7 @@ namespace DeskPal.Client.Collectors;
 /// works without media (desktop players are still recognized by their rules). Every call is guarded, so a missing
 /// or changed framework cannot crash the app.
 /// </summary>
-public sealed class MediaCollector(ActivityBus bus, ILogger<MediaCollector> logger) : BackgroundService
+public sealed class MediaCollector(SignalSink bus, ILogger<MediaCollector> logger) : BackgroundService
 {
     private static readonly MediaSignal Stopped = new(false, null, null, null);
     private static readonly TimeSpan CallTimeout = TimeSpan.FromSeconds(1.5);

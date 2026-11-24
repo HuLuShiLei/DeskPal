@@ -23,6 +23,15 @@ public sealed class ActivityBus
         return channel.Reader;
     }
 
+    /// <summary>Stops delivering to a reader from <see cref="Subscribe"/>; for subscribers that come and go.</summary>
+    public void Unsubscribe(ChannelReader<ActivitySignal> reader)
+    {
+        lock (_lock)
+        {
+            _subscribers.RemoveAll(channel => channel.Reader == reader);
+        }
+    }
+
     public void Publish(ActivitySignal signal)
     {
         lock (_lock)

@@ -3,12 +3,12 @@ using DeskPal.Client.Ui;
 namespace DeskPal.Client.Platform;
 
 /// <summary>
-/// What the shared client needs from the operating system. Windows and macOS each provide one; the panel commands
+/// What the shared client needs from the operating system. Windows, macOS and Linux each provide one; the panel commands
 /// (<see cref="PanelBridge"/>) only talk to this, never to WPF or AppKit directly.
 /// </summary>
 public interface IClientPlatform
 {
-    /// <summary>"windows" or "mac". Sent to the page so it can pick icons and wording.</summary>
+    /// <summary>"windows", "mac" or "linux" (<see cref="DeskPal.Shared.Presence.ClientKinds"/>). Sent to the page so it can pick icons and wording.</summary>
     string Name { get; }
 
     bool AutoStartEnabled { get; }

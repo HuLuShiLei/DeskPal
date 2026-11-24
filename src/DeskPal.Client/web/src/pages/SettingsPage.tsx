@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import type { CloseAction, Language, PanelState, SignupInviteItem } from "../bridge";
+import type { CloseAction, Language, PanelState, PluginCapability, PluginNote, PluginsView, PluginView, SignupInviteItem } from "../bridge";
 import { useHost } from "../host";
-import { t } from "../i18n";
-import { Avatar, Icon, Section, SettingRow, Switch } from "../ui";
+import { hasMessage, t, type MessageKey } from "../i18n";
+import { isLinux } from "../platform";
+import { Avatar, Hint, Icon, Section, SettingRow, Switch } from "../ui";
 
 const issuePageUrl = "https://github.com/HuLuShiLei/DeskPal/issues/new/choose";
 
@@ -87,9 +88,12 @@ export function SettingsPage({ state }: { state: PanelState }) {
           <SettingRow title={t("settings.autoStart")}>
             <Switch checked={s.autoStart} label={t("settings.autoStart")} onChange={(v) => run({ type: "settings.autoStart", enabled: v })} />
           </SettingRow>
-          <SettingRow title={t("settings.topmost")}>
-            <Switch checked={s.topmost} label={t("settings.topmost")} onChange={(v) => run({ type: "settings.topmost", enabled: v })} />
-          </SettingRow>
+          {/* Linux 的 Wayland 不允许应用把自己的窗口置顶。 */}
+          {!isLinux() && (
+            <SettingRow title={t("settings.topmost")}>
+              <Switch checked={s.topmost} label={t("settings.topmost")} onChange={(v) => run({ type: "settings.topmost", enabled: v })} />
+            </SettingRow>
+          )}
           <SettingRow title={t("settings.closeAction")}>
             <select
               aria-label={t("settings.closeAction")}
@@ -177,8 +181,133 @@ export function SettingsPage({ state }: { state: PanelState }) {
           </SettingRow>
         </div>
       </Section>
+      {s.plugins && <PluginSettings plugins={s.plugins} />}
       {s.isAdmin && <SignupInvites />}
     </>
+  );
+}
+
+const pluginGuideUrl = "https://github.com/HuLuShiLei/DeskPal/blob/main/docs/provider-guide.md";
+
+const capabilityOrder: PluginCapability[] = ["foreground", "domain", "idle", "lock", "media"];
+
+function pluginName(plugin: PluginView): string {
+  const key = `plugins.officialName.${plugin.id.replace(/^official:/, "")}`;
+  return plugin.official && hasMessage(key) ? t(key) : plugin.name;
+}
+
+function noteText(note: PluginNote): string {
+  const key = `plugins.note.${note.key}`;
+  return hasMessage(key) ? t(key, { text: note.text ?? "" }) : (note.text ?? note.key);
+}
+
+function capabilityName(capability: PluginCapability): string {
+  return t(`plugins.cap.${capability}` as MessageKey);
+}
+
+/**
+ * 插件列表：每个平台的内置插件（原来的采集器）和用户放进插件文件夹的插件放在一起，像 mod 列表一样排先后。
+ * 每一项信息（当前窗口、网站、暂离、锁屏、媒体）取最上面一个开启的插件提供的；高亮的标签是正在使用的。
+ */
+function PluginSettings({ plugins }: { plugins: PluginsView }) {
+  const { run, ask, toast } = useHost();
+  const setEnabled = async (plugin: PluginView, enabled: boolean) => {
+    if (enabled && !plugin.official) {
+      const answer = await ask({
+        title: t("plugins.enableTitle", { name: pluginName(plugin) }),
+        message: t("plugins.enableMessage"),
+        okText: t("plugins.enable"),
+      });
+      if (!answer.ok) return;
+    }
+    await run({ type: "plugins.setEnabled", id: plugin.id, enabled });
+  };
+  const action = async (plugin: PluginView, id: string) => {
+    if (id === "linux.installGnomeExtension") {
+      const answer = await ask({ title: t("plugins.installTitle"), message: t("plugins.installMessage"), okText: t("plugins.action.linux.installGnomeExtension") });
+      if (!answer.ok) return;
+    }
+    const result = await run({ type: "plugins.action", id: plugin.id, action: id });
+    const message = (result.data as { message?: string } | undefined)?.message;
+    if (result.ok && message) toast(message);
+  };
+  const openGuide = () => {
+    const link = document.createElement("a");
+    link.href = pluginGuideUrl;
+    link.target = "_blank";
+    link.rel = "noreferrer";
+    link.click();
+  };
+  const last = plugins.items.length - 1;
+  return (
+    <Section title={t("plugins.heading")} aside={<Hint text={t("plugins.hint")} />}>
+      <div class="card flush plugin-list">
+        {plugins.unprovided.length > 0 && (
+          <div class="setting-row plugin-warning">
+            <Icon name="warning" class="setting-icon" />
+            <p class="setting-desc">{t("plugins.unprovided", { list: plugins.unprovided.map(capabilityName).join(t("common.listSeparator")) })}</p>
+          </div>
+        )}
+        {plugins.items.map((plugin, index) => {
+          const name = pluginName(plugin);
+          const state = plugin.state === "running" ? null : t(`plugins.state.${plugin.state}`);
+          const lines = [...(state ? [{ text: state, tone: plugin.state === "failed" ? "warn" : "info" }] : []), ...plugin.notes.map((n) => ({ text: noteText(n), tone: n.tone }))];
+          return (
+            <div class={plugin.enabled ? "setting-row plugin-row" : "setting-row plugin-row off"} key={plugin.id}>
+              <div class="plugin-order">
+                <button class="icon-button" aria-label={t("plugins.moveUp")} title={t("plugins.moveUp")} disabled={index === 0} onClick={() => run({ type: "plugins.move", id: plugin.id, offset: -1 })}>
+                  <Icon name="chevronUp" />
+                </button>
+                <button class="icon-button" aria-label={t("plugins.moveDown")} title={t("plugins.moveDown")} disabled={index === last} onClick={() => run({ type: "plugins.move", id: plugin.id, offset: 1 })}>
+                  <Icon name="chevronDown" />
+                </button>
+              </div>
+              <div class="setting-text">
+                <div class="setting-title">
+                  <span>{name}</span>
+                  {plugin.version && <span class="plugin-version">{plugin.version}</span>}
+                </div>
+                <div class="plugin-caps">
+                  <span class={plugin.official ? "badge" : "badge muted"}>{plugin.official ? t("plugins.official") : t("plugins.user")}</span>
+                  {capabilityOrder.filter((c) => plugin.provides.includes(c)).map((c) => {
+                    const used = plugin.owns.includes(c);
+                    return (
+                      <span class={used ? "plugin-cap used" : "plugin-cap"} key={c} title={plugin.enabled ? t(used ? "plugins.capUsed" : "plugins.capOverridden", { cap: capabilityName(c) }) : undefined}>
+                        {capabilityName(c)}
+                      </span>
+                    );
+                  })}
+                </div>
+                {lines.map((line, i) => (
+                  <p class={line.tone === "warn" ? "setting-desc plugin-note warn" : "setting-desc plugin-note"} key={i}>
+                    {line.text}
+                  </p>
+                ))}
+                {plugin.enabled && plugin.actions.length > 0 && (
+                  <div class="plugin-actions">
+                    {plugin.actions.map((id) => (
+                      <button key={id} onClick={() => void action(plugin, id)}>
+                        {hasMessage(`plugins.action.${id}`) ? t(`plugins.action.${id}` as MessageKey) : id}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div class="setting-control plugin-control">
+                <Switch checked={plugin.enabled} label={name} onChange={(v) => void setEnabled(plugin, v)} />
+              </div>
+            </div>
+          );
+        })}
+        <SettingRow title={t("plugins.folder")} hint={t("plugins.folderHint")}>
+          <button onClick={() => run({ type: "plugins.refresh" })}>{t("plugins.refresh")}</button>
+          <button onClick={() => run({ type: "plugins.openFolder" })}>{t("settings.open")}</button>
+        </SettingRow>
+        <SettingRow title={t("plugins.guide")}>
+          <button onClick={openGuide}>{t("settings.open")}</button>
+        </SettingRow>
+      </div>
+    </Section>
   );
 }
 
