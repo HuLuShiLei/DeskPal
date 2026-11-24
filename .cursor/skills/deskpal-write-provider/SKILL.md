@@ -97,7 +97,7 @@ Linux 内置插件里有一个本机 HTTP 端点（`BrowserBridge`，`127.0.0.1:
 
 ## 步骤
 
-1. 选模板：`scripts/template.sh`（Linux、macOS，需要 jq）、`scripts/template.py`（三平台，标准库）、`scripts/template.ps1`（Windows 自带 PowerShell，读前台窗口和暂离，已在 Windows 上验证）。现成例子在 `examples/`：`x11-xdotool.sh` 已验证；`windows-qq.ps1`（`detail`，用 UI Automation 读 QQ NT 的当前会话名）已在 QQ NT 9.9.37 上验证；`hyprland.sh`、`sway.sh`、`macos-frontmost.sh` 按文档写成、未在真机验证，先让用户验证。
+1. 选模板：`scripts/template.sh`（Linux、macOS，需要 jq）、`scripts/template.py`（三平台，标准库）、`scripts/template.ps1`（Windows 自带 PowerShell，读前台窗口和暂离，已在 Windows 上验证）。现成例子在 `examples/`：`x11-xdotool.sh` 已验证；`windows-qq.ps1`（`detail`，用 UI Automation 读 QQ NT 的当前会话名）已在 QQ NT 9.9.37 上验证；仓库根目录 `plugins/windows-steam.ps1`（`detail`，通过 Steam 客户端的 Chrome 调试接口 `127.0.0.1:8080` 读自己的 Rich Presence，按 `appmanifest` 的 `installdir` 认出游戏进程，游戏变化时重发 hello 更新 `apps`）已在杀戮尖塔 2 上验证；`hyprland.sh`、`sway.sh`、`macos-frontmost.sh` 按文档写成、未在真机验证，先让用户验证。
 2. 在 hello 的 `provides` 里只写真正提供的几项，只改读取数据的那一段。Shell 里用 `jq` 生成 JSON，PowerShell 用 `ConvertTo-Json`，不要手拼字符串。
 3. 检查：`python3 scripts/check_provider.py <插件文件>`（Windows 也能用）。它运行插件 8 秒，按 DeskPal 的规则逐行检查，期间让用户切换几个窗口。
 4. 安装：放进插件文件夹（Linux、macOS 上 `chmod +x`），在「设置 → 插件」点刷新按钮，打开开关，用箭头移到官方插件上面（只提供 `detail` 的不用移）。点开插件后高亮的标签是实际在用的能力。

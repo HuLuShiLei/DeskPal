@@ -210,6 +210,7 @@ Linux 上没有可靠的办法从浏览器外面读到网址，所以 Linux 内�
 | `scripts/check_provider.py` | 检查工具 |
 | `examples/x11-xdotool.sh` | X11 + xdotool，已验证 |
 | `examples/windows-qq.ps1` | Windows，补充 QQ NT 的当前会话名，已在 QQ NT 9.9.37 上验证 |
+| `plugins/windows-steam.ps1`（仓库根目录，不在上面这个目录里） | Windows，补充 Steam 游戏的游戏内状态（好友列表里显示的那行，例如「铁甲战士 - 密林 进阶5」），已在杀戮尖塔 2 上验证。要开启 Steam 的调试接口，见文件开头的说明 |
 | `examples/hyprland.sh` | Hyprland，按文档编写，未在真机验证 |
 | `examples/sway.sh` | Sway，按文档编写，未在真机验证 |
 | `examples/macos-frontmost.sh` | macOS，用 osascript，未在真机验证 |
