@@ -3,6 +3,7 @@ name: CI
 # 测试在 Linux 上跑。
 # 客户端：main 上改了客户端时发布测试版；手动推送 vX.Y.Z 标签时发布正式版。
 # vX.Y.Z-dev.N 是本流程创建的测试版标签，不再重复触发。
+# N 只在同一个 X.Y.Z 里递增；打出新的正式版标签后，下一个测试版从 dev.1 重新计。
 # macOS 客户端（mac 任务）和 Windows 版同一个版本号，发布到同一个 Release，按芯片分 osx-arm64、osx-x64 两个通道。
 # 在其他分支上手动运行（workflow_dispatch）时只编译打包，不发布，安装包在本次运行的 Artifacts 里下载。
 on:
@@ -29,6 +30,8 @@ jobs:
   changes:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       mode: ${{ steps.mode.outputs.mode }}
       version: ${{ steps.version.outputs.version }}
@@ -90,7 +93,10 @@ jobs:
       - name: 计算版本
         id: version
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          $PSNativeCommandUseErrorActionPreference = $false
           $mode = '${{ steps.mode.outputs.mode }}'
           $channel = 'win'
           $pre = 'false'
@@ -106,7 +112,41 @@ jobs:
               }
             }
             $patch = if ($latest.Build -lt 0) { 1 } else { $latest.Build + 1 }
-            $version = "$($latest.Major).$($latest.Minor).$patch-dev.$($env:GITHUB_RUN_NUMBER)"
+            $baseName = "$($latest.Major).$($latest.Minor).$patch"
+            # 序号只看这个基数。正式版标签让基数前进后，没有 vX.Y.Z-dev.* 和占位，就从 1 重新计。
+            # 占位 ref 在编译前写上，两次发布不会拿到同一个序号；旧的测试版标签被清掉后也不会把序号退回去。
+            function Get-DevNumber([string] $line) {
+              if ($line -match '(?:-dev\.|/)(\d+)$') { return [int]$Matches[1] }
+              return 0
+            }
+            function Get-DevCount([string] $base) {
+              $max = 0
+              $released = @(git ls-remote --tags --refs origin "refs/tags/v$base-dev.*")
+              if ($LASTEXITCODE -ne 0) { throw "读取测试版标签失败" }
+              $slots = @(git ls-remote --refs origin "refs/deskpal/dev-count/$base/*")
+              if ($LASTEXITCODE -ne 0) { throw "读取测试版序号失败" }
+              foreach ($line in @($released)) { $max = [Math]::Max($max, (Get-DevNumber $line)) }
+              foreach ($line in @($slots)) { $max = [Math]::Max($max, (Get-DevNumber $line)) }
+              return $max
+            }
+            $sha = $env:GITHUB_SHA
+            $version = $null
+            $floor = 0
+            for ($attempt = 1; $attempt -le 20 -and -not $version; $attempt++) {
+              $n = [Math]::Max((Get-DevCount $baseName), $floor) + 1
+              $slot = "refs/deskpal/dev-count/$baseName/$n"
+              $output = gh api --method POST "repos/$env:GITHUB_REPOSITORY/git/refs" -f "ref=$slot" -f "sha=$sha" 2>&1
+              $code = $LASTEXITCODE
+              if ($code -eq 0) {
+                $version = "$baseName-dev.$n"
+              } elseif ("$output" -match 'already exists') {
+                Write-Host "序号 $n 已被占用，重试。"
+                $floor = $n
+              } else {
+                throw "无法占住测试版序号 ${baseName}-dev.${n}：$output"
+              }
+            }
+            if (-not $version) { throw "无法分配测试版序号" }
             $channel = 'beta'
             $pre = 'true'
           } else {
