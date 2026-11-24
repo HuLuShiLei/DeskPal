@@ -431,6 +431,28 @@ export function createMockTransport(params: URLSearchParams): Transport {
         break;
       case "logs.open":
         return { ok: true, error: null };
+      // 插件只粗略模拟开关和排序，不重新计算谁提供哪一项。
+      case "plugins.setEnabled": {
+        const plugin = state.settings.plugins?.items.find((p) => p.id === String(m.id));
+        if (plugin) {
+          plugin.enabled = m.enabled as boolean;
+          plugin.state = plugin.enabled ? "running" : "disabled";
+        }
+        break;
+      }
+      case "plugins.move": {
+        const items = state.settings.plugins?.items;
+        const index = items?.findIndex((p) => p.id === String(m.id)) ?? -1;
+        if (items && index >= 0) {
+          const target = Math.max(0, Math.min(items.length - 1, index + (m.offset as number)));
+          items.splice(target, 0, ...items.splice(index, 1));
+        }
+        break;
+      }
+      case "plugins.refresh":
+      case "plugins.openFolder":
+      case "plugins.action":
+        return { ok: true, error: null };
       case "update.restart":
       case "auth.logout":
         break;

@@ -29,6 +29,7 @@
 | Linux 版 | 2026-11-23 起有 Linux 客户端（`src/DeskPal.Client.Linux`，GTK 4 + WebKitGTK 6.0，AppImage），和 Windows、macOS 用户同房间，Server 不改。“当前在用哪个窗口”由识别来源提供：X11 和 GNOME（自带扩展）内置，其他桌面由用户写识别插件（外部程序，标准输出每行一个 JSON）。插件只在 Linux 开放，Windows 和 macOS 不变。Linux 上没有置顶小卡片和面板置顶，内置来源不读浏览器网址 |
 | 插件 | 2026-11-23 起三个平台的当前窗口、网站、暂离、锁屏、媒体都由插件提供。各平台的采集器是官方插件（在程序内运行），用户插件是插件文件夹里的程序；设置里的插件列表有先后，每一项分别取最上面一个开启的、提供它的插件。Linux 官方插件带浏览器扩展（本机 HTTP）读网站。用户插件默认关闭 |
 | 补充标题插件 | 2026-11-24 起用户插件可以声明 `detail` 和 `apps`，在这些应用处于前台时替换窗口标题（例如 QQ 的当前会话名），不改应用名和分类，照常经过不记录标题和隐私过滤。按插件看到的窗口标题（`window`）匹配，不在前台切换时作废，避免插件比官方插件先报时丢失；浏览器不适用。用户插件读什么由用户负责，不受 DeskPal 硬约束限制，硬约束只管 DeskPal 本身；官方不内置读窗口内容的插件，QQ 只作为 skill 里的样例（UI Automation 只读会话名元素） | 用户要求支持针对特定软件写插件，认为用户插件读什么与 DeskPal 的约束口径无关 |
+| 插件页 | 设置页「常规」里只留一行「插件」入口，点进去是独立的插件页；每个插件折叠成两行，点开看详情，需要处理的默认展开；「编写插件」放在插件页顶部，在浏览器打开指南，不再单独占一行 | 用户觉得插件多了以后设置页太长，对原来的插件区不满意 |
 | 浏览器 | 前台是浏览器且正在播放当前页的视频时显示“在看视频”，否则显示“正在浏览网页”，后面是域名和页面标题。不按网站名单细分。个人分类可以把某个网站改成其他类别。隐私设为“只显示状态”时仍能看出是在看视频；“显示类别和应用”时看到域名；标题只在“显示详情”时发出 | 用户要求浏览网页不做网站名单细分；正在播放的当前页视频单独算视频 |
 | Room 改名 | 只有所有者可以改，1 到 30 个字符 | 用户选定 |
 | 显示名称 | 设置页「账号」可以修改，1 到 20 个字符，允许重名。修改后广播 `room.memberRenamed`，房间成员和自己的其他电脑重新拉取 Room 列表 | 用户要求显示名称可以改，允许重名 |
@@ -226,4 +227,4 @@
 | 2026-11-22 | 内置规则库版本 10：`chatgpt` 从其他改为工作，新增 `opencode`、`workbuddy` 为工作；`chatgpt.com` 与桌面版一致。浏览器前台仍不使用网站规则 |
 | 2026-11-23 | Linux 客户端和识别插件（完整的文件改动、由我决定的做法、验证结果见 [changes-2026-11-23-linux.md](changes-2026-11-23-linux.md)）：新项目 `DeskPal.Client.Linux`；识别来源（X11、GNOME 扩展、识别插件）和插件协议 v1（`ProviderProtocol`、`ExternalProvider`）；`FileKeyProtector` 从 Mac 项目移到 `Client.App` 共用；`SettingsView.Provider` 和设置页“应用识别”；更新通道 `linux-x64`；插件教程 `docs/provider-guide.md` 和 skill `deskpal-write-provider`。 |
 | 2026-11-23 | 全平台插件化（完整改动、问过用户的和我决定的做法、验证结果见 [changes-2026-11-23-plugins.md](changes-2026-11-23-plugins.md)）：插件宿主 `ProviderHost` 和按能力的路由；Windows、macOS、Linux 的采集器改为官方插件；协议加 `provides`、`idle`、`lock`、`media`；设置页「插件」列表；Linux 浏览器扩展和 `BrowserBridge`；插件教程、skill、模板（新增 Windows PowerShell 模板）更新；修掉 Linux 浏览器时长一直等网站的问题。 |
-| 2026-11-24 | 补充标题插件：协议加 `detail` 消息和 hello 的 `apps`；`DetailRouter` 在 `ProviderHost` 发布前台窗口前合并标题；`PluginView.Apps`、`AppSettings.Plugins` 记住 `apps`；`provider-guide.md` 新增「只补充某个软件的标题」，skill `deskpal-write-provider` 和 `check_provider.py` 支持 detail，新增样例 `examples/windows-qq.ps1`（QQ NT 9.9.37 实测）。 |
+| 2026-11-24 | 插件页：设置页「常规」只留一行「插件」入口，点进去是独立插件页。每个插件折叠成两行，点开看能力、适用应用、说明和按钮；需要处理的默认展开。「编写插件」在页面顶部，在浏览器打开指南。 |

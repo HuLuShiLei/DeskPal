@@ -42,6 +42,8 @@ const glyphs = {
   check: "\uE73E",
   copy: "\uE8C8",
   filter: "\uE71C",
+  openInNew: "\uE8A7",
+  puzzle: "\uEA86",
 } as const;
 
 export type IconName = keyof typeof glyphs;
@@ -92,6 +94,8 @@ const paths: Record<IconName, string> = {
   check: "M3 8.5l3 3 7-7",
   copy: "M5.5 5.5h8v8h-8zM10.5 5.5v-3h-8v8h3",
   filter: "M2.5 3h11L9.3 8v4.6l-2.6 1.4V8z",
+  openInNew: "M9 2.5h4.5V7M13.5 2.5 8 8M11.5 9.5v4h-9v-9h4",
+  puzzle: "M2.5 5.5h3a1.5 1.5 0 1 1 3 0h3v3a1.5 1.5 0 1 1 0 3v2h-9z",
 };
 
 export function Icon({ name, class: cls }: { name: IconName; class?: string }) {

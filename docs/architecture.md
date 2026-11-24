@@ -59,7 +59,7 @@ flowchart LR
 
 插件文件夹：Windows `%APPDATA%\DeskPal\plugins`，macOS `~/Library/Application Support/DeskPal/plugins`，Linux `~/.config/DeskPal/plugins`。
 
-设置页「插件」一节（`PluginsView`）全平台都有：每个插件显示提供的能力，高亮的是实际在用的；可以开关、上下移动；显示状态说明和插件提供的按钮；没人提供的能力在顶部提示。
+设置页「常规」里有一行「插件」（`PluginsEntry`），显示开启了几个，有能力没人提供或插件需要处理时显示提示；点进去是插件页（`PluginsPage`，全平台共用）。插件页顶部是返回、刷新、「打开插件文件夹」和「编写插件」（在浏览器打开 `provider-guide.md`）；每个插件折叠成固定两行（名称和版本、正在提供的几项或状态），可以上下移动、开关；点开后显示提供的能力（高亮的是实际在用的，`detail` 正在替换标题时高亮）、补充标题适用的应用、状态说明和插件提供的按钮。没有正常运行或有警告说明的插件一开始就展开。没人提供的能力在列表上方提示。
 
 插件只陈述事实。分类、不记录标题、隐私过滤都在插件之后执行，和以前一样。写插件见 [provider-guide.md](provider-guide.md)。
 

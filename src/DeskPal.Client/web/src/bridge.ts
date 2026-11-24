@@ -86,7 +86,7 @@ export interface PrivacyRow {
 }
 
 /** 插件能提供的几类信息。和 C# 的 ProviderCapability 一致。 */
-export type PluginCapability = "foreground" | "domain" | "idle" | "lock" | "media";
+export type PluginCapability = "foreground" | "domain" | "idle" | "lock" | "media" | "detail";
 
 export interface PluginNote {
   /** 翻译键，前面加 plugins.note. 查文字；找不到时显示 text。 */
@@ -110,6 +110,8 @@ export interface PluginView {
   notes: PluginNote[];
   /** 插件提供的按钮，按钮文字用 plugins.action.<id> 翻译。 */
   actions: string[];
+  /** 补充标题（detail）适用的应用（进程名）。owns 里有 detail 时表示正在显示它补充的标题。 */
+  apps: string[];
 }
 
 export interface PluginsView {

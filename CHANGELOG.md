@@ -11,6 +11,9 @@
 - 插件可以给某个软件补充更具体的标题。例如自己写的插件可以在 QQ 处于前台时，把窗口标题换成当前会话名。类别不变，仍然遵守「不记录标题」和该房间的隐私设置。浏览器不会被替换。
   en: A plugin can now supply a more specific title for an app. For example, your own plugin can replace QQ's window title with the current conversation while QQ is in front. The category is unchanged, and Don't record titles and the room's privacy settings still apply. Browsers are left as they are.
 
+- 设置里的插件改为单独一页。常规设置只留一行入口，点进去再管理插件。每个插件先显示两行，点开后才看到完整说明。「编写插件」在这一页顶部，点击后在浏览器打开指南。
+  en: Plugins in Settings now open on their own page. General settings keep one entry; open it to manage plugins. Each plugin shows two lines until you expand it. Write a plugin sits at the top of the page and opens the guide in your browser.
+
 - 新增 Linux 版（测试版，x64 的 AppImage），和 Windows、macOS 用户在同一个房间里互相看到状态。需要系统里有 GTK 4 和 WebKitGTK 6.0。使用 Wayland 的 GNOME 要在「设置 → 插件 → Linux 内置」里安装 GNOME 扩展并重新登录；装上 DeskPal 浏览器扩展（同一处获取）后可以按网站分类；其他 Wayland 桌面需要一个提供当前窗口的插件。Linux 版没有置顶卡片。
   en: DeskPal is now available for Linux (beta, an x64 AppImage). Linux, Windows, and Mac users see each other in the same room. GTK 4 and WebKitGTK 6.0 must be installed. On GNOME with Wayland, install the GNOME extension from Settings → Plugins → Linux built-in and sign in again; install the DeskPal browser extension (from the same place) to classify browsing by site; other Wayland desktops need a plugin that supplies the active window. The Linux app has no pinned cards.
 - 设置里新增「插件」：当前窗口、网站、暂离、锁屏和正在播放的媒体都由插件提供。每个系统自带一个内置插件；也可以把自己写的插件放进插件文件夹，排在内置插件上面，替换其中某几项。插件默认关闭，开启前会确认。编写方法见仓库里的插件编写指南。

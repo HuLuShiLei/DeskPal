@@ -386,15 +386,52 @@ button.pin-card-close {
 .setting-title { font-weight: 500; display: flex; align-items: center; gap: 6px; min-width: 0; }
 .setting-title > span { min-width: 0; }
 .setting-desc { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
-.plugin-row { align-items: flex-start; gap: 8px; padding-left: 6px; }
+/* 设置页里进入子页面的一行：整行可点，右侧固定放提示图标和箭头。 */
+button.nav-row {
+  width: 100%; justify-content: flex-start; text-align: left; white-space: normal;
+  border: none; border-radius: 0; background: transparent;
+}
+button.nav-row:hover:not(:disabled) { background: var(--hover); }
+button.nav-row:active:not(:disabled) { background: var(--pressed); color: inherit; }
+.nav-row .setting-text, .nav-row .setting-title, .nav-row .setting-desc { display: block; }
+.nav-row .setting-title { display: flex; }
+.nav-desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-desc.warn, .nav-flag { color: var(--warn-text); }
+.nav-flag { flex: none; width: 16px; display: grid; place-items: center; }
+.nav-arrow { flex: none; color: var(--muted); }
+
+/* 子页面顶部：返回、标题、问号，右侧放页面级的按钮。 */
+.subpage-head { display: flex; align-items: center; gap: 6px; min-height: 30px; }
+.subpage-head h2 { font-size: 14px; font-weight: 600; }
+.subpage-spacer { flex: 1; }
+
+/* 插件列表：每个插件折叠成固定两行，排序按钮、提示、展开、开关的位置不随名字长短变化。 */
+.plugin-toolbar { display: flex; flex-wrap: wrap; gap: 6px; }
+.plugin-warning { grid-template-columns: auto minmax(0, 1fr); align-items: center; }
+.plugin-warning .setting-icon { color: var(--warn-text); }
+.plugin-row { padding: 6px 10px 6px 4px; }
+.plugin-head { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .plugin-order { flex: none; display: flex; flex-direction: column; }
-.plugin-order .icon-button { width: 24px; height: 22px; min-height: 22px; }
-.plugin-row .setting-control { padding-top: 2px; }
-.plugin-row.off .setting-title > span:first-child { color: var(--muted); }
-.plugin-version { font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
-.plugin-caps { display: flex; flex-wrap: wrap; gap: 4px; margin: 5px 0 2px; }
+.plugin-order .icon-button { width: 24px; height: 20px; min-height: 20px; }
+button.plugin-main {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: stretch; gap: 1px;
+  min-height: 0; padding: 2px 4px; border: none; border-radius: var(--radius); background: transparent;
+  text-align: left; white-space: nowrap;
+}
+button.plugin-main:hover:not(:disabled), button.plugin-main:active:not(:disabled) { background: transparent; color: inherit; }
+.plugin-line { display: flex; align-items: baseline; gap: 6px; min-width: 0; height: 20px; }
+.plugin-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.plugin-row.off .plugin-name { color: var(--muted); }
+.plugin-version { flex: none; font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.plugin-summary { height: 18px; font-size: 12px; line-height: 18px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+.plugin-summary.warn, .plugin-flag { color: var(--warn-text); }
+.plugin-flag { flex: none; width: 16px; display: grid; place-items: center; }
+.plugin-expand.icon-button { flex: none; width: 26px; height: 26px; min-height: 26px; }
+.plugin-row.open .plugin-expand.icon-button { color: var(--accent); background: var(--accent-soft); }
+.plugin-head .switch, .plugin-head [role=switch] { flex: none; }
+.plugin-detail { padding: 2px 0 6px 34px; }
+.plugin-caps { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 2px; }
 .plugin-caps .badge { margin-left: 0; margin-right: 2px; }
-.plugin-row .setting-title > span:first-child { overflow-wrap: anywhere; }
 .plugin-cap {
   font-size: 11px; line-height: 18px; padding: 0 7px; border-radius: 999px;
   color: var(--faint); border: 1px solid var(--line);
@@ -404,9 +441,7 @@ button.pin-card-close {
 .plugin-note { margin-top: 3px; }
 .plugin-note.warn { color: var(--warn-text); }
 .plugin-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.plugin-warning { min-height: 0; }
-.plugin-warning .setting-icon { color: var(--warn-text); }
-.hint { display: inline-flex; flex: none; }
+.plugin-footnote { font-size: 12px; color: var(--faint); padding: 0 2px; }.hint { display: inline-flex; flex: none; }
 button.hint-button {
   width: 18px; height: 18px; min-height: 18px; padding: 0; border-radius: 50%;
   border: 1px solid var(--faint); background: transparent; color: var(--muted);

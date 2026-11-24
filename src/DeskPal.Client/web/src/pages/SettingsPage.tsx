@@ -23,6 +23,7 @@ export function SettingsPage({ state }: { state: PanelState }) {
   if (s.updateActivity) seen.current = true;
   const status = s.updateActivity ?? (pressed && !seen.current ? t("settings.checking") : null);
   const waiting = pressed || s.updateActivity !== null;
+  const [view, setView] = useState<"main" | "plugins">("main");
 
   const check = async () => {
     seen.current = false;
@@ -62,6 +63,13 @@ export function SettingsPage({ state }: { state: PanelState }) {
     }
     await run({ type: "settings.shareUsage", enabled }, enabled ? t("settings.sharingOn") : t("settings.sharingOff"));
   };
+
+  const openPlugins = (open: boolean) => {
+    setView(open ? "plugins" : "main");
+    document.querySelector(".content")?.scrollTo({ top: 0 });
+  };
+
+  if (view === "plugins" && s.plugins) return <PluginsPage plugins={s.plugins} onBack={() => openPlugins(false)} />;
 
   return (
     <>
@@ -146,6 +154,7 @@ export function SettingsPage({ state }: { state: PanelState }) {
               <option value="en">{t("settings.languageEnglish")}</option>
             </select>
           </SettingRow>
+          {s.plugins && <PluginsEntry plugins={s.plugins} onOpen={() => openPlugins(true)} />}
         </div>
       </Section>
       <PersonalData personal={s.personal} />
@@ -181,7 +190,7 @@ export function SettingsPage({ state }: { state: PanelState }) {
           </SettingRow>
         </div>
       </Section>
-      {s.plugins && <PluginSettings plugins={s.plugins} />}
+
       {s.isAdmin && <SignupInvites />}
     </>
   );
@@ -189,7 +198,7 @@ export function SettingsPage({ state }: { state: PanelState }) {
 
 const pluginGuideUrl = "https://github.com/HuLuShiLei/DeskPal/blob/main/docs/provider-guide.md";
 
-const capabilityOrder: PluginCapability[] = ["foreground", "domain", "idle", "lock", "media"];
+const capabilityOrder: PluginCapability[] = ["foreground", "domain", "idle", "lock", "media", "detail"];
 
 function pluginName(plugin: PluginView): string {
   const key = `plugins.officialName.${plugin.id.replace(/^official:/, "")}`;
@@ -205,12 +214,64 @@ function capabilityName(capability: PluginCapability): string {
   return t(`plugins.cap.${capability}` as MessageKey);
 }
 
+function capabilityList(list: PluginCapability[]): string {
+  return list.map(capabilityName).join(t("common.listSeparator"));
+}
+
+/** 折叠时第二行的一句话：没在运行时是状态，在运行时是正在提供的几项和补充标题的应用。 */
+function pluginSummary(plugin: PluginView): string {
+  if (plugin.state !== "running") return t(`plugins.state.${plugin.state}`);
+  const parts: string[] = [];
+  const exclusive = plugin.provides.filter((c) => c !== "detail");
+  if (exclusive.length > 0) {
+    const owned = capabilityOrder.filter((c) => c !== "detail" && plugin.owns.includes(c));
+    parts.push(owned.length > 0 ? t("plugins.summary.owns", { list: capabilityList(owned) }) : t("plugins.summary.covered"));
+  }
+  if (plugin.provides.includes("detail")) {
+    parts.push(plugin.apps.length > 0 ? t("plugins.summary.detail", { list: plugin.apps.join(t("common.listSeparator")) }) : t("plugins.summary.noApps"));
+  }
+  return parts.join(t("plugins.summary.separator"));
+}
+
+function needsAttention(plugin: PluginView): boolean {
+  return plugin.enabled && (plugin.state === "failed" || plugin.notes.some((n) => n.tone === "warn"));
+}
+
+/** 设置页「通用」里进入插件页的一行：开启了几个；有信息没有插件提供时改为提示。 */
+function PluginsEntry({ plugins, onOpen }: { plugins: PluginsView; onOpen: () => void }) {
+  const on = plugins.items.filter((p) => p.enabled).length;
+  const missing = plugins.unprovided.length > 0;
+  const attention = missing || plugins.items.some(needsAttention);
+  return (
+    <button type="button" class="setting-row nav-row" onClick={onOpen}>
+      <span class="setting-text">
+        <span class="setting-title">
+          <span>{t("plugins.heading")}</span>
+        </span>
+        <span class={missing ? "setting-desc nav-desc warn" : "setting-desc nav-desc"}>
+          {missing ? t("plugins.unprovided", { list: capabilityList(plugins.unprovided) }) : t("plugins.entryDesc", { on, total: plugins.items.length })}
+        </span>
+      </span>
+      <span class="nav-flag">{attention && <Icon name="warning" />}</span>
+      <Icon name="forward" class="nav-arrow" />
+    </button>
+  );
+}
+
 /**
- * 插件列表：每个平台的内置插件（原来的采集器）和用户放进插件文件夹的插件放在一起，像 mod 列表一样排先后。
- * 每一项信息（当前窗口、网站、暂离、锁屏、媒体）取最上面一个开启的插件提供的；高亮的标签是正在使用的。
+ * 插件页：每个平台的内置插件（原来的采集器）和用户放进插件文件夹的插件放在一起，像 mod 列表一样排先后。
+ * 每一项信息（当前窗口、网站、暂离、锁屏、媒体）取最上面一个开启的插件提供的；补充标题按应用取最上面一个。
+ * 每个插件折叠成固定两行，点开看提供的几项、适用的应用、说明和按钮；需要处理的插件一开始就展开。
  */
-function PluginSettings({ plugins }: { plugins: PluginsView }) {
+function PluginsPage({ plugins, onBack }: { plugins: PluginsView; onBack: () => void }) {
   const { run, ask, toast } = useHost();
+  const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set(plugins.items.filter(needsAttention).map((p) => p.id)));
+  const toggle = (id: string) =>
+    setExpanded((now) => {
+      const next = new Set(now);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
   const setEnabled = async (plugin: PluginView, enabled: boolean) => {
     if (enabled && !plugin.official) {
       const answer = await ask({
@@ -240,77 +301,114 @@ function PluginSettings({ plugins }: { plugins: PluginsView }) {
   };
   const last = plugins.items.length - 1;
   return (
-    <Section title={t("plugins.heading")} aside={<Hint text={t("plugins.hint")} />}>
+    <>
+      <div class="subpage-head">
+        <button class="icon-button" aria-label={t("plugins.back")} title={t("plugins.back")} onClick={onBack}>
+          <Icon name="back" />
+        </button>
+        <h2>{t("plugins.heading")}</h2>
+        <Hint text={t("plugins.hint")} />
+        <span class="subpage-spacer" />
+        <button class="icon-button" aria-label={t("plugins.refresh")} title={t("plugins.refresh")} onClick={() => run({ type: "plugins.refresh" })}>
+          <Icon name="refresh" />
+        </button>
+      </div>
+      <div class="plugin-toolbar">
+        <button title={plugins.folder} onClick={() => run({ type: "plugins.openFolder" })}>
+          {t("plugins.openFolder")}
+        </button>
+        <button title={t("plugins.guideTip")} onClick={openGuide}>
+          {t("plugins.guide")}
+          <Icon name="openInNew" />
+        </button>
+      </div>
+      {plugins.unprovided.length > 0 && (
+        <div class="card plugin-warning">
+          <Icon name="warning" class="setting-icon" />
+          <p class="setting-desc">{t("plugins.unprovided", { list: capabilityList(plugins.unprovided) })}</p>
+        </div>
+      )}
       <div class="card flush plugin-list">
-        {plugins.unprovided.length > 0 && (
-          <div class="setting-row plugin-warning">
-            <Icon name="warning" class="setting-icon" />
-            <p class="setting-desc">{t("plugins.unprovided", { list: plugins.unprovided.map(capabilityName).join(t("common.listSeparator")) })}</p>
-          </div>
-        )}
         {plugins.items.map((plugin, index) => {
           const name = pluginName(plugin);
-          const state = plugin.state === "running" ? null : t(`plugins.state.${plugin.state}`);
-          const lines = [...(state ? [{ text: state, tone: plugin.state === "failed" ? "warn" : "info" }] : []), ...plugin.notes.map((n) => ({ text: noteText(n), tone: n.tone }))];
+          const open = expanded.has(plugin.id);
+          const summary = pluginSummary(plugin);
+          const warn = needsAttention(plugin);
           return (
-            <div class={plugin.enabled ? "setting-row plugin-row" : "setting-row plugin-row off"} key={plugin.id}>
-              <div class="plugin-order">
-                <button class="icon-button" aria-label={t("plugins.moveUp")} title={t("plugins.moveUp")} disabled={index === 0} onClick={() => run({ type: "plugins.move", id: plugin.id, offset: -1 })}>
-                  <Icon name="chevronUp" />
-                </button>
-                <button class="icon-button" aria-label={t("plugins.moveDown")} title={t("plugins.moveDown")} disabled={index === last} onClick={() => run({ type: "plugins.move", id: plugin.id, offset: 1 })}>
-                  <Icon name="chevronDown" />
-                </button>
-              </div>
-              <div class="setting-text">
-                <div class="setting-title">
-                  <span>{name}</span>
-                  {plugin.version && <span class="plugin-version">{plugin.version}</span>}
+            <div class={["plugin-row", plugin.enabled ? "" : "off", open ? "open" : ""].join(" ").trim()} key={plugin.id}>
+              <div class="plugin-head">
+                <div class="plugin-order">
+                  <button class="icon-button" aria-label={t("plugins.moveUp")} title={t("plugins.moveUp")} disabled={index === 0} onClick={() => run({ type: "plugins.move", id: plugin.id, offset: -1 })}>
+                    <Icon name="chevronUp" />
+                  </button>
+                  <button class="icon-button" aria-label={t("plugins.moveDown")} title={t("plugins.moveDown")} disabled={index === last} onClick={() => run({ type: "plugins.move", id: plugin.id, offset: 1 })}>
+                    <Icon name="chevronDown" />
+                  </button>
                 </div>
-                <div class="plugin-caps">
-                  <span class={plugin.official ? "badge" : "badge muted"}>{plugin.official ? t("plugins.official") : t("plugins.user")}</span>
-                  {capabilityOrder.filter((c) => plugin.provides.includes(c)).map((c) => {
-                    const used = plugin.owns.includes(c);
-                    return (
-                      <span class={used ? "plugin-cap used" : "plugin-cap"} key={c} title={plugin.enabled ? t(used ? "plugins.capUsed" : "plugins.capOverridden", { cap: capabilityName(c) }) : undefined}>
-                        {capabilityName(c)}
-                      </span>
-                    );
-                  })}
-                </div>
-                {lines.map((line, i) => (
-                  <p class={line.tone === "warn" ? "setting-desc plugin-note warn" : "setting-desc plugin-note"} key={i}>
-                    {line.text}
-                  </p>
-                ))}
-                {plugin.enabled && plugin.actions.length > 0 && (
-                  <div class="plugin-actions">
-                    {plugin.actions.map((id) => (
-                      <button key={id} onClick={() => void action(plugin, id)}>
-                        {hasMessage(`plugins.action.${id}`) ? t(`plugins.action.${id}` as MessageKey) : id}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div class="setting-control plugin-control">
+                <button type="button" class="plugin-main" tabIndex={-1} onClick={() => toggle(plugin.id)}>
+                  <span class="plugin-line">
+                    <span class="plugin-name" title={name}>
+                      {name}
+                    </span>
+                    {plugin.version && <span class="plugin-version">{plugin.version}</span>}
+                  </span>
+                  <span class={plugin.enabled && plugin.state === "failed" ? "plugin-summary warn" : "plugin-summary"} title={summary}>
+                    {summary}
+                  </span>
+                </button>
+                <span class="plugin-flag">{warn && <Icon name="warning" />}</span>
+                <button
+                  class="icon-button plugin-expand"
+                  aria-expanded={open}
+                  aria-label={t(open ? "plugins.collapse" : "plugins.expand")}
+                  title={t(open ? "plugins.collapse" : "plugins.expand")}
+                  onClick={() => toggle(plugin.id)}
+                >
+                  <Icon name="info" />
+                </button>
                 <Switch checked={plugin.enabled} label={name} onChange={(v) => void setEnabled(plugin, v)} />
               </div>
+              {open && (
+                <div class="plugin-detail">
+                  <div class="plugin-caps">
+                    <span class={plugin.official ? "badge" : "badge muted"}>{plugin.official ? t("plugins.official") : t("plugins.user")}</span>
+                    {capabilityOrder.filter((c) => plugin.provides.includes(c)).map((c) => {
+                      const used = plugin.owns.includes(c);
+                      const tip = used ? "plugins.capUsed" : c === "detail" ? "plugins.detailTip" : "plugins.capOverridden";
+                      return (
+                        <span class={used ? "plugin-cap used" : "plugin-cap"} key={c} title={plugin.enabled ? t(tip, { cap: capabilityName(c) }) : undefined}>
+                          {capabilityName(c)}
+                        </span>
+                      );
+                    })}
+                  </div>
+                  {plugin.provides.includes("detail") && plugin.apps.length > 0 && (
+                    <p class="setting-desc plugin-note">{t("plugins.apps", { list: plugin.apps.join(t("common.listSeparator")) })}</p>
+                  )}
+                  {plugin.notes.map((note, i) => (
+                    <p class={note.tone === "warn" ? "setting-desc plugin-note warn" : "setting-desc plugin-note"} key={i}>
+                      {noteText(note)}
+                    </p>
+                  ))}
+                  {plugin.enabled && plugin.actions.length > 0 && (
+                    <div class="plugin-actions">
+                      {plugin.actions.map((id) => (
+                        <button key={id} onClick={() => void action(plugin, id)}>
+                          {hasMessage(`plugins.action.${id}`) ? t(`plugins.action.${id}` as MessageKey) : id}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           );
         })}
-        <SettingRow title={t("plugins.folder")} hint={t("plugins.folderHint")}>
-          <button onClick={() => run({ type: "plugins.refresh" })}>{t("plugins.refresh")}</button>
-          <button onClick={() => run({ type: "plugins.openFolder" })}>{t("settings.open")}</button>
-        </SettingRow>
-        <SettingRow title={t("plugins.guide")}>
-          <button onClick={openGuide}>{t("settings.open")}</button>
-        </SettingRow>
       </div>
-    </Section>
+      <p class="plugin-footnote">{t("plugins.folderNote")}</p>
+    </>
   );
 }
-
 /** 个人分类、不记录标题和偏好设置除本机外保存到哪里，以及导入导出。 */
 function PersonalData({ personal }: { personal: PanelState["settings"]["personal"] }) {
   const { run, ask, toast } = useHost();
