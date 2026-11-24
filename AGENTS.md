@@ -55,6 +55,12 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 - 插件：三个平台的活动信息（当前窗口、网站、暂离、锁屏、媒体）都来自插件。各平台的采集器组成官方插件（在程序内运行），用户插件是插件文件夹里的程序，按设置里的列表顺序逐项决定用谁的。采集器构造函数收 `SignalSink`，不要直接往 `ActivityBus` 发布，也不要用 `AddHostedService` 单独注册。见 `docs/architecture.md` 的「插件」和 `docs/provider-guide.md`。
 - 发布：推送 main 会自动构建 Server 镜像（`ghcr.io/hulushilei/deskpal-server:latest`），构建成功后调用 Portainer webhook 拉取并重建容器。webhook 地址放在 GitHub secret `PORTAINER_WEBHOOK_URL`，不进仓库。main 上改了客户端时，CI 会发测试版 Pre-release（`DeskPal-<版本>-Setup.exe`，例如 `DeskPal-0.1.2-dev.15-Setup.exe`）；打 `vX.Y.Z` 标签并推送，会发正式版 `DeskPal-<版本>-Setup.exe`（例如 `DeskPal-0.1.2-Setup.exe`）。远程仓库是 `https://github.com/HuLuShiLei/DeskPal.git`。
 - **推送 main 前先更新根目录的 `CHANGELOG.md`**：把这次要推送、用户能感受到的改动整理成书面中文条目，写进最上面一节，和代码一起推送。最上面一节是下一个正式版的版本号（例如 `## 0.1.2`），测试版的改动也写在这一节。发布正式版 `vX.Y.Z` 后，下一次推送先新开 `## X.Y.(Z+1)`。CI 发布时检查最上面一节的版本号：正式版必须和标签一致，测试版不能低于自动算出的版本号，否则发布失败；改了客户端却没改 `CHANGELOG.md` 时只给出警告。客户端更新后，第一次打开面板时按界面语言显示还没看过的条目。每条下面缩进一行 `en:` 写英文；看过与否按中文比对，改了中文会再显示一次。
+- **打正式版标签**（用户说「打 tag」或「发正式版」时照下面做。写在本文件，不要写进个人 skill）：
+  1. 标签打在当前 `main` 的提交上。这一提交的 `CHANGELOG.md` 最上面一节必须已经是 `## X.Y.Z`，和 `vX.Y.Z` 相等。正式版 CI 要求相等；先把最上面改成下一版再打标签，发布会失败。用注解标签：`git tag -a vX.Y.Z -m "DeskPal vX.Y.Z"`，只推送这个标签。不要打 `vX.Y.Z-dev.N`，那是 CI 创建的测试版标签。
+  2. 推送标签前跑 `dotnet test tests/DeskPal.Tests --filter ChangelogTests`。`Shipped_changelog_has_english_for_every_item` 写死了有条目的版本列表。`Changelog.Parse` 丢掉没有条目的节，所以列表要和有内容的节一致，每条都要有 `en:`。v0.1.3 第一次打标签时日志已经是 0.1.3，测试仍停在 0.1.2，测试任务失败，没有发出 Release。
+  3. 等这次标签的 CI（测试、版本检查、Windows、macOS、Linux）全部成功，再往 `main` 推下一节。失败时保持最上面仍是 `## X.Y.Z`，改完后删掉远端标签再重打。不要提前推送 `## X.Y.(Z+1)`：测试版按远端最新正式版标签的补丁号加 1 计算，标签还没上去时对不上；而且修标签的提交会落在新节之后，重打时最上面一节和标签不相等，正式版再次失败。
+  4. 标签 CI 通过后，立刻在最上面新开空的 `## X.Y.(Z+1)` 并推送 `main`（想跳主版本或次版本就写成那个号，例如 `## 0.2.0`；测试版只要求最上面不低于算出的版本）。空节不会被解析，`ChangelogTests` 不用改。这次推送会发 `X.Y.(Z+1)-dev.1`，等这次 CI 也通过。
+  5. 之后往新节写入第一条时，同一次提交里把 `ChangelogTests` 的版本列表改成包含这一节。
 - 安装包是 `installer/DeskPal.iss` 编译的 Inno Setup 向导，用户可以选择安装目录（默认 `%LocalAppData%\Programs\DeskPal`）。安装版的日志在 `<安装目录>\logs`，设置和规则在 `%APPDATA%\DeskPal`。
 - 客户端默认 Server 地址是生产环境 `https://deskpal.hafuhafu.cn:36443`，本地联调要在 `settings.json` 的 `serverUrl` 里改成 `http://localhost:5180`。登录页和设置页不显示、也不能修改 Server 地址，不要加回来。
 - `dotnet-ef` 是本地工具（`dotnet-tools.json`），新机器先执行 `dotnet tool restore`。
