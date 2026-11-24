@@ -22,7 +22,7 @@ MAX_TITLE = 512
 MAX_NAME = 128
 MAX_PATH = 1024
 MAX_LINES_PER_SECOND = 50
-CAPABILITIES = ("foreground", "domain", "idle", "lock", "media")
+CAPABILITIES = ("foreground", "domain", "idle", "lock", "media", "detail")
 DEFAULT_PROVIDES = ("foreground", "domain")
 WINDOWS = os.name == "nt"
 WINDOWS_EXTENSIONS = (".exe", ".cmd", ".bat", ".ps1", ".py")
@@ -49,6 +49,7 @@ def is_bool(obj, key):
 class Checker:
     def __init__(self):
         self.provides = None  # None: hello 没说，按默认
+        self.apps = None  # hello 里的 apps，规范化后的进程名
         self.seen = set()
 
     def declared(self):
@@ -98,8 +99,35 @@ class Checker:
             self.provides = [p for p in provides if p in CAPABILITIES]
             if unknown:
                 note = f"    ← 不认识 {unknown}，会被忽略"
+        apps = obj.get("apps")
+        if apps is not None:
+            if not isinstance(apps, list):
+                return "error", '"apps" 必须是进程名的列表，例如 ["QQ"]'
+            self.apps = [normalize_process(a) for a in apps if isinstance(a, str) and normalize_process(a)]
+        if "detail" in self.declared() and not self.apps:
+            note += '    ← 声明了 detail 却没有 "apps"，DeskPal 不会采用补充的标题'
         shown = self.provides if self.provides is not None else f"{list(DEFAULT_PROVIDES)}（没写 provides，按默认）"
-        return ("warn" if note else "ok"), f'hello  {obj["name"]} {obj.get("version") or ""}  provides={shown}{note}'
+        apps_text = f"  apps={self.apps}" if self.apps is not None else ""
+        return ("warn" if note else "ok"), f'hello  {obj["name"]} {obj.get("version") or ""}  provides={shown}{apps_text}{note}'
+
+    def detail(self, obj):
+        if not isinstance(obj.get("process"), str):
+            return "error", 'detail 必须有 "process"（字符串）'
+        process = normalize_process(obj["process"])
+        if not process:
+            return "error", '"process" 是空的'
+        for key in ("window", "title"):
+            if not is_text(obj, key):
+                return "error", f'"{key}" 必须是字符串或 null'
+        notes = []
+        if self.apps is not None and process.lower() not in (a.lower() for a in self.apps):
+            notes.append(f'"{process}" 不在 hello 的 apps 里，这一行不会生效')
+        if not obj.get("window"):
+            notes.append('没写 "window"：同一程序的其他窗口也会用这个标题，建议写上看到的窗口标题')
+        if len(obj.get("title") or "") > MAX_TITLE:
+            notes.append(f"title 超过 {MAX_TITLE} 个字符，会被截断")
+        text = f'detail  process={process}  window={obj.get("window")!r}  title={obj.get("title")!r}'
+        return ("warn" if notes else "ok"), text + ("    ← " + "；".join(notes) if notes else "")
 
     def foreground(self, obj):
         if not isinstance(obj.get("process"), str):
@@ -220,9 +248,9 @@ def main():
         if total / elapsed > MAX_LINES_PER_SECOND:
             print(f"每秒超过 {MAX_LINES_PER_SECOND} 行，多出的行会被丢掉。没有变化时不必重复输出。")
             failed = True
-    missing = sorted(checker.declared() - checker.seen - {"domain", "lock", "media"})
+    missing = sorted(checker.declared() - checker.seen - {"domain", "lock", "media", "detail"})
     if missing:
-        # 网站、锁屏、媒体可能只是这几秒里没有变化；当前窗口和暂离应当很快出现。
+        # 网站、锁屏、媒体、补充标题可能只是这几秒里没有变化或对应的应用不在前台；当前窗口和暂离应当很快出现。
         print(f"声明了 {missing} 却没有收到对应的行。DeskPal 收到之前，这几项没有数据。")
         failed = True
     print("结论：" + ("有问题，见上。" if failed else "可以用。"))

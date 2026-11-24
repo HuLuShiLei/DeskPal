@@ -35,6 +35,7 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
     /// <summary>In list order.</summary>
     private List<Slot> _slots = [];
     private readonly CapabilityRouter _router = new();
+    private readonly DetailRouter _details = new();
     private CancellationToken _stopping;
     private bool _started;
 
@@ -78,15 +79,21 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
                 var items = _slots.Select(slot =>
                 {
                     var p = slot.Provider;
-                    var provides = ProviderCapabilities.All.Where(p.Provides.Contains).ToList();
-                    var owns = provides.Where(c => _router.Owners.TryGetValue(c, out var owner) && owner == p.Id).Select(c => c.Name()).ToList();
+                    var provides = ProviderCapabilities.Known.Where(p.Provides.Contains).ToList();
+                    var owns = provides
+                        .Where(c => c == ProviderCapability.Detail
+                            ? _details.ActiveId == p.Id
+                            : _router.Owners.TryGetValue(c, out var owner) && owner == p.Id)
+                        .Select(c => c.Name())
+                        .ToList();
                     var state = !slot.Enabled ? "disabled" : p.Health switch
                     {
                         ProviderHealth.Running => "running",
                         ProviderHealth.Failed => "failed",
                         _ => "starting",
                     };
-                    return new PluginView(p.Id, p.Name, p.Version, p.Official, slot.Enabled, provides.Select(c => c.Name()).ToList(), owns, state, p.Notes, p.Actions);
+                    var apps = p.Provides.Contains(ProviderCapability.Detail) ? p.Apps.Order(StringComparer.OrdinalIgnoreCase).ToList() : [];
+                    return new PluginView(p.Id, p.Name, p.Version, p.Official, slot.Enabled, provides.Select(c => c.Name()).ToList(), owns, state, p.Notes, p.Actions, apps);
                 }).ToList();
                 var unprovided = ProviderCapabilities.All.Where(c => !_router.Owners.ContainsKey(c)).Select(c => c.Name()).ToList();
                 return new PluginsView(items, unprovided, Folder);
@@ -312,6 +319,7 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
 
     private ExternalProvider CreateExternal(PluginSetting row)
     {
+        var knownApps = row.Apps is { } appNames ? new HashSet<string>(appNames, StringComparer.OrdinalIgnoreCase) : null;
         HashSet<ProviderCapability>? known = null;
         if (row.Provides is { } names)
         {
@@ -328,14 +336,15 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
         var provider = new ExternalProvider(
             Path.Combine(Folder, row.Id[5..]),
             known,
+            knownApps,
             () => TimeSpan.FromMinutes(AccountIdle.Normalize(_settings.IdleMinutes)),
             _loggers.CreateLogger("DeskPal.UserPlugin"));
         provider.Changed += OnProviderChanged;
-        provider.ProvidesAnnounced += provides => RememberProvides(provider.Id, provides);
+        provider.ProvidesAnnounced += (provides, apps) => RememberProvides(provider.Id, provides, apps);
         return provider;
     }
 
-    private void RememberProvides(string id, IReadOnlySet<ProviderCapability> provides)
+    private void RememberProvides(string id, IReadOnlySet<ProviderCapability> provides, IReadOnlySet<string> apps)
     {
         lock (_lock)
         {
@@ -344,7 +353,8 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
                 {
                     Id = r.Id,
                     Enabled = r.Enabled,
-                    Provides = ProviderCapabilities.All.Where(provides.Contains).Select(c => c.Name()).ToList(),
+                    Provides = ProviderCapabilities.Known.Where(provides.Contains).Select(c => c.Name()).ToList(),
+                    Apps = apps.Count == 0 ? null : apps.Order(StringComparer.OrdinalIgnoreCase).ToList(),
                 })
                 .ToList();
             Save();
@@ -391,16 +401,36 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
         slot.Run = null;
         slot.Task = null;
         _router.Forget(slot.Provider.Id);
+        if (_details.Forget(slot.Provider.Id) is { } window)
+        {
+            _bus.Publish(window);
+        }
     }
 
     private void OnSignal(string id, ActivitySignal signal)
     {
+        bool detailMoved;
         lock (_lock)
         {
-            if (_router.Report(id, signal) is { } owned)
+            var active = _details.ActiveId;
+            if (signal is DetailSignal detail)
             {
-                _bus.Publish(owned);
+                if (_details.Report(id, detail) is { } window)
+                {
+                    _bus.Publish(window);
+                }
             }
+            else if (_router.Report(id, signal) is { } owned)
+            {
+                _bus.Publish(owned is ForegroundSignal foreground ? _details.Foreground(foreground) : owned);
+            }
+
+            detailMoved = active != _details.ActiveId;
+        }
+
+        if (detailMoved)
+        {
+            Changed?.Invoke();
         }
     }
 
@@ -427,8 +457,16 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
             _logger.LogInformation("{Capability} now comes from {Owner}", capability.Name(), owner ?? "(nobody)");
             if (signal is not null)
             {
-                _bus.Publish(signal);
+                _bus.Publish(signal is ForegroundSignal foreground ? _details.Foreground(foreground) : signal);
             }
+        }
+
+        var window = _details.Update(_slots
+            .Where(s => s.Provider.Provides.Contains(ProviderCapability.Detail))
+            .Select(s => new DetailEntry(s.Provider.Id, s.Enabled, s.Provider.Health != ProviderHealth.Failed, s.Provider.Apps)));
+        if (window is not null)
+        {
+            _bus.Publish(window);
         }
     }
 
@@ -440,6 +478,7 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
             Id = s.Provider.Id,
             Enabled = s.Enabled,
             Provides = rows.TryGetValue(s.Provider.Id, out var row) ? row.Provides : null,
+            Apps = row?.Apps,
         }).ToList();
 
         // Rows of files that are missing right now keep their place at the end.

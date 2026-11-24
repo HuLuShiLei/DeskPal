@@ -215,6 +215,25 @@
     "plugins": {
       "items": [
         {
+          "id": "user:qq-chat.ps1",
+          "name": "QQ 会话",
+          "version": "0.1",
+          "official": false,
+          "enabled": true,
+          "provides": [
+            "detail"
+          ],
+          "owns": [
+            "detail"
+          ],
+          "state": "running",
+          "notes": [],
+          "actions": [],
+          "apps": [
+            "QQ"
+          ]
+        },
+        {
           "id": "user:vscode-title.ps1",
           "name": "VS Code 标题",
           "version": "0.2",
@@ -228,7 +247,8 @@
           ],
           "state": "running",
           "notes": [],
-          "actions": []
+          "actions": [],
+          "apps": []
         },
         {
           "id": "user:spotify.py",
@@ -243,7 +263,29 @@
           "owns": [],
           "state": "disabled",
           "notes": [],
-          "actions": []
+          "actions": [],
+          "apps": []
+        },
+        {
+          "id": "user:broken.cmd",
+          "name": "broken.cmd",
+          "version": null,
+          "official": false,
+          "enabled": true,
+          "provides": [
+            "media"
+          ],
+          "owns": [],
+          "state": "failed",
+          "notes": [
+            {
+              "key": "plugin.error",
+              "text": "exit code 1",
+              "tone": "warn"
+            }
+          ],
+          "actions": [],
+          "apps": []
         },
         {
           "id": "official:windows",
@@ -266,7 +308,8 @@
           ],
           "state": "running",
           "notes": [],
-          "actions": []
+          "actions": [],
+          "apps": []
         }
       ],
       "unprovided": [],

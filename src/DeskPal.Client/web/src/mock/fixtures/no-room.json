@@ -79,9 +79,9 @@
     "plugins": {
       "items": [
         {
-          "id": "user:vscode-title.ps1",
-          "name": "VS Code 标题",
-          "version": "0.2",
+          "id": "user:hyprland.sh",
+          "name": "Hyprland 窗口",
+          "version": "0.3",
           "official": false,
           "enabled": true,
           "provides": [
@@ -92,31 +92,34 @@
           ],
           "state": "running",
           "notes": [],
-          "actions": []
+          "actions": [],
+          "apps": []
         },
         {
-          "id": "user:spotify.py",
-          "name": "spotify.py",
-          "version": null,
+          "id": "user:telegram-chat.py",
+          "name": "Telegram 会话",
+          "version": "0.1",
           "official": false,
-          "enabled": false,
+          "enabled": true,
           "provides": [
-            "foreground",
-            "domain"
+            "detail"
           ],
           "owns": [],
-          "state": "disabled",
+          "state": "starting",
           "notes": [],
-          "actions": []
+          "actions": [],
+          "apps": [
+            "telegram-desktop",
+            "Telegram"
+          ]
         },
         {
-          "id": "official:windows",
-          "name": "Windows",
+          "id": "official:linux",
+          "name": "Linux",
           "version": null,
           "official": true,
           "enabled": true,
           "provides": [
-            "foreground",
             "domain",
             "idle",
             "lock",
@@ -129,12 +132,26 @@
             "media"
           ],
           "state": "running",
-          "notes": [],
-          "actions": []
+          "notes": [
+            {
+              "key": "linux.noWindowSource",
+              "text": "Hyprland",
+              "tone": "info"
+            },
+            {
+              "key": "linux.browserMissing",
+              "text": null,
+              "tone": "warn"
+            }
+          ],
+          "actions": [
+            "linux.browserExtension"
+          ],
+          "apps": []
         }
       ],
       "unprovided": [],
-      "folder": "C:\\Users\\alice\\AppData\\Roaming\\DeskPal\\plugins"
+      "folder": "/home/alice/.config/DeskPal/plugins"
     }
   },
   "myRules": [

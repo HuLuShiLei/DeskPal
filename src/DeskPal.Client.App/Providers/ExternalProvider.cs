@@ -29,16 +29,24 @@ public sealed class ExternalProvider : IActivityProvider
     private string? _helloName;
     private string? _version;
     private IReadOnlySet<ProviderCapability> _provides;
+    private IReadOnlySet<string> _apps;
     private ProviderHealth _health = ProviderHealth.Starting;
     private string? _error;
 
     /// <param name="knownProvides">What the plugin said it supplies the last time it ran; null when it never said.</param>
-    public ExternalProvider(string path, IReadOnlySet<ProviderCapability>? knownProvides, Func<TimeSpan> idleThreshold, ILogger logger)
+    /// <param name="knownApps">The apps its detail covered the last time it ran.</param>
+    public ExternalProvider(
+        string path,
+        IReadOnlySet<ProviderCapability>? knownProvides,
+        IReadOnlySet<string>? knownApps,
+        Func<TimeSpan> idleThreshold,
+        ILogger logger)
     {
         _path = path;
         _idleThreshold = idleThreshold;
         _logger = logger;
         _provides = knownProvides ?? ProviderCapabilities.PluginDefault;
+        _apps = knownApps ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         File = Path.GetFileName(path);
     }
 
@@ -56,6 +64,8 @@ public sealed class ExternalProvider : IActivityProvider
 
     public IReadOnlySet<ProviderCapability> Provides => _provides;
 
+    public IReadOnlySet<string> Apps => _apps;
+
     public ProviderHealth Health => _health;
 
     public IReadOnlyList<PluginNote> Notes => _error is null ? [] : [new PluginNote("plugin.error", _error, "warn")];
@@ -64,8 +74,8 @@ public sealed class ExternalProvider : IActivityProvider
 
     public event Action? Changed;
 
-    /// <summary>Raised when the hello line changed what the plugin supplies, so the host can remember it.</summary>
-    public event Action<IReadOnlySet<ProviderCapability>>? ProvidesAnnounced;
+    /// <summary>Raised when the hello line changed what the plugin supplies or the apps it covers, so the host can remember it.</summary>
+    public event Action<IReadOnlySet<ProviderCapability>, IReadOnlySet<string>>? ProvidesAnnounced;
 
     public Task<CommandResult> RunActionAsync(string action) => Task.FromResult(CommandResult.Fail(Strings.Plugin_UnknownAction));
 
@@ -220,6 +230,14 @@ public sealed class ExternalProvider : IActivityProvider
                 case ProviderMedia media:
                     Emit(sink, ProviderProtocol.ToSignal(media), ref lastMedia);
                     break;
+                case ProviderDetail detail:
+                    // Not deduplicated, like domain: the host keeps the last report and compares it with the window.
+                    if (_provides.Contains(ProviderCapability.Detail))
+                    {
+                        sink.Publish(new DetailSignal(detail.Process, detail.Window, detail.Title));
+                    }
+
+                    break;
                 case ProviderIdle report:
                     lock (_lock)
                     {
@@ -281,15 +299,18 @@ public sealed class ExternalProvider : IActivityProvider
 
     private void OnHello(ProviderHello hello)
     {
-        _logger.LogInformation("Plugin {Path} is {Name} {Version}, supplies {Provides}",
-            _path, hello.Name, hello.Version, hello.Provides is null ? "(default)" : string.Join(",", hello.Provides.Select(c => c.Name())));
+        _logger.LogInformation("Plugin {Path} is {Name} {Version}, supplies {Provides}, apps {Apps}",
+            _path, hello.Name, hello.Version, hello.Provides is null ? "(default)" : string.Join(",", hello.Provides.Select(c => c.Name())),
+            hello.Apps is null ? "(none)" : string.Join(",", hello.Apps));
         _helloName = hello.Name;
         _version = hello.Version;
         var provides = hello.Provides ?? ProviderCapabilities.PluginDefault;
-        if (!provides.SetEquals(_provides))
+        var apps = hello.Apps ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (!provides.SetEquals(_provides) || !apps.SetEquals(_apps))
         {
             _provides = provides;
-            ProvidesAnnounced?.Invoke(provides);
+            _apps = apps;
+            ProvidesAnnounced?.Invoke(provides, apps);
         }
 
         Changed?.Invoke();

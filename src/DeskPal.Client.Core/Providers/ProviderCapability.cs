@@ -2,7 +2,10 @@ using DeskPal.Client.Core.Pipeline;
 
 namespace DeskPal.Client.Core.Providers;
 
-/// <summary>One kind of fact a plugin can supply. Each kind comes from exactly one plugin at a time.</summary>
+/// <summary>
+/// One kind of fact a plugin can supply. The first five each come from exactly one plugin at a time;
+/// <see cref="Detail"/> is per app and is merged into the window by <see cref="DetailRouter"/>.
+/// </summary>
 public enum ProviderCapability
 {
     /// <summary>The window the user is working in.</summary>
@@ -19,19 +22,25 @@ public enum ProviderCapability
 
     /// <summary>What is playing.</summary>
     Media,
+
+    /// <summary>A more specific title for the window of the apps the plugin names, like the open chat in a messenger.</summary>
+    Detail,
 }
 
 public static class ProviderCapabilities
 {
-    /// <summary>Every capability, in the order the settings page lists them.</summary>
+    /// <summary>The capabilities that have one owner each, in the order the settings page lists them.</summary>
     public static readonly IReadOnlyList<ProviderCapability> All =
         [ProviderCapability.Foreground, ProviderCapability.Domain, ProviderCapability.Idle, ProviderCapability.Lock, ProviderCapability.Media];
+
+    /// <summary>Every capability a plugin can declare.</summary>
+    public static readonly IReadOnlyList<ProviderCapability> Known = [.. All, ProviderCapability.Detail];
 
     /// <summary>What a plugin supplies when its hello line does not say: the window and the browser's site.</summary>
     public static readonly IReadOnlySet<ProviderCapability> PluginDefault =
         new HashSet<ProviderCapability> { ProviderCapability.Foreground, ProviderCapability.Domain };
 
-    /// <summary>The name used in the protocol and the panel: foreground, domain, idle, lock, media.</summary>
+    /// <summary>The name used in the protocol and the panel: foreground, domain, idle, lock, media, detail.</summary>
     public static string Name(this ProviderCapability capability) => capability switch
     {
         ProviderCapability.Foreground => "foreground",
@@ -39,12 +48,13 @@ public static class ProviderCapabilities
         ProviderCapability.Idle => "idle",
         ProviderCapability.Lock => "lock",
         ProviderCapability.Media => "media",
+        ProviderCapability.Detail => "detail",
         _ => throw new ArgumentOutOfRangeException(nameof(capability)),
     };
 
     public static bool TryParse(string? name, out ProviderCapability capability)
     {
-        foreach (var candidate in All)
+        foreach (var candidate in Known)
         {
             if (string.Equals(candidate.Name(), name, StringComparison.Ordinal))
             {
@@ -65,6 +75,7 @@ public static class ProviderCapabilities
         IdleSignal => ProviderCapability.Idle,
         LockSignal => ProviderCapability.Lock,
         MediaSignal => ProviderCapability.Media,
+        DetailSignal => ProviderCapability.Detail,
         _ => throw new ArgumentException($"Unknown signal {signal.GetType().Name}", nameof(signal)),
     };
 

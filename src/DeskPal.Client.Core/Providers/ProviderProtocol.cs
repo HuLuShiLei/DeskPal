@@ -12,7 +12,13 @@ public abstract record ProviderMessage;
 /// <summary>Optional first line: who the plugin is and what it supplies.</summary>
 /// <param name="Provides">The capabilities the plugin supplies; null when the line does not say (then
 /// <see cref="ProviderCapabilities.PluginDefault"/>). Names this version does not know are left out.</param>
-public sealed record ProviderHello(string Name, string? Version, IReadOnlySet<ProviderCapability>? Provides = null) : ProviderMessage;
+/// <param name="Apps">Process names a detail plugin covers, normalized like <see cref="ProviderForeground.Process"/>;
+/// null when the line does not say.</param>
+public sealed record ProviderHello(
+    string Name,
+    string? Version,
+    IReadOnlySet<ProviderCapability>? Provides = null,
+    IReadOnlySet<string>? Apps = null) : ProviderMessage;
 
 /// <summary>The window the user is working in.</summary>
 /// <param name="Process">Program name used by the rules: file name without folder and without ".exe".</param>
@@ -28,6 +34,13 @@ public sealed record ProviderIdle(double Seconds) : ProviderMessage;
 
 /// <summary>Whether the screen is locked.</summary>
 public sealed record ProviderLock(bool Locked) : ProviderMessage;
+
+/// <summary>
+/// A more specific title for the window of <paramref name="Process"/>, for example the open chat in a messenger.
+/// <paramref name="Window"/>, when given, is the window title the plugin saw, so the detail only applies to that window.
+/// A null <paramref name="Title"/> takes the plugin's detail back.
+/// </summary>
+public sealed record ProviderDetail(string Process, string? Window, string? Title) : ProviderMessage;
 
 /// <summary>What is playing. <paramref name="Source"/> is the program name of the player, like a foreground process.</summary>
 public sealed record ProviderMedia(bool Playing, string? Title, string? Artist, string? Source) : ProviderMessage;
@@ -51,6 +64,7 @@ public static class ProviderProtocol
     public const int MaxTitleLength = 512;
     public const int MaxNameLength = 128;
     public const int MaxPathLength = 1024;
+    public const int MaxApps = 32;
 
     public static ProviderParseResult Parse(string? line)
     {
@@ -100,6 +114,7 @@ public static class ProviderProtocol
                 "idle" => ParseIdle(root),
                 "lock" => ParseLock(root),
                 "media" => ParseMedia(root),
+                "detail" => ParseDetail(root),
                 _ => default,
             };
         }
@@ -251,6 +266,31 @@ public static class ProviderProtocol
             null);
     }
 
+    private static ProviderParseResult ParseDetail(JsonElement root)
+    {
+        if (!TryString(root, "process", out var rawProcess) || rawProcess is null)
+        {
+            return Fail("detail needs \"process\" (a string)");
+        }
+
+        var process = NormalizeProcess(rawProcess);
+        if (process.Length == 0)
+        {
+            return Fail("detail \"process\" is empty");
+        }
+
+        if (!TryString(root, "title", out var title) || !TryString(root, "window", out var window))
+        {
+            return Fail("\"title\" and \"window\" must be strings or null");
+        }
+
+        var cleanTitle = Clean(title, MaxTitleLength);
+        var cleanWindow = Clean(window, MaxTitleLength);
+        return new ProviderParseResult(
+            new ProviderDetail(process, cleanWindow.Length == 0 ? null : cleanWindow, cleanTitle.Length == 0 ? null : cleanTitle),
+            null);
+    }
+
     private static ProviderParseResult ParseHello(JsonElement root)
     {
         if (!TryString(root, "name", out var name) || !TryString(root, "version", out var version))
@@ -284,7 +324,25 @@ public static class ProviderProtocol
             }
         }
 
-        return new ProviderParseResult(new ProviderHello(cleanName, cleanVersion.Length == 0 ? null : cleanVersion, provides), null);
+        HashSet<string>? apps = null;
+        if (root.TryGetProperty("apps", out var appList) && appList.ValueKind != JsonValueKind.Null)
+        {
+            if (appList.ValueKind != JsonValueKind.Array)
+            {
+                return Fail("\"apps\" must be a list of process names, like [\"QQ\"]");
+            }
+
+            apps = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in appList.EnumerateArray())
+            {
+                if (item.ValueKind == JsonValueKind.String && NormalizeProcess(item.GetString()) is { Length: > 0 } app && apps.Count < MaxApps)
+                {
+                    apps.Add(app);
+                }
+            }
+        }
+
+        return new ProviderParseResult(new ProviderHello(cleanName, cleanVersion.Length == 0 ? null : cleanVersion, provides, apps), null);
     }
 
     /// <summary>False when the property is there but is neither a string nor null.</summary>

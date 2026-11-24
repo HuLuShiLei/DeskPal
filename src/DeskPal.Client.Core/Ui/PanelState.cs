@@ -147,6 +147,7 @@ public sealed record PluginsView(IReadOnlyList<PluginView> Items, IReadOnlyList<
 /// <param name="State">disabled, starting, running or failed.</param>
 /// <param name="Notes">Status lines; the panel translates <see cref="PluginNote.Key"/>.</param>
 /// <param name="Actions">Buttons the plugin offers, by id; the panel translates them.</param>
+/// <param name="Apps">Process names its detail covers. "detail" is in <paramref name="Owns"/> while its title is shown.</param>
 public sealed record PluginView(
     string Id,
     string Name,
@@ -157,7 +158,8 @@ public sealed record PluginView(
     IReadOnlyList<string> Owns,
     string State,
     IReadOnlyList<PluginNote> Notes,
-    IReadOnlyList<string> Actions);
+    IReadOnlyList<string> Actions,
+    IReadOnlyList<string> Apps);
 
 /// <param name="Key">Translation key, for example linux.needsExtension or plugin.error.</param>
 /// <param name="Text">Untranslated detail put into the sentence: an error message, a desktop or browser name.</param>

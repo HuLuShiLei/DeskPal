@@ -154,6 +154,35 @@ public class ProviderProtocolTests
         Assert.NotNull(ProviderProtocol.Parse(line).Error);
     }
 
+    [Fact]
+    public void Hello_names_the_apps_a_detail_plugin_covers()
+    {
+        var hello = Assert.IsType<ProviderHello>(ProviderProtocol.Parse("""{"type":"hello","name":"qq","provides":["detail"],"apps":["QQ.exe","C:\\Apps\\WeChat.exe",5,""]}""").Message);
+
+        Assert.Equal(new HashSet<ProviderCapability> { ProviderCapability.Detail }, hello.Provides);
+        Assert.Equal(["QQ", "WeChat"], hello.Apps!.Order());
+        Assert.Contains("qq", hello.Apps!);
+    }
+
+    [Fact]
+    public void Detail_line_is_read()
+    {
+        var detail = Assert.IsType<ProviderDetail>(ProviderProtocol.Parse("""{"v":1,"type":"detail","process":"QQ.exe","window":" QQ ","title":"张三"}""").Message);
+
+        Assert.Equal(new ProviderDetail("QQ", "QQ", "张三"), detail);
+        Assert.Equal(new ProviderDetail("QQ", null, null), ProviderProtocol.Parse("""{"type":"detail","process":"QQ","title":null}""").Message);
+    }
+
+    [Theory]
+    [InlineData("""{"type":"detail","title":"x"}""")]
+    [InlineData("""{"type":"detail","process":"QQ","title":3}""")]
+    [InlineData("""{"type":"detail","process":"QQ","window":false}""")]
+    [InlineData("""{"type":"hello","name":"x","apps":"QQ"}""")]
+    public void Malformed_detail_lines_are_rejected(string line)
+    {
+        Assert.NotNull(ProviderProtocol.Parse(line).Error);
+    }
+
     [Theory]
     [InlineData("GitHub.com", "github.com")]
     [InlineData("https://www.github.com/a/b", "github.com")]

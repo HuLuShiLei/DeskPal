@@ -186,42 +186,11 @@
     "plugins": {
       "items": [
         {
-          "id": "user:vscode-title.ps1",
-          "name": "VS Code 标题",
-          "version": "0.2",
-          "official": false,
-          "enabled": true,
-          "provides": [
-            "foreground"
-          ],
-          "owns": [
-            "foreground"
-          ],
-          "state": "running",
-          "notes": [],
-          "actions": []
-        },
-        {
-          "id": "user:spotify.py",
-          "name": "spotify.py",
-          "version": null,
-          "official": false,
-          "enabled": false,
-          "provides": [
-            "foreground",
-            "domain"
-          ],
-          "owns": [],
-          "state": "disabled",
-          "notes": [],
-          "actions": []
-        },
-        {
           "id": "official:windows",
           "name": "Windows",
           "version": null,
           "official": true,
-          "enabled": true,
+          "enabled": false,
           "provides": [
             "foreground",
             "domain",
@@ -229,18 +198,20 @@
             "lock",
             "media"
           ],
-          "owns": [
-            "domain",
-            "idle",
-            "lock",
-            "media"
-          ],
-          "state": "running",
+          "owns": [],
+          "state": "disabled",
           "notes": [],
-          "actions": []
+          "actions": [],
+          "apps": []
         }
       ],
-      "unprovided": [],
+      "unprovided": [
+        "foreground",
+        "domain",
+        "idle",
+        "lock",
+        "media"
+      ],
       "folder": "C:\\Users\\alice\\AppData\\Roaming\\DeskPal\\plugins"
     }
   },

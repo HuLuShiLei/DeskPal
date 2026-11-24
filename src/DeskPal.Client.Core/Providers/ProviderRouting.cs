@@ -21,7 +21,7 @@ public static class ProviderRouting
                 continue;
             }
 
-            foreach (var capability in entry.Provides)
+            foreach (var capability in entry.Provides.Where(c => c != ProviderCapability.Detail))
             {
                 owners.TryAdd(capability, entry.Id);
             }

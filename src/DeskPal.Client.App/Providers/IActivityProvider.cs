@@ -25,6 +25,11 @@ public enum ProviderHealth
 /// collectors of each platform are one (<see cref="OfficialProvider"/>), a program in the plugins folder is another
 /// (<see cref="ExternalProvider"/>). <see cref="ProviderHost"/> runs the enabled ones and decides whose facts are used.
 /// </summary>
+internal static class NoApps
+{
+    public static readonly IReadOnlySet<string> Value = new HashSet<string>();
+}
+
 public interface IActivityProvider
 {
     /// <summary>official:&lt;platform&gt; or user:&lt;file name&gt;. Stable; stored in the settings.</summary>
@@ -38,6 +43,9 @@ public interface IActivityProvider
 
     /// <summary>What it supplies now. May change while it runs (a plugin's hello line, a desktop without a window source).</summary>
     IReadOnlySet<ProviderCapability> Provides { get; }
+
+    /// <summary>Process names its <see cref="ProviderCapability.Detail"/> covers; empty for plugins without it.</summary>
+    IReadOnlySet<string> Apps => NoApps.Value;
 
     ProviderHealth Health { get; }
 

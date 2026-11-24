@@ -43,7 +43,7 @@ flowchart LR
 
 ## 插件
 
-活动事实分五项能力（`ProviderCapability`）：`foreground` 当前窗口、`domain` 浏览器网站、`idle` 暂离、`lock` 锁屏、`media` 正在播放。三个平台都由插件提供，没有绕过插件的采集路径。
+活动事实分五项能力（`ProviderCapability`）：`foreground` 当前窗口、`domain` 浏览器网站、`idle` 暂离、`lock` 锁屏、`media` 正在播放。三个平台都由插件提供，没有绕过插件的采集路径。另有第六项 `detail`（补充标题），只有用户插件能声明，按应用生效，不参与上面五项的抢主人。
 
 | 部件 | 位置 | 作用 |
 |---|---|---|
@@ -52,9 +52,10 @@ flowchart LR
 | `ExternalProvider` | Client.App/Providers | 用户插件：插件文件夹里的程序，标准输出每行一个 JSON（协议 v1，`Client.Core/Providers/ProviderProtocol`）。每秒最多 50 行，退出后按 1/2/5/10/30/60 秒重启；暂离把插件报的秒数交给 `IdleTracker` 按用户设置判断 |
 | `PluginFiles` | Client.App/Providers | 哪些文件算插件、怎么启动。Windows：`.exe`、`.cmd`/`.bat`、`.ps1`、`.py`；macOS、Linux：有可执行位的文件 |
 | `ProviderRouting` / `CapabilityRouter` | Client.Core/Providers | 路由：每项能力取列表里最上面一个开启且没有出错的、声明了它的插件。主人变了，补发新主人上次报的值（采集器只在变化时报）；没人提供时发清空值（无网站、不暂离、不锁屏、没在播放；当前窗口保持上一个） |
-| `ProviderHost` | Client.App/Providers | 管理列表：合并官方插件、设置里的顺序和插件文件夹（每 10 秒和点“刷新”时重新读）；启停插件；把信号按路由发到 `ActivityBus`；实现设置页用的 `IProviderControl` |
+| `DetailRouter` | Client.Core/Providers | 补充标题：插件在 hello 里用 `apps` 声明管哪些进程，报 `detail`（`process`、可选的 `window`、`title`）。前台进程在某个开启且没出错的插件的 `apps` 里、`process` 一致、`window`（写了的话）等于当前窗口标题时，用它的 `title` 替换 `ForegroundSignal.WindowTitle`，列表里最上面的优先。浏览器不替换（标题变化会让网站重新等待）。每个插件最后一次报的值保留到它重报、报 null 或停止，切走再切回不用重报。只改标题，分类、`TitleFilter`、`PrivacyFilter` 照常执行 |
+| `ProviderHost` | Client.App/Providers | 管理列表：合并官方插件、设置里的顺序和插件文件夹（每 10 秒和点刷新时重新读）；启停插件；把信号按路由发到 `ActivityBus`，前台窗口先经 `DetailRouter` 合并补充标题，`DetailSignal` 不进总线；实现设置页用的 `IProviderControl` |
 
-列表顺序和开关存在 `AppSettings.Plugins`（`{ id, enabled, provides }`），只在本机。新出现的官方插件加在末尾并开启；插件文件夹里新出现的文件加在最上面并关闭，开启时界面会确认。用户插件 hello 里声明的能力记在 `provides`，下次启动前列表就能显示对。
+列表顺序和开关存在 `AppSettings.Plugins`（`{ id, enabled, provides, apps }`），只在本机。新出现的官方插件加在末尾并开启；插件文件夹里新出现的文件加在最上面并关闭，开启时界面会确认。用户插件 hello 里声明的能力记在 `provides`，下次启动前列表就能显示对。
 
 插件文件夹：Windows `%APPDATA%\DeskPal\plugins`，macOS `~/Library/Application Support/DeskPal/plugins`，Linux `~/.config/DeskPal/plugins`。
 

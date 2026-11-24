@@ -47,15 +47,46 @@ public static class PanelSamples
         Personal: new PersonalView(AccountSync: false),
         Plugins: new PluginsView(
             [
+                new PluginView("user:qq-chat.ps1", "QQ 会话", "0.1", Official: false, Enabled: true,
+                    ["detail"], ["detail"], "running", [], [], ["QQ"]),
                 new PluginView("user:vscode-title.ps1", "VS Code 标题", "0.2", Official: false, Enabled: true,
-                    ["foreground"], ["foreground"], "running", [], []),
+                    ["foreground"], ["foreground"], "running", [], [], []),
                 new PluginView("user:spotify.py", "spotify.py", null, Official: false, Enabled: false,
-                    ["foreground", "domain"], [], "disabled", [], []),
+                    ["foreground", "domain"], [], "disabled", [], [], []),
+                new PluginView("user:broken.cmd", "broken.cmd", null, Official: false, Enabled: true,
+                    ["media"], [], "failed", [new PluginNote("plugin.error", "exit code 1", "warn")], [], []),
                 new PluginView("official:windows", "Windows", null, Official: true, Enabled: true,
-                    ["foreground", "domain", "idle", "lock", "media"], ["domain", "idle", "lock", "media"], "running", [], []),
+                    ["foreground", "domain", "idle", "lock", "media"], ["domain", "idle", "lock", "media"], "running", [], [], []),
             ],
             [],
             @"C:\Users\alice\AppData\Roaming\DeskPal\plugins"));
+
+    /// <summary>The list on a Linux desktop the built-in plugin cannot read windows on; open with ?mock=no-room&amp;platform=linux.</summary>
+    private static readonly PluginsView LinuxPlugins = new(
+        [
+            new PluginView("user:hyprland.sh", "Hyprland 窗口", "0.3", Official: false, Enabled: true,
+                ["foreground"], ["foreground"], "running", [], [], []),
+            new PluginView("user:telegram-chat.py", "Telegram 会话", "0.1", Official: false, Enabled: true,
+                ["detail"], [], "starting", [], [], ["telegram-desktop", "Telegram"]),
+            new PluginView("official:linux", "Linux", null, Official: true, Enabled: true,
+                ["domain", "idle", "lock", "media"], ["domain", "idle", "lock", "media"], "running",
+                [
+                    new PluginNote("linux.noWindowSource", "Hyprland", "info"),
+                    new PluginNote("linux.browserMissing", null, "warn"),
+                ],
+                ["linux.browserExtension"], []),
+        ],
+        [],
+        "/home/alice/.config/DeskPal/plugins");
+
+    /// <summary>Every plugin turned off: nothing supplies anything.</summary>
+    private static readonly PluginsView NoPlugins = new(
+        [
+            new PluginView("official:windows", "Windows", null, Official: true, Enabled: false,
+                ["foreground", "domain", "idle", "lock", "media"], [], "disabled", [], [], []),
+        ],
+        ["foreground", "domain", "idle", "lock", "media"],
+        @"C:\Users\alice\AppData\Roaming\DeskPal\plugins");
 
     public static PanelInput Default()
     {
@@ -128,7 +159,7 @@ public static class PanelSamples
             CorrectionTarget = "QQ",
             MyRules = [new UserRuleDto(RuleKind.Process, "qq", ActivityCategory.Communication, "QQ", Now.AddDays(-3))],
             Unclassified = [],
-            Settings = Settings with { ShareUsage = null },
+            Settings = Settings with { ShareUsage = null, Plugins = LinuxPlugins },
         };
     }
 
@@ -149,7 +180,7 @@ public static class PanelSamples
             CorrectionTarget = null,
             MyRules = [],
             Unclassified = [],
-            Settings = Settings with { AutoStart = false, Topmost = true, ReceiveBeta = false, UpdateReady = true, Version = "0.1.0", ShareUsage = false },
+            Settings = Settings with { AutoStart = false, Topmost = true, ReceiveBeta = false, UpdateReady = true, Version = "0.1.0", ShareUsage = false, Plugins = NoPlugins },
         };
     }
 

@@ -107,6 +107,9 @@ public sealed class PluginSetting
 
     /// <summary>A user plugin's capabilities from its last hello line, so the list is right before it has started.</summary>
     public List<string>? Provides { get; set; }
+
+    /// <summary>The apps a user plugin's detail covered in its last hello line.</summary>
+    public List<string>? Apps { get; set; }
 }
 
 public sealed class SettingsStore
