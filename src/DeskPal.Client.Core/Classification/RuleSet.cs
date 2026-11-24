@@ -8,6 +8,7 @@ public sealed class RuleSet
     private readonly Dictionary<string, RuleDto> _processes = new(StringComparer.Ordinal);
     private readonly Dictionary<string, RuleDto> _domains = new(StringComparer.Ordinal);
     private readonly List<(string Keyword, RuleDto Rule)> _titleKeywords = new();
+    private readonly List<(string Process, string Keyword, RuleDto Rule)> _appTitles = new();
 
     public static readonly RuleSet Empty = new([]);
 
@@ -37,13 +38,21 @@ public sealed class RuleSet
                     }
 
                     break;
+                case RuleKind.AppTitle:
+                    var (process, keyword) = RulePattern.SplitAppTitle(pattern)!.Value;
+                    if (_appTitles.All(a => a.Process != process || a.Keyword != keyword))
+                    {
+                        _appTitles.Add((process, keyword, rule));
+                    }
+
+                    break;
             }
         }
     }
 
-    public int Count => _processes.Count + _domains.Count + _titleKeywords.Count;
+    public int Count => _processes.Count + _domains.Count + _titleKeywords.Count + _appTitles.Count;
 
-    /// <summary>Browser: domain, then title keyword, then process. Other apps: process only.</summary>
+    /// <summary>Browser: domain, then title keyword, then process. Other apps: the app with a keyword of its title, then the app.</summary>
     public RuleDto? Match(ActivitySnapshot snapshot)
     {
         var foreground = snapshot.Foreground;
@@ -64,8 +73,33 @@ public sealed class RuleSet
                 return byTitle;
             }
         }
+        else if (MatchAppTitle(foreground.ProcessName, foreground.WindowTitle) is { } byAppTitle)
+        {
+            return byAppTitle;
+        }
 
         return MatchProcess(foreground.ProcessName);
+    }
+
+    /// <summary>First rule of the app whose keyword the title contains, ignoring case.</summary>
+    public RuleDto? MatchAppTitle(string process, string? title)
+    {
+        if (_appTitles.Count == 0 || string.IsNullOrEmpty(title))
+        {
+            return null;
+        }
+
+        var app = RulePattern.Normalize(RuleKind.Process, process);
+        var lower = title.ToLowerInvariant();
+        foreach (var (p, keyword, rule) in _appTitles)
+        {
+            if (p == app && lower.Contains(keyword, StringComparison.Ordinal))
+            {
+                return rule;
+            }
+        }
+
+        return null;
     }
 
     public RuleDto? MatchProcess(string process) => _processes.GetValueOrDefault(RulePattern.Normalize(RuleKind.Process, process));

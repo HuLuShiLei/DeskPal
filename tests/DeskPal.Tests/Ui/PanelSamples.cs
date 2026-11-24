@@ -119,8 +119,10 @@ public static class PanelSamples
             PendingDeadline = Now.AddSeconds(7),
             StableFor = TimeSpan.FromSeconds(10),
             CorrectionTarget = "Cursor",
+            CorrectionTitle = "plan.md - idea1 - Cursor",
             MyRules =
             [
+                new UserRuleDto(RuleKind.AppTitle, "qq/项目组", ActivityCategory.Work, "QQ", Now.AddHours(-1)),
                 new UserRuleDto(RuleKind.Process, "wechat", ActivityCategory.Work, "微信", Now.AddDays(-1)),
                 new UserRuleDto(RuleKind.Domain, "bilibili.com", ActivityCategory.Video, "哔哩哔哩", Now.AddHours(-2)),
             ],
@@ -157,6 +159,8 @@ public static class PanelSamples
             Committed = new CommittedPresence(local, Now.AddMinutes(-3)),
             PendingDeadline = null,
             CorrectionTarget = "QQ",
+            CorrectionTitle = "Project team",
+            CorrectionKeyword = "project",
             MyRules = [new UserRuleDto(RuleKind.Process, "qq", ActivityCategory.Communication, "QQ", Now.AddDays(-3))],
             Unclassified = [],
             Settings = Settings with { ShareUsage = null, Plugins = LinuxPlugins },

@@ -232,7 +232,9 @@ export function createMockTransport(params: URLSearchParams): Transport {
         const view = appViews[`${m.scale}-${m.app}`];
         if (!view) return { ok: false, error: L("读取统计失败", "Could not load stats") };
         const title = m.title as string | null;
-        return { ok: true, error: null, data: title ? { ...view, name: title, sub: `${view.name} · ${view.sub}`, titles: [] } : view };
+        if (!title) return { ok: true, error: null, data: view };
+        const rule = view.rule?.kind === "Process" ? { ...view.rule, kind: "AppTitle" as const, pattern: `${view.rule.pattern}/${title.toLowerCase()}` } : view.rule;
+        return { ok: true, error: null, data: { ...view, name: title, sub: `${view.name} · ${view.sub}`, titles: [], rule } };
       }
       case "stats.export":
         return { ok: true, error: null, data: { message: L("已导出到 C:\\Users\\alice\\Documents\\DeskPal-使用统计-20261111.json", "Exported to C:\\Users\\alice\\Documents\\DeskPal-usage-20261111.json") } };
@@ -396,23 +398,28 @@ export function createMockTransport(params: URLSearchParams): Transport {
       }
       case "presence.correct":
         state.correction.personal = true;
+        state.correction.keyword = (m.keyword as string | null | undefined) ?? null;
         state.me.source = L(`「${state.correction.target}」按你的分类识别。`, `${state.correction.target}: matched your category.`);
         break;
       case "presence.resetCorrection":
         state.correction.personal = false;
+        state.correction.keyword = null;
         state.me.source = L(`「${state.correction.target}」按默认分类识别。`, `${state.correction.target}: matched a default category.`);
         break;
       case "rules.set": {
         const name = (m.name as string | null) ?? (m.pattern as string);
         const option = state.correction.options.find((o) => o.value === m.category);
-        state.myRules = state.myRules.filter((r) => !(r.kind === m.kind && r.pattern === m.pattern));
+        const keyword = typeof m.keyword === "string" ? m.keyword.toLowerCase() : null;
+        const pattern = m.kind === "AppTitle" && keyword ? `${String(m.pattern).split("/")[0]}/${keyword}` : String(m.pattern);
+        state.myRules = state.myRules.filter((r) => !(r.kind === m.kind && r.pattern === pattern));
         state.myRules.unshift({
           kind: m.kind as PanelState["myRules"][number]["kind"],
-          pattern: m.pattern as string,
+          pattern,
           name,
-          kindName: m.kind === "Domain" ? L("网站", "Website") : L("应用", "App"),
+          kindName: m.kind === "Domain" ? L("网站", "Website") : m.kind === "AppTitle" ? L("标题包含", "Title contains") : L("应用", "App"),
           category: m.category as string,
           categoryName: option?.name ?? (m.category as string),
+          shown: m.kind === "AppTitle" ? pattern.slice(pattern.indexOf("/") + 1) : pattern,
         });
         state.unclassified = state.unclassified.filter((u) => u.pattern !== m.pattern);
         break;

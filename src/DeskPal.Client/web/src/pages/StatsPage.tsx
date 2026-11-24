@@ -108,14 +108,17 @@ export function StatsPage({ state, target, onTarget }: { state: PanelState; targ
   const reclassify = async (app: StatsAppView) => {
     const rule = app.rule;
     if (!rule) return;
+    const byTitle = rule.kind === "AppTitle" && !!detail?.title;
     const a = await ask({
-      title: t("rule.ask", { name: detail?.title ? rule.name : app.name }),
-      message: t("stats.reclassifyMessage"),
+      title: t("rule.ask", { name: byTitle ? detail!.title! : detail?.title ? rule.name : app.name }),
+      message: t(byTitle ? "stats.reclassifyTitleMessage" : "stats.reclassifyMessage"),
       select: { options: state.correction.options, initial: rule.category },
+      ...(byTitle && { input: { initial: detail!.title!, placeholder: t("status.titleKeyword"), maxLength: 150, required: true } }),
       okText: t("common.save"),
     });
-    if (!a.ok || a.selected === rule.category) return;
-    const result = await run({ type: "rules.set", kind: rule.kind, pattern: rule.pattern, name: rule.name, category: a.selected }, t("common.saved"));
+    if (!a.ok || (a.selected === rule.category && (!byTitle || a.text === detail!.title))) return;
+    const keyword = byTitle ? a.text : null;
+    const result = await run({ type: "rules.set", kind: rule.kind, pattern: rule.pattern, name: rule.name, category: a.selected, keyword }, t("common.saved"));
     if (result.ok) setRevision((r) => r + 1);
   };
 

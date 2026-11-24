@@ -1,6 +1,7 @@
 using DeskPal.Client.Core.Localization;
 using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Usage;
+using DeskPal.Shared.Api;
 
 namespace DeskPal.Client.Core.Ui;
 
@@ -9,7 +10,8 @@ public static class StatsAppViewBuilder
 {
     /// <param name="app">App name as recorded.</param>
     /// <param name="title">Only this title of the app; null for the whole app.</param>
-    /// <param name="rule">What a personal rule for the app would be saved against; null when it cannot be changed.</param>
+    /// <param name="rule">What a personal rule for the app would be saved against; null when it cannot be changed. For one title
+    /// of a desktop app it becomes a rule for that title.</param>
     public static StatsAppView Build(UsageAppDetail detail, string app, string? title, StatsScale scale, DateOnly anchor, DateOnly today, StatsRuleTarget? rule)
     {
         var range = StatsRange.Of(scale, anchor);
@@ -82,7 +84,12 @@ public static class StatsAppViewBuilder
             title is null
                 ? titles.Select(t => new StatsRankItem(t.Title, null, legend.Tone, Duration(t.Seconds), Math.Round((double)t.Seconds / titleMax, 3), Detail: new StatsDetailKey(app, t.Title))).ToList()
                 : [],
-            rule is null ? null : rule with { Category = detail.Category.ToString() },
+            rule is null ? null : ForTitle(rule, title) with { Category = detail.Category.ToString() },
             detail.Seconds == 0 ? Strings.Stats_EmptyMine : null);
     }
+
+    private static StatsRuleTarget ForTitle(StatsRuleTarget rule, string? title) =>
+        title is not null && rule.Kind == nameof(RuleKind.Process) && RulePattern.AppTitle(rule.Pattern, title) is { Length: > 0 } pattern
+            ? rule with { Kind = nameof(RuleKind.AppTitle), Pattern = pattern }
+            : rule;
 }

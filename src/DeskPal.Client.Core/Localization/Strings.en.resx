@@ -234,6 +234,9 @@
   <data name="RuleKind_TitleKeyword" xml:space="preserve">
     <value>Title keyword</value>
   </data>
+  <data name="RuleKind_AppTitle" xml:space="preserve">
+    <value>Title contains</value>
+  </data>
   <data name="NoTitle_App" xml:space="preserve">
     <value>App · {0}</value>
   </data>

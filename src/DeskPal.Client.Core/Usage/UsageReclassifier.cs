@@ -7,7 +7,8 @@ namespace DeskPal.Client.Core.Usage;
 /// <summary>
 /// Applies the current personal rules to recorded usage when it is read, so that changing a category also changes the
 /// past. Records are never rewritten: without a matching rule the category without personal rules is used, so removing
-/// a rule restores it. Browsing records are matched like the live classification: domain, title keyword, then process.
+/// a rule restores it. Records are matched like the live classification: browsing by domain, title keyword, then process;
+/// other apps by the app with a keyword of the title, then the app. Records kept without a title only match the app.
 /// </summary>
 public sealed class UsageReclassifier
 {
@@ -22,7 +23,8 @@ public sealed class UsageReclassifier
         _rules = PersonalRuleStore.ToRuleSet(newestFirst);
         foreach (var rule in newestFirst)
         {
-            if (rule.Name is { Length: > 0 } name)
+            // A rule for some titles of an app shares the app's name; it must not claim every record of that name.
+            if (rule.Name is { Length: > 0 } name && rule.Kind != RuleKind.AppTitle)
             {
                 _byName.TryAdd(name, new RuleDto(rule.Kind, rule.Pattern, rule.Category, rule.Name));
             }
@@ -67,6 +69,10 @@ public sealed class UsageReclassifier
             {
                 return byTitle;
             }
+        }
+        else if (process is not null && _rules.MatchAppTitle(process, title) is { } byAppTitle)
+        {
+            return byAppTitle;
         }
 
         if (process is not null && _rules.MatchProcess(process) is { } byProcess)

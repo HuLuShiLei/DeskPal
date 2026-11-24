@@ -27,6 +27,7 @@ public sealed class PanelBridge
     private readonly SettingsStore _store;
     private readonly UpdateService _updates;
     private readonly PersonalRules _personalRules;
+    private readonly LayeredClassifier _classifier;
     private readonly UnclassifiedUsage _unclassified;
     private readonly WhatsNewStore _whatsNew;
     private readonly PinnedMembers _pins;
@@ -50,6 +51,7 @@ public sealed class PanelBridge
         SettingsStore store,
         UpdateService updates,
         PersonalRules personalRules,
+        LayeredClassifier classifier,
         UnclassifiedUsage unclassified,
         WhatsNewStore whatsNew,
         PinnedMembers pins,
@@ -87,6 +89,7 @@ public sealed class PanelBridge
         _store = store;
         _updates = updates;
         _personalRules = personalRules;
+        _classifier = classifier;
         _unclassified = unclassified;
         _whatsNew = whatsNew;
         _pins = pins;
@@ -136,6 +139,8 @@ public sealed class PanelBridge
         StableFor = _presence.StableFor,
         Paused = _presence.Paused,
         CorrectionTarget = AppNames.LocalizeOrNull(CorrectionTarget.From(_presence.Snapshot, _presence.Classification?.AppDisplayName)?.DisplayName),
+        CorrectionTitle = CurrentTitle(),
+        CorrectionKeyword = RulePattern.SplitAppTitle(CurrentRule() is { Kind: RuleKind.AppTitle } rule ? rule.Pattern : null)?.Keyword,
         MyRules = _personalRules.Rules,
         Unclassified = _unclassified.Top(TimeSpan.FromMinutes(5), 5),
         Settings = new SettingsView(
@@ -597,6 +602,12 @@ public sealed class PanelBridge
 
             case "presence.resetCorrection":
             {
+                if (CurrentRule() is { } rule)
+                {
+                    await _personalRules.DeleteAsync(rule.Kind, rule.Pattern);
+                    return CommandResult.Success;
+                }
+
                 if (CorrectionTarget.From(_presence.Snapshot, _presence.Classification?.AppDisplayName) is not { } target)
                 {
                     return CommandResult.Fail(Strings.Error_NothingRecognized);
@@ -613,7 +624,13 @@ public sealed class PanelBridge
                     return CommandResult.Fail(Strings.Error_CategoryRequired);
                 }
 
-                await _personalRules.SetAsync(kind, c.String("pattern"), category, c.OptionalString("name"));
+                var pattern = c.String("pattern");
+                if (kind == RuleKind.AppTitle && c.OptionalString("keyword") is { } keyword && RulePattern.SplitAppTitle(pattern) is { } appTitle)
+                {
+                    pattern = RulePattern.AppTitle(appTitle.Process, keyword);
+                }
+
+                await _personalRules.SetAsync(kind, pattern, category, c.OptionalString("name"));
                 return CommandResult.Success;
             }
 
@@ -953,9 +970,29 @@ public sealed class PanelBridge
             return CommandResult.Fail(Strings.Error_CategoryRequired);
         }
 
+        var current = CurrentRule();
+        if (target.Kind == RuleKind.Process && c.OptionalString("keyword") is { Length: > 0 } keyword)
+        {
+            await _personalRules.SetAsync(RuleKind.AppTitle, RulePattern.AppTitle(target.Pattern, keyword), category, target.DisplayName);
+            return CommandResult.Success;
+        }
+
+        // Correcting the whole app: a rule for some of its titles would still win for this window.
+        if (current is { Kind: RuleKind.AppTitle })
+        {
+            await _personalRules.DeleteAsync(current.Kind, current.Pattern);
+        }
+
         await _personalRules.SetAsync(target.Kind, target.Pattern, category, target.DisplayName);
         return CommandResult.Success;
     }
+
+    /// <summary>My personal rule behind the current status, or null.</summary>
+    private RuleDto? CurrentRule() => _presence.Snapshot is { } snapshot ? _classifier.PersonalRule(snapshot) : null;
+
+    /// <summary>Title of the desktop app in front, cleaned of unread counters; null for browsers and windows without one.</summary>
+    private string? CurrentTitle() =>
+        _presence.Snapshot?.Foreground is { IsBrowser: false } foreground && TitleText.Clean(foreground.WindowTitle) is { Length: > 0 } title ? title : null;
 
     private static string NormalizeTheme(string? theme) => theme is "light" or "dark" or "system" ? theme : "system";
 

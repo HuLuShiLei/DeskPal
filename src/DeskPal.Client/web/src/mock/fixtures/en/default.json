@@ -190,7 +190,9 @@
         "name": "Other"
       }
     ],
-    "personal": false
+    "personal": false,
+    "title": "plan.md - idea1 - Cursor",
+    "keyword": null
   },
   "settings": {
     "autoStart": true,
@@ -318,12 +320,22 @@
   },
   "myRules": [
     {
+      "kind": "AppTitle",
+      "pattern": "qq/项目组",
+      "name": "QQ",
+      "kindName": "Title contains",
+      "category": "Work",
+      "categoryName": "Work",
+      "shown": "项目组"
+    },
+    {
       "kind": "Domain",
       "pattern": "bilibili.com",
       "name": "哔哩哔哩",
       "kindName": "Website",
       "category": "Video",
-      "categoryName": "Video"
+      "categoryName": "Video",
+      "shown": "bilibili.com"
     },
     {
       "kind": "Process",
@@ -331,7 +343,8 @@
       "name": "微信",
       "kindName": "App",
       "category": "Work",
-      "categoryName": "Work"
+      "categoryName": "Work",
+      "shown": "wechat"
     }
   ],
   "unclassified": [

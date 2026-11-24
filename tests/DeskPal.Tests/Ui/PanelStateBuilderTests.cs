@@ -254,8 +254,10 @@ public class PanelStateBuilderTests
 
         Assert.False(state.Correction.Personal);
         Assert.Equal(
-            [("哔哩哔哩", "网站", "视频"), ("微信", "应用", "工作")],
+            [("QQ", "标题包含", "工作"), ("哔哩哔哩", "网站", "视频"), ("微信", "应用", "工作")],
             state.MyRules.Select(r => (r.Name, r.KindName, r.CategoryName)).ToList());
+        Assert.Equal("项目组", state.MyRules[0].Shown);
+        Assert.Equal("plan.md - idea1 - Cursor", state.Correction.Title);
         Assert.Equal([("XMind", "今天 42 分钟"), ("Snipaste", "今天 7 分钟")], state.Unclassified.Select(u => (u.Name, u.Today)).ToList());
     }
 

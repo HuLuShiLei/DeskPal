@@ -8,6 +8,9 @@
 
 ## 0.1.5
 
+- 桌面应用可以按窗口标题分类。在首页「纠正分类」中勾选「只在窗口标题包含以下文字时」，或在统计里点进某个标题后更改分类，只有标题包含这些文字的窗口使用所选类别。已记录的使用统计也按新类别显示。在「规则」中可以修改和删除，不能添加。
+  en: Desktop apps can now be classified by window title. In Reclassify on Home, turn on Only when the window title contains, or open a title in stats and change its category. Only windows whose title contains that text use the category you choose. Recorded usage stats show the new category too. On Rules you can change or delete these, but not add them.
+
 - 插件可以给某个软件补充更具体的标题。例如自己写的插件可以在 QQ 处于前台时，把窗口标题换成当前会话名。类别不变，仍然遵守「不记录标题」和该房间的隐私设置。浏览器不会被替换。
   en: A plugin can now supply a more specific title for an app. For example, your own plugin can replace QQ's window title with the current conversation while QQ is in front. The category is unchanged, and Don't record titles and the room's privacy settings still apply. Browsers are left as they are.
 

@@ -4,7 +4,7 @@ import { useHost } from "../host";
 import { t, type MessageKey } from "../i18n";
 import { categoryTone, Hint, Icon, Section, type IconName } from "../ui";
 
-const kindIcons: Record<RuleKind, IconName> = { Process: "app", Domain: "globe", TitleKeyword: "text" };
+const kindIcons: Record<RuleKind, IconName> = { Process: "app", Domain: "globe", TitleKeyword: "text", AppTitle: "text" };
 const noTitleIcons: Record<NoTitleKind, IconName> = { App: "app", Process: "app", Domain: "globe", Title: "text" };
 const noTitleKindNames: Record<NoTitleKind, MessageKey> = { App: "noTitle.app", Process: "noTitle.process", Domain: "noTitle.domain", Title: "noTitle.keyword" };
 
@@ -197,7 +197,7 @@ function MyRules({ state }: { state: PanelState }) {
   const active = filter && counts.has(filter) ? filter : null;
   const keyword = query.trim().toLowerCase();
   const rules = state.myRules.filter(
-    (r) => (!active || r.category === active) && (!keyword || [r.name, r.pattern, r.categoryName, r.kindName].some((text) => text.toLowerCase().includes(keyword))),
+    (r) => (!active || r.category === active) && (!keyword || [r.name, r.shown, r.categoryName, r.kindName].some((text) => text.toLowerCase().includes(keyword))),
   );
 
   const change = async (rule: MyRuleItem, category: string) => {
@@ -258,8 +258,8 @@ function MyRules({ state }: { state: PanelState }) {
                         {r.name}
                       </span>
                     </p>
-                    <p class="sub" title={r.pattern}>
-                      {r.kindName} · {r.pattern}
+                    <p class="sub" title={r.shown}>
+                      {r.kindName} · {r.shown}
                     </p>
                   </div>
                   <CategorySelect label={t("rules.editName", { name: r.name })} value={r.category} options={state.correction.options} onChange={(category) => void change(r, category)} />

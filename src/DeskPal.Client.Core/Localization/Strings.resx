@@ -234,6 +234,9 @@
   <data name="RuleKind_TitleKeyword" xml:space="preserve">
     <value>标题关键词</value>
   </data>
+  <data name="RuleKind_AppTitle" xml:space="preserve">
+    <value>标题包含</value>
+  </data>
   <data name="NoTitle_App" xml:space="preserve">
     <value>应用 · {0}</value>
   </data>

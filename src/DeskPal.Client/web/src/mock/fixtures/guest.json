@@ -161,7 +161,9 @@
         "name": "其他"
       }
     ],
-    "personal": false
+    "personal": false,
+    "title": "plan.md - idea1 - Cursor",
+    "keyword": null
   },
   "settings": {
     "autoStart": false,

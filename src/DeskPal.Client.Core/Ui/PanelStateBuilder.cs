@@ -35,6 +35,8 @@ public sealed record PanelInput
     public TimeSpan StableFor { get; init; } = TimeSpan.FromSeconds(10);
     public bool Paused { get; init; }
     public string? CorrectionTarget { get; init; }
+    public string? CorrectionTitle { get; init; }
+    public string? CorrectionKeyword { get; init; }
     public IReadOnlyList<UserRuleDto> MyRules { get; init; } = [];
     public IReadOnlyList<UnclassifiedApp> Unclassified { get; init; } = [];
     public required SettingsView Settings { get; init; }
@@ -92,11 +94,20 @@ public static class PanelStateBuilder
                 input.CorrectionTarget,
                 input.Classification?.Category ?? ActivityCategory.Other,
                 PresenceFormatter.SelectableCategories.Select(c => new Option<ActivityCategory>(c, PresenceFormatter.CategoryName(c))).ToList(),
-                input.Classification?.Layer == RuleLayer.Personal),
+                input.Classification?.Layer == RuleLayer.Personal,
+                input.CorrectionTitle,
+                input.CorrectionKeyword),
             input.Settings,
             input.MyRules
                 .OrderByDescending(r => r.UpdatedAt)
-                .Select(r => new MyRuleItem(r.Kind, r.Pattern, r.Name ?? r.Pattern, KindName(r.Kind), r.Category, PresenceFormatter.CategoryName(r.Category)))
+                .Select(r => new MyRuleItem(
+                    r.Kind,
+                    r.Pattern,
+                    r.Name ?? r.Pattern,
+                    KindName(r.Kind),
+                    r.Category,
+                    PresenceFormatter.CategoryName(r.Category),
+                    RulePattern.SplitAppTitle(r.Kind == RuleKind.AppTitle ? r.Pattern : null)?.Keyword ?? r.Pattern))
                 .ToList(),
             input.Unclassified
                 .Select(a => new UnclassifiedItem(a.Kind, a.Pattern, a.DisplayName, UiLanguage.Format(Strings.Panel_UsedToday, PresenceFormatter.Duration(input.Now - a.Today, input.Now))))
@@ -135,6 +146,7 @@ public static class PanelStateBuilder
     {
         RuleKind.Process => Strings.RuleKind_Process,
         RuleKind.Domain => Strings.RuleKind_Domain,
+        RuleKind.AppTitle => Strings.RuleKind_AppTitle,
         _ => Strings.RuleKind_TitleKeyword,
     };
 

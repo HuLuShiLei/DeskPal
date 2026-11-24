@@ -54,7 +54,9 @@
         "name": "Other"
       }
     ],
-    "personal": true
+    "personal": true,
+    "title": "Project team",
+    "keyword": "project"
   },
   "settings": {
     "autoStart": true,
@@ -161,7 +163,8 @@
       "name": "QQ",
       "kindName": "App",
       "category": "Communication",
-      "categoryName": "Chat"
+      "categoryName": "Chat",
+      "shown": "qq"
     }
   ],
   "unclassified": [],

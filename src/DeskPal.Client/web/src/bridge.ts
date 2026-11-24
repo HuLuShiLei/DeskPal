@@ -9,7 +9,8 @@ export interface PresenceView {
   tone: Tone;
 }
 
-export type RuleKind = "Process" | "Domain" | "TitleKeyword";
+/** AppTitle：桌面应用的窗口标题包含关键词时，pattern 是「进程名/关键词」。 */
+export type RuleKind = "Process" | "Domain" | "TitleKeyword" | "AppTitle";
 
 export interface MyRuleItem {
   kind: RuleKind;
@@ -18,6 +19,8 @@ export interface MyRuleItem {
   kindName: string;
   category: string;
   categoryName: string;
+  /** 名称下面显示的匹配内容：AppTitle 是关键词，其他是 pattern。 */
+  shown: string;
 }
 
 export interface UnclassifiedItem {
@@ -153,7 +156,8 @@ export interface PanelState {
     /** 公开的统计包含暂停分享期间的实际活动；否则这段时间只显示为暂停分享。 */
     sharePausedStats: boolean;
   } | null;
-  correction: { target: string | null; current: string; options: Option<string>[]; personal: boolean };
+  /** title：前台桌面应用的窗口标题，用作「只在标题包含」的默认文字，浏览器为 null。keyword：当前结果来自哪条 AppTitle 规则的关键词。 */
+  correction: { target: string | null; current: string; options: Option<string>[]; personal: boolean; title: string | null; keyword: string | null };
   settings: {
     autoStart: boolean;
     topmost: boolean;
@@ -357,9 +361,11 @@ export type Command =
   | { type: "member.block"; roomId: string; userId: string }
   | { type: "member.unblock"; roomId: string; userId: string }
   | { type: "presence.pause"; paused: boolean }
-  | { type: "presence.correct"; category: string }
+  /** keyword：只对标题包含它的窗口生效；没有时改整个应用。 */
+  | { type: "presence.correct"; category: string; keyword?: string | null }
   | { type: "presence.resetCorrection" }
-  | { type: "rules.set"; kind: RuleKind; pattern: string; name: string | null; category: string }
+  /** AppTitle 规则可以带 keyword，替换 pattern 里的关键词。 */
+  | { type: "rules.set"; kind: RuleKind; pattern: string; name: string | null; category: string; keyword?: string | null }
   | { type: "rules.delete"; kind: RuleKind; pattern: string }
   | { type: "me.rename"; name: string }
   | { type: "settings.shareUsage"; enabled: boolean }

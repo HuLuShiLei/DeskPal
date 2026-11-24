@@ -101,10 +101,13 @@ public sealed record StatsViewerItem(string Name, string Room, string When);
 
 /// <param name="Target">App or site the correction applies to; null when nothing is recognized yet.</param>
 /// <param name="Personal">The current result comes from my own rule, so it can be reset to the default.</param>
-public sealed record CorrectionView(string? Target, ActivityCategory Current, IReadOnlyList<Option<ActivityCategory>> Options, bool Personal);
+/// <param name="Title">Window title of the desktop app in front, offered as the keyword of a rule for some titles; null for browsers.</param>
+/// <param name="Keyword">Keyword of my rule for some titles that the current result comes from, or null.</param>
+public sealed record CorrectionView(string? Target, ActivityCategory Current, IReadOnlyList<Option<ActivityCategory>> Options, bool Personal, string? Title = null, string? Keyword = null);
 
 /// <summary>One of my personal rules, listed in the settings.</summary>
-public sealed record MyRuleItem(RuleKind Kind, string Pattern, string Name, string KindName, ActivityCategory Category, string CategoryName);
+/// <param name="Shown">What the rule matches, as shown under its name: the keyword of a rule for some titles, otherwise the pattern.</param>
+public sealed record MyRuleItem(RuleKind Kind, string Pattern, string Name, string KindName, ActivityCategory Category, string CategoryName, string Shown = "");
 
 /// <summary>An app used today that no rule recognized. Shown on the status page so the user can classify it.</summary>
 public sealed record UnclassifiedItem(RuleKind Kind, string Pattern, string Name, string Today);

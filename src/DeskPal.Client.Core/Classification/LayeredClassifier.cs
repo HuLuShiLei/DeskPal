@@ -57,6 +57,10 @@ public sealed class LayeredClassifier
     public void SetFolders(IReadOnlyList<FolderRuleDto>? folders) =>
         _folders = folders?.Select(f => f with { Folder = f.Folder.Replace('/', '\\') }).Where(f => f.Folder.Length > 0).ToList() ?? DefaultFolders;
 
+    /// <summary>My personal rule that classifies the snapshot, or null.</summary>
+    public RuleDto? PersonalRule(ActivitySnapshot snapshot) =>
+        snapshot.Foreground is null || _personal.Match(snapshot) is not { } rule || rule.Category.IsRetired() ? null : rule;
+
     public ClassificationResult Classify(ActivitySnapshot snapshot)
     {
         var foreground = snapshot.Foreground;

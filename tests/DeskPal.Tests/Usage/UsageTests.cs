@@ -633,6 +633,9 @@ public class UsageTests : IDisposable
         Assert.Equal(7, title.Bars.Count);
         Assert.Equal(24, title.Hours.Count);
         Assert.Empty(title.Titles);
+
+        var byTitle = StatsAppViewBuilder.Build(UsageAppDetail.Build(segments, [], "Cursor", "b.md", Day, Day), "Cursor", "b.md", StatsScale.Day, Day, Day, new StatsRuleTarget("Process", "cursor", "Cursor"));
+        Assert.Equal(new StatsRuleTarget("AppTitle", "cursor/b.md", "Cursor", "Work"), byTitle.Rule);
     }
 
     private static readonly TimeSpan UsEast = TimeSpan.FromHours(-5);

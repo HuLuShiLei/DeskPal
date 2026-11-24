@@ -15,7 +15,8 @@ export interface DialogOptions {
   /** pin：掩码显示、只接受数字，满这么多位才能确认。 */
   input?: { initial?: string; placeholder?: string; placeholders?: Record<string, string>; maxLength?: number; required?: boolean; pin?: number };
   select?: { options: { value: string; name: string }[]; initial?: string; presentation?: "radio" };
-  checkbox?: { label: string; initial: boolean; disabled?: boolean };
+  /** reveals：勾选框放在输入框前面，勾选后才显示输入框；没勾选时 text 为空。 */
+  checkbox?: { label: string; initial: boolean; disabled?: boolean; reveals?: boolean };
   okText?: string;
   /** null 表示只有一个按钮。 */
   cancelText?: string | null;
@@ -100,10 +101,23 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
   const [text, setText] = useState(options.input?.initial ?? "");
   const [selected, setSelected] = useState(options.select?.initial ?? options.select?.options[0]?.value ?? "");
   const [checked, setChecked] = useState(options.checkbox?.initial ?? false);
-  const answer = (ok: boolean) => onClose({ ok, text: text.trim(), selected, checked });
+  const reveals = options.checkbox?.reveals === true;
+  const showInput = !!options.input && (!reveals || checked);
+  const answer = (ok: boolean) => onClose({ ok, text: showInput ? text.trim() : "", selected, checked });
   const pin = options.input?.pin;
-  const blocked = pin ? text.length !== pin : options.input?.required && text.trim().length === 0;
+  const blocked = pin ? text.length !== pin : showInput && options.input?.required && text.trim().length === 0;
   const form = useRef<HTMLFormElement>(null);
+  const checkbox = options.checkbox && (
+    <label class="check">
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={options.checkbox.disabled}
+        onChange={(e) => setChecked(e.currentTarget.checked)}
+      />
+      {options.checkbox.label}
+    </label>
+  );
 
   useEffect(() => {
     const fallback = options.danger ? "button[type=button]" : "button[type=submit]";
@@ -168,9 +182,11 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
             </select>
           )
         )}
-        {options.input && (
+        {reveals && checkbox}
+        {showInput && options.input && (
           <input
-            aria-label={options.title}
+            aria-label={reveals ? options.checkbox!.label : options.title}
+            autoFocus={reveals}
             value={text}
             placeholder={options.input.placeholders?.[selected] ?? options.input.placeholder}
             maxLength={pin ?? options.input.maxLength}
@@ -184,17 +200,7 @@ function Dialog({ options, onClose }: { options: DialogOptions; onClose: (a: Dia
             }}
           />
         )}
-        {options.checkbox && (
-          <label class="check">
-            <input
-              type="checkbox"
-              checked={checked}
-              disabled={options.checkbox.disabled}
-              onChange={(e) => setChecked(e.currentTarget.checked)}
-            />
-            {options.checkbox.label}
-          </label>
-        )}
+        {!reveals && checkbox}
         </div>
         <div class="dialog-buttons">
           {options.cancelText !== null && (

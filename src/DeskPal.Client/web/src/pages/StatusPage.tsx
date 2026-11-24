@@ -196,9 +196,13 @@ function MyStatus({ state }: { state: PanelState }) {
       title: t("status.correct"),
       message: t("status.correctMessage", { name: correction.target }),
       select: { options: correction.options, initial: correction.current },
+      ...(correction.title && {
+        checkbox: { label: t("status.titleOnly"), initial: correction.keyword !== null, reveals: true },
+        input: { initial: correction.keyword ?? correction.title, placeholder: t("status.titleKeyword"), maxLength: 150, required: true },
+      }),
       okText: t("common.save"),
     });
-    if (a.ok) await run({ type: "presence.correct", category: a.selected }, t("status.correctSaved"));
+    if (a.ok) await run({ type: "presence.correct", category: a.selected, keyword: a.checked && correction.title ? a.text : null }, t("status.correctSaved"));
   };
 
   const reset = async () => {

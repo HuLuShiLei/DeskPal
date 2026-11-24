@@ -7,6 +7,9 @@ public enum RuleKind
     Process = 0,
     Domain = 1,
     TitleKeyword = 2,
+
+    /// <summary>A desktop app while its window title contains a keyword. Pattern is "process/keyword", see <see cref="RulePattern.AppTitle"/>.</summary>
+    AppTitle = 3,
 }
 
 /// <param name="Name">Default name, sent to room members as is.</param>
