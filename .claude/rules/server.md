@@ -1,0 +1,38 @@
+---
+paths:
+  - "src/DeskPal.Server/**"
+---
+<!-- Generated from .cursor/rules/server.mdc by DeskPal.Tests build. Do not edit. -->
+
+# DeskPal Server
+
+- 按功能放在 `Features/<功能>/`：Service、Endpoints、Options 放在同一目录。新增功能（例如 Game）新建目录，不改动其他功能的文件。
+- 业务逻辑写在 Service 里，返回 `ServiceResult<T>`；Endpoints 只做参数绑定、调用 Service、调用 `RoomNotifier`，最后 `.ToHttp()`。
+- Server 不返回给用户看的文字，只返回错误码：`{ "code": "room.full", "args": { "limit": "20" } }`。错误码定义在 `DeskPal.Shared/Api/ApiErrorCodes.cs`，例如 `ServiceResult<RoomDto>.Fail(409, ApiErrorCodes.RoomFull, room.MaxMembers)`。客户端按错误码显示中文或英文，新增错误码时要在 `DeskPal.Client.Core/Localization/Strings*.resx` 加 `ApiError_<码，点换成下划线>`（`LocalizationTests` 会检查）。人数上限来自 `Rooms:MaxMembersPerRoom`，默认 20。
+- 时间一律从注入的 `TimeProvider` 取，不直接用 `DateTimeOffset.UtcNow`，方便测试。
+
+## SQLite 限制
+
+EF Core 的 SQLite 驱动不能在查询里比较或排序 `DateTimeOffset`。先查出来，再在内存里比较：
+
+```csharp
+// 错误：会在运行时抛异常
+db.RoomInvites.Where(i => i.ExpiresAt > now)
+// 正确
+var invite = await db.RoomInvites.SingleOrDefaultAsync(i => i.Code == code);
+if (invite is null || invite.ExpiresAt <= time.GetUtcNow()) { ... }
+```
+
+## Room 成员关系
+
+创建、加入、退出、转让、解散成功后，Endpoint 必须调用对应的 `RoomNotifier` 方法。它负责增删 SignalR Group、清理 `PresenceStore`，并广播 Room 事件。
+
+## Hub
+
+- `PresenceHub.Publish` 只接受 `MessageTypes.ClientPublishable` 里的类型，并且会用 Server 的值覆盖 `SenderId` 和 `Ts`。
+- 不要在 Hub 里读取 `Payload` 做业务判断。
+- 配置项放 `appsettings.json` 对应的节，用 Options 类读取。密钥只从环境变量（`Jwt__Key`、`Rules__MaintainerToken`）读取，不要写进 `appsettings*.json`。
+- 只和某个用户自己有关的通知（例如 `rules.personalChanged`）用 `ConnectionRegistry` 发给该用户的连接，不要发到房间 Group。
+- 规则库候选只统计 `ShareUsage == true` 的账号。用户关闭分享时删除他的 `UnknownAppReports` 和 `SharedRuleReports`。个人分类来自 `UserRules`（开启「同步到账号」的账号）和 `SharedRuleReports`（未开启的账号随使用上报附带的应用个人分类），开启同步时删除该账号的 `SharedRuleReports`。
+- 个人数据（`UserRules`、`UserNoTitleRules`、`IdleMinutes`、`Preferences`）只在 `User.PersonalSync` 为 true 时写入；关闭时返回 403 `personalSync.off`。关闭同步时全部删除。
+- 数据库路径只看连接串 `ConnectionStrings:Default`（本地 `storage/deskpal.db`，容器内 `/data/deskpal.db`），启动时按连接串创建目录。不要在代码里写死目录。

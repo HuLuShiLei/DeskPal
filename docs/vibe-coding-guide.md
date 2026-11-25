@@ -2,7 +2,7 @@
 
 ## 开新会话
 
-Cursor 会自动读取 `AGENTS.md` 和 `.cursor/rules/` 里匹配当前文件的 rule，不需要手动贴上下文。开头一句话说清楚要做什么、属于哪个阶段即可。需要背景的时候，直接点名文档：
+Cursor 会自动读取 `AGENTS.md`、`.cursor/rules/` 里匹配当前文件的 rule 和 `.claude/skills/` 里的 skill；Claude Code 读取 `CLAUDE.md`（导入 `AGENTS.md`）、`.claude/rules/` 和 `.claude/skills/`。不需要手动贴上下文。开头一句话说清楚要做什么、属于哪个阶段即可。需要背景的时候，直接点名文档：
 
 | 想让 AI 知道 | 让它读 |
 |---|---|

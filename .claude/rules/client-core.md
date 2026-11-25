@@ -1,0 +1,25 @@
+---
+paths:
+  - "src/DeskPal.Client.Core/**"
+---
+<!-- Generated from .cursor/rules/client-core.mdc by DeskPal.Tests build. Do not edit. -->
+
+# Client.Core 纯逻辑
+
+- 目标框架 `net10.0`，不引用 WPF、WinRT、`Microsoft.Win32`。需要系统信息的，由采集器做成 `ActivitySignal` 传进来。
+- 每个行为改动都要在 `tests/DeskPal.Tests` 补或改测试。测试数据用 `TestData.App(...)` 和 `TestData.Browser(...)`。
+
+## 必须保持的语义
+
+- **分类顺序**：前台是浏览器时，先查个人分类；没有命中时，这个浏览器正在播放且媒体标题出现在当前标签页标题里则归为 `Video`，否则 `Browsing`，应用名用域名。不使用内置网站规则。其他应用：个人分类 → 内置规则 → 安装路径落在规则库 `folders` 的游戏库目录则用该目录的类别（规则库没下发时用 `LayeredClassifier.DefaultFolders`）→ Unreal 发行版（`xxx-Win64-Shipping`）则 `Game` → 全屏且本程序正在播放则 `Video` → `Other`。推测出来的游戏用 `GameNames` 取名（Steam 清单 → 能读的文件描述 → 游戏文件夹名），不要直接用 `xxx-Win64-Shipping` 这类文件描述。只认前台程序自己的媒体会话，后台播放不改变当前焦点。没有房间规则。
+- **个人数据以本机为准**：个人分类和不记录标题存在 `PersonalDataStore`（按 userId 分文件），换账号时不要用别人的数据。开启「同步到账号」时以 Server 为准，同步文件夹和导入按 `PersonalMerge` 合并：同一条（种类，内容）以最近修改的为准，删除也算修改（保留 90 天）。
+- **敏感信息在 `TitleText.Clean` 里去掉**（`SensitiveText.Redact`）：IP 地址、手机号、座机号、邮箱、身份证号、7 位以上的数字、「验证码：」「密码：」等标签后的值。所有显示、发送、记录的标题都要经过 `TitleText.Clean`，分类仍用原始标题。网站名是 IP 时 `PresenceResolver` 换成 `SensitiveText.IpAddressName`（显示时由 `AppNames.Localize` 翻译）。统计库用 `user_version` 1 标记旧记录已改写一次，读取时再过滤一次。
+- **不记录标题在 `PresenceResolver.Resolve` 之后立即过滤**（`TitleFilter.Apply`），房间、首页和使用统计都拿不到标题；`UsageRecorder` 不再自己判断。
+- **未识别应用统计**（`UnclassifiedUsage`）：统计落到 `Fallback` 层的桌面应用，和推测层推测出类别的（记下 `Guessed`）；浏览器网页不统计；两次记录间隔超过 30 秒的不计，本地零点清零，客户端按账号存到本机文件，重启后恢复当天的记录。「待归类」只列出没有推测的。上报内容只有进程名、应用名称、推测的类别和分钟数。`Music`、`Shopping`、`Social`、`News`、`Reading` 不再产生：规则命中时跳过；购物、社交网站、新闻、阅读按“正在浏览网页”显示，听音乐和阅读客户端按“正在使用 XX”显示。后台正在播放不改变当前焦点的分类。
+- **域名匹配取最具体的**：个人分类里，`console.aws.amazon.com` 命中 `aws.amazon.com`，不是 `amazon.com`。
+- **标题关键词只对浏览器的个人分类生效**，避免把记事本里的“淘宝订单.txt”算成购物。内置标题规则不参与浏览器的默认分类。
+- **识别不出来的非浏览器归为 `Other`，标题显示“其他活动”**，应用名和其他状态一样放在 `App`（下一行）。不要误报成视频或游戏。
+- 状态文案集中在 `PresenceFormatter`，用书面用语（工作中、在聊天、正在浏览网页、在看视频、在玩游戏），不用“忙”“摸鱼”。`Meeting` 保留在枚举里，不要再产生，收到时显示为工作中。`Music`、`Shopping`、`Social`、`News`、`Reading` 也保留，纠正和隐私设置不列出。
+- **状态优先级**：暂停分享 → 锁屏 → 空闲（前台是视频，且本程序正在播放，或视频播放器处于全屏时除外）→ 分类结果。
+- **防抖**：新状态要稳定「切换等待」（`SwitchDelay`，用户可选 0、3、5、10、30 秒，默认 10）才提交，`Since` 取开始出现的时刻。暂停、锁屏的进入和退出都立即提交。只改了详情的，按同样的间隔限频，但不少于 10 秒。防抖只管推送，使用统计记录防抖前的状态。
+- **隐私过滤**：类别属于状态本身。`StateOnly` 发状态和类别，不发应用名和详情；`Category` 再加上应用名；`Detail` 再加详情。没有类别的状态（暂停、锁屏、离开）不带类别、应用名和详情。

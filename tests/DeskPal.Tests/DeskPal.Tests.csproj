@@ -27,4 +27,6 @@
     <ProjectReference Include="..\..\src\DeskPal.Client.Core\DeskPal.Client.Core.csproj" />
   </ItemGroup>
 
+  <Import Project="ClaudeRules.targets" />
+
 </Project>

@@ -44,7 +44,7 @@ jobs:
       - name: 校验规则库
         if: steps.merge.outputs.changed == 'true'
         shell: pwsh
-        run: ./.cursor/skills/deskpal-builtin-rules/scripts/validate-rules.ps1
+        run: ./.claude/skills/deskpal-builtin-rules/scripts/validate-rules.ps1
 
       # GITHUB_TOKEN 创建的 PR 不会触发 ci.yml，合并前在 PR 页面手动运行一次 CI，或推一个提交。
       - name: 创建或更新 PR

@@ -88,6 +88,8 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 
 ## 项目 skill
 
+放在 `.claude/skills/`，Cursor 和 Claude Code 都会读取。
+
 | skill | 什么时候用 |
 |---|---|
 | `deskpal-e2e-check` | 本机启动 Server、客户端和模拟成员做端到端自检 |
@@ -101,3 +103,5 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 ## 项目 rule
 
 `.cursor/rules/` 下的 rule 按路径自动生效：`server`（Server）、`shared-protocol`（Shared 协议）、`client-collectors`（采集器红线）、`client-core`（分类、状态、防抖语义）、`wpf-ui`（界面）、`builtin-rules-json`（内置规则库）。
+
+Claude Code 读的是 `.claude/rules/`，本地编译 `tests/DeskPal.Tests` 时从 `.cursor/rules/` 自动生成（`ClaudeRules.targets`）。只改 `.mdc`，生成的文件一起提交；CI 不生成，漏提交时 `ClaudeRulesTests` 失败。`CLAUDE.md` 只导入本文件，规则写在本文件里。

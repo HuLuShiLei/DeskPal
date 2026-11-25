@@ -20,7 +20,7 @@ description: 维护 DeskPal 内置分类规则库 builtin-rules.json：新增或
 3. 运行校验脚本：
 
    ```powershell
-   powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/skills/deskpal-builtin-rules/scripts/validate-rules.ps1
+   powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/deskpal-builtin-rules/scripts/validate-rules.ps1
    ```
 
    它会检查类别名、规则种类、写法（`.exe`、`www.`、协议头、大写）、标准化之后的重复项，以及浏览器进程不该有 `Process` 规则，还会检查 `names` 的键，并对没有 `names.en` 的中文名称给出警告。每天候选 PR 新增的规则只有 `name`，审核时补上 `names.en`，否则 `BuiltinRulesTests` 不通过。

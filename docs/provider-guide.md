@@ -4,7 +4,7 @@ DeskPal 显示你的状态，要先知道五件事：你在用哪个窗口、在
 
 每个平台都自带一个官方插件（Windows 内置、macOS 内置、Linux 内置），装好就能用。你也可以自己写插件，放进插件文件夹，替换或补充官方插件提供的某几项，或者让某个软件显示更具体的内容，例如 QQ 正在看的会话（见「只补充某个软件的标题」）。
 
-让 AI 帮你写：把仓库里的 `.cursor/skills/deskpal-write-provider/` 整个目录给它（Cursor 会自动识别；其他工具把 `SKILL.md` 的内容贴给它），再说明你的系统、桌面环境和想要的效果。
+让 AI 帮你写：把仓库里的 `.claude/skills/deskpal-write-provider/` 整个目录给它（Cursor 和 Claude Code 会自动识别；其他工具把 `SKILL.md` 的内容贴给它），再说明你的系统、桌面环境和想要的效果。
 
 ## 插件列表怎么起作用
 
@@ -200,7 +200,7 @@ Linux 上没有可靠的办法从浏览器外面读到网址，所以 Linux 内�
 
 ## 模板、例子和检查工具
 
-都在 `.cursor/skills/deskpal-write-provider/` 目录：
+都在 `.claude/skills/deskpal-write-provider/` 目录：
 
 | 文件 | 用途 |
 | --- | --- |

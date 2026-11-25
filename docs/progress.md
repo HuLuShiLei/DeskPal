@@ -233,3 +233,4 @@
 | 2026-11-24 | 按标题分类：RuleKind.AppTitle（RulePattern.AppTitle、SplitAppTitle），RuleSet.MatchAppTitle 排在进程名之前，UsageReclassifier 按标题重新归类，LayeredClassifier.PersonalRule 给「恢复默认」找实际命中的规则；纠正分类对话框的勾选框（sk 的 checkbox.reveals）、统计标题详情的更改分类、规则页「标题包含」。 |
 
 | 2026-11-25 | 标题敏感信息过滤：新增 `SensitiveText`（`Redact`、`RedactTitle`、`MaskHost`、`IpAddressName`），`TitleText.Clean` 最后调用 `Redact`；`PresenceResolver` 对网站名调用 `MaskHost`；`AppNames.Localize` 把「IP 地址」翻译成新键 `App_IpAddress`；`SqliteUsageStore` 读取时过滤，导入文件时过滤，`RedactRecorded` 按 `user_version` 把旧的 `Segments`、`DailyRollups` 改写一次（按天汇总的键相同时合并秒数）；`UsageReclassifier` 对「IP 地址」记录保留记录时的类别，`UsageRuleTargets` 不给它生成规则目标。从旧版本电脑同步过来的记录不在合并时改写，避免和旧版本来回上传 |
+| 2026-11-25 | 兼容 Claude Code：skill 从 `.cursor/skills/` 移到 `.claude/skills/`（Cursor 也读这里）；新增 `CLAUDE.md`（导入 `AGENTS.md`）；`.claude/rules/` 在本地编译 `tests/DeskPal.Tests` 时由 `ClaudeRules.targets` 从 `.cursor/rules/` 自动生成（CI 不生成），`ClaudeRulesTests` 检查两边一致 |
