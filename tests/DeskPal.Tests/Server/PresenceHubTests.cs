@@ -315,6 +315,8 @@ public sealed class PresenceHubTests : IClassFixture<PresenceHubTests.ServerFact
             .Build();
         hub.On<Envelope>(HubContract.Receive, e => inbox.Writer.TryWrite(e));
         await hub.StartAsync();
+        // StartAsync 可能在 OnConnectedAsync 把连接加进房间 Group 之前返回；Hub 要等 OnConnectedAsync 结束才处理调用，往返一次再继续。
+        await Assert.ThrowsAsync<HubException>(() => hub.InvokeAsync(HubContract.Publish, Envelope.Create("test.ready", Guid.Empty, new { })));
         return (hub, inbox.Reader);
     }
 
