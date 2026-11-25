@@ -809,6 +809,60 @@ public class UsageTests : IDisposable
         Assert.Equal("10:00–11:00 暂停分享 · 1 小时", view.Timeline[1].Tip);
     }
 
+    [Fact]
+    public void Sensitive_details_recorded_before_are_removed_once_and_totals_are_added_up()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"deskpal-usage-{Guid.NewGuid():N}.db");
+        _files.Add(path);
+        using (var store = new SqliteUsageStore(path, Guid.NewGuid(), Zone))
+        {
+        }
+
+        void Run(string sql)
+        {
+            using var db = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={path};Pooling=False");
+            db.Open();
+            using var cmd = db.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.ExecuteNonQuery();
+        }
+
+        Run("""
+            PRAGMA user_version = 0;
+            INSERT INTO Segments (DeviceId, StartAt, EndAt, State, Category, App, Title, Process, Offset)
+                VALUES ('6f1c0b6e-0000-4000-8000-000000000001', 1794358800000, 1794360600000, 'Working', 'Work', '192.168.66.10', '192.168.66.10 堡垒机', 'chrome', 480);
+            INSERT INTO DailyRollups (DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Seconds)
+                VALUES ('6f1c0b6e-0000-4000-8000-000000000001', '2026-11-01', 'Working', 'Work', 'SunloginClient', '识别码：123 456 789', 'sunloginclient', '', 600),
+                       ('6f1c0b6e-0000-4000-8000-000000000001', '2026-11-01', 'Working', 'Work', 'SunloginClient', '', 'sunloginclient', '', 60);
+            """);
+
+        using (var store = new SqliteUsageStore(path, Guid.NewGuid(), Zone))
+        {
+            var segment = Assert.Single(store.Segments(At(0, 0), At(0, 0, dayOffset: 1)));
+            Assert.Equal((SensitiveText.IpAddressName, "堡垒机"), (segment.App, segment.Title));
+            Assert.Equal((null, 660L), store.Rollups(new(2026, 11, 1), new(2026, 11, 1)).Select(r => (r.Title, r.Seconds)).Single());
+            var json = System.Text.Json.JsonSerializer.Serialize(store.Export(At(12, 0)), DeskPal.Shared.DeskPalJson.Options);
+            Assert.DoesNotContain("192.168", json);
+            Assert.DoesNotContain("456", json);
+        }
+
+        // Rewritten only once; a title synced later from an older version is removed when it is read.
+        Run("UPDATE Segments SET Title = '10.0.0.1 跳板机'");
+        using (var store = new SqliteUsageStore(path, Guid.NewGuid(), Zone))
+        {
+            Assert.Equal("跳板机", Assert.Single(store.Segments(At(0, 0), At(0, 0, dayOffset: 1))).Title);
+        }
+    }
+
+    [Fact]
+    public void A_website_recorded_as_IP_address_keeps_the_category_it_was_recorded_with()
+    {
+        var reclassifier = new UsageReclassifier([]);
+        Assert.Equal((PresenceState.Working, ActivityCategory.Work),
+            reclassifier.Apply(PresenceState.Working, ActivityCategory.Work, SensitiveText.IpAddressName, "堡垒机", "chrome", ActivityCategory.Browsing));
+        Assert.Null(UsageRuleTargets.Create(new Dictionary<string, string> { [SensitiveText.IpAddressName] = "chrome" }, [])(SensitiveText.IpAddressName));
+    }
+
     private SqliteUsageStore NewStore()
     {
         var path = Path.Combine(Path.GetTempPath(), $"deskpal-usage-{Guid.NewGuid():N}.db");

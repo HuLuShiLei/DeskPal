@@ -1,3 +1,4 @@
+using DeskPal.Client.Core.Presence;
 using DeskPal.Shared.Api;
 
 namespace DeskPal.Client.Core.Localization;
@@ -26,7 +27,8 @@ public static class AppNames
     }
 
     public static string Localize(string name) =>
-        _names.TryGetValue(name, out var translations)
+        name == SensitiveText.IpAddressName ? Strings.App_IpAddress
+        : _names.TryGetValue(name, out var translations)
         && translations.TryGetValue(UiLanguage.Current, out var translated)
         && translated.Length > 0
             ? translated

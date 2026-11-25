@@ -38,7 +38,7 @@ public static class PresenceResolver
         return new LocalPresence(
             classification.Category.ToState(),
             classification.Category,
-            classification.AppDisplayName,
+            SensitiveText.MaskHost(classification.AppDisplayName),
             BuildDetail(snapshot, classification.Category));
     }
 

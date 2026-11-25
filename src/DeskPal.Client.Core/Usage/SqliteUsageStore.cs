@@ -146,6 +146,8 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                 """);
         }
 
+        RedactRecorded();
+
         // Segments recorded before the offset was kept are taken as recorded in this computer's time zone.
         var missing = new List<(long Id, long Start)>();
         using (var select = Command("SELECT Id, StartAt FROM Segments WHERE Offset IS NULL"))
@@ -171,6 +173,98 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
             update.ExecuteNonQuery();
         }
 
+        tx.Commit();
+    }
+
+    /// <summary><c>user_version</c> from which recorded titles and site names have had sensitive details removed.</summary>
+    private const long RedactedVersion = 1;
+
+    /// <summary>
+    /// Removes sensitive details (<see cref="SensitiveText"/>) from what was recorded before they were removed, once.
+    /// Totals whose key becomes the same are added up.
+    /// </summary>
+    private void RedactRecorded()
+    {
+        using (var version = Command("PRAGMA user_version"))
+        {
+            if ((long)version.ExecuteScalar()! >= RedactedVersion)
+            {
+                return;
+            }
+        }
+
+        var segments = new List<(long Id, string? App, string? Title)>();
+        using (var select = Command("SELECT Id, App, Title FROM Segments WHERE App IS NOT NULL OR Title IS NOT NULL"))
+        using (var reader = select.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                var app = reader.IsDBNull(1) ? null : reader.GetString(1);
+                var title = reader.IsDBNull(2) ? null : reader.GetString(2);
+                var (redactedApp, redactedTitle) = (SensitiveText.MaskHost(app), SensitiveText.RedactTitle(title));
+                if (redactedApp != app || redactedTitle != title)
+                {
+                    segments.Add((reader.GetInt64(0), redactedApp, redactedTitle));
+                }
+            }
+        }
+
+        var rollups = new List<(long RowId, string Device, string Date, string State, string Category, string App, string Title, string Process, string Base, long Seconds, long Paused)>();
+        using (var select = Command("SELECT rowid, DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Seconds, Paused FROM DailyRollups"))
+        using (var reader = select.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                var app = reader.GetString(5);
+                var title = reader.GetString(6);
+                var redactedApp = SensitiveText.MaskHost(app)!;
+                var redactedTitle = SensitiveText.RedactTitle(title) ?? "";
+                if (redactedApp != app || redactedTitle != title)
+                {
+                    rollups.Add((reader.GetInt64(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4),
+                        redactedApp, redactedTitle, reader.GetString(7), reader.GetString(8), reader.GetInt64(9), reader.GetInt64(10)));
+                }
+            }
+        }
+
+        using var tx = _db.BeginTransaction();
+        foreach (var (id, app, title) in segments)
+        {
+            using var update = Command("UPDATE Segments SET App = $app, Title = $title WHERE Id = $id");
+            update.Parameters.AddWithValue("$app", (object?)app ?? DBNull.Value);
+            update.Parameters.AddWithValue("$title", (object?)title ?? DBNull.Value);
+            update.Parameters.AddWithValue("$id", id);
+            update.ExecuteNonQuery();
+        }
+
+        foreach (var r in rollups)
+        {
+            using var delete = Command("DELETE FROM DailyRollups WHERE rowid = $rowid");
+            delete.Parameters.AddWithValue("$rowid", r.RowId);
+            delete.ExecuteNonQuery();
+        }
+
+        foreach (var r in rollups)
+        {
+            using var insert = Command("""
+                INSERT INTO DailyRollups (DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Seconds, Paused)
+                VALUES ($device, $date, $state, $category, $app, $title, $process, $base, $seconds, $paused)
+                ON CONFLICT (DeviceId, Date, State, Category, App, Title, Process, BaseCategory, Paused) DO UPDATE SET Seconds = Seconds + excluded.Seconds
+                """);
+            insert.Parameters.AddWithValue("$device", r.Device);
+            insert.Parameters.AddWithValue("$date", r.Date);
+            insert.Parameters.AddWithValue("$state", r.State);
+            insert.Parameters.AddWithValue("$category", r.Category);
+            insert.Parameters.AddWithValue("$app", r.App);
+            insert.Parameters.AddWithValue("$title", r.Title);
+            insert.Parameters.AddWithValue("$process", r.Process);
+            insert.Parameters.AddWithValue("$base", r.Base);
+            insert.Parameters.AddWithValue("$seconds", r.Seconds);
+            insert.Parameters.AddWithValue("$paused", r.Paused);
+            insert.ExecuteNonQuery();
+        }
+
+        Execute($"PRAGMA user_version = {RedactedVersion}");
         tx.Commit();
     }
 
@@ -230,7 +324,7 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                     DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(1)).ToOffset(offset),
                     Enum.Parse<PresenceState>(reader.GetString(2)),
                     Enum.Parse<ActivityCategory>(reader.GetString(3)),
-                    reader.IsDBNull(4) ? null : reader.GetString(4),
+                    SensitiveText.MaskHost(reader.IsDBNull(4) ? null : reader.GetString(4)),
                     TitleText.Clean(reader.IsDBNull(5) ? null : reader.GetString(5)),
                     reader.IsDBNull(6) ? null : reader.GetString(6),
                     ParseCategory(reader.IsDBNull(7) ? null : reader.GetString(7)),
@@ -279,7 +373,7 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
                     DateOnly.ParseExact(reader.GetString(0), "yyyy-MM-dd", CultureInfo.InvariantCulture),
                     Enum.Parse<PresenceState>(reader.GetString(1)),
                     Enum.Parse<ActivityCategory>(reader.GetString(2)),
-                    NullIfEmpty(reader.GetString(3)),
+                    SensitiveText.MaskHost(NullIfEmpty(reader.GetString(3))),
                     TitleText.Clean(reader.GetString(4)),
                     reader.GetInt64(5),
                     NullIfEmpty(reader.GetString(6)),
@@ -647,7 +741,9 @@ public sealed class SqliteUsageStore : IUsageWriter, IDisposable
         lock (_lock)
         {
             using var tx = _db.BeginTransaction();
-            var result = InsertAll(data.Segments, data.Rollups);
+            var result = InsertAll(
+                data.Segments.Select(s => s with { App = SensitiveText.MaskHost(s.App), Title = SensitiveText.RedactTitle(s.Title) }),
+                data.Rollups.Select(r => r with { App = SensitiveText.MaskHost(r.App), Title = SensitiveText.RedactTitle(r.Title) }));
             tx.Commit();
             return result;
         }

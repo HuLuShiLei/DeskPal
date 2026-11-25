@@ -137,6 +137,7 @@ export const en: Record<keyof typeof zh, string> = {
   "room.dissolved": "Room deleted",
   "privacy.title": "Privacy",
   "privacy.note": "What members of \"{name}\" can see. This room only. Changes apply immediately. Shared stats use the same levels.",
+  "privacy.redacted": " IP addresses, phone numbers, and similar details are removed from titles.",
   "privacy.saved": "Privacy settings saved",
   "privacy.levelOf": "Privacy level for {name}",
   "privacy.share": "Share usage stats",

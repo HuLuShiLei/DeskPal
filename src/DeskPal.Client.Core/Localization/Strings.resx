@@ -36,6 +36,9 @@
   <data name="State_Other" xml:space="preserve">
     <value>其他活动</value>
   </data>
+  <data name="App_IpAddress" xml:space="preserve">
+    <value>IP 地址</value>
+  </data>
   <data name="State_Browsing" xml:space="preserve">
     <value>正在浏览网页</value>
   </data>

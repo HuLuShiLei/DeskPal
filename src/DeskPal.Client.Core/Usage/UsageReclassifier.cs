@@ -1,4 +1,5 @@
 using DeskPal.Client.Core.Classification;
+using DeskPal.Client.Core.Presence;
 using DeskPal.Shared.Api;
 using DeskPal.Shared.Presence;
 
@@ -38,7 +39,10 @@ public sealed class UsageReclassifier
             return (state, category);
         }
 
-        var result = Match(app, title, process) is { } rule && !rule.Category.IsRetired() ? rule.Category : baseCategory ?? category;
+        // A website opened by IP address is recorded without its address, so the rule that classified it can't be found again.
+        var result = Match(app, title, process) is { } rule && !rule.Category.IsRetired() ? rule.Category
+            : app == SensitiveText.IpAddressName ? category
+            : baseCategory ?? category;
         return result == category ? (state, category) : (result.ToState(), result);
     }
 

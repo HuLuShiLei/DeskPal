@@ -6,6 +6,7 @@ namespace DeskPal.Client.Core.Presence;
 /// Removes the parts of a window title that change without the content changing: unread counters such as "(12) "
 /// in front or " – (255549)" at the end, the tab state a browser adds at the end such as " - 正在播放音频" or
 /// " - 内存用量高 - 917 MB", and invisible direction marks. Otherwise every new message starts a new segment.
+/// Sensitive details are removed too (<see cref="SensitiveText"/>), so nothing reads a title without that.
 /// </summary>
 public static partial class TitleText
 {
@@ -20,7 +21,7 @@ public static partial class TitleText
         text = LeadingCounter().Replace(text, "");
         text = TrailingCounter().Replace(text, "");
         text = TrailingTabState().Replace(text, "");
-        text = text.Trim();
+        text = SensitiveText.Redact(text).Trim();
         return text.Length == 0 ? null : text;
     }
 

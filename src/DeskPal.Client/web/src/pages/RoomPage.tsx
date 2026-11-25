@@ -312,7 +312,7 @@ function Privacy({ state, room }: { state: PanelState; room: RoomItem }) {
   return (
     <Section title={t("privacy.title")} label={t("privacy.title")}>
       <div class="card flush">
-        <p class="card-note">{t("privacy.note", { name: room.name })}</p>
+        <p class="card-note">{t("privacy.note", { name: room.name }) + t("privacy.redacted")}</p>
         {privacy.rows.map((r) => (
           <div key={r.category} class="setting-row">
             <span class={`status-dot tv-${categoryTone(r.category)}`} aria-hidden="true" />

@@ -184,6 +184,52 @@ public class TitleAndIdleTests
         Assert.Equal(expected, TitleText.Clean(title));
     }
 
+    [Theory]
+    [InlineData("123.222.222.32 堡垒机", "堡垒机")]
+    [InlineData("堡垒机 - 10.0.0.1:8080", "堡垒机")]
+    [InlineData("http://192.168.1.1:8080/login - 路由器管理", "路由器管理")]
+    [InlineData("ssh root@172.16.0.5 - 终端", "ssh - 终端")]
+    [InlineData("[fe80::1]:3389 远程桌面", "远程桌面")]
+    [InlineData("向日葵远程控制 识别码：123 456 789 验证码：ab12cd", "向日葵远程控制")]
+    [InlineData("ToDesk 123 456 789", "ToDesk")]
+    [InlineData("张三 (138-1234-5678)", "张三")]
+    [InlineData("联系 +86 13812345678 预约", "联系 预约")]
+    [InlineData("客服 021-12345678", "客服")]
+    [InlineData("发送给 someone@example.com - 邮件", "发送给 - 邮件")]
+    [InlineData("身份证 11010519491231002X 办理", "身份证 办理")]
+    [InlineData("QQ 123456789 的聊天", "QQ 的聊天")]
+    [InlineData("12.34.56.78", null)]
+    [InlineData("周报 2026-11-25 - 10:30", "周报 2026-11-25 - 10:30")]
+    [InlineData("第 123456 期", "第 123456 期")]
+    [InlineData("下载 Ubuntu 24.04 - 5.7 GB", "下载 Ubuntu 24.04 - 5.7 GB")]
+    [InlineData("1080p 60fps 2024 版", "1080p 60fps 2024 版")]
+    [InlineData("std::vector - Foo::Bar", "std::vector - Foo::Bar")]
+    [InlineData("修改密码 - 设置", "修改密码 - 设置")]
+    public void Sensitive_details_are_removed_from_titles(string title, string? expected)
+    {
+        Assert.Equal(expected, TitleText.Clean(title));
+    }
+
+    [Fact]
+    public void A_website_opened_by_IP_address_is_named_IP_address_and_its_title_has_no_address()
+    {
+        var snapshot = TestData.Browser("192.168.66.10", "192.168.66.10:9000/#/home 堡垒机 - Google Chrome");
+        var presence = PresenceResolver.Resolve(snapshot, new ClassificationResult(ActivityCategory.Browsing, "192.168.66.10", RuleLayer.Browser), paused: false);
+        Assert.Equal((SensitiveText.IpAddressName, "堡垒机"), (presence.AppDisplayName, presence.Detail));
+        Assert.Equal("example.com", SensitiveText.MaskHost("example.com"));
+
+        var previous = CultureInfo.CurrentUICulture;
+        try
+        {
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+            Assert.Equal("IP address", AppNames.Localize(SensitiveText.IpAddressName));
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previous;
+        }
+    }
+
     private static readonly ClassificationResult Watching = new(ActivityCategory.Video, "bilibili.com", RuleLayer.Browser);
 
     [Fact]

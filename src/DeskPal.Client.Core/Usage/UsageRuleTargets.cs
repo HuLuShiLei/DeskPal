@@ -1,4 +1,5 @@
 using DeskPal.Client.Core.Classification;
+using DeskPal.Client.Core.Presence;
 using DeskPal.Client.Core.Ui;
 using DeskPal.Shared.Api;
 
@@ -22,6 +23,11 @@ public static class UsageRuleTargets
 
         return app =>
         {
+            if (app == SensitiveText.IpAddressName)
+            {
+                return null;
+            }
+
             var process = processes.GetValueOrDefault(app);
             if (process is not null ? Browsers.IsBrowser(process) : UsageReclassifier.IsHost(app))
             {

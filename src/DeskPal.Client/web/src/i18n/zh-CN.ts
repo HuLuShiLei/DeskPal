@@ -135,6 +135,7 @@ export const zh = {
   "room.dissolved": "已解散",
   "privacy.title": "隐私设置",
   "privacy.note": "设置房间「{name}」的成员可以看到的内容。仅对本房间生效，修改后立即生效。公开的使用统计也按此级别显示。",
+  "privacy.redacted": "标题中的 IP 地址、手机号等信息会自动去掉。",
   "privacy.saved": "隐私设置已保存",
   "privacy.levelOf": "{name}的隐私级别",
   "privacy.share": "公开使用统计",

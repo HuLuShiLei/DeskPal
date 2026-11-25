@@ -8,6 +8,9 @@
 
 ## 0.1.6
 
+- 窗口标题、网页标题和播放标题中的 IP 地址、手机号、座机号、邮箱、身份证号、7 位以上的数字（如向日葵、ToDesk 的识别码）以及「验证码：」「密码：」之后的内容会自动去掉，房间成员、首页和使用统计都只看到其余部分。例如「123.222.222.32 堡垒机」只显示「堡垒机」。用 IP 地址打开的网站显示为「IP 地址」。已经记录的使用统计也会去掉这些内容。
+  en: IP addresses, phone numbers, e-mail addresses, ID card numbers, numbers of 7 or more digits (such as Sunlogin or ToDesk IDs), and whatever follows labels like "验证码:" or "password:" are now removed from window, page, and media titles. Room members, Home, and usage stats see only the rest. For example, "123.222.222.32 堡垒机" shows as "堡垒机". Sites opened by IP address show as IP address. These details are also removed from usage stats already recorded.
+
 ## 0.1.5
 
 - 桌面应用可以按窗口标题分类。在首页「纠正分类」中勾选「只在窗口标题包含以下文字时」，或在统计里点进某个标题后更改分类，只有标题包含这些文字的窗口使用所选类别。已记录的使用统计也按新类别显示。在「规则」中可以修改和删除，不能添加。

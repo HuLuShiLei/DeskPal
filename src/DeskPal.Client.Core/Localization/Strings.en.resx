@@ -36,6 +36,9 @@
   <data name="State_Other" xml:space="preserve">
     <value>Other activity</value>
   </data>
+  <data name="App_IpAddress" xml:space="preserve">
+    <value>IP address</value>
+  </data>
   <data name="State_Browsing" xml:space="preserve">
     <value>Browsing the web</value>
   </data>
