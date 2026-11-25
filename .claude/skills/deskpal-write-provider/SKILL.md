@@ -29,7 +29,7 @@ DeskPal 的活动信息全部来自插件：每个平台有一个官方插件（
 | Linux 上想按网站分类 | 通常不用写：装 DeskPal 浏览器扩展（Linux 内置插件上的“获取浏览器扩展”）。只有想换数据来源时才自己输出 `domain` |
 | Windows、macOS | 官方插件都有；只有想改某一项的来源时才写 |
 | 某个软件识别不准 | 优先让用户在 DeskPal 里改分类；只有需要读到额外信息时才写插件 |
-| 想让某个软件显示更具体的内容（聊天软件的当前会话、编辑器的当前项目） | 一个只提供 `detail` 的插件，`apps` 写这个软件的进程名，放在列表任何位置都行。Windows 上先看窗口标题里有没有（官方插件已经上报标题），没有再用 UI Automation 读界面元素，参考 `examples/windows-qq.ps1` |
+| 想让某个软件显示更具体的内容（聊天软件的当前会话、编辑器的当前项目） | 一个只提供 `detail` 的插件，`apps` 写这个软件的进程名，放在列表任何位置都行。Windows 上先看窗口标题里有没有（官方插件已经上报标题），没有再用 UI Automation 读界面元素，参考仓库根目录的 `plugins/windows-qq.ps1`、`plugins/windows-wechat.ps1` |
 
 不要凭猜测写：先让用户在终端里跑一遍你打算用的查询命令，把真实输出贴回来。Linux 上先让用户运行 `echo $XDG_SESSION_TYPE $XDG_CURRENT_DESKTOP`。
 
@@ -97,7 +97,7 @@ Linux 内置插件里有一个本机 HTTP 端点（`BrowserBridge`，`127.0.0.1:
 
 ## 步骤
 
-1. 选模板：`scripts/template.sh`（Linux、macOS，需要 jq）、`scripts/template.py`（三平台，标准库）、`scripts/template.ps1`（Windows 自带 PowerShell，读前台窗口和暂离，已在 Windows 上验证）。现成例子在 `examples/`：`x11-xdotool.sh` 已验证；`windows-qq.ps1`（`detail`，用 UI Automation 读 QQ NT 的当前会话名）已在 QQ NT 9.9.37 上验证；仓库根目录 `plugins/windows-steam.ps1`（`detail`，通过 Steam 客户端的 Chrome 调试接口 `127.0.0.1:8080` 读自己的 Rich Presence，按 `appmanifest` 的 `installdir` 认出游戏进程，游戏变化时重发 hello 更新 `apps`）已在杀戮尖塔 2 上验证；`hyprland.sh`、`sway.sh`、`macos-frontmost.sh` 按文档写成、未在真机验证，先让用户验证。
+1. 选模板：`scripts/template.sh`（Linux、macOS，需要 jq）、`scripts/template.py`（三平台，标准库）、`scripts/template.ps1`（Windows 自带 PowerShell，读前台窗口和暂离，已在 Windows 上验证）。现成例子在 `examples/`：`x11-xdotool.sh` 已验证；`hyprland.sh`、`sway.sh`、`macos-frontmost.sh` 按文档写成、未在真机验证，先让用户验证。可以直接用的插件在仓库根目录 `plugins/`（不在 `examples/`）：`windows-steam.ps1`（`detail`，通过 Steam 客户端的 Chrome 调试接口 `127.0.0.1:8080` 读自己的 Rich Presence，按 `appmanifest` 的 `installdir` 认出游戏进程，游戏变化时重发 hello 更新 `apps`，已在杀戮尖塔 2 上验证）、`windows-qq.ps1`（QQ NT 9.9.37 验证，按 class 名找元素）、`windows-wechat.ps1`（微信 4.2.0.53 验证，微信 4.x 是 Qt 界面，按 AutomationId 找元素并缓存，因为界面里有整个消息列表，每秒全树搜索太费）。新写这类插件时，先在用户电脑上遍历一次 UI Automation 树找到目标元素（只输出类型、类名、AutomationId 和名称长度，不输出名称，避免读到聊天内容），优先用 AutomationId，其次 class 名。Linux 的 QQ 插件见 `plugins/linux-qq.py`：通过 AT-SPI 按当前 ACTIVE 窗口查找 `chat-header__contact-name`，名称为空时读文本接口，`window` 报 null；DeskPal 在 Linux 记录的进程名是可执行文件名 `qq`。
 2. 在 hello 的 `provides` 里只写真正提供的几项，只改读取数据的那一段。Shell 里用 `jq` 生成 JSON，PowerShell 用 `ConvertTo-Json`，不要手拼字符串。
 3. 检查：`python3 scripts/check_provider.py <插件文件>`（Windows 也能用）。它运行插件 8 秒，按 DeskPal 的规则逐行检查，期间让用户切换几个窗口。
 4. 安装：放进插件文件夹（Linux、macOS 上 `chmod +x`），在「设置 → 插件」点刷新按钮，打开开关，用箭头移到官方插件上面（只提供 `detail` 的不用移）。点开插件后高亮的标签是实际在用的能力。
