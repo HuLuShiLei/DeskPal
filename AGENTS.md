@@ -30,7 +30,7 @@ src/DeskPal.Client/       WPF 托盘程序：Collectors（Windows 官方插件�
 src/DeskPal.Client.Mac/   macOS 菜单栏程序（net10.0-macos，AppKit + WKWebView）：Collectors（macOS 官方插件的部件：NSWorkspace、辅助功能）、Native、Platform、Ui。只能在 Mac 上编译
 src/DeskPal.Client.Linux/ Linux 托盘程序（net10.0，GTK 4 + WebKitGTK 6.0，GirCore）：Providers（Linux 官方插件：X11 或 GNOME 扩展读窗口、BrowserBridge 收浏览器扩展报的网站）、Collectors（空闲、锁屏、MPRIS）、Native、Platform、Ui；gnome-extension/ 是随包发布的 GNOME Shell 扩展，browser-extension/ 是随包发布的浏览器扩展。任何系统都能编译，只能在 Linux 上运行
 tools/MacCheck/           没有 Mac 时对 macOS 引用程序集做类型检查
-plugins/                  现成的用户插件（QQ、微信的当前会话，Windows），不随程序发布，用户复制到插件文件夹使用
+plugin-examples/          插件代码示例（QQ、微信、Steam 的补充标题，Linux 桌面、macOS 的当前窗口）。只作参考，不随程序发布，换一台电脑常常读不到，要在用户电脑上确认后修改
 tests/DeskPal.Tests/      xUnit：Client.Core 逻辑、RoomService、PresenceHub 集成测试
 .github/workflows/        ci（测试 + 客户端 exe）、docker（Server 镜像推 GHCR）、rule-candidates（每天把多人一致的个人分类和推测出的游戏做成规则库 PR）
 installer/                Inno Setup 安装向导：选择安装目录，内嵌 Velopack 的 Setup.exe

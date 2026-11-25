@@ -1,3 +1,0 @@
-# 探测脚本和非 Windows 插件要在 Linux、macOS 上直接运行，固定用 LF。
-*.sh text eol=lf
-*.py text eol=lf

@@ -4,7 +4,7 @@ DeskPal 显示你的状态，要先知道五件事：你在用哪个窗口、在
 
 每个平台都自带一个官方插件（Windows 内置、macOS 内置、Linux 内置），装好就能用。你也可以自己写插件，放进插件文件夹，替换或补充官方插件提供的某几项，或者让某个软件显示更具体的内容，例如 QQ 正在看的会话（见「只补充某个软件的标题」）。
 
-让 AI 帮你写：把仓库里的 `.claude/skills/deskpal-write-provider/` 整个目录给它（Cursor 和 Claude Code 会自动识别；其他工具把 `SKILL.md` 的内容贴给它），再说明你的系统、桌面环境和想要的效果。
+让 AI 帮你写：把仓库里的 `.claude/skills/deskpal-write-provider/` 整个目录给它（Cursor 和 Claude Code 会自动识别；其他工具把 `SKILL.md` 的内容贴给它），想参考现有例子时把 `plugin-examples/` 也给它，再说明你的系统、桌面环境和想要的效果。
 
 ## 插件列表怎么起作用
 
@@ -175,7 +175,7 @@ goto loop
 - 补充的标题和普通窗口标题一样处理：受“不记录标题”和房间的隐私设置控制，只有把“在聊天”设为显示详情的房间才能看到。
 - 这类插件不用移到官方插件上面，放在列表任何位置都可以。多个插件都给同一个程序补充时，用最上面的那个。
 
-现成的插件在仓库根目录的 `plugins/` 文件夹：`windows-qq.ps1`（QQ NT）、`windows-wechat.ps1`（微信 4.x）和 `linux-qq.py`（Linux 的 QQ），复制到插件文件夹就能用。它们通过系统的无障碍接口（Windows 的 UI Automation、Linux 的 AT-SPI）只读会话顶部的名称，不读消息内容，不注入，也不读数据文件。软件改版后界面结构可能变化，读不到时它们什么都不报，DeskPal 显示原来的窗口标题。
+仓库根目录的 `plugin-examples/` 文件夹里有几个这样的示例：`windows-qq.ps1`（QQ NT）、`windows-wechat.ps1`（微信 4.x）、`windows-steam.ps1`（Steam 游戏的游戏内状态）和 `linux-qq.py`（Linux 的 QQ）。它们只是代码示例：界面结构随软件版本和系统变化，在别的电脑上经常读不到，要照着写法在自己电脑上确认、修改后再用。聊天软件的几个示例通过系统的无障碍接口（Windows 的 UI Automation、Linux 的 AT-SPI）只读会话顶部的名称，不读消息内容，不注入，也不读数据文件。软件改版后界面结构可能变化，读不到时它们什么都不报，DeskPal 显示原来的窗口标题。
 
 ## 插件做不到的事
 
@@ -200,7 +200,7 @@ Linux 上没有可靠的办法从浏览器外面读到网址，所以 Linux 内�
 
 ## 模板、例子和检查工具
 
-都在 `.claude/skills/deskpal-write-provider/` 目录：
+模板和检查工具在 `.claude/skills/deskpal-write-provider/` 目录：
 
 | 文件 | 用途 |
 | --- | --- |
@@ -208,13 +208,19 @@ Linux 上没有可靠的办法从浏览器外面读到网址，所以 Linux 内�
 | `scripts/template.py` | Python 模板，只用标准库，三个平台都能用 |
 | `scripts/template.ps1` | Windows 模板，用系统自带的 PowerShell，读前台窗口和暂离时间，已在 Windows 上验证 |
 | `scripts/check_provider.py` | 检查工具 |
-| `examples/x11-xdotool.sh` | X11 + xdotool，已验证 |
-| `plugins/windows-steam.ps1`（仓库根目录，不在上面这个目录里） | Windows，补充 Steam 游戏的游戏内状态（好友列表里显示的那行，例如「铁甲战士 - 密林 进阶5」），已在杀戮尖塔 2 上验证。要开启 Steam 的调试接口，见文件开头的说明 |
-| `examples/hyprland.sh` | Hyprland，按文档编写，未在真机验证 |
-| `examples/sway.sh` | Sway，按文档编写，未在真机验证 |
-| `examples/macos-frontmost.sh` | macOS，用 osascript，未在真机验证 |
 
-可以直接用的插件（QQ、微信的当前会话）不在这里，在仓库根目录的 `plugins/`，见上文“补充标题”。
+例子在仓库根目录的 `plugin-examples/` 文件夹，只作为代码参考，不保证在你的电脑上直接能用（列表和各自验证过的环境见那里的 `README.md`）：
+
+| 文件 | 用途 |
+| --- | --- |
+| `x11-xdotool.sh` | X11 + xdotool，已验证 |
+| `hyprland.sh` | Hyprland，按文档编写，未在真机验证 |
+| `sway.sh` | Sway，按文档编写，未在真机验证 |
+| `macos-frontmost.sh` | macOS，用 osascript，未在真机验证 |
+| `windows-qq.ps1` | Windows，补充 QQ NT 的当前会话名，在 QQ NT 9.9.37 上验证过 |
+| `windows-wechat.ps1` | Windows，补充微信 4.x 的当前会话名，在微信 4.2.0.53 主窗口上验证过 |
+| `windows-steam.ps1` | Windows，补充 Steam 游戏的游戏内状态（好友列表里显示的那行，例如「铁甲战士 - 密林 进阶5」），在杀戮尖塔 2 上验证过。要开启 Steam 的调试接口，见文件开头的说明 |
+| `linux-qq.py` | Linux，用 AT-SPI 补充 QQ 的当前会话名，在 Ubuntu 26.04 GNOME Wayland 上验证过 |
 
 写完先检查再开启：
 
