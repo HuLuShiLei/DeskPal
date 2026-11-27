@@ -81,7 +81,7 @@ description: DeskPal 界面文案的写法：中英文语气、用词、标点�
 - 单选、下拉选项、按钮要短（「Include titles」「Minimize to tray」）。
 - 说明文字可以换行，但不要写成三句以上。
 
-写完用 `npm run dev` 打开 `?mock=<样例>&lang=en`，在 Cursor 自带浏览器里把视口设为 400 宽看一遍（见 rule `wpf-ui`）。
+写完用 `npm run dev` 打开 `?mock=<样例>&lang=en`，把视口设为 400 宽看一遍；截不了图时把要看的样例列进交付里「需要人看的」（见 `src/DeskPal.Client/web/AGENTS.md`）。只在 macOS 或 Linux 上出现的说法在 `web/src/i18n/index.ts` 里按平台替换，改了 Windows 的说法要看另外两个平台的替换还对不对。
 
 ## 已定稿，不要改
 
