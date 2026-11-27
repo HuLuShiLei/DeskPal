@@ -114,6 +114,7 @@ public static class ProviderServiceExtensions
     /// </summary>
     public static IServiceCollection AddPluginHost(this IServiceCollection services)
     {
+        services.AddSingleton<RoomFeedSource>();
         services.AddSingleton<ProviderHost>();
         services.AddSingleton<IProviderControl>(sp => sp.GetRequiredService<ProviderHost>());
         services.AddHostedService(sp => sp.GetRequiredService<ProviderHost>());

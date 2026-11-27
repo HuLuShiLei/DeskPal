@@ -51,6 +51,8 @@ public static class PanelSamples
                     ["detail"], ["detail"], "running", [], [], ["QQ"]),
                 new PluginView("user:vscode-title.ps1", "VS Code 标题", "0.2", Official: false, Enabled: true,
                     ["foreground"], ["foreground"], "running", [], [], []),
+                new PluginView("user:room-digest.py", "房间摘要", "0.1", Official: false, Enabled: true,
+                    [], [], "running", [new PluginNote("plugin.readsRoom")], [], []),
                 new PluginView("user:spotify.py", "spotify.py", null, Official: false, Enabled: false,
                     ["foreground", "domain"], [], "disabled", [], [], []),
                 new PluginView("user:broken.cmd", "broken.cmd", null, Official: false, Enabled: true,

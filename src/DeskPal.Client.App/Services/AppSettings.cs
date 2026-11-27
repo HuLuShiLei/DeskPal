@@ -110,6 +110,10 @@ public sealed class PluginSetting
 
     /// <summary>The apps a user plugin's detail covered in its last hello line.</summary>
     public List<string>? Apps { get; set; }
+
+    /// <summary>What a user plugin asked to read in its last hello line (<c>room</c>), so its standard input is
+    /// opened from the start the next time it runs.</summary>
+    public List<string>? Reads { get; set; }
 }
 
 public sealed class SettingsStore

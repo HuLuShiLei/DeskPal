@@ -49,19 +49,20 @@ flowchart LR
 |---|---|---|
 | `IActivityProvider` | Client.App/Providers | 一个插件：Id、提供哪几项（可以运行中变化）、健康状态、状态说明（`PluginNote`）、按钮 |
 | `OfficialProvider` | Client.App/Providers | 平台官方插件：把采集器作为一组在程序内运行。每次启动用 `ActivatorUtilities` 新建采集器，传入这次运行的 `SignalSink`；关掉插件就真正停掉采集器。平台用 `AddOfficialProvider` 注册；Linux 用子类 `LinuxOfficialProvider` |
-| `ExternalProvider` | Client.App/Providers | 用户插件：插件文件夹里的程序，标准输出每行一个 JSON（协议 v1，`Client.Core/Providers/ProviderProtocol`）。每秒最多 50 行，退出后按 1/2/5/10/30/60 秒重启；暂离把插件报的秒数交给 `IdleTracker` 按用户设置判断 |
+| `ExternalProvider` | Client.App/Providers | 用户插件：插件文件夹里的程序，标准输出每行一个 JSON（协议 v1，`Client.Core/Providers/ProviderProtocol`）。每秒最多 50 行，退出后按 1/2/5/10/30/60 秒重启；暂离把插件报的秒数交给 `IdleTracker` 按用户设置判断。标准输入默认关闭；hello 里声明了 `reads:["room"]` 的插件标准输入打开，收到 `room` 行（见下） |
+| `RoomFeed` / `LatestLineWriter` / `RoomFeedSource` | Client.Core/Providers、Client.App/Providers | 插件读取房间成员：`RoomFeedSource` 用 `RoomState`（当前房间、成员、成员最新状态）和 `PresenceCoordinator.Shared`（我发给这个房间的那份）生成 `room` 行，`RoomFeed.Build` 逐个字段拷出白名单 `id/name/owner/me/blocked/state/category/since/client`，不读 `Detail`、`CustomText`、`AppDisplayName`，所以任何人的标题、应用名、网站都不会给插件。`LatestLineWriter` 异步写入，只留最新一行，每秒最多一行，内容不变不重写。不新增上传，Server 不变 |
 | `PluginFiles` | Client.App/Providers | 哪些文件算插件、怎么启动。Windows：`.exe`、`.cmd`/`.bat`、`.ps1`、`.py`；macOS、Linux：有可执行位的文件 |
 | `ProviderRouting` / `CapabilityRouter` | Client.Core/Providers | 路由：每项能力取列表里最上面一个开启且没有出错的、声明了它的插件。主人变了，补发新主人上次报的值（采集器只在变化时报）；没人提供时发清空值（无网站、不暂离、不锁屏、没在播放；当前窗口保持上一个） |
 | `DetailRouter` | Client.Core/Providers | 补充标题：插件在 hello 里用 `apps` 声明管哪些进程，报 `detail`（`process`、可选的 `window`、`title`）。前台进程在某个开启且没出错的插件的 `apps` 里、`process` 一致、`window`（写了的话）等于当前窗口标题时，用它的 `title` 替换 `ForegroundSignal.WindowTitle`，列表里最上面的优先。浏览器不替换（标题变化会让网站重新等待）。每个插件最后一次报的值保留到它重报、报 null 或停止，切走再切回不用重报。只改标题，分类、`TitleFilter`、`PrivacyFilter` 照常执行 |
 | `ProviderHost` | Client.App/Providers | 管理列表：合并官方插件、设置里的顺序和插件文件夹（每 10 秒和点刷新时重新读）；启停插件；把信号按路由发到 `ActivityBus`，前台窗口先经 `DetailRouter` 合并补充标题，`DetailSignal` 不进总线；实现设置页用的 `IProviderControl` |
 
-列表顺序和开关存在 `AppSettings.Plugins`（`{ id, enabled, provides, apps }`），只在本机。新出现的官方插件加在末尾并开启；插件文件夹里新出现的文件加在最上面并关闭，开启时界面会确认。用户插件 hello 里声明的能力记在 `provides`，下次启动前列表就能显示对。
+列表顺序和开关存在 `AppSettings.Plugins`（`{ id, enabled, provides, apps, reads }`），只在本机。`reads` 是上次 hello 声明的读取项，决定下次启动时开不开标准输入；hello 和启动时不一致就立即重启一次。读取房间成员不单独授权，插件开启即可，插件页对这类插件显示一条说明（`plugin.readsRoom`）。新出现的官方插件加在末尾并开启；插件文件夹里新出现的文件加在最上面并关闭，开启时界面会确认。用户插件 hello 里声明的能力记在 `provides`，下次启动前列表就能显示对。
 
 插件文件夹：Windows `%APPDATA%\DeskPal\plugins`，macOS `~/Library/Application Support/DeskPal/plugins`，Linux `~/.config/DeskPal/plugins`。
 
 设置页「常规」里有一行「插件」（`PluginsEntry`），显示开启了几个，有能力没人提供或插件需要处理时显示提示；点进去是插件页（`PluginsPage`，全平台共用）。插件页顶部是返回、刷新、「打开插件文件夹」和「编写插件」（在浏览器打开 `provider-guide.md`）；每个插件折叠成固定两行（名称和版本、正在提供的几项或状态），可以上下移动、开关；点开后显示提供的能力（高亮的是实际在用的，`detail` 正在替换标题时高亮）、补充标题适用的应用、状态说明和插件提供的按钮。没有正常运行或有警告说明的插件一开始就展开。没人提供的能力在列表上方提示。
 
-插件只陈述事实。分类、不记录标题、隐私过滤都在插件之后执行，和以前一样。写插件见 [provider-guide.md](provider-guide.md)。
+插件只陈述事实。分类、不记录标题、隐私过滤都在插件之后执行，和以前一样。读取房间成员的插件只拿到上面的白名单字段，拿不到任何人的标题。写插件见 [provider-guide.md](provider-guide.md)。
 
 ## 官方插件的采集方式
 

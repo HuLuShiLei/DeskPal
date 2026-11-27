@@ -12,8 +12,12 @@ namespace DeskPal.Client.Providers;
 /// <summary>
 /// A plugin the user put in the plugins folder: a program that prints one JSON object per line
 /// (<see cref="ProviderProtocol"/>). Its lines become the same signals the official plugins publish.
-/// It runs as its own process with the user's rights; DeskPal gives it no token and no settings, only reads its output,
+/// It runs as its own process with the user's rights; DeskPal gives it no token and no settings, reads its output,
 /// and starts it again with a growing pause when it exits.
+/// Its standard input is closed, unless its hello line asks to read the room (<see cref="ProviderReads.Room"/>): then
+/// DeskPal writes the current <see cref="RoomFeed"/> line after the hello and again when the room changes, at most one
+/// line a second. Whether to open the input is decided when the program starts, from the last hello it wrote; when a
+/// hello asks for something else, the program is started again at once.
 /// </summary>
 public sealed class ExternalProvider : IActivityProvider
 {
@@ -21,32 +25,41 @@ public sealed class ExternalProvider : IActivityProvider
     private const int MaxLoggedProblems = 5;
     private static readonly int[] RestartDelaysSeconds = [1, 2, 5, 10, 30, 60];
     private static readonly TimeSpan IdleCheck = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan RoomInterval = TimeSpan.FromSeconds(1);
 
     private readonly string _path;
     private readonly Func<TimeSpan> _idleThreshold;
     private readonly ILogger _logger;
+    private readonly IRoomLineSource? _room;
     private readonly Lock _lock = new();
     private string? _helloName;
     private string? _version;
     private IReadOnlySet<ProviderCapability> _provides;
     private IReadOnlySet<string> _apps;
+    private IReadOnlySet<string> _reads;
     private ProviderHealth _health = ProviderHealth.Starting;
     private string? _error;
 
     /// <param name="knownProvides">What the plugin said it supplies the last time it ran; null when it never said.</param>
     /// <param name="knownApps">The apps its detail covered the last time it ran.</param>
+    /// <param name="knownReads">What it asked to read the last time it ran.</param>
+    /// <param name="room">Where the room line comes from; null gives no plugin anything to read.</param>
     public ExternalProvider(
         string path,
         IReadOnlySet<ProviderCapability>? knownProvides,
         IReadOnlySet<string>? knownApps,
         Func<TimeSpan> idleThreshold,
-        ILogger logger)
+        ILogger logger,
+        IReadOnlySet<string>? knownReads = null,
+        IRoomLineSource? room = null)
     {
         _path = path;
         _idleThreshold = idleThreshold;
         _logger = logger;
+        _room = room;
         _provides = knownProvides ?? ProviderCapabilities.PluginDefault;
         _apps = knownApps ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        _reads = knownReads ?? ProviderReads.None;
         File = Path.GetFileName(path);
     }
 
@@ -66,16 +79,39 @@ public sealed class ExternalProvider : IActivityProvider
 
     public IReadOnlySet<string> Apps => _apps;
 
+    /// <summary>What it asked to read in its last hello line (<see cref="ProviderReads"/>).</summary>
+    public IReadOnlySet<string> Reads => _reads;
+
     public ProviderHealth Health => _health;
 
-    public IReadOnlyList<PluginNote> Notes => _error is null ? [] : [new PluginNote("plugin.error", _error, "warn")];
+    public IReadOnlyList<PluginNote> Notes
+    {
+        get
+        {
+            var notes = new List<PluginNote>();
+            if (_reads.Contains(ProviderReads.Room))
+            {
+                notes.Add(new PluginNote("plugin.readsRoom"));
+            }
+
+            if (_error is not null)
+            {
+                notes.Add(new PluginNote("plugin.error", _error, "warn"));
+            }
+
+            return notes;
+        }
+    }
 
     public IReadOnlyList<string> Actions => [];
 
     public event Action? Changed;
 
-    /// <summary>Raised when the hello line changed what the plugin supplies or the apps it covers, so the host can remember it.</summary>
-    public event Action<IReadOnlySet<ProviderCapability>, IReadOnlySet<string>>? ProvidesAnnounced;
+    /// <summary>
+    /// Raised when the hello line changed what the plugin supplies, the apps it covers or what it reads, so the host
+    /// can remember it.
+    /// </summary>
+    public event Action<IReadOnlySet<ProviderCapability>, IReadOnlySet<string>, IReadOnlySet<string>>? ProvidesAnnounced;
 
     public Task<CommandResult> RunActionAsync(string action) => Task.FromResult(CommandResult.Fail(Strings.Plugin_UnknownAction));
 
@@ -83,12 +119,22 @@ public sealed class ExternalProvider : IActivityProvider
     public async Task RunAsync(SignalSink sink, CancellationToken cancellation)
     {
         var attempt = 0;
+        var restartedForInput = false;
         while (!cancellation.IsCancellationRequested)
         {
             var started = Stopwatch.StartNew();
             try
             {
-                await RunOnceAsync(sink, cancellation);
+                // Its hello asked for a different standard input than it was started with: start it again at once,
+                // only once in a row, so a plugin that keeps changing its mind still backs off.
+                var restart = await RunOnceAsync(sink, cancellation);
+                if (restart && !restartedForInput)
+                {
+                    restartedForInput = true;
+                    continue;
+                }
+
+                restartedForInput = false;
             }
             catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
             {
@@ -116,8 +162,10 @@ public sealed class ExternalProvider : IActivityProvider
         SetHealth(ProviderHealth.Starting, null);
     }
 
-    private async Task RunOnceAsync(SignalSink sink, CancellationToken cancellation)
+    /// <summary>Runs the program once. Returns true when it was stopped to be started again with a different input.</summary>
+    private async Task<bool> RunOnceAsync(SignalSink sink, CancellationToken cancellation)
     {
+        var run = new RunState(_room is not null && _reads.Contains(ProviderReads.Room));
         var info = PluginFiles.StartInfo(_path);
         info.UseShellExecute = false;
         info.RedirectStandardOutput = true;
@@ -125,6 +173,7 @@ public sealed class ExternalProvider : IActivityProvider
         info.RedirectStandardInput = true;
         info.StandardOutputEncoding = Encoding.UTF8;
         info.StandardErrorEncoding = Encoding.UTF8;
+        info.StandardInputEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
         info.CreateNoWindow = true;
         info.WorkingDirectory = Path.GetDirectoryName(_path) ?? "";
         info.Environment["DESKPAL_PROTOCOL"] = ProviderProtocol.Version.ToString();
@@ -132,21 +181,54 @@ public sealed class ExternalProvider : IActivityProvider
 
         using var process = Process.Start(info) ?? throw new InvalidOperationException("The program did not start.");
         _logger.LogInformation("Plugin {Path} started (pid {Pid})", _path, process.Id);
-        process.StandardInput.Close();
-        var errors = ReadErrorsAsync(process);
         using var stop = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+        var input = Task.CompletedTask;
+        Action? onRoom = null;
+        if (run.Input)
+        {
+            var stdin = process.StandardInput;
+            stdin.NewLine = "\n";
+            run.Writer = new LatestLineWriter(
+                async (line, token) =>
+                {
+                    await stdin.WriteLineAsync(line.AsMemory(), token);
+                    await stdin.FlushAsync(token);
+                },
+                RoomInterval,
+                ex => _logger.LogDebug(ex, "Writing to plugin {Path} failed", _path));
+            input = run.Writer.RunAsync(stop.Token);
+            onRoom = () => Post(run);
+            _room!.Changed += onRoom;
+        }
+        else
+        {
+            process.StandardInput.Close();
+        }
+
+        var errors = ReadErrorsAsync(process);
         var idle = new IdleTracker();
         var idleLoop = RunIdleAsync(idle, sink, stop.Token);
         try
         {
-            await ReadLinesAsync(process, sink, idle, cancellation);
+            await ReadLinesAsync(process, sink, idle, run, cancellation);
+            if (run.Restart)
+            {
+                return true;
+            }
+
             await process.WaitForExitAsync(cancellation);
             var tail = await errors;
             _logger.LogWarning("Plugin {Path} exited with code {Code}", _path, process.ExitCode);
             SetHealth(ProviderHealth.Failed, tail is { Length: > 0 } ? tail : $"exit code {process.ExitCode}");
+            return false;
         }
         finally
         {
+            if (onRoom is not null)
+            {
+                _room!.Changed -= onRoom;
+            }
+
             stop.Cancel();
             await idleLoop;
             if (!process.HasExited)
@@ -160,10 +242,29 @@ public sealed class ExternalProvider : IActivityProvider
                     _logger.LogDebug(ex, "Stopping plugin {Path} failed", _path);
                 }
             }
+
+            // A write stuck on a full pipe ends with the program; do not wait long for it.
+            await Task.WhenAny(input, Task.Delay(TimeSpan.FromSeconds(1), CancellationToken.None));
         }
     }
 
-    private async Task ReadLinesAsync(Process process, SignalSink sink, IdleTracker idle, CancellationToken cancellation)
+    /// <summary>Hands the current room line to the plugin, once it said hello.</summary>
+    private void Post(RunState run)
+    {
+        if (run.Writer is { } writer && run.HelloSeen && _room is { } room)
+        {
+            try
+            {
+                writer.Post(room.Line);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "Building the room line for plugin {Path} failed", _path);
+            }
+        }
+    }
+
+    private async Task ReadLinesAsync(Process process, SignalSink sink, IdleTracker idle, RunState run, CancellationToken cancellation)
     {
         var problems = 0;
         ActivitySignal? lastForeground = null, lastLock = null, lastMedia = null;
@@ -207,6 +308,15 @@ public sealed class ExternalProvider : IActivityProvider
             if (result.Message is ProviderHello hello)
             {
                 OnHello(hello);
+                if (_room is not null && _reads.Contains(ProviderReads.Room) != run.Input)
+                {
+                    _logger.LogInformation("Plugin {Path} {Change} reading the room; starting it again", _path, run.Input ? "stopped" : "started");
+                    run.Restart = true;
+                    return;
+                }
+
+                run.HelloSeen = true;
+                Post(run);
                 continue;
             }
 
@@ -299,18 +409,21 @@ public sealed class ExternalProvider : IActivityProvider
 
     private void OnHello(ProviderHello hello)
     {
-        _logger.LogInformation("Plugin {Path} is {Name} {Version}, supplies {Provides}, apps {Apps}",
+        _logger.LogInformation("Plugin {Path} is {Name} {Version}, supplies {Provides}, apps {Apps}, reads {Reads}",
             _path, hello.Name, hello.Version, hello.Provides is null ? "(default)" : string.Join(",", hello.Provides.Select(c => c.Name())),
-            hello.Apps is null ? "(none)" : string.Join(",", hello.Apps));
+            hello.Apps is null ? "(none)" : string.Join(",", hello.Apps),
+            hello.Reads is null ? "(nothing)" : string.Join(",", hello.Reads));
         _helloName = hello.Name;
         _version = hello.Version;
         var provides = hello.Provides ?? ProviderCapabilities.PluginDefault;
         var apps = hello.Apps ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        if (!provides.SetEquals(_provides) || !apps.SetEquals(_apps))
+        var reads = hello.Reads ?? ProviderReads.None;
+        if (!provides.SetEquals(_provides) || !apps.SetEquals(_apps) || !reads.SetEquals(_reads))
         {
             _provides = provides;
             _apps = apps;
-            ProvidesAnnounced?.Invoke(provides, apps);
+            _reads = reads;
+            ProvidesAnnounced?.Invoke(provides, apps, reads);
         }
 
         Changed?.Invoke();
@@ -342,6 +455,21 @@ public sealed class ExternalProvider : IActivityProvider
         }
 
         return last;
+    }
+
+    /// <summary>One start of the program.</summary>
+    private sealed class RunState(bool input)
+    {
+        /// <summary>Its standard input is open and gets the room line.</summary>
+        public bool Input { get; } = input;
+
+        public LatestLineWriter? Writer { get; set; }
+
+        /// <summary>Set after the first hello; the room line is only written after it.</summary>
+        public volatile bool HelloSeen;
+
+        /// <summary>Stopped because the hello asked for a different input.</summary>
+        public bool Restart { get; set; }
     }
 
     private void SetHealth(ProviderHealth health, string? error)

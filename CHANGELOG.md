@@ -8,6 +8,9 @@
 
 ## 0.1.6
 
+- 插件可以读取当前房间的成员和他们的状态，例如把成员状态显示到状态栏或别的程序里。插件只能看到名字、是否所有者、状态、类别、开始时间和系统，看不到任何人的窗口标题、媒体标题、应用名和网站；被你屏蔽的人只有名字。插件页会提示哪些插件读取房间成员。写法见插件编写指南。
+  en: Plugins can now read the current room's members and their states, for example to show them in a status bar or another app. A plugin sees only names, who the owner is, states, categories, since when, and which system each member uses. It never sees anyone's window or media titles, apps, or sites, and members you blocked appear by name only. The plugins page shows which plugins read room members. See the plugin guide for how to write one.
+
 - 窗口标题、网页标题和播放标题中的 IP 地址、手机号、座机号、邮箱、身份证号、7 位以上的数字（如向日葵、ToDesk 的识别码）以及「验证码：」「密码：」之后的内容会自动去掉，房间成员、首页和使用统计都只看到其余部分。例如「123.222.222.32 堡垒机」只显示「堡垒机」。用 IP 地址打开的网站显示为「IP 地址」。已经记录的使用统计也会去掉这些内容。
   en: IP addresses, phone numbers, e-mail addresses, ID card numbers, numbers of 7 or more digits (such as Sunlogin or ToDesk IDs), and whatever follows labels like "验证码:" or "password:" are now removed from window, page, and media titles. Room members, Home, and usage stats see only the rest. For example, "123.222.222.32 堡垒机" shows as "堡垒机". Sites opened by IP address show as IP address. These details are also removed from usage stats already recorded.
 

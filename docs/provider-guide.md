@@ -2,7 +2,7 @@
 
 DeskPal 显示你的状态，要先知道五件事：你在用哪个窗口、在看哪个网站、是不是暂离了、屏幕锁了没有、正在播放什么。这些信息都由**插件**提供。
 
-每个平台都自带一个官方插件（Windows 内置、macOS 内置、Linux 内置），装好就能用。你也可以自己写插件，放进插件文件夹，替换或补充官方插件提供的某几项，或者让某个软件显示更具体的内容，例如 QQ 正在看的会话（见「只补充某个软件的标题」）。
+每个平台都自带一个官方插件（Windows 内置、macOS 内置、Linux 内置），装好就能用。你也可以自己写插件，放进插件文件夹，替换或补充官方插件提供的某几项，或者让某个软件显示更具体的内容，例如 QQ 正在看的会话（见「只补充某个软件的标题」）。插件还可以读取当前房间的成员和他们的状态（见「读取房间成员」），不包含任何人的窗口标题和媒体标题。
 
 让 AI 帮你写：把仓库里的 `.claude/skills/deskpal-write-provider/` 整个目录给它（Cursor 和 Claude Code 会自动识别；其他工具把 `SKILL.md` 的内容贴给它），想参考现有例子时把 `plugin-examples/` 也给它，再说明你的系统、桌面环境和想要的效果。
 
@@ -79,6 +79,8 @@ goto loop
 放在第一行。`name` 和 `version` 显示在设置的插件列表里。`provides` 列出你提供的几项：`foreground`（当前窗口）、`domain`（网站）、`idle`（暂离）、`lock`（锁屏）、`media`（媒体），以及 `detail`（补充标题，见下文，要同时写 `apps`）。
 
 不写 `provides` 时按 `["foreground", "domain"]` 处理。**没写在 `provides` 里的消息，DeskPal 不会采用。**
+
+想读取房间成员时再加 `"reads":["room"]`，见「读取房间成员」。只读不报的插件写 `"provides":[]`。
 
 ### foreground：当前窗口
 
@@ -177,9 +179,82 @@ goto loop
 
 仓库根目录的 `plugin-examples/` 文件夹里有几个这样的示例：`windows-qq.ps1`（QQ NT）、`windows-wechat.ps1`（微信 4.x）、`windows-steam.ps1`（Steam 游戏的游戏内状态）和 `linux-qq.py`（Linux 的 QQ）。它们只是代码示例：界面结构随软件版本和系统变化，在别的电脑上经常读不到，要照着写法在自己电脑上确认、修改后再用。聊天软件的几个示例通过系统的无障碍接口（Windows 的 UI Automation、Linux 的 AT-SPI）只读会话顶部的名称，不读消息内容，不注入，也不读数据文件。软件改版后界面结构可能变化，读不到时它们什么都不报，DeskPal 显示原来的窗口标题。
 
+## 读取房间成员
+
+插件可以知道当前房间里有谁、每个人是什么状态，例如把成员状态显示到状态栏或别的程序里。
+
+在 hello 里写 `reads`：
+
+```json
+{"v":1,"type":"hello","name":"房间摘要","version":"0.1","provides":[],"reads":["room"]}
+```
+
+插件开启后，DeskPal 往它的**标准输入**写 `room` 行：收到 hello 后写一行，之后房间、成员或任何人（包括你自己）的状态变化时再写，每秒最多一行。每行都是完整的快照，直接用最新的一行，不用自己合并：
+
+```json
+{"v":1,"type":"room","room":{"id":"…","name":"摸鱼小组"},"members":[
+  {"id":"…","name":"张三","owner":true,"me":false,"blocked":false,"state":"Slacking","category":"Game","since":"2026-11-27T08:30:00Z","client":"windows"},
+  {"id":"…","name":"我","owner":false,"me":true,"blocked":false,"state":"Working","category":"Work","since":"2026-11-27T08:10:00Z","client":"linux"},
+  {"id":"…","name":"李四","owner":false,"me":false,"blocked":true}
+]}
+```
+
+（实际是一行，这里为了好看折开了。）没有进入任何房间时是 `{"v":1,"type":"room","room":null,"members":[]}`。
+
+每个成员**只有**这些字段：
+
+| 字段 | 说明 |
+| --- | --- |
+| `id` | 成员的 id |
+| `name` | 显示名称 |
+| `owner` | 是不是房间所有者 |
+| `me` | 是不是你自己 |
+| `blocked` | 是不是被你屏蔽了。被屏蔽的人只有上面这五项，没有状态 |
+| `state` | 状态：`Working`、`Communicating`、`Browsing`、`Slacking`、`Other`、`Away`、`Locked`、`Paused`、`Offline` 等，和房间消息里的英文名一致。还没收到过状态时是 `Offline` |
+| `category` | 类别：`Work`、`Communication`、`Browsing`、`Video`、`Game`、`Other` 等；没有类别的状态（暂停分享、锁屏、暂离、离线）是 `None` |
+| `since` | 这个状态从什么时候开始，UTC 时间；从没收到过状态时是 `null` |
+| `client` | 对方用的系统：`windows`、`mac`、`linux`；离线时是 `null` |
+
+- **不包含窗口标题和媒体标题**，也不包含应用名和网站。即使对方把某个类别设为“显示详情”、你在面板上能看到标题，插件也拿不到。
+- 你自己（`me:true`）给的是房间成员看到的你，不是本机的完整状态。
+- 不需要单独授权：开启插件就会收到。插件页里会提示这个插件会读取房间成员。插件能把收到的内容保存下来或发到别处，只开启你信得过的插件。
+- 没写 `reads` 的插件，标准输入和以前一样是关闭的。DeskPal 第一次运行插件时还不知道它要读什么，收到声明了 `reads` 的 hello 后会立即重新启动它一次，之后每次启动都直接打开标准输入。
+- 插件不读标准输入也不会让 DeskPal 卡住，只是错过中间的几行。
+- 标准输入是 UTF-8，每行以 `\n` 结束。
+
+Python：
+
+```python
+import json, sys
+print(json.dumps({"v": 1, "type": "hello", "name": "房间摘要", "provides": [], "reads": ["room"]}), flush=True)
+for line in sys.stdin:
+    message = json.loads(line)
+    if message["type"] == "room":
+        playing = [m["name"] for m in message["members"] if m.get("category") == "Game"]
+        print("在玩游戏：", playing, file=sys.stderr, flush=True)
+```
+
+PowerShell（`.ps1`，存成带 BOM 的 UTF-8）：
+
+```powershell
+[Console]::InputEncoding = [Text.UTF8Encoding]::new($false)
+[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
+[Console]::Out.WriteLine((@{ v = 1; type = 'hello'; name = '房间摘要'; provides = @(); reads = @('room') } | ConvertTo-Json -Compress))
+[Console]::Out.Flush()
+while ($null -ne ($line = [Console]::In.ReadLine())) {
+    $message = $line | ConvertFrom-Json
+    if ($message.type -eq 'room') {
+        $names = @($message.members | Where-Object { -not $_.blocked -and $_.state -ne 'Offline' } | ForEach-Object { $_.name })
+        [Console]::Error.WriteLine("在线：" + ($names -join '、'))
+    }
+}
+```
+
+完整的例子见 `plugin-examples/room-digest.py`。
+
 ## 插件做不到的事
 
-插件只负责陈述事实。之后的分类、你设置的“不记录标题”、隐私过滤，都由 DeskPal 照常执行，插件改变不了，也看不到别人的状态。
+插件只负责陈述事实。之后的分类、你设置的“不记录标题”、隐私过滤，都由 DeskPal 照常执行，插件改变不了。读取房间成员的插件只能看到上面那几项，看不到任何人的标题，也不能往房间里发消息。
 
 DeskPal 自己不截屏、不读按键内容、不读窗口里的内容。你的插件读什么由你自己决定，建议也守住这几条：只读需要的那一项信息，不联网。插件是以你的用户身份运行的普通程序：只运行你看得懂、信得过的插件。
 
@@ -221,6 +296,7 @@ Linux 上没有可靠的办法从浏览器外面读到网址，所以 Linux 内�
 | `windows-wechat.ps1` | Windows，补充微信 4.x 的当前会话名，在微信 4.2.0.53 主窗口上验证过 |
 | `windows-steam.ps1` | Windows，补充 Steam 游戏的游戏内状态（好友列表里显示的那行，例如「铁甲战士 - 密林 进阶5」），在杀戮尖塔 2 上验证过。要开启 Steam 的调试接口，见文件开头的说明 |
 | `linux-qq.py` | Linux，用 AT-SPI 补充 QQ 的当前会话名，在 Ubuntu 26.04 GNOME Wayland 上验证过 |
+| `room-digest.py` | 三个平台，读取房间成员和状态，把摘要写到日志 |
 
 写完先检查再开启：
 
@@ -228,7 +304,7 @@ Linux 上没有可靠的办法从浏览器外面读到网址，所以 Linux 内�
 python3 check_provider.py ./my-plugin.sh
 ```
 
-它会运行你的插件 8 秒（这期间切换几个窗口），按 DeskPal 的规则逐行检查并指出问题，例如：
+它会运行你的插件 8 秒（这期间切换几个窗口），按 DeskPal 的规则逐行检查并指出问题。插件声明了 `reads:["room"]` 时，它会往插件的标准输入写一行示例 `room`（内容是假的），插件写到标准错误的内容也会显示出来。例如：
 
 ```
   正常 hello  my-plugin 0.1  provides=['foreground', 'idle']
@@ -250,5 +326,6 @@ python3 check_provider.py ./my-plugin.sh
 | 插件在运行，但标签是灰的 | 上面有别的插件提供了同一项。用箭头把你的插件移上去 |
 | 某一项没变化 | 这一项没写进 hello 的 `provides`，DeskPal 不采用 |
 | 应用被归到“其他活动” | `process` 不是规则认识的名字。可以在 DeskPal 里给它设置分类，或换成可执行文件名 |
+| 读取房间成员的插件收不到 `room` 行 | hello 里没写 `"reads":["room"]`，或 hello 不是第一行有效输出；插件刚声明 `reads` 时会被重新启动一次，看日志里有没有“starting it again” |
 | 补充的标题没有显示 | hello 里没写 `apps`，或 `apps`、`process` 和前台程序的名字不一致；写了 `window` 但和当前窗口标题不一样；前台是浏览器。房间成员那边还要把“在聊天”等类别设为显示详情 |
 | 想换回原样 | 关掉自己的插件，或把官方插件移回最上面 |

@@ -10,6 +10,7 @@
 | `windows-wechat.ps1` | Windows | 只提供 `detail`：微信在前台时，显示当前会话名（好友或群） | 微信 4.2.0.53 主窗口。单独弹出的聊天窗口未验证；旧版微信 3.x 不支持 |
 | `windows-steam.ps1` | Windows | 只提供 `detail`：显示 Steam 游戏的游戏内状态（好友列表里显示的那行） | 杀戮尖塔 2。要开启 Steam 的调试接口，见文件开头的说明 |
 | `linux-qq.py` | Linux | 只提供 `detail`：QQ 在前台时，显示当前会话名，主窗口和单独的聊天窗口都按当前窗口读 | Ubuntu 26.04（GNOME Wayland）：切换会话时读到会话名，切到没有会话名的窗口时报 null |
+| `room-digest.py` | 三个平台 | 只读不报：读取当前房间的成员和状态（`reads:["room"]`），把摘要写到 DeskPal 的日志。拿不到任何人的标题、应用名和网站 | Linux 上用检查工具和单元测试里的真实插件进程验证过；在真实房间里的效果待端到端自检 |
 | `x11-xdotool.sh` | Linux | 用 xdotool 读 X11 的当前窗口 | X11 |
 | `hyprland.sh` | Linux | 读 Hyprland 的当前窗口 | 按文档编写，未在真机验证 |
 | `sway.sh` | Linux | 读 Sway 的当前窗口 | 按文档编写，未在真机验证 |

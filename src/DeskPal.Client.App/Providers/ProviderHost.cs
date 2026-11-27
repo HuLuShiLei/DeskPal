@@ -19,6 +19,8 @@ namespace DeskPal.Client.Providers;
 /// change), or the capability is cleared when nobody supplies it.
 /// New official plugins join the list switched on; new files in the plugins folder join it at the top switched off,
 /// so nothing the user dropped into the folder runs until they turn it on.
+/// A turned-on user plugin whose hello asks to read the room gets the current room line on its standard input
+/// (<see cref="RoomFeedSource"/>); no separate permission, the plugin being on is enough.
 /// </summary>
 public sealed class ProviderHost : BackgroundService, IProviderControl
 {
@@ -29,6 +31,7 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
     private readonly AppSettings _settings;
     private readonly SettingsStore _store;
     private readonly ILoggerFactory _loggers;
+    private readonly RoomFeedSource? _room;
     private readonly ILogger<ProviderHost> _logger;
     private readonly Lock _lock = new();
 
@@ -44,9 +47,11 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
         ActivityBus bus,
         AppSettings settings,
         SettingsStore store,
-        ILoggerFactory loggers)
+        ILoggerFactory loggers,
+        RoomFeedSource? room = null)
     {
         _officials = officials.ToList();
+        _room = room;
         _bus = bus;
         _settings = settings;
         _store = store;
@@ -320,6 +325,19 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
     private ExternalProvider CreateExternal(PluginSetting row)
     {
         var knownApps = row.Apps is { } appNames ? new HashSet<string>(appNames, StringComparer.OrdinalIgnoreCase) : null;
+        HashSet<string>? knownReads = null;
+        if (row.Reads is { } readNames)
+        {
+            knownReads = [];
+            foreach (var name in readNames)
+            {
+                if (ProviderReads.TryParse(name, out var read))
+                {
+                    knownReads.Add(read);
+                }
+            }
+        }
+
         HashSet<ProviderCapability>? known = null;
         if (row.Provides is { } names)
         {
@@ -338,13 +356,15 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
             known,
             knownApps,
             () => TimeSpan.FromMinutes(AccountIdle.Normalize(_settings.IdleMinutes)),
-            _loggers.CreateLogger("DeskPal.UserPlugin"));
+            _loggers.CreateLogger("DeskPal.UserPlugin"),
+            knownReads,
+            _room);
         provider.Changed += OnProviderChanged;
-        provider.ProvidesAnnounced += (provides, apps) => RememberProvides(provider.Id, provides, apps);
+        provider.ProvidesAnnounced += (provides, apps, reads) => RememberProvides(provider.Id, provides, apps, reads);
         return provider;
     }
 
-    private void RememberProvides(string id, IReadOnlySet<ProviderCapability> provides, IReadOnlySet<string> apps)
+    private void RememberProvides(string id, IReadOnlySet<ProviderCapability> provides, IReadOnlySet<string> apps, IReadOnlySet<string> reads)
     {
         lock (_lock)
         {
@@ -355,6 +375,7 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
                     Enabled = r.Enabled,
                     Provides = ProviderCapabilities.Known.Where(provides.Contains).Select(c => c.Name()).ToList(),
                     Apps = apps.Count == 0 ? null : apps.Order(StringComparer.OrdinalIgnoreCase).ToList(),
+                    Reads = reads.Count == 0 ? null : reads.Order(StringComparer.Ordinal).ToList(),
                 })
                 .ToList();
             Save();
@@ -479,6 +500,7 @@ public sealed class ProviderHost : BackgroundService, IProviderControl
             Enabled = s.Enabled,
             Provides = rows.TryGetValue(s.Provider.Id, out var row) ? row.Provides : null,
             Apps = row?.Apps,
+            Reads = row?.Reads,
         }).ToList();
 
         // Rows of files that are missing right now keep their place at the end.
