@@ -40,7 +40,7 @@ public sealed class RoomFeedSource : IRoomLineSource
         {
             var room = _rooms.SelectedRoom;
             var shared = _presence.Shared;
-            var mine = room is not null && shared is { } s && s.RoomId == room.Id ? s.Snapshot : null;
+            var mine = room is not null && shared is not null && shared.RoomId == room.Id ? shared.Snapshot : null;
             return RoomFeed.Build(room, _rooms.MyUserId, userId => room is null ? null : _rooms.GetPresence(room.Id, userId), mine);
         }
     }

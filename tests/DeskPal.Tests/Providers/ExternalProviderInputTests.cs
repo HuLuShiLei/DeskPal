@@ -37,6 +37,15 @@ public sealed class ExternalProviderInputTests : IDisposable
         time.sleep(60)
         """;
 
+    /// <summary>Only reads: supplies nothing, writes no fact, only its standard error.</summary>
+    private const string OnlyReads = """
+        import json, sys, time
+        print(json.dumps({"v": 1, "type": "hello", "name": "only-reads", "provides": [], "reads": ["room"]}), flush=True)
+        for line in sys.stdin:
+            print(line.strip(), file=sys.stderr, flush=True)
+        time.sleep(60)
+        """;
+
     private readonly string _folder = Path.Combine(Path.GetTempPath(), "deskpal-plugin-tests-" + Guid.NewGuid().ToString("N"));
 
     public ExternalProviderInputTests() => Directory.CreateDirectory(_folder);
@@ -109,6 +118,27 @@ public sealed class ExternalProviderInputTests : IDisposable
 
         Assert.Equal("eof", (await run.NextAsync()).ProcessName);
         Assert.Empty(run.Provider.Reads);
+        await run.StopAsync();
+    }
+
+    [Fact]
+    public async Task A_plugin_that_only_reads_counts_as_running()
+    {
+        if (!HasPython())
+        {
+            return;
+        }
+
+        // It never writes a fact; without this it would show "Starting" for as long as it runs.
+        var run = Start(OnlyReads, knownReads: new HashSet<string> { ProviderReads.Room }, new FakeRoom("""{"v":1,"type":"room","room":null,"members":[]}"""));
+
+        var deadline = DateTime.UtcNow + Wait;
+        while (run.Provider.Health != ProviderHealth.Running && DateTime.UtcNow < deadline)
+        {
+            await Task.Delay(50);
+        }
+
+        Assert.Equal(ProviderHealth.Running, run.Provider.Health);
         await run.StopAsync();
     }
 

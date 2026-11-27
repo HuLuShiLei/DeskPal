@@ -47,6 +47,8 @@ public sealed class LineThrottle(TimeSpan interval)
 /// Writes lines to a plugin's standard input without ever making the caller wait: <see cref="Post"/> only stores the
 /// line, and <see cref="RunAsync"/> writes the latest one when the previous write finished and the interval passed.
 /// A plugin that does not read its input only blocks this writer's loop; the lines in between are dropped.
+/// Note that writes to an anonymous pipe are synchronous underneath in .NET: a stuck write holds one thread-pool thread
+/// until the plugin reads or exits (the host kills it when it is turned off or restarted). DeskPal itself never waits.
 /// </summary>
 public sealed class LatestLineWriter(Func<string, CancellationToken, Task> write, TimeSpan interval, Action<Exception>? failed = null)
 {

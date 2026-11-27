@@ -45,7 +45,7 @@ DeskPal → 插件，写到插件标准输入：
 | `state` | `PresenceSnapshot.State` | 英文枚举名（和房间消息一致）。没收到过状态时为 `Offline` |
 | `category` | `PresenceSnapshot.Category` | 和面板一致：类别属于状态本身，任何隐私级别都有（`PrivacyFilter.Apply`）；没有类别的状态（暂停、锁屏、暂离、离线）为 `None` |
 | `since` | `PresenceSnapshot.Since` | ISO 8601 UTC；离线且从没收到过状态时为 null |
-| `client` | `PresenceSnapshot.Client` | `windows` / `mac` / `linux`；离线时为 null |
+| `client` | `PresenceSnapshot.Client` | `windows` / `mac` / `linux`；离线或不是这三种时为 null（Server 不解析 Payload，值也要限定） |
 
 **没有 `app`**（2026-11-27 用户决定）：成员的应用名和网站域名（`PresenceSnapshot.AppDisplayName`）不给插件，即使对方设为「显示应用」或「显示详情」。插件只知道对方「在玩游戏」，不知道玩的是哪个。
 

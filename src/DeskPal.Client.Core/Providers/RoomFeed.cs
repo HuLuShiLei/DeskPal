@@ -16,7 +16,13 @@ namespace DeskPal.Client.Core.Providers;
 /// is not read here, even when the member shows details to the room. <see cref="PresenceSnapshot.CustomText"/> and the
 /// app or site name (<see cref="PresenceSnapshot.AppDisplayName"/>) are not read either.
 /// </para>
+/// Values are limited too, not only names: state and category are enum names, since is a time, and client is one of
+/// <see cref="ClientKinds"/> or null, so the member and room names are the only free text.
 /// Member fields: id, name, owner, me, blocked, and unless blocked: state, category, since, client.
+/// <para>
+/// Before I have sent anything to the room (just started, still detecting), I am <c>Offline</c> with a null since;
+/// the panel shows "detecting" then. Same for members whose state has not arrived yet.
+/// </para>
 /// </summary>
 public static class RoomFeed
 {
@@ -93,13 +99,14 @@ public static class RoomFeed
             json.WriteString("since", snapshot.Since.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", System.Globalization.CultureInfo.InvariantCulture));
         }
 
-        if (snapshot?.State is null or PresenceState.Offline || snapshot.Client is null)
+        // The server does not read payloads, so a changed client could put any text here; only the known kinds pass.
+        if (snapshot is { State: not PresenceState.Offline, Client: ClientKinds.Windows or ClientKinds.Mac or ClientKinds.Linux } online)
         {
-            json.WriteNull("client");
+            json.WriteString("client", online.Client);
         }
         else
         {
-            json.WriteString("client", snapshot.Client);
+            json.WriteNull("client");
         }
     }
 }

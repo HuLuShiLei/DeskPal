@@ -155,6 +155,37 @@ public class RoomFeedTests
             (bob.GetProperty("state").GetString(), bob.GetProperty("since").GetString(), bob.GetProperty("client").ValueKind));
     }
 
+    [Theory]
+    [InlineData("windows", "windows")]
+    [InlineData("mac", "mac")]
+    [InlineData("linux", "linux")]
+    [InlineData("机密.docx - Word", null)]
+    [InlineData("Windows", null)]
+    [InlineData("", null)]
+    public void Client_is_only_a_known_kind(string sent, string? expected)
+    {
+        var presence = new Dictionary<Guid, PresenceSnapshot>
+        {
+            [Bob] = new() { State = PresenceState.Working, Category = ActivityCategory.Work, Since = Since, Client = sent },
+        };
+
+        var line = RoomFeed.Build(Room(), Me, id => presence.GetValueOrDefault(id), mine: null);
+
+        using var json = JsonDocument.Parse(line);
+        var client = Member(json.RootElement, Bob).GetProperty("client");
+        Assert.Equal(expected, client.ValueKind == JsonValueKind.Null ? null : client.GetString());
+        Assert.DoesNotContain("机密", line);
+    }
+
+    [Fact]
+    public void Me_before_anything_was_sent_is_offline()
+    {
+        using var json = JsonDocument.Parse(RoomFeed.Build(Room(), Me, _ => null, mine: null));
+
+        var me = Member(json.RootElement, Me);
+        Assert.Equal(("Offline", JsonValueKind.Null), (me.GetProperty("state").GetString(), me.GetProperty("since").ValueKind));
+    }
+
     [Fact]
     public void Outside_any_room_the_list_is_empty()
     {

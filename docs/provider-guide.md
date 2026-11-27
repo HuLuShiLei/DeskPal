@@ -213,7 +213,7 @@ goto loop
 | `state` | 状态：`Working`、`Communicating`、`Browsing`、`Slacking`、`Other`、`Away`、`Locked`、`Paused`、`Offline` 等，和房间消息里的英文名一致。还没收到过状态时是 `Offline` |
 | `category` | 类别：`Work`、`Communication`、`Browsing`、`Video`、`Game`、`Other` 等；没有类别的状态（暂停分享、锁屏、暂离、离线）是 `None` |
 | `since` | 这个状态从什么时候开始，UTC 时间；从没收到过状态时是 `null` |
-| `client` | 对方用的系统：`windows`、`mac`、`linux`；离线时是 `null` |
+| `client` | 对方用的系统：`windows`、`mac`、`linux`；离线或不是这三种时是 `null` |
 
 - **不包含窗口标题和媒体标题**，也不包含应用名和网站。即使对方把某个类别设为“显示详情”、你在面板上能看到标题，插件也拿不到。
 - 你自己（`me:true`）给的是房间成员看到的你，不是本机的完整状态。

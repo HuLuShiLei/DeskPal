@@ -317,6 +317,13 @@ public sealed class ExternalProvider : IActivityProvider
 
                 run.HelloSeen = true;
                 Post(run);
+
+                // A plugin that only reads never writes a fact, so its hello is the sign that it works.
+                if (_provides.Count == 0 && _health != ProviderHealth.Running)
+                {
+                    SetHealth(ProviderHealth.Running, null);
+                }
+
                 continue;
             }
 
