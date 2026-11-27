@@ -218,7 +218,7 @@ function capabilityList(list: PluginCapability[]): string {
   return list.map(capabilityName).join(t("common.listSeparator"));
 }
 
-/** 折叠时第二行的一句话：没在运行时是状态，在运行时是正在提供的几项和补充标题的应用。 */
+/** 折叠时第二行的一句话：没在运行时是状态，在运行时是正在提供的几项、补充标题的应用和是否读取房间成员。 */
 function pluginSummary(plugin: PluginView): string {
   if (plugin.state !== "running") return t(`plugins.state.${plugin.state}`);
   const parts: string[] = [];
@@ -230,6 +230,7 @@ function pluginSummary(plugin: PluginView): string {
   if (plugin.provides.includes("detail")) {
     parts.push(plugin.apps.length > 0 ? t("plugins.summary.detail", { list: plugin.apps.join(t("common.listSeparator")) }) : t("plugins.summary.noApps"));
   }
+  if (plugin.notes.some((n) => n.key === "plugin.readsRoom")) parts.push(t("plugins.summary.readsRoom"));
   return parts.join(t("plugins.summary.separator"));
 }
 

@@ -165,6 +165,30 @@ public class ProviderProtocolTests
     }
 
     [Fact]
+    public void Hello_says_what_the_plugin_reads()
+    {
+        var hello = Assert.IsType<ProviderHello>(ProviderProtocol.Parse("""{"v":1,"type":"hello","name":"房间提醒","provides":[],"reads":["room","foo",3]}""").Message);
+
+        Assert.Equal(new HashSet<string> { ProviderReads.Room }, hello.Reads);
+        Assert.Empty(hello.Provides!);
+    }
+
+    [Fact]
+    public void Hello_without_reads_reads_nothing()
+    {
+        var hello = Assert.IsType<ProviderHello>(ProviderProtocol.Parse("""{"type":"hello","name":"x","provides":["foreground"]}""").Message);
+
+        Assert.Null(hello.Reads);
+        Assert.Null(Assert.IsType<ProviderHello>(ProviderProtocol.Parse("""{"type":"hello","name":"x","reads":null}""").Message).Reads);
+    }
+
+    [Fact]
+    public void Reads_must_be_a_list()
+    {
+        Assert.NotNull(ProviderProtocol.Parse("""{"type":"hello","name":"x","reads":"room"}""").Error);
+    }
+
+    [Fact]
     public void Detail_line_is_read()
     {
         var detail = Assert.IsType<ProviderDetail>(ProviderProtocol.Parse("""{"v":1,"type":"detail","process":"QQ.exe","window":" QQ ","title":"张三"}""").Message);

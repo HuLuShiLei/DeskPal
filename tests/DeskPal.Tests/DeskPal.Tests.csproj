@@ -25,6 +25,7 @@
     <ProjectReference Include="..\..\src\DeskPal.Shared\DeskPal.Shared.csproj" />
     <ProjectReference Include="..\..\src\DeskPal.Server\DeskPal.Server.csproj" />
     <ProjectReference Include="..\..\src\DeskPal.Client.Core\DeskPal.Client.Core.csproj" />
+    <ProjectReference Include="..\..\src\DeskPal.Client.App\DeskPal.Client.App.csproj" />
   </ItemGroup>
 
 </Project>

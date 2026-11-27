@@ -17,6 +17,8 @@ DeskPal 的活动信息全部来自插件：每个平台有一个官方插件（
 
 用户新放进文件夹的插件默认关闭，开启时界面会确认。
 
+插件还可以只读不报：hello 里写 `"reads":["room"]`，DeskPal 往它的标准输入写当前房间的成员和状态（见下文「DeskPal → 插件」）。不需要单独授权，插件开启就给。
+
 第六项 `detail`（补充标题）不按上面的规则抢主人：插件在 hello 里用 `apps` 声明管哪些程序，只在这些程序处于前台时把窗口标题换成更具体的内容（例如 QQ 的当前会话名），当前窗口本身仍来自 `foreground` 的主人。多个插件都能补充时取列表里最上面一个。实现在 `DetailRouter`，由 `ProviderHost` 在把前台窗口发到 `ActivityBus` 前合并。
 
 ## 先确认需要写什么
@@ -29,6 +31,7 @@ DeskPal 的活动信息全部来自插件：每个平台有一个官方插件（
 | Linux 上想按网站分类 | 通常不用写：装 DeskPal 浏览器扩展（Linux 内置插件上的“获取浏览器扩展”）。只有想换数据来源时才自己输出 `domain` |
 | Windows、macOS | 官方插件都有；只有想改某一项的来源时才写 |
 | 某个软件识别不准 | 优先让用户在 DeskPal 里改分类；只有需要读到额外信息时才写插件 |
+| 想知道房间里谁在做什么（例如把成员状态显示到状态栏或别的程序里） | 一个 `provides:[]`、`reads:["room"]` 的插件，读标准输入，参考 `plugin-examples/room-digest.py`。拿不到任何人的标题、应用名和网站 |
 | 想让某个软件显示更具体的内容（聊天软件的当前会话、编辑器的当前项目） | 一个只提供 `detail` 的插件，`apps` 写这个软件的进程名，放在列表任何位置都行。Windows 上先看窗口标题里有没有（官方插件已经上报标题），没有再用 UI Automation 读界面元素，参考仓库根目录的 `plugin-examples/windows-qq.ps1`、`plugin-examples/windows-wechat.ps1` |
 
 不要凭猜测写：先让用户在终端里跑一遍你打算用的查询命令，把真实输出贴回来。Linux 上先让用户运行 `echo $XDG_SESSION_TYPE $XDG_CURRENT_DESKTOP`。
@@ -48,7 +51,7 @@ DeskPal 的活动信息全部来自插件：每个平台有一个官方插件（
 
 | type | 字段 | 说明 |
 | --- | --- | --- |
-| `hello` | `name`（必填）、`version`、`provides`、`apps` | 第一行。`provides` 不写时按 `["foreground","domain"]`。**没声明的能力，对应的消息会被丢弃**。`apps` 是 `detail` 适用的进程名列表（规范化方式同 `process`，不区分大小写，最多 32 个），声明了 `detail` 却没写 `apps` 时补充的标题不生效 |
+| `hello` | `name`（必填）、`version`、`provides`、`apps`、`reads` | 第一行。`provides` 不写时按 `["foreground","domain"]`，可以是 `[]`。**没声明的能力，对应的消息会被丢弃**。`apps` 是 `detail` 适用的进程名列表（规范化方式同 `process`，不区分大小写，最多 32 个），声明了 `detail` 却没写 `apps` 时补充的标题不生效。`reads` 目前只认 `room`，不认识的名字忽略 |
 | `foreground` | `process`（必填）、`name`、`title`、`fullscreen`、`path` | `process` 给完整路径或带 `.exe` 也行，DeskPal 只取文件名 |
 | `domain` | `domain`（字符串或 null） | 只给域名。**每次浏览器窗口或标题变化后都要再发一次**，哪怕没变：管线会等它（`ActivitySnapshot.DomainPending`），所以宿主不对 domain 去重 |
 | `idle` | `seconds`（≥0 的数字） | 距上次输入的秒数，**每 5 秒左右发一次**；阈值由 DeskPal 按用户设置判断（`IdleTracker`），超过 2 分钟没报就不算暂离 |
@@ -63,7 +66,20 @@ DeskPal 的活动信息全部来自插件：每个平台有一个官方插件（
 - 除 `idle`、`domain`、`detail` 外，**没变化就不要重复输出**。
 - **每行写完立刻 flush**。标准输出只能有协议行，调试信息写标准错误（进 DeskPal 日志，退出时最后一行显示在列表里）。
 - 插件要一直运行。退出后按 1、2、5、10、30、60 秒的间隔重启。DeskPal 关闭插件或退出时会结束插件及其子进程。
-- 环境变量 `DESKPAL_PROTOCOL` 是协议版本；工作目录是插件所在目录；标准输入是关闭的（Windows 批处理里不能用 `timeout` 等待，用 `ping -n 6 127.0.0.1 >nul`）。
+- 环境变量 `DESKPAL_PROTOCOL` 是协议版本；工作目录是插件所在目录；没声明 `reads` 的插件标准输入是关闭的（Windows 批处理里不能用 `timeout` 等待，用 `ping -n 6 127.0.0.1 >nul`）。
+
+### DeskPal → 插件：`room`
+
+hello 里有 `"reads":["room"]` 的插件，标准输入是打开的（UTF-8，无 BOM，`\n` 换行）。DeskPal 在 hello 之后写一行，之后房间、成员、任何人（包括自己）的状态变化时写最新的完整快照，同一插件每秒最多一行，内容不变不重写，插件不读也不会卡住 DeskPal（写不进去时只留最新一行）：
+
+```json
+{"v":1,"type":"room","room":{"id":"…","name":"摸鱼小组"},"members":[{"id":"…","name":"张三","owner":true,"me":false,"blocked":false,"state":"Slacking","category":"Game","since":"2026-11-27T08:30:00Z","client":"windows"},{"id":"…","name":"李四","owner":false,"me":false,"blocked":true}]}
+```
+
+- 不在房间里：`{"v":1,"type":"room","room":null,"members":[]}`。
+- 成员**只有** `id`、`name`、`owner`、`me`、`blocked`、`state`、`category`、`since`、`client`（白名单在 `RoomFeed.Build`）。被我屏蔽的只有前五项。没收到过状态：`state:"Offline"`、`since:null`。`me:true` 是我发给这个房间的那份（`PrivacyFilter.Apply` 之后）。
+- **没有** `detail`、`customText`、`app`：任何人的窗口标题、网页标题、媒体标题、应用名和网站都不给，对方设为“显示详情”也不给。这是用户定的边界，不要加字段把它们放出来。
+- 启动时按设置里记下的上次 hello（`PluginSetting.Reads`）决定开不开标准输入；hello 和启动时不一致就立即重启一次（`ExternalProvider`）。所以新插件第一次运行时标准输入是关闭的，紧接着被重启。
 
 ## 插件文件夹和文件类型
 
@@ -99,7 +115,7 @@ Linux 内置插件里有一个本机 HTTP 端点（`BrowserBridge`，`127.0.0.1:
 
 1. 选模板：`scripts/template.sh`（Linux、macOS，需要 jq）、`scripts/template.py`（三平台，标准库）、`scripts/template.ps1`（Windows 自带 PowerShell，读前台窗口和暂离，已在 Windows 上验证）。例子在仓库根目录的 `plugin-examples/`（见那里的 `README.md`）。**它们是代码示例，不是可以直接交给别人用的插件**：窗口查询命令、界面元素的 AutomationId 或 class 名、进程名都随软件版本、系统、桌面环境变化，同一个插件换一台电脑经常读不到。参考它们的写法，在用户电脑上重新确认查询结果和元素后再改出用户自己的插件，不要原样复制给用户。各例子当初验证过的环境：`x11-xdotool.sh` 已验证；`hyprland.sh`、`sway.sh`、`macos-frontmost.sh` 按文档写成、未在真机验证；`windows-steam.ps1`（`detail`，通过 Steam 客户端的 Chrome 调试接口 `127.0.0.1:8080` 读自己的 Rich Presence，按 `appmanifest` 的 `installdir` 认出游戏进程，游戏变化时重发 hello 更新 `apps`，已在杀戮尖塔 2 上验证）、`windows-qq.ps1`（QQ NT 9.9.37 验证，按 class 名找元素）、`windows-wechat.ps1`（微信 4.2.0.53 验证，微信 4.x 是 Qt 界面，按 AutomationId 找元素并缓存，因为界面里有整个消息列表，每秒全树搜索太费）。新写这类插件时，先在用户电脑上遍历一次 UI Automation 树找到目标元素（只输出类型、类名、AutomationId 和名称长度，不输出名称，避免读到聊天内容），优先用 AutomationId，其次 class 名。Linux 的 QQ 例子见 `linux-qq.py`：通过 AT-SPI 按当前 ACTIVE 窗口查找 `chat-header__contact-name`，名称为空时读文本接口，`window` 报 null；DeskPal 在 Linux 记录的进程名是可执行文件名 `qq`。
 2. 在 hello 的 `provides` 里只写真正提供的几项，只改读取数据的那一段。Shell 里用 `jq` 生成 JSON，PowerShell 用 `ConvertTo-Json`，不要手拼字符串。
-3. 检查：`python3 scripts/check_provider.py <插件文件>`（Windows 也能用）。它运行插件 8 秒，按 DeskPal 的规则逐行检查，期间让用户切换几个窗口。
+3. 检查：`python3 scripts/check_provider.py <插件文件>`（Windows 也能用）。它运行插件 8 秒，按 DeskPal 的规则逐行检查，期间让用户切换几个窗口。声明了 `reads:["room"]` 的插件会收到一行示例 `room`，插件的标准错误也会显示出来。
 4. 安装：放进插件文件夹（Linux、macOS 上 `chmod +x`），在「设置 → 插件」点刷新按钮，打开开关，用箭头移到官方插件上面（只提供 `detail` 的不用移）。点开插件后高亮的标签是实际在用的能力。
 
 ### 用 UI Automation 找界面元素（Windows）
@@ -125,6 +141,7 @@ Electron、Chromium、WPF、WinForms 程序一般都向 UI Automation 公开界�
 | 改什么 | 一起改 |
 | --- | --- |
 | 协议（字段、消息类型、上限） | `ProviderProtocol.cs`、`tests/DeskPal.Tests/Providers/ProviderProtocolTests.cs`、`scripts/check_provider.py`、本文、`docs/provider-guide.md`。只加可选字段；不兼容的改动才提高 `v`，并让 DeskPal 同时接受旧版本 |
+| DeskPal → 插件（`reads`、`room` 行） | `ProviderReads`（`ProviderProtocol.cs`）、`RoomFeed`（白名单）和 `RoomFeedTests`、`LatestLineWriter`（合并、不阻塞）和 `LatestLineWriterTests`、`Client.App/Providers/RoomFeedSource.cs`（订阅 `RoomState.Changed` 和 `PresenceCoordinator.SharedChanged`）、`ExternalProvider`（开关标准输入、重启）和 `ExternalProviderInputTests`（真实子进程，需要 Python 3）、`check_provider.py` 的 `SAMPLE_ROOM`、`plugin-examples/room-digest.py` |
 | 能力（新增一项） | `ProviderCapability` 及 `ProviderCapabilities`（名字、`Of`、`Cleared`）、协议、前端 `PluginCapability` 和 `plugins.cap.*` 文案 |
 | 路由和交接 | `ProviderRouting`、`CapabilityRouter`（换主人时补发新主人的最后一个值，没人提供时发清空值）和它们的测试；`detail` 走 `DetailRouter` 和 `DetailRouterTests` |
 | 宿主（列表、启停、设置） | `Client.App/Providers/ProviderHost.cs`；设置项 `AppSettings.Plugins`（整体替换，不原地修改） |

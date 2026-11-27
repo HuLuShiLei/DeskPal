@@ -253,6 +253,25 @@
           "apps": []
         },
         {
+          "id": "user:room-digest.py",
+          "name": "房间摘要",
+          "version": "0.1",
+          "official": false,
+          "enabled": true,
+          "provides": [],
+          "owns": [],
+          "state": "running",
+          "notes": [
+            {
+              "key": "plugin.readsRoom",
+              "text": null,
+              "tone": "info"
+            }
+          ],
+          "actions": [],
+          "apps": []
+        },
+        {
           "id": "user:spotify.py",
           "name": "spotify.py",
           "version": null,

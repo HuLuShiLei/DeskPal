@@ -14,11 +14,32 @@ public abstract record ProviderMessage;
 /// <see cref="ProviderCapabilities.PluginDefault"/>). Names this version does not know are left out.</param>
 /// <param name="Apps">Process names a detail plugin covers, normalized like <see cref="ProviderForeground.Process"/>;
 /// null when the line does not say.</param>
+/// <param name="Reads">What the plugin wants DeskPal to write to its standard input, from <see cref="ProviderReads"/>;
+/// null when the line does not say. Names this version does not know are left out.</param>
 public sealed record ProviderHello(
     string Name,
     string? Version,
     IReadOnlySet<ProviderCapability>? Provides = null,
-    IReadOnlySet<string>? Apps = null) : ProviderMessage;
+    IReadOnlySet<string>? Apps = null,
+    IReadOnlySet<string>? Reads = null) : ProviderMessage;
+
+/// <summary>
+/// What a plugin can ask to read, in the "reads" list of its hello line. DeskPal writes these to the plugin's standard
+/// input, one JSON object per line; a plugin that asks for nothing gets a closed standard input.
+/// </summary>
+public static class ProviderReads
+{
+    /// <summary>The current room's members and their states, without any titles (<see cref="RoomFeed"/>).</summary>
+    public const string Room = "room";
+
+    public static readonly IReadOnlySet<string> None = new HashSet<string>(StringComparer.Ordinal);
+
+    public static bool TryParse(string? name, out string read)
+    {
+        read = name == Room ? Room : "";
+        return read.Length > 0;
+    }
+}
 
 /// <summary>The window the user is working in.</summary>
 /// <param name="Process">Program name used by the rules: file name without folder and without ".exe".</param>
@@ -52,6 +73,8 @@ public readonly record struct ProviderParseResult(ProviderMessage? Message, stri
 /// The line protocol between DeskPal and a plugin, version 1. A plugin is any program that writes one JSON
 /// object per line to its standard output, for example
 /// <c>{"v":1,"type":"foreground","process":"firefox","name":"Firefox","title":"Inbox","fullscreen":false}</c>.
+/// A plugin whose hello line asks to read something (<see cref="ProviderReads"/>) also gets lines on its standard
+/// input, built by <see cref="RoomFeed"/>; every other plugin's standard input is closed.
 /// Described for plugin authors in docs/provider-guide.md and checked by the skill's check_provider.py; keep the three
 /// in step.
 /// A plugin can only state these facts. Classification, the no-title rules and the privacy filter run afterwards,
@@ -342,7 +365,26 @@ public static class ProviderProtocol
             }
         }
 
-        return new ProviderParseResult(new ProviderHello(cleanName, cleanVersion.Length == 0 ? null : cleanVersion, provides, apps), null);
+        HashSet<string>? reads = null;
+        if (root.TryGetProperty("reads", out var readList) && readList.ValueKind != JsonValueKind.Null)
+        {
+            if (readList.ValueKind != JsonValueKind.Array)
+            {
+                return Fail("\"reads\" must be a list of names, like [\"room\"]");
+            }
+
+            reads = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var item in readList.EnumerateArray())
+            {
+                // Like "provides": names a later version adds are skipped.
+                if (item.ValueKind == JsonValueKind.String && ProviderReads.TryParse(item.GetString(), out var read))
+                {
+                    reads.Add(read);
+                }
+            }
+        }
+
+        return new ProviderParseResult(new ProviderHello(cleanName, cleanVersion.Length == 0 ? null : cleanVersion, provides, apps, reads), null);
     }
 
     /// <summary>False when the property is there but is neither a string nor null.</summary>

@@ -66,6 +66,18 @@ public sealed class PresenceCoordinator : BackgroundService
 
     public event Action? LocalChanged;
 
+    /// <summary>Raised after <see cref="Shared"/> changed.</summary>
+    public event Action? SharedChanged;
+
+    private volatile SharedPresence? _shared;
+
+    /// <summary>
+    /// The last snapshot sent to the room I am in, as its members see it (after <see cref="PrivacyFilter.Apply"/>);
+    /// null before anything was sent. Plugins that read the room get this as my state. Written inside the publish
+    /// gate and read from other threads; one reference, so a reader never sees a room id with another room's state.
+    /// </summary>
+    public SharedPresence? Shared => _shared;
+
     public ActivitySnapshot Snapshot { get; private set; } = ActivitySnapshot.Empty;
 
     public ClassificationResult? Classification { get; private set; }
@@ -211,6 +223,13 @@ public sealed class PresenceCoordinator : BackgroundService
 
             LogPresence(committed);
             var snapshot = PrivacyFilter.Apply(committed, _rooms.GetPrivacy(selected.Value)) with { Client = ClientKinds.Current };
+            var shared = new SharedPresence(selected.Value, snapshot);
+            if (_shared != shared)
+            {
+                _shared = shared;
+                SharedChanged?.Invoke();
+            }
+
             await _hub.TryPublishAsync(Envelope.Create(MessageTypes.PresenceUpdate, selected.Value, snapshot));
         }
         finally
@@ -256,3 +275,6 @@ public sealed class PresenceCoordinator : BackgroundService
             roomId,
             PresenceSnapshot.Offline(DateTimeOffset.UtcNow)));
 }
+
+/// <summary>What I sent to a room, as its members see it.</summary>
+public sealed record SharedPresence(Guid RoomId, PresenceSnapshot Snapshot);
