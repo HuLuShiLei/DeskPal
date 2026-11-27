@@ -41,10 +41,14 @@ jobs:
           fi
           node .github/scripts/merge-rule-candidates.mjs --body "$RUNNER_TEMP/rule-candidates.md"
 
+      - uses: actions/setup-dotnet@v6
+        if: steps.merge.outputs.changed == 'true'
+        with:
+          dotnet-version: '10.0.x'
+
       - name: 校验规则库
         if: steps.merge.outputs.changed == 'true'
-        shell: pwsh
-        run: ./.claude/skills/deskpal-builtin-rules/scripts/validate-rules.ps1
+        run: dotnet test tests/DeskPal.Tests --filter "FullyQualifiedName~BuiltinRulesTests"
 
       # GITHUB_TOKEN 创建的 PR 不会触发 ci.yml，合并前在 PR 页面手动运行一次 CI，或推一个提交。
       - name: 创建或更新 PR

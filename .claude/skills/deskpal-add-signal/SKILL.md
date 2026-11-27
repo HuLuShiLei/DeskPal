@@ -5,7 +5,7 @@ description: 给 DeskPal 客户端新增一种活动信号或采集器（例如�
 
 # 新增活动信号
 
-先确认这个信号用普通用户权限就能拿到，并且不会读到内容（见 rule `client-collectors`）。做不到就停下来，和用户商量替代方案。
+先确认这个信号用普通用户权限就能拿到，并且不会读到内容（见根目录 `AGENTS.md` 硬约束的采集器一条）。做不到就停下来，和用户商量替代方案。
 
 ## 1. 定义信号（Client.Core）
 
@@ -51,7 +51,7 @@ CameraSignal c => this with { Camera = c },
 
 ## 5. 参与状态判断（可选）
 
-要影响状态的话，改 `PresenceResolver.Resolve`。**插入位置决定优先级**，现有顺序是：暂停分享 → 锁屏 → 空闲 → 分类结果。在这里插入新规则，同时更新 rule `client-core` 和 `docs/architecture.md` 里的优先级说明。
+要影响状态的话，改 `PresenceResolver.Resolve`。**插入位置决定优先级**，现有顺序是：暂停分享 → 锁屏 → 空闲 → 分类结果。在这里插入新规则，同时更新 `src/DeskPal.Client.Core/AGENTS.md` 和 `docs/architecture.md` 里的优先级说明。
 
 ## 6. 测试
 

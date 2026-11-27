@@ -1,10 +1,6 @@
----
-paths:
-  - "src/DeskPal.Client.Core/**"
----
-<!-- Generated from .cursor/rules/client-core.mdc by DeskPal.Tests build. Do not edit. -->
-
 # Client.Core 纯逻辑
+
+`Ui/`（`PanelState`、`PanelStateBuilder`）生成三个平台页面上的文字，改它时同时遵守 `src/DeskPal.Client/web/AGENTS.md`。
 
 - 目标框架 `net10.0`，不引用 WPF、WinRT、`Microsoft.Win32`。需要系统信息的，由采集器做成 `ActivitySignal` 传进来。
 - 每个行为改动都要在 `tests/DeskPal.Tests` 补或改测试。测试数据用 `TestData.App(...)` 和 `TestData.Browser(...)`。

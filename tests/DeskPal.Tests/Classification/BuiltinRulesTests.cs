@@ -97,6 +97,47 @@ public class BuiltinRulesTests
         Assert.All(File.Rules.Where(r => r.Names is not null), r => Assert.All(r.Names!.Keys, k => Assert.Equal("en", k)));
     }
 
+    /// <summary>Format checks that used to live in validate-rules.ps1; the rule-candidates workflow runs this class too.</summary>
+    [Fact]
+    public void Rule_file_follows_the_format()
+    {
+        var problems = new List<string>();
+        if (File.Version < 1) problems.Add("version must be a positive integer");
+
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var r in File.Rules)
+        {
+            var label = $"[{r.Kind}] {r.Pattern}";
+            if (!Enum.IsDefined(r.Kind)) problems.Add($"{label}: invalid kind");
+            if (!Enum.IsDefined(r.Category)) problems.Add($"{label}: category is not an ActivityCategory member");
+            if (string.IsNullOrWhiteSpace(r.Name)) problems.Add($"{label}: missing name");
+            if (r.Kind != RuleKind.TitleKeyword && r.Pattern != r.Pattern.Trim().ToLowerInvariant()) problems.Add($"{label}: must be lower case without surrounding spaces");
+            if (r.Kind == RuleKind.Process && r.Pattern.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)) problems.Add($"{label}: drop the .exe suffix");
+            if (r.Kind == RuleKind.Process && Browsers.IsBrowser(r.Pattern)) problems.Add($"{label}: browsers are classified by domain, not by process");
+            if (r.Kind == RuleKind.Domain && (r.Pattern.StartsWith("http", StringComparison.Ordinal) || r.Pattern.StartsWith("www.", StringComparison.Ordinal) || r.Pattern.IndexOfAny(['/', ':']) >= 0))
+                problems.Add($"{label}: host only, no scheme, www., path or port");
+            foreach (var (language, name) in r.Names ?? new Dictionary<string, string>())
+            {
+                if (language != "en") problems.Add($"{label}: names.{language} is not a UI language (en)");
+                if (string.IsNullOrWhiteSpace(name)) problems.Add($"{label}: names.{language} is empty");
+            }
+
+            if (!seen.Add($"{r.Kind}|{r.Pattern.Trim().ToLowerInvariant()}")) problems.Add($"{label}: duplicate");
+        }
+
+        var folders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var f in File.Folders ?? [])
+        {
+            var label = $"[Folder] {f.Folder}";
+            if (string.IsNullOrWhiteSpace(f.Folder) || !f.Folder.StartsWith('\\')) problems.Add($"{label}: must start with \\ (write / as \\)");
+            else if (f.Folder.Contains('/')) problems.Add($"{label}: write / as \\");
+            if (!Enum.IsDefined(f.Category)) problems.Add($"{label}: category is not an ActivityCategory member");
+            if (!folders.Add(f.Folder)) problems.Add($"{label}: duplicate");
+        }
+
+        Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
+    }
+
     [Fact]
     public void Meeting_and_retired_categories_are_not_in_the_builtin_rules()
     {

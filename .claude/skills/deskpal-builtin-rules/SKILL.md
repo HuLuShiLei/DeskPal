@@ -15,17 +15,17 @@ description: 维护 DeskPal 内置分类规则库 builtin-rules.json：新增或
 
 ## 步骤
 
-1. 改 `rules` 数组，格式见 rule `builtin-rules-json`。
+1. 改 `rules` 数组，格式见 `src/DeskPal.Server/Features/Rules/AGENTS.md`。
 2. `version` 加 1。
-3. 运行校验脚本：
+3. 运行格式校验：
 
-   ```powershell
-   powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/deskpal-builtin-rules/scripts/validate-rules.ps1
+   ```bash
+   dotnet test tests/DeskPal.Tests --filter "FullyQualifiedName~BuiltinRulesTests"
    ```
 
-   它会检查类别名、规则种类、写法（`.exe`、`www.`、协议头、大写）、标准化之后的重复项，以及浏览器进程不该有 `Process` 规则，还会检查 `names` 的键，并对没有 `names.en` 的中文名称给出警告。每天候选 PR 新增的规则只有 `name`，审核时补上 `names.en`，否则 `BuiltinRulesTests` 不通过。
+   `Rule_file_follows_the_format` 检查类别名、规则种类、写法（`.exe`、`www.`、协议头、大写）、标准化之后的重复项、浏览器进程不该有 `Process` 规则、`names` 的键和 `folders` 的写法，失败信息逐条列出问题；`Chinese_names_have_an_english_name` 要求中文名称都有 `names.en`。每天候选 PR 新增的规则只有 `name`，审核时补上 `names.en`。
 4. `dotnet test`。`ClassifierTests` 用的是 `TestData` 里手写的规则，不会读取真实文件；要锁定某条新规则的行为，就在里面加一条用例，规则写成和 JSON 里一样。`BuiltinRulesTests` 读取真实的 JSON，锁定办公聊天、个人聊天和 Discord 的分类，改了这几类要同步它的用例。
-5. 启动 Server，日志里应该出现规则库更新到新版本。客户端下次启动时会请求 `/api/rules/builtin?version=旧版本` 拿到新规则，并缓存到 `%APPDATA%\DeskPal\builtin-rules.json`。
+5. 启动 Server，日志里应该出现规则库更新到新版本。客户端下次启动时会请求 `/api/rules/builtin?version=旧版本` 拿到新规则，并缓存到客户端设置目录（Windows `%APPDATA%\DeskPal`，macOS `~/Library/Application Support/DeskPal`，Linux `~/.config/DeskPal`）的 `builtin-rules.json`。
 
 ## 分类口径
 

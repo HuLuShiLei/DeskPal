@@ -46,4 +46,4 @@ public sealed record ReactionPayload(string Emoji, Guid? TargetUserId);
 
 - `tests/DeskPal.Tests/PresenceHubTests.cs` 加一个集成测试：A 发送，B 收到，且非成员发送会被拒绝。
 - 用 skill `deskpal-e2e-check` 跑一遍，把模拟成员程序改成发送或接收新类型。
-- 更新 `docs/architecture.md` 的消息类型表，在 `docs/progress.md` 记一条变更日志。
+- 更新 `docs/architecture.md` 的消息类型表；口径变了的，改 `docs/progress.md` 的「已定」。

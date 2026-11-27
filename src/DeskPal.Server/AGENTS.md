@@ -1,9 +1,3 @@
----
-paths:
-  - "src/DeskPal.Server/**"
----
-<!-- Generated from .cursor/rules/server.mdc by DeskPal.Tests build. Do not edit. -->
-
 # DeskPal Server
 
 - 按功能放在 `Features/<功能>/`：Service、Endpoints、Options 放在同一目录。新增功能（例如 Game）新建目录，不改动其他功能的文件。
