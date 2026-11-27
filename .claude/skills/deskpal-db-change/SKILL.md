@@ -38,4 +38,4 @@ description: 修改 DeskPal Server 的 SQLite 数据库结构：改 Entity、DbC
 
 ## 收尾
 
-更新 `docs/architecture.md` 的数据模型一节，在 `docs/progress.md` 记一条变更日志。
+更新 `docs/architecture.md` 的数据模型一节；口径变了的，改 `docs/progress.md` 的「已定」。
