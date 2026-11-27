@@ -1,9 +1,3 @@
----
-paths:
-  - "src/DeskPal.Shared/**"
----
-<!-- Generated from .cursor/rules/shared-protocol.mdc by DeskPal.Tests build. Do not edit. -->
-
 # 共享协议
 
 Server 和当前客户端一起更新。已经按整数写入数据库的枚举成员不要删除。

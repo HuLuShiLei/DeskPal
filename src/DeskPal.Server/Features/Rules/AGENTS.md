@@ -1,9 +1,3 @@
----
-description: 内置分类规则库 builtin-rules.json 的维护约定
-globs: src/DeskPal.Server/Features/Rules/builtin-rules.json
-alwaysApply: false
----
-
 # 内置规则库
 
 - **改了任何规则都要把 `version` 加 1**，否则 Server 不会替换数据库里的规则表，客户端也不会重新下载。
