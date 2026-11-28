@@ -72,7 +72,8 @@ dotnet ef migrations add <Name> --project src/DeskPal.Server --output-dir Data/M
 
 - 每次改动：`dotnet test tests/DeskPal.Tests`，加上受影响项目的编译。
 - 改了共用层：三个客户端都按上表编译一遍。
-- 改了采集链路、Hub、通信协议、同步、数据库迁移、安装更新这类大改：再按 skill `deskpal-e2e-check` 做端到端自检。
+- 本项目算大改的：采集链路、Hub、通信协议或消息格式、同步、端到端加密、数据库迁移、安装更新，以及客户端和插件之间的协议。大改再按 skill `deskpal-e2e-check` 做端到端自检。
+- 端到端会动到用户自己的环境：客户端是单实例的，默认连生产 Server，用户自己的 DeskPal 在运行时测试客户端起不来。跑真实客户端前先请用户从托盘或菜单栏退出，用户确认后再跑（细节见 `deskpal-e2e-check`）。只起 Server 和模拟成员的那部分不用问。
 - 只改界面：`npm run dev` 的模拟数据检查，见 `src/DeskPal.Client/web/AGENTS.md`。
 
 ## 硬约束
